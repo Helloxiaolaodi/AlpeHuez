@@ -98,6 +98,26 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* ======== 新增：Loading 动画特效 ======== */
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #818cf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 加载屏平滑淡出 */
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
     </style>
     <script>
         function generateLetterAvatar(imgElement, title) {
@@ -108,6 +128,20 @@
     </script>
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
+
+    <!-- 🌌 专属高级加载屏 -->
+    <div id="loadingScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f172a] transition-all duration-700">
+        <!-- 半透明星空背景衬底 -->
+        <div class="absolute inset-0 bg-[url('1109770.jpg')] bg-cover bg-center opacity-20 filter blur-sm"></div>
+        <div class="relative flex flex-col items-center z-10">
+            <!-- 发光旋转圆环 -->
+            <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
+            <!-- 闪烁文字 -->
+            <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
+                Initializing Workspace...
+            </div>
+        </div>
+    </div>
 
     <!-- 侧边栏 -->
     <aside class="w-[280px] glass-sidebar flex flex-col z-20 relative shadow-2xl shrink-0">
@@ -125,10 +159,8 @@
         <!-- 📸 专属个人头像区域 -->
         <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
             <div class="relative group cursor-pointer">
-                <!-- 柔和发光背板特效 -->
                 <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover:opacity-80 transition duration-500"></div>
-                <!-- 头像本体 -->
-                <img src="github-profile.jpg" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
+                <img src="github-profile.png" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
             </div>
         </div>
 
@@ -139,7 +171,6 @@
                     <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     Workspace
                 </h4>
-                <!-- 呼吸灯 -->
                 <span class="flex h-2 w-2 relative">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -147,7 +178,6 @@
             </div>
             
             <div class="space-y-3">
-                <!-- 整合后的完整句子与笔记图标，加入 italic 斜体样式 -->
                 <div class="flex items-center text-sm group cursor-default">
                     <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">
                         📝 <span class="italic tracking-wide">Con il cuore nel fango</span>
@@ -314,6 +344,16 @@
             })
             .catch(err => {
                 console.error("加载 links.json 失败:", err);
+            })
+            .finally(() => {
+                // ================= 核心：数据加载完毕后，平滑隐藏加载屏 =================
+                // 稍微延迟 100ms 触发，给浏览器一点点渲染 DOM 的喘息时间
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    loadingScreen.classList.add('fade-out');
+                    // 等待淡出动画（600ms）结束后，将其从文档流中彻底移除以释放资源
+                    setTimeout(() => loadingScreen.remove(), 600);
+                }, 100);
             });
     </script>
 </body>
