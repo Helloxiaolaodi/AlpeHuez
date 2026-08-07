@@ -10,8 +10,24 @@
         /* 基础平滑滚动 */
         html { scroll-behavior: smooth; }
         
-        /* 绝美星空壁纸背景 */
-        body { background: url('1109770.jpg') no-repeat center center fixed; background-size: cover; color: #f3f4f6; }
+        /* ================= 修改部分开始 ================= */
+        /* 绝美星空壁纸背景 - 增加全局模糊特效 */
+        body { 
+            color: #f3f4f6; 
+            background-color: #0f172a; /* 背景底色防穿透 */
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: url('1109770.jpg') no-repeat center center;
+            background-size: cover;
+            filter: blur(10px); /* 👈 核心修改：这里调整模糊程度，数值越大越模糊 */
+            transform: scale(1.05); /* 👈 核心修改：稍微放大背景，防止边缘因为模糊导致漏出白边 */
+            z-index: -1;
+        }
+        /* ================= 修改部分结束 ================= */
         
         /* 毛玻璃侧边栏 */
         .glass-sidebar { 
