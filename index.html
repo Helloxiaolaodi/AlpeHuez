@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
-    <!-- 引入极客/大厂标配字体 Inter -->
+    <!-- 引入大厂标配字体 Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         
-        /* 基础平滑滚动与抗锯齿，文字渲染更锐利 */
+        /* 基础平滑滚动与抗锯齿 */
         html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         
         /* 背景与全局设定 */
@@ -20,14 +20,14 @@
         body::before {
             content: "";
             position: fixed;
-            inset: -20px; /* 进一步防止白边 */
+            inset: -20px; 
             background: url('1109770.jpg') no-repeat center center;
             background-size: cover;
-            filter: blur(4px) brightness(0.85); /* 降低一点亮度，保护视力，凸显前景内容 */
+            filter: blur(4px) brightness(0.85); 
             z-index: -1;
         }
         
-        /* 侧边栏：Apple 级毛玻璃，带饱和度增强 */
+        /* 侧边栏：Apple 级毛玻璃 */
         .glass-sidebar { 
             background: rgba(15, 23, 42, 0.35); 
             backdrop-filter: blur(24px) saturate(150%); 
@@ -35,7 +35,13 @@
             border-right: 1px solid rgba(255, 255, 255, 0.05); 
         }
         
-        /* 卡片：精雕细琢的曲率和边框 */
+        /* 仪表盘统计卡片微件 */
+        .dashboard-widget {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* 卡片样式 */
         .glass-card { 
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(16px) saturate(120%); 
@@ -53,7 +59,7 @@
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1); 
         }
 
-        /* 侧边栏选中态：Vercel 风格的药丸设计 */
+        /* 侧边栏选中态 */
         .sidebar-link { transition: all 0.2s ease; border-radius: 8px; }
         .sidebar-link.active { 
             background: rgba(255, 255, 255, 0.1); 
@@ -62,7 +68,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
-        /* 搜索框：线性发光特效 */
+        /* 搜索框 */
         .search-container {
             background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%);
             backdrop-filter: blur(8px);
@@ -81,7 +87,6 @@
             box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), inset 0 1px 2px rgba(0,0,0,0.2); 
         }
 
-        /* 快捷键提示徽章 */
         .kbd-badge {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.1);
@@ -95,7 +100,6 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
     </style>
     <script>
-        // 高级感首字母头像生成（更柔和的莫兰迪色系渐变）
         function generateLetterAvatar(imgElement, title) {
             const firstLetter = title ? title.charAt(0).toUpperCase() : '🔗';
             const avatarHtml = `<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0 shadow-inner">${firstLetter}</div>`;
@@ -105,28 +109,60 @@
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 侧边栏 -->
-    <aside class="w-[260px] glass-sidebar flex flex-col z-20 relative shadow-2xl">
+    <!-- 侧边栏 (加宽至 280px 以适应更大的字号和仪表盘) -->
+    <aside class="w-[280px] glass-sidebar flex flex-col z-20 relative shadow-2xl shrink-0">
         <div class="p-7 pb-6">
             <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                 <span class="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xs">✦</span>
                 Homepage
             </h1>
         </div>
-        <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-6">
+        
+        <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-4">
             <!-- 动态渲染主目录 -->
         </nav>
+
+        <!-- 🚀 左下角专属 Dashboard 统计卡片 -->
+        <div class="dashboard-widget p-5 mt-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    Workspace
+                </h4>
+                <!-- 呼吸灯 -->
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm group cursor-default">
+                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">🧬 ProjectC</span>
+                    <span class="text-slate-200 font-medium font-mono text-[13px]">393 <span class="text-[10px] text-slate-500">Spls</span></span>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm group cursor-default">
+                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">🌐 GalibierHub</span>
+                    <span class="text-emerald-400 font-medium text-[11px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 shadow-[0_0_8px_rgba(52,211,153,0.15)]">Online</span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm group cursor-default">
+                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">👨‍💻 GitHub</span>
+                    <span class="text-slate-300 font-medium text-xs truncate max-w-[100px]">Helloxiaolaodi</span>
+                </div>
+            </div>
+        </div>
     </aside>
 
     <!-- 主体区域 -->
     <main class="flex-1 flex flex-col relative overflow-hidden bg-black/10">
         
-        <!-- 搜索栏 (带淡出遮罩) -->
+        <!-- 搜索栏 -->
         <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0">
             <div class="max-w-5xl mx-auto relative group">
                 <svg class="absolute inset-y-0 my-auto left-4 w-5 h-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" id="searchInput" placeholder="搜索文献、数据库或工具..." class="w-full search-input rounded-xl py-3 pl-12 pr-16 text-gray-100 placeholder-gray-500 transition-all text-sm">
-                <!-- 快捷键提示 -->
+                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-12 pr-16 text-gray-100 placeholder-gray-500 transition-all text-[15px]">
                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     <span class="kbd-badge text-[10px] text-gray-400 px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1">
                         <span class="text-xs">⌘</span> K
@@ -144,7 +180,6 @@
     </main>
 
     <script>
-        // 绑定快捷键 Ctrl+K / Cmd+K 唤醒搜索框
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
@@ -178,9 +213,9 @@
                 Object.keys(tree).forEach((mainTitle) => {
                     const sectionId = `main-group-${mainIndex}`;
                     
-                    // 侧边栏项
+                    // 1. 侧边栏项（字号提升至 15px，增加内边距）
                     sidebar.innerHTML += `
-                        <a href="#${sectionId}" class="sidebar-link block px-3 py-2 text-[13px] text-slate-400 hover:text-slate-200 truncate transition-colors" data-target="${sectionId}">
+                        <a href="#${sectionId}" class="sidebar-link block px-4 py-2.5 text-[15px] font-medium text-slate-400 hover:text-slate-100 truncate transition-colors" data-target="${sectionId}">
                             ${mainTitle}
                         </a>
                     `;
@@ -188,7 +223,7 @@
                     // 主标题区域
                     let sectionHtml = `
                         <div id="${sectionId}" class="group-section scroll-mt-32">
-                            <h2 class="text-xl font-semibold mb-6 text-slate-100 flex items-center gap-3">
+                            <h2 class="text-2xl font-bold mb-6 text-slate-100 flex items-center gap-3 tracking-wide">
                                 ${mainTitle}
                             </h2>
                     `;
@@ -196,11 +231,11 @@
                     // 子文件夹及卡片
                     tree[mainTitle].forEach(subGroup => {
                         if (subGroup.subTitle) {
-                            // 学术风/大厂风：全大写、宽字距、次级灰色的小标题标签
+                            // 2. 子分类标题（字号提升至 13px）
                             sectionHtml += `
                                 <div class="flex items-center gap-4 mb-4 mt-8">
-                                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">${subGroup.subTitle}</h3>
-                                    <div class="flex-1 h-px bg-white/5"></div>
+                                    <h3 class="text-[13px] font-bold text-slate-400 uppercase tracking-widest">${subGroup.subTitle}</h3>
+                                    <div class="flex-1 h-px bg-white/10"></div>
                                 </div>
                             `;
                         }
@@ -209,14 +244,15 @@
                         
                         let itemsHtml = subGroup.items.map(item => {
                             let iconHtml = item.icon && item.icon.src 
-                                ? `<img src="${item.icon.src}" class="w-9 h-9 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
-                                : `<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
+                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
+                                : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
 
+                            // 3. 卡片文字（字号提升至 15px，图标变大一圈）
                             return `
-                                <a href="${item.url}" target="_blank" class="glass-card p-3.5 transition-all duration-300 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
+                                <a href="${item.url}" target="_blank" class="glass-card p-4 transition-all duration-300 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
                                     ${iconHtml}
                                     <div class="overflow-hidden flex-1">
-                                        <h3 class="font-medium text-slate-200 text-[13px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
+                                        <h3 class="font-semibold text-slate-200 text-[15px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
                                     </div>
                                 </a>
                             `;
