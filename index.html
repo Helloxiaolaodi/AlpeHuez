@@ -26,6 +26,34 @@
             filter: blur(4px) brightness(0.85); 
             z-index: -1;
         }
+
+        /* ======== 修复后的 Loading 动画屏 ======== */
+        #loadingScreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            background-color: #0f172a; /* 纯深色背景，杜绝任何平铺和分割线 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+        #loadingScreen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #818cf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         
         /* 侧边栏：Apple 级毛玻璃 */
         .glass-sidebar { 
@@ -98,26 +126,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
-
-        /* ======== 新增：Loading 动画特效 ======== */
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
-            border-top-color: #818cf8;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* 加载屏平滑淡出 */
-        .fade-out {
-            opacity: 0;
-            pointer-events: none;
-            visibility: hidden;
-            transition: opacity 0.6s ease-out, visibility 0.6s;
-        }
     </style>
     <script>
         function generateLetterAvatar(imgElement, title) {
@@ -129,17 +137,13 @@
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 🌌 专属高级加载屏 -->
-    <div id="loadingScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f172a] transition-all duration-700">
-        <!-- 半透明星空背景衬底 -->
-        <div class="absolute inset-0 bg-[url('1109770.jpg')] bg-cover bg-center opacity-20 filter blur-sm"></div>
-        <div class="relative flex flex-col items-center z-10">
-            <!-- 发光旋转圆环 -->
-            <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
-            <!-- 闪烁文字 -->
-            <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
-                Initializing Workspace...
-            </div>
+    <!-- 🌌 专属高级加载屏 (修复版) -->
+    <div id="loadingScreen">
+        <!-- 发光旋转圆环 -->
+        <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
+        <!-- 闪烁文字 -->
+        <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
+            Initializing Workspace...
         </div>
     </div>
 
@@ -160,7 +164,7 @@
         <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
             <div class="relative group cursor-pointer">
                 <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover:opacity-80 transition duration-500"></div>
-                <img src="github-profile.png" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
+                <img src="github-profile.jpg" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
             </div>
         </div>
 
@@ -346,14 +350,13 @@
                 console.error("加载 links.json 失败:", err);
             })
             .finally(() => {
-                // ================= 核心：数据加载完毕后，平滑隐藏加载屏 =================
-                // 稍微延迟 100ms 触发，给浏览器一点点渲染 DOM 的喘息时间
+                // ================= 修复：延长图片预加载时间至2秒，同时实现完美淡出 =================
                 setTimeout(() => {
                     const loadingScreen = document.getElementById('loadingScreen');
                     loadingScreen.classList.add('fade-out');
-                    // 等待淡出动画（600ms）结束后，将其从文档流中彻底移除以释放资源
-                    setTimeout(() => loadingScreen.remove(), 600);
-                }, 100);
+                    // 等待 0.8 秒的淡出动画播完后移除 DOM
+                    setTimeout(() => loadingScreen.remove(), 800);
+                }, 1600); // 👈 1600 毫秒 = 1.6 秒，给图标加载留出足够的时间
             });
     </script>
 </body>
