@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
-    <!-- 样式与脚本异步或后置，确保加载屏瞬间渲染 -->
+    <!-- 样式与脚本 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -125,11 +125,11 @@
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 🌌 专属高级加载屏 (置于body最上方，确保第一时间渲染) -->
+    <!-- 🌌 专属高级加载屏 -->
     <div id="loadingScreen">
         <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
         <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
-            Initializing Workspace...
+            Loading Workspaces & Icons...
         </div>
     </div>
 
@@ -272,7 +272,7 @@
                         
                         let itemsHtml = subGroup.items.map(item => {
                             let iconHtml = item.icon && item.icon.src 
-                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
+                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5 nav-icon" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
                                 : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
 
                             return `
@@ -292,6 +292,53 @@
                     content.innerHTML += sectionHtml;
                     mainIndex++;
                 });
+
+                // ================= 核心：监听所有图标加载完毕 + 强制最少等待时间 =================
+                const startTime = Date.now();
+                const minLoadingTime = 1800; // 强制最少转圈 1.8 秒，确保视觉体验连贯
+
+                const icons = document.querySelectorAll('.nav-icon');
+                let loadedCount = 0;
+                const totalIcons = icons.length;
+
+                function dismissLoadingScreen() {
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+                    setTimeout(() => {
+                        const loadingScreen = document.getElementById('loadingScreen');
+                        if (loadingScreen) {
+                            loadingScreen.classList.add('fade-out');
+                            setTimeout(() => loadingScreen.remove(), 800);
+                        }
+                    }, remainingTime);
+                }
+
+                if (totalIcons === 0) {
+                    dismissLoadingScreen();
+                } else {
+                    icons.forEach(img => {
+                        // 如果图片已经从缓存加载好，或者加载成功/失败，都算完成
+                        if (img.complete) {
+                            loadedCount++;
+                            if (loadedCount === totalIcons) dismissLoadingScreen();
+                        } else {
+                            img.onload = () => {
+                                loadedCount++;
+                                if (loadedCount === totalIcons) dismissLoadingScreen();
+                            };
+                            img.onerror = () => {
+                                loadedCount++; // 即使某张图挂了触发了 onerror 兜底，也算流程结束
+                                if (loadedCount === totalIcons) dismissLoadingScreen();
+                            };
+                        }
+                    });
+
+                    // 🛡️ 终极安全保险：如果个别外网图标因为网络极差迟迟不回调，最多强行等待 5 秒钟自动放行，防止页面死锁在加载屏
+                    setTimeout(() => {
+                        dismissLoadingScreen();
+                    }, 5000);
+                }
 
                 const searchInput = document.getElementById('searchInput');
                 searchInput.addEventListener('input', (e) => {
@@ -327,15 +374,9 @@
             })
             .catch(err => {
                 console.error("加载 links.json 失败:", err);
-            })
-            .finally(() => {
-                setTimeout(() => {
-                    const loadingScreen = document.getElementById('loadingScreen');
-                    if (loadingScreen) {
-                        loadingScreen.classList.add('fade-out');
-                        setTimeout(() => loadingScreen.remove(), 800);
-                    }
-                }, 2000); 
+                // 发生错误时也移除加载屏，避免页面卡死
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) loadingScreen.remove();
             });
     </script>
 </body>
