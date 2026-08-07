@@ -2,88 +2,245 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的个人导航站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* 基础平滑滚动 */
         html { scroll-behavior: smooth; }
-        /* 修复了图片路径，去掉了 /images/ */
-        body { background: url('1109770.jpg') no-repeat center center fixed; background-size: cover; }
-        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .scroll-mt-6 { scroll-margin-top: 1.5rem; }
-    </style>
-</head>
-<body class="text-gray-100 flex h-screen overflow-hidden">
+        
+        /* 绝美星空壁纸背景 */
+        body { background: url('1109770.jpg') no-repeat center center fixed; background-size: cover; color: #f3f4f6; }
+        
+        /* 毛玻璃侧边栏 */
+        .glass-sidebar { 
+            background: rgba(15, 23, 42, 0.45); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border-right: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        
+        /* 极简卡片样式 */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+        }
+        
+        /* 卡片悬浮特效 */
+        .glass-card:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            background: rgba(255, 255, 255, 0.12); 
+            border-color: rgba(129, 140, 248, 0.6); 
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3); 
+        }
 
-    <!-- 左侧边栏：分类菜单 -->
-    <aside class="w-64 glass p-6 flex flex-col shadow-2xl z-10">
-        <h1 class="text-2xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">🚀 导航中心</h1>
-        <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 pr-2">
-            <!-- 动态渲染分类 -->
+        /* 侧边栏高亮特效 */
+        .sidebar-link { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .sidebar-link.active { 
+            background: rgba(255, 255, 255, 0.15); 
+            border-left: 4px solid #818cf8; 
+            padding-left: 1.25rem; 
+            color: #ffffff; 
+            font-weight: 600; 
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        /* 顶部搜索框 */
+        .search-input { 
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(10px);
+        }
+        .search-input:focus { 
+            background: rgba(0, 0, 0, 0.5); 
+            border-color: #818cf8; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25); 
+        }
+        
+        /* 极简滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+    </style>
+    <script>
+        // 全局函数：图片加载失败时，生成首字母头像
+        function generateLetterAvatar(imgElement, title) {
+            const firstLetter = title ? title.charAt(0).toUpperCase() : '🔗';
+            const avatarHtml = `<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/40 to-purple-500/40 border border-white/20 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">${firstLetter}</div>`;
+            imgElement.outerHTML = avatarHtml;
+        }
+    </script>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- 左侧主分类菜单 -->
+    <aside class="w-64 glass-sidebar flex flex-col z-20 relative shadow-2xl">
+        <div class="p-6 pb-5 border-b border-white/5">
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 tracking-wider">Homepage</h1>
+        </div>
+        <nav id="sidebar" class="space-y-2 overflow-y-auto flex-1 p-4">
+            <!-- 动态渲染主目录 -->
         </nav>
     </aside>
 
-    <!-- 右侧主体：网址卡片 -->
-    <main class="flex-1 p-8 md:p-12 overflow-y-auto relative">
-        <div id="content" class="max-w-7xl mx-auto pb-20">
-            <!-- 动态渲染网址 -->
+    <!-- 右侧主体内容 -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/20">
+        
+        <!-- 全局搜索栏 -->
+        <div class="p-6 pb-2 z-10 sticky top-0 bg-gradient-to-b from-black/50 to-transparent pt-8">
+            <div class="max-w-4xl mx-auto relative group">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-indigo-400 transition-colors text-lg">🔍</span>
+                <input type="text" id="searchInput" placeholder="全局搜索..." class="w-full search-input rounded-2xl py-3 pl-12 pr-4 text-gray-100 placeholder-gray-400 transition-all text-sm tracking-wide">
+            </div>
+        </div>
+
+        <!-- 网址卡片展示区 -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-8 relative scroll-smooth" id="scrollContainer">
+            <div id="content" class="max-w-7xl mx-auto pb-24 space-y-12">
+                <!-- 动态渲染子目录与卡片 -->
+            </div>
         </div>
     </main>
 
     <script>
-        // 读取本地 links.json 并渲染
         fetch('links.json')
             .then(res => res.json())
             .then(data => {
                 const sidebar = document.getElementById('sidebar');
                 const content = document.getElementById('content');
+                let rawGroups = data.icons || []; 
                 
-                // 适配 Sun-Panel 导出的 JSON 字段名
-                let groups = data.icons || []; 
-                
-                groups.forEach((group, index) => {
-                    // 1. 渲染左侧菜单 (对应 JSON 的 group.title)
+                // 核心逻辑：解析分类字符串，构建树形结构
+                const tree = {};
+                rawGroups.forEach(group => {
+                    let mainTitle = group.title;
+                    let subTitle = "";
+                    
+                    // 按照 " - " 拆分文件夹
+                    if (group.title.includes(' - ')) {
+                        const parts = group.title.split(' - ');
+                        mainTitle = parts[0].trim();
+                        subTitle = parts[1].trim();
+                    }
+
+                    if (!tree[mainTitle]) {
+                        tree[mainTitle] = [];
+                    }
+                    
+                    if (group.children && group.children.length > 0) {
+                        tree[mainTitle].push({
+                            subTitle: subTitle,
+                            items: group.children
+                        });
+                    }
+                });
+
+                // Emoji 映射表
+                const emojiMap = ["💻", "🔬", "🗄️", "🤖", "⚡", "🏫", "📌", "🌐"];
+                let mainIndex = 0;
+
+                // 遍历树形结构进行渲染
+                Object.keys(tree).forEach((mainTitle) => {
+                    const currentEmoji = emojiMap[mainIndex % emojiMap.length];
+                    const sectionId = `main-group-${mainIndex}`;
+                    
+                    // 1. 渲染左侧：只显示主文件夹
                     sidebar.innerHTML += `
-                        <a href="#group-${index}" class="block px-4 py-2.5 rounded-lg hover:bg-white/10 transition text-sm font-medium tracking-wide">
-                            ${group.title}
+                        <a href="#${sectionId}" class="sidebar-link block px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/10 truncate flex items-center gap-3 transition-colors" data-target="${sectionId}">
+                            <span class="text-base">${currentEmoji}</span> 
+                            <span class="tracking-wide">${mainTitle}</span>
                         </a>
                     `;
                     
-                    // 2. 渲染右侧内容 (对应 JSON 的 group.children)
-                    let itemsHtml = '';
-                    if(group.children && group.children.length > 0) {
-                        itemsHtml = group.children.map(item => {
-                            // 提取图标，如果失败则用 Emoji 代替
-                            let iconHtml = item.icon && item.icon.src 
-                                ? `<img src="${item.icon.src}" class="w-8 h-8 rounded bg-white/90 p-1 object-contain" onerror="this.onerror=null;this.outerHTML='<span class=\\'text-2xl\\'>🔗</span>'">` 
-                                : `<span class="text-2xl">🔗</span>`;
+                    // 2. 渲染右侧内容：主文件夹区域
+                    let sectionHtml = `
+                        <div id="${sectionId}" class="group-section scroll-mt-28 mb-10">
+                            <h2 class="text-2xl font-black mb-6 text-indigo-100 border-b border-white/10 pb-3 flex items-center gap-3">
+                                <span class="tracking-wider">${mainTitle}</span>
+                            </h2>
+                    `;
 
+                    // 3. 渲染子文件夹及卡片
+                    tree[mainTitle].forEach(subGroup => {
+                        // 如果有子分类（比如“码农论坛”），渲染一个小标题
+                        if (subGroup.subTitle) {
+                            sectionHtml += `
+                                <h3 class="text-sm font-bold text-indigo-300 mb-3 mt-6 pl-1 flex items-center gap-2">
+                                    <span class="w-1.5 h-3.5 bg-indigo-500 rounded-full inline-block"></span>
+                                    ${subGroup.subTitle}
+                                </h3>
+                            `;
+                        }
+
+                        // 渲染该子分类下的网址网格
+                        sectionHtml += `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">`;
+                        
+                        let itemsHtml = subGroup.items.map(item => {
+                            // 图片标签：加载失败则调用 generateLetterAvatar 函数生成首字母头像
+                            let iconHtml = item.icon && item.icon.src 
+                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-xl bg-white/95 p-1 object-contain shrink-0 shadow-sm" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
+                                : `<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/40 to-purple-500/40 border border-white/20 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">${item.title.charAt(0).toUpperCase()}</div>`;
+
+                            // 去除 url 显示，标题居中
                             return `
-                                <a href="${item.url}" target="_blank" class="glass p-4 rounded-xl hover:bg-white/10 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)] transition-all duration-300 flex items-center space-x-4">
+                                <a href="${item.url}" target="_blank" class="glass-card p-3.5 rounded-[1rem] transition-all duration-300 flex items-center space-x-3 group link-item" data-title="${item.title.toLowerCase()}">
                                     ${iconHtml}
-                                    <div class="overflow-hidden flex-1">
-                                        <h3 class="font-semibold text-white text-sm truncate">${item.title}</h3>
-                                        <p class="text-xs text-gray-400 truncate mt-0.5">${item.url}</p>
+                                    <div class="overflow-hidden flex-1 flex items-center">
+                                        <h3 class="font-bold text-gray-100 text-[14px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
                                     </div>
                                 </a>
                             `;
                         }).join('');
-                    }
 
-                    // 将分类板块加入右侧
-                    content.innerHTML += `
-                        <div id="group-${index}" class="mb-10 scroll-mt-6">
-                            <h2 class="text-xl font-bold mb-5 text-indigo-200 border-b border-white/10 pb-2 pl-1">${group.title}</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    `;
+                        sectionHtml += itemsHtml + `</div>`;
+                    });
+
+                    sectionHtml += `</div>`;
+                    content.innerHTML += sectionHtml;
+                    mainIndex++;
                 });
+
+                // ================= 搜索与监听模块 =================
+                const searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    document.querySelectorAll('.group-section').forEach(section => {
+                        let hasVisible = false;
+                        section.querySelectorAll('.link-item').forEach(item => {
+                            const title = item.getAttribute('data-title');
+                            if (title.includes(term)) {
+                                item.style.display = 'flex';
+                                hasVisible = true;
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                        section.style.display = hasVisible ? 'block' : 'none';
+                    });
+                });
+
+                const scrollContainer = document.getElementById('scrollContainer');
+                const observerOptions = { root: scrollContainer, rootMargin: '0px 0px -70% 0px', threshold: 0 };
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.sidebar-link[data-target="${entry.target.id}"]`);
+                            if (activeLink) activeLink.classList.add('active');
+                        }
+                    });
+                }, observerOptions);
+
+                document.querySelectorAll('.group-section').forEach(section => observer.observe(section));
             })
             .catch(err => {
                 console.error("加载 links.json 失败:", err);
-                document.getElementById('content').innerHTML = `<p class="text-red-400">数据加载失败，请检查 links.json 文件是否存在且格式正确。</p>`;
             });
     </script>
 </body>
