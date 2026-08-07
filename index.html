@@ -27,12 +27,12 @@
             z-index: -1;
         }
 
-        /* ======== 修复后的 Loading 动画屏 ======== */
+        /* ======== Loading 动画屏 ======== */
         #loadingScreen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: 9999;
-            background-color: #0f172a; /* 纯深色背景，杜绝任何平铺和分割线 */
+            background-color: #0f172a; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -137,7 +137,7 @@
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 🌌 专属高级加载屏 (修复版) -->
+    <!-- 🌌 专属高级加载屏 -->
     <div id="loadingScreen">
         <!-- 发光旋转圆环 -->
         <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
@@ -147,62 +147,69 @@
         </div>
     </div>
 
-    <!-- 侧边栏 -->
-    <aside class="w-[280px] glass-sidebar flex flex-col z-20 relative shadow-2xl shrink-0">
-        <div class="p-7 pb-6">
-            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span class="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xs">✦</span>
-                Homepage
-            </h1>
-        </div>
+    <!-- 🌟 侧边栏沉浸式触发区域 (鼠标划过自动展开) -->
+    <div class="fixed top-0 left-0 h-full w-[16px] hover:w-[280px] z-40 group transition-all duration-300">
         
-        <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-4">
-            <!-- 动态渲染主目录 -->
-        </nav>
+        <!-- 边缘隐形指示器 (微弱的呼吸辉光，提示可滑动展开) -->
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-20 bg-white/20 rounded-r-xl backdrop-blur-md border border-white/10 border-l-0 shadow-[0_0_15px_rgba(129,140,248,0.4)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-0 group-hover:-translate-x-full pointer-events-none"></div>
 
-        <!-- 📸 专属个人头像区域 -->
-        <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
-            <div class="relative group cursor-pointer">
-                <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover:opacity-80 transition duration-500"></div>
-                <img src="github-profile.jpg" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
-            </div>
-        </div>
-
-        <!-- 🚀 左下角 Dashboard 统计卡片 -->
-        <div class="dashboard-widget p-5 mt-auto">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    Workspace
-                </h4>
-                <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
+        <!-- 侧边栏本体 (-translate-x-[110%] 彻底隐藏阴影，hover时还原) -->
+        <aside class="absolute top-0 left-0 h-full w-[280px] glass-sidebar flex flex-col shadow-[15px_0_40px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-[110%] group-hover:translate-x-0">
+            <div class="p-7 pb-6">
+                <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <span class="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xs">✦</span>
+                    Homepage
+                </h1>
             </div>
             
-            <div class="space-y-3">
-                <div class="flex items-center text-sm group cursor-default">
-                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">
-                        📝 <span class="italic tracking-wide">Con il cuore nel fango</span>
+            <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-4">
+                <!-- 动态渲染主目录 -->
+            </nav>
+
+            <!-- 📸 专属个人头像区域 -->
+            <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
+                <div class="relative group/avatar cursor-pointer">
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover/avatar:opacity-80 transition duration-500"></div>
+                    <img src="github-profile.jpg" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover/avatar:scale-[1.03] transition-transform duration-300">
+                </div>
+            </div>
+
+            <!-- 🚀 左下角 Dashboard 统计卡片 -->
+            <div class="dashboard-widget p-5 mt-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        Workspace
+                    </h4>
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                 </div>
                 
-                <div class="flex items-center justify-between text-sm group cursor-default">
-                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">🌐 GalibierHub</span>
-                    <span class="text-emerald-400 font-medium text-[11px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 shadow-[0_0_8px_rgba(52,211,153,0.15)]">Online</span>
-                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center text-sm cursor-default">
+                        <span class="text-slate-400 flex items-center gap-2 transition-colors">
+                            📝 <span class="italic tracking-wide">Con il cuore nel fango</span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm cursor-default">
+                        <span class="text-slate-400 flex items-center gap-2 transition-colors">🌐 GalibierHub</span>
+                        <span class="text-emerald-400 font-medium text-[11px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 shadow-[0_0_8px_rgba(52,211,153,0.15)]">Online</span>
+                    </div>
 
-                <div class="flex items-center justify-between text-sm group cursor-default">
-                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">👨‍💻 GitHub</span>
-                    <span class="text-slate-300 font-medium text-xs truncate max-w-[100px]">Helloxiaolaodi</span>
+                    <div class="flex items-center justify-between text-sm cursor-default">
+                        <span class="text-slate-400 flex items-center gap-2 transition-colors">👨‍💻 GitHub</span>
+                        <span class="text-slate-300 font-medium text-xs truncate max-w-[100px]">Helloxiaolaodi</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </aside>
+        </aside>
+    </div>
 
-    <!-- 主体区域 -->
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/10">
+    <!-- 🌟 主体区域 (由于侧边栏收起，主体自动居中占据全屏宽度) -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/10 w-full pl-4 md:pl-6">
         
         <!-- 搜索栏 -->
         <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0">
@@ -331,7 +338,7 @@
                     });
                 });
 
-                // 滚动监听 (Scrollspy)
+                // 滚动监听 (Scrollspy) -> 即便侧边栏隐藏，依然能在后台完美追踪高亮！
                 const scrollContainer = document.getElementById('scrollContainer');
                 const observerOptions = { root: scrollContainer, rootMargin: '0px 0px -80% 0px', threshold: 0 };
                 const observer = new IntersectionObserver((entries) => {
@@ -350,13 +357,11 @@
                 console.error("加载 links.json 失败:", err);
             })
             .finally(() => {
-                // ================= 修复：延长图片预加载时间至2秒，同时实现完美淡出 =================
                 setTimeout(() => {
                     const loadingScreen = document.getElementById('loadingScreen');
                     loadingScreen.classList.add('fade-out');
-                    // 等待 0.8 秒的淡出动画播完后移除 DOM
                     setTimeout(() => loadingScreen.remove(), 800);
-                }, 1800); // 👈 1800 毫秒 = 1.8 秒，给图标加载留出足够的时间
+                }, 2000); 
             });
     </script>
 </body>
