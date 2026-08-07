@@ -109,7 +109,7 @@
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 侧边栏 (加宽至 280px 以适应更大的字号和仪表盘) -->
+    <!-- 侧边栏 -->
     <aside class="w-[280px] glass-sidebar flex flex-col z-20 relative shadow-2xl shrink-0">
         <div class="p-7 pb-6">
             <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -122,7 +122,17 @@
             <!-- 动态渲染主目录 -->
         </nav>
 
-        <!-- 🚀 左下角专属 Dashboard 统计卡片 -->
+        <!-- 📸 专属个人头像区域 -->
+        <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
+            <div class="relative group cursor-pointer">
+                <!-- 柔和发光背板特效 -->
+                <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover:opacity-80 transition duration-500"></div>
+                <!-- 头像本体 -->
+                <img src="github-profile.png" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover:scale-[1.03] transition-transform duration-300">
+            </div>
+        </div>
+
+        <!-- 🚀 左下角 Dashboard 统计卡片 -->
         <div class="dashboard-widget p-5 mt-auto">
             <div class="flex items-center justify-between mb-4">
                 <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -137,9 +147,10 @@
             </div>
             
             <div class="space-y-3">
+                <!-- 替换后的诗意签名档 -->
                 <div class="flex items-center justify-between text-sm group cursor-default">
-                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">🧬 ProjectC</span>
-                    <span class="text-slate-200 font-medium font-mono text-[13px]">393 <span class="text-[10px] text-slate-500">Spls</span></span>
+                    <span class="text-slate-400 flex items-center gap-2 group-hover:text-slate-300 transition-colors">✨ Con il cuore</span>
+                    <span class="text-slate-300 font-medium text-[12px] bg-white/5 px-2 py-0.5 rounded border border-white/5">nel fango</span>
                 </div>
                 
                 <div class="flex items-center justify-between text-sm group cursor-default">
@@ -213,7 +224,7 @@
                 Object.keys(tree).forEach((mainTitle) => {
                     const sectionId = `main-group-${mainIndex}`;
                     
-                    // 1. 侧边栏项（字号提升至 15px，增加内边距）
+                    // 1. 侧边栏项
                     sidebar.innerHTML += `
                         <a href="#${sectionId}" class="sidebar-link block px-4 py-2.5 text-[15px] font-medium text-slate-400 hover:text-slate-100 truncate transition-colors" data-target="${sectionId}">
                             ${mainTitle}
@@ -231,7 +242,7 @@
                     // 子文件夹及卡片
                     tree[mainTitle].forEach(subGroup => {
                         if (subGroup.subTitle) {
-                            // 2. 子分类标题（字号提升至 13px）
+                            // 2. 子分类标题
                             sectionHtml += `
                                 <div class="flex items-center gap-4 mb-4 mt-8">
                                     <h3 class="text-[13px] font-bold text-slate-400 uppercase tracking-widest">${subGroup.subTitle}</h3>
@@ -247,7 +258,7 @@
                                 ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
                                 : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
 
-                            // 3. 卡片文字（字号提升至 15px，图标变大一圈）
+                            // 3. 卡片文字
                             return `
                                 <a href="${item.url}" target="_blank" class="glass-card p-4 transition-all duration-300 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
                                     ${iconHtml}
