@@ -4,125 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
-    <!-- 引入 Tailwind CSS -->
+    <!-- 引入极客/大厂标配字体 Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 基础平滑滚动 */
-        html { scroll-behavior: smooth; }
+        :root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         
-        /* 绝美星空壁纸背景 - 微模糊特效 */
-        body { 
-            color: #f3f4f6; 
-            background-color: #0f172a; 
-        }
+        /* 基础平滑滚动与抗锯齿，文字渲染更锐利 */
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         
+        /* 背景与全局设定 */
+        body { color: #f1f5f9; background-color: #0f172a; selection-background-color: rgba(99, 102, 241, 0.3); }
+        
+        /* 高级景深背景 */
         body::before {
             content: "";
             position: fixed;
-            inset: 0;
+            inset: -20px; /* 进一步防止白边 */
             background: url('1109770.jpg') no-repeat center center;
             background-size: cover;
-            filter: blur(4px); /* 👈 已经降至 4px，保留星空细节，带有极其轻微的景深感 */
-            transform: scale(1.02); /* 轻微放大防止白边 */
+            filter: blur(4px) brightness(0.85); /* 降低一点亮度，保护视力，凸显前景内容 */
             z-index: -1;
         }
         
-        /* 毛玻璃侧边栏 */
+        /* 侧边栏：Apple 级毛玻璃，带饱和度增强 */
         .glass-sidebar { 
-            background: rgba(15, 23, 42, 0.45); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
+            background: rgba(15, 23, 42, 0.35); 
+            backdrop-filter: blur(24px) saturate(150%); 
+            -webkit-backdrop-filter: blur(24px) saturate(150%); 
             border-right: 1px solid rgba(255, 255, 255, 0.05); 
         }
         
-        /* 极简卡片样式 */
+        /* 卡片：精雕细琢的曲率和边框 */
         .glass-card { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(16px) saturate(120%); 
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.06); 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.05); 
+            border-radius: 14px;
         }
         
-        /* 卡片悬浮特效 */
+        /* 阻尼感悬浮动画 */
         .glass-card:hover { 
-            transform: translateY(-3px) scale(1.02); 
-            background: rgba(255, 255, 255, 0.12); 
-            border-color: rgba(129, 140, 248, 0.6); 
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3); 
+            transform: translateY(-2px); 
+            background: rgba(255, 255, 255, 0.08); 
+            border-color: rgba(255, 255, 255, 0.15); 
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1); 
         }
 
-        /* 侧边栏高亮特效 */
-        .sidebar-link { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        /* 侧边栏选中态：Vercel 风格的药丸设计 */
+        .sidebar-link { transition: all 0.2s ease; border-radius: 8px; }
         .sidebar-link.active { 
-            background: rgba(255, 255, 255, 0.15); 
-            border-left: 4px solid #818cf8; 
-            padding-left: 1.25rem; 
+            background: rgba(255, 255, 255, 0.1); 
             color: #ffffff; 
             font-weight: 600; 
-            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
-        /* 顶部搜索框 */
+        /* 搜索框：线性发光特效 */
+        .search-container {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%);
+            backdrop-filter: blur(8px);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
         .search-input { 
-            background: rgba(0, 0, 0, 0.3); 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
         .search-input:focus { 
-            background: rgba(0, 0, 0, 0.5); 
-            border-color: #818cf8; 
+            background: rgba(0, 0, 0, 0.6); 
+            border-color: rgba(129, 140, 248, 0.5); 
             outline: none; 
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25); 
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), inset 0 1px 2px rgba(0,0,0,0.2); 
+        }
+
+        /* 快捷键提示徽章 */
+        .kbd-badge {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom-width: 2px;
         }
         
-        /* 极简滚动条 */
-        ::-webkit-scrollbar { width: 6px; }
+        /* 隐形滚动条 */
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
     </style>
     <script>
-        // 全局函数：图片加载失败时，生成首字母头像
+        // 高级感首字母头像生成（更柔和的莫兰迪色系渐变）
         function generateLetterAvatar(imgElement, title) {
             const firstLetter = title ? title.charAt(0).toUpperCase() : '🔗';
-            const avatarHtml = `<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/40 to-purple-500/40 border border-white/20 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">${firstLetter}</div>`;
+            const avatarHtml = `<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0 shadow-inner">${firstLetter}</div>`;
             imgElement.outerHTML = avatarHtml;
         }
     </script>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 左侧主分类菜单 -->
-    <aside class="w-64 glass-sidebar flex flex-col z-20 relative shadow-2xl">
-        <div class="p-6 pb-5 border-b border-white/5">
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 tracking-wider">Homepage</h1>
+    <!-- 侧边栏 -->
+    <aside class="w-[260px] glass-sidebar flex flex-col z-20 relative shadow-2xl">
+        <div class="p-7 pb-6">
+            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                <span class="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xs">✦</span>
+                Homepage
+            </h1>
         </div>
-        <nav id="sidebar" class="space-y-2 overflow-y-auto flex-1 p-4">
+        <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-6">
             <!-- 动态渲染主目录 -->
         </nav>
     </aside>
 
-    <!-- 右侧主体内容 -->
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/20">
+    <!-- 主体区域 -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/10">
         
-        <!-- 全局搜索栏 -->
-        <div class="p-6 pb-2 z-10 sticky top-0 bg-gradient-to-b from-black/50 to-transparent pt-8">
-            <div class="max-w-4xl mx-auto relative group">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-indigo-400 transition-colors text-lg">🔍</span>
-                <input type="text" id="searchInput" placeholder="全局搜索..." class="w-full search-input rounded-2xl py-3 pl-12 pr-4 text-gray-100 placeholder-gray-400 transition-all text-sm tracking-wide">
+        <!-- 搜索栏 (带淡出遮罩) -->
+        <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0">
+            <div class="max-w-5xl mx-auto relative group">
+                <svg class="absolute inset-y-0 my-auto left-4 w-5 h-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="searchInput" placeholder="搜索文献、数据库或工具..." class="w-full search-input rounded-xl py-3 pl-12 pr-16 text-gray-100 placeholder-gray-500 transition-all text-sm">
+                <!-- 快捷键提示 -->
+                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <span class="kbd-badge text-[10px] text-gray-400 px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1">
+                        <span class="text-xs">⌘</span> K
+                    </span>
+                </div>
             </div>
         </div>
 
-        <!-- 网址卡片展示区 -->
-        <div class="flex-1 overflow-y-auto p-6 md:p-8 relative scroll-smooth" id="scrollContainer">
-            <div id="content" class="max-w-7xl mx-auto pb-24 space-y-12">
+        <!-- 网址内容区 -->
+        <div class="flex-1 overflow-y-auto px-8 relative scroll-smooth -mt-8 pt-8" id="scrollContainer">
+            <div id="content" class="max-w-5xl mx-auto pb-32 space-y-16">
                 <!-- 动态渲染子目录与卡片 -->
             </div>
         </div>
     </main>
 
     <script>
+        // 绑定快捷键 Ctrl+K / Cmd+K 唤醒搜索框
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
         fetch('links.json')
             .then(res => res.json())
             .then(data => {
@@ -130,83 +159,64 @@
                 const content = document.getElementById('content');
                 let rawGroups = data.icons || []; 
                 
-                // 核心逻辑：解析分类字符串，构建树形结构
                 const tree = {};
                 rawGroups.forEach(group => {
                     let mainTitle = group.title;
                     let subTitle = "";
-                    
-                    // 按照 " - " 拆分文件夹
                     if (group.title.includes(' - ')) {
                         const parts = group.title.split(' - ');
                         mainTitle = parts[0].trim();
                         subTitle = parts[1].trim();
                     }
-
-                    if (!tree[mainTitle]) {
-                        tree[mainTitle] = [];
-                    }
-                    
+                    if (!tree[mainTitle]) tree[mainTitle] = [];
                     if (group.children && group.children.length > 0) {
-                        tree[mainTitle].push({
-                            subTitle: subTitle,
-                            items: group.children
-                        });
+                        tree[mainTitle].push({ subTitle: subTitle, items: group.children });
                     }
                 });
 
-                // Emoji 映射表
-                const emojiMap = ["💻", "🔬", "🗄️", "🤖", "⚡", "🏫", "📌", "🌐"];
                 let mainIndex = 0;
-
-                // 遍历树形结构进行渲染
                 Object.keys(tree).forEach((mainTitle) => {
-                    const currentEmoji = emojiMap[mainIndex % emojiMap.length];
                     const sectionId = `main-group-${mainIndex}`;
                     
-                    // 1. 渲染左侧：只显示主文件夹
+                    // 侧边栏项
                     sidebar.innerHTML += `
-                        <a href="#${sectionId}" class="sidebar-link block px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/10 truncate flex items-center gap-3 transition-colors" data-target="${sectionId}">
-                            <span class="text-base">${currentEmoji}</span> 
-                            <span class="tracking-wide">${mainTitle}</span>
+                        <a href="#${sectionId}" class="sidebar-link block px-3 py-2 text-[13px] text-slate-400 hover:text-slate-200 truncate transition-colors" data-target="${sectionId}">
+                            ${mainTitle}
                         </a>
                     `;
                     
-                    // 2. 渲染右侧内容：主文件夹区域
+                    // 主标题区域
                     let sectionHtml = `
-                        <div id="${sectionId}" class="group-section scroll-mt-28 mb-10">
-                            <h2 class="text-2xl font-black mb-6 text-indigo-100 border-b border-white/10 pb-3 flex items-center gap-3">
-                                <span class="tracking-wider">${mainTitle}</span>
+                        <div id="${sectionId}" class="group-section scroll-mt-32">
+                            <h2 class="text-xl font-semibold mb-6 text-slate-100 flex items-center gap-3">
+                                ${mainTitle}
                             </h2>
                     `;
 
-                    // 3. 渲染子文件夹及卡片
+                    // 子文件夹及卡片
                     tree[mainTitle].forEach(subGroup => {
-                        // 如果有子分类（比如“码农论坛”），渲染一个小标题
                         if (subGroup.subTitle) {
+                            // 学术风/大厂风：全大写、宽字距、次级灰色的小标题标签
                             sectionHtml += `
-                                <h3 class="text-sm font-bold text-indigo-300 mb-3 mt-6 pl-1 flex items-center gap-2">
-                                    <span class="w-1.5 h-3.5 bg-indigo-500 rounded-full inline-block"></span>
-                                    ${subGroup.subTitle}
-                                </h3>
+                                <div class="flex items-center gap-4 mb-4 mt-8">
+                                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">${subGroup.subTitle}</h3>
+                                    <div class="flex-1 h-px bg-white/5"></div>
+                                </div>
                             `;
                         }
 
-                        // 渲染该子分类下的网址网格
-                        sectionHtml += `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">`;
+                        sectionHtml += `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-2">`;
                         
                         let itemsHtml = subGroup.items.map(item => {
-                            // 图片标签：加载失败则调用 generateLetterAvatar 函数生成首字母头像
                             let iconHtml = item.icon && item.icon.src 
-                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-xl bg-white/95 p-1 object-contain shrink-0 shadow-sm" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
-                                : `<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/40 to-purple-500/40 border border-white/20 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">${item.title.charAt(0).toUpperCase()}</div>`;
+                                ? `<img src="${item.icon.src}" class="w-9 h-9 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
+                                : `<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
 
-                            // 去除 url 显示，标题居中
                             return `
-                                <a href="${item.url}" target="_blank" class="glass-card p-3.5 rounded-[1rem] transition-all duration-300 flex items-center space-x-3 group link-item" data-title="${item.title.toLowerCase()}">
+                                <a href="${item.url}" target="_blank" class="glass-card p-3.5 transition-all duration-300 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
                                     ${iconHtml}
-                                    <div class="overflow-hidden flex-1 flex items-center">
-                                        <h3 class="font-bold text-gray-100 text-[14px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
+                                    <div class="overflow-hidden flex-1">
+                                        <h3 class="font-medium text-slate-200 text-[13px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
                                     </div>
                                 </a>
                             `;
@@ -220,7 +230,7 @@
                     mainIndex++;
                 });
 
-                // ================= 搜索与监听模块 =================
+                // 搜索监听
                 const searchInput = document.getElementById('searchInput');
                 searchInput.addEventListener('input', (e) => {
                     const term = e.target.value.toLowerCase();
@@ -239,8 +249,9 @@
                     });
                 });
 
+                // 滚动监听 (Scrollspy)
                 const scrollContainer = document.getElementById('scrollContainer');
-                const observerOptions = { root: scrollContainer, rootMargin: '0px 0px -70% 0px', threshold: 0 };
+                const observerOptions = { root: scrollContainer, rootMargin: '0px 0px -80% 0px', threshold: 0 };
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
