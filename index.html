@@ -201,6 +201,14 @@
             transition: all 0.15s ease;
             border-radius: 6px;
         }
+        .tag-final-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-basis: 100%;
+            width: 100%;
+            min-width: 100%;
+        }
         .tag-badge:hover {
             transform: translateY(-1px);
             filter: brightness(1.04);
@@ -323,6 +331,14 @@
 
         <div class="flex-1 overflow-y-auto px-8 relative scroll-smooth -mt-8 pt-8" id="scrollContainer">
             <div class="max-w-5xl mx-auto pb-32 space-y-16">
+                <div class="text-center space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Research Workspace · All systems operational
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight card-title">Stay lucky, stay curious</h2>
+                    <p class="text-sm opacity-70 max-w-lg mx-auto">Search papers, run code, and keep moving from one focused workspace.</p>
+                </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="text-[10px] opacity-70 flex gap-4">
                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Direct Access (China)</span>
@@ -404,7 +420,7 @@
                 `<div id="tagFilter" class="px-3 pb-3 flex flex-wrap gap-1.5">`,
                 `<button type="button" class="tag-badge ${activeTag === 'all' ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="all">All</button>`,
                 ...mainTags.map(tagButton),
-                finalRowTags.length ? `<div class="flex w-full gap-1.5">${finalRowTags.map(tagButton).join('')}</div>` : '',
+                finalRowTags.length ? `<div class="tag-final-row">${finalRowTags.map(tagButton).join('')}</div>` : '',
                 `</div>`,
                 `<div id="categoryLinks" class="pt-2 space-y-1"></div>`,
             ].join('');
