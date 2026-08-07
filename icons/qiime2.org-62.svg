@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">
+  <defs>
+    <clipPath id="cut-two">
+      <rect x="365" y="-50" width="40" height="80" transform="rotate(45)" />
+      <rect x="365" y="-50" width="80" height="40" transform="rotate(45)" />
+    </clipPath>
+  </defs>
+  <style>
+    line, circle { stroke: black; }
+    @media (prefers-color-scheme: dark) {
+      line, circle { stroke: white; }
+    }
+  </style>
+  <g>
+    <!-- tree -->
+    <rect x="156.5" y="3" width="34" height="59" fill="#7F7F7F" />
+    <rect x="83" y="28" width="181" height="34" fill="#7F7F7F" />
+    <rect x="83" y="28" width="34" height="50" fill="#7F7F7F" />
+    <rect x="230" y="28" width="34" height="90" fill="#7F7F7F" />
+    <rect x="209" y="84" width="76" height="34" fill="#7F7F7F" />
+
+    <rect x="68" y="130" width="64" height="41" fill="#FF0000" />
+    <rect x="83" y="78" width="34" height="34" fill="#FF0000" />
+
+    <rect x="209" y="118" width="34" height="34" fill="#00FF00" />
+
+    <rect x="251" y="118" width="34" height="34" fill="#0000FF" />
+
+    <!-- Q (magnifying glass) -->
+    <circle cx="100" cy="180" r="67.5" class='s' stroke-width="35" fill="none" />
+    <line x1="155" y1="235" x2="200" y2="285" class='s' stroke-width="30"/>
+
+    <!-- 2 -->
+    <g transform="translate(-50,-90)">
+      <circle cx="295" cy="280" r="24" stroke-width="22" fill="none" clip-path="url(#cut-two)" />
+      <line x1="312" y1="297" x2="270" y2="339" stroke-width="22" />
+      <line x1="263" y1="340" x2="325" y2="340" stroke-width="20" />
+    </g>
+  </g>
+</svg>

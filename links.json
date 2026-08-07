@@ -3,7 +3,6 @@
     "appName": "Sun-Panel-Config",
     "exportTime": "2026-08-07 13:50:23",
     "appVersion": "",
-    "md5": "61c636f14ad0686d738719b487645a15",
     "icons": [
         {
             "title": "Programming Learning - Programmer Forum",
@@ -13,7 +12,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://linux.do/favicon.ico",
+                        "src": "./icons/linux.do-1.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -21,13 +20,19 @@
                     "url": "https://linux.do/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Forum",
+                        "Programming"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://credit.linux.do/favicon.ico",
+                        "src": "./icons/credit.linux.do-2.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -35,13 +40,19 @@
                     "url": "https://credit.linux.do/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Forum",
+                        "Programming"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://cdk.linux.do/favicon.ico",
+                        "src": "./icons/cdk.linux.do-3.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -49,13 +60,19 @@
                     "url": "https://cdk.linux.do/dashboard",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Forum",
+                        "Programming"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.v2ex.com/favicon.ico",
+                        "src": "./icons/www.v2ex.com-4.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -63,7 +80,13 @@
                     "url": "https://www.v2ex.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Forum",
+                        "Programming"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -75,7 +98,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://docs.python.org/favicon.ico",
+                        "src": "./icons/docs.python.org-5.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -83,13 +106,20 @@
                     "url": "https://docs.python.org/3/tutorial/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.runoob.com/favicon.ico",
+                        "src": "./icons/www.runoob.com-6.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -97,13 +127,20 @@
                     "url": "https://www.runoob.com/python3/python3-tutorial.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://wesmckinney.com/favicon.ico",
+                        "src": "./icons/wesmckinney.com-7.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -111,13 +148,20 @@
                     "url": "https://wesmckinney.com/book/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Python"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://cran.rstudio.com/favicon.ico",
+                        "src": "./icons/cran.rstudio.com-8.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -125,13 +169,20 @@
                     "url": "https://cran.rstudio.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "R"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://r4ds.hadley.nz/favicon.ico",
+                        "src": "./icons/r4ds.hadley.nz-5.jpg",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -139,13 +190,20 @@
                     "url": "https://r4ds.hadley.nz/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "R"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://nodejs.cn/favicon.ico",
+                        "src": "./icons/nodejs.cn-10.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -153,13 +211,20 @@
                     "url": "https://nodejs.cn/learn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Node"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://pandas.pydata.org/favicon.ico",
+                        "src": "./icons/pandas.pydata.org-6.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -167,13 +232,20 @@
                     "url": "https://pandas.pydata.org/docs/user_guide/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://kimtanyo.github.io/favicon.ico",
+                        "src": "./icons/kimtanyo.github.io-12.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -181,7 +253,15 @@
                     "url": "https://kimtanyo.github.io/post/jupyter-lab-ji-chu-shi-yong-yu-cha-jian-kuo-zhan/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Programming",
+                        "Python",
+                        "Git"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -193,7 +273,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.cloudflare.com/favicon.ico",
+                        "src": "./icons/www.cloudflare.com-13.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -201,13 +281,19 @@
                     "url": "https://www.cloudflare.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://vercel.com/favicon.ico",
+                        "src": "./icons/vercel.com-14.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -215,13 +301,19 @@
                     "url": "https://vercel.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://supabase.com/favicon.ico",
+                        "src": "./icons/supabase.com-7.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -229,13 +321,19 @@
                     "url": "https://supabase.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://huggingface.co/favicon.ico",
+                        "src": "./icons/huggingface.co-8.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -243,13 +341,20 @@
                     "url": "https://huggingface.co/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools",
+                        "AI"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://hf-mirror.com/favicon.ico",
+                        "src": "./icons/hf-mirror.com-17.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -257,13 +362,19 @@
                     "url": "https://hf-mirror.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://hugging-face.cn/favicon.ico",
+                        "src": "./icons/hugging-face.cn-9.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -271,13 +382,20 @@
                     "url": "https://hugging-face.cn/docs",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools",
+                        "AI"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://gist.github.com/favicon.ico",
+                        "src": "./icons/gist.github.com-10.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -285,13 +403,20 @@
                     "url": "https://gist.github.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools",
+                        "Git"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://resend.com/favicon.ico",
+                        "src": "./icons/resend.com-11.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -299,13 +424,19 @@
                     "url": "https://resend.com",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.namesilo.com/favicon.ico",
+                        "src": "./icons/www.namesilo.com-12.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -313,7 +444,13 @@
                     "url": "https://www.namesilo.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Deployment",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -325,7 +462,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.chinagut.cn/favicon.ico",
+                        "src": "./icons/www.chinagut.cn-22.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -333,13 +470,19 @@
                     "url": "https://www.chinagut.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://cctcc.whu.edu.cn/favicon.ico",
+                        "src": "./icons/cctcc.whu.edu.cn-13.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -347,13 +490,19 @@
                     "url": "https://cctcc.whu.edu.cn/portal/dictionary/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://cn.bio-protocol.org/favicon.ico",
+                        "src": "./icons/cn.bio-protocol.org-24.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -361,13 +510,19 @@
                     "url": "https://cn.bio-protocol.org/bio101/default.aspx",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://blast.ncbi.nlm.nih.gov/favicon.ico",
+                        "src": "./icons/blast.ncbi.nlm.nih.gov-25.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -375,13 +530,21 @@
                     "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome",
+                        "Bioinformatics",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ncbi.nlm.nih.gov/favicon.ico",
+                        "src": "./icons/www.ncbi.nlm.nih.gov-26.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -389,13 +552,21 @@
                     "url": "https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA807496&o=acc_s%3Aa",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome",
+                        "Bioinformatics",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://liulab-dfci.github.io/favicon.ico",
+                        "src": "./icons/liulab-dfci.github.io-14.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -403,7 +574,14 @@
                     "url": "https://liulab-dfci.github.io/bioinfo-combio/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Microbiome",
+                        "Git"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -415,7 +593,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ncbi.nlm.nih.gov/favicon.ico",
+                        "src": "./icons/www.ncbi.nlm.nih.gov-26.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -423,13 +601,20 @@
                     "url": "https://www.ncbi.nlm.nih.gov/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://ftp.microbio.me/favicon.ico",
+                        "src": "./icons/ftp.microbio.me-15.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -437,13 +622,20 @@
                     "url": "https://ftp.microbio.me/greengenes_release/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://homd.org/favicon.ico",
+                        "src": "./icons/homd.org-16.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -451,13 +643,20 @@
                     "url": "https://homd.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://gtdb.ecogenomic.org/favicon.ico",
+                        "src": "./icons/gtdb.ecogenomic.org-30.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -465,13 +664,20 @@
                     "url": "https://gtdb.ecogenomic.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://qiita.ucsd.edu/favicon.ico",
+                        "src": "./icons/qiita.ucsd.edu-17.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -479,13 +685,20 @@
                     "url": "https://qiita.ucsd.edu/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ebi.ac.uk/favicon.ico",
+                        "src": "./icons/www.ebi.ac.uk-32.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -493,13 +706,20 @@
                     "url": "https://www.ebi.ac.uk/ena/browser/home",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ddbj.nig.ac.jp/favicon.ico",
+                        "src": "./icons/www.ddbj.nig.ac.jp-18.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -507,13 +727,20 @@
                     "url": "https://www.ddbj.nig.ac.jp/index-e.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.cncb.ac.cn/favicon.ico",
+                        "src": "./icons/www.cncb.ac.cn-19.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -521,13 +748,20 @@
                     "url": "https://www.cncb.ac.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://metacyc.org/favicon.ico",
+                        "src": "./icons/metacyc.org-20.gif",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -535,13 +769,20 @@
                     "url": "https://metacyc.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://rrndb.umms.med.umich.edu/favicon.ico",
+                        "src": "./icons/rrndb.umms.med.umich.edu-21.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -549,13 +790,20 @@
                     "url": "https://rrndb.umms.med.umich.edu/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://jbrowse.org/favicon.ico",
+                        "src": "./icons/jbrowse.org-22.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -563,7 +811,14 @@
                     "url": "https://jbrowse.org/jb2/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Research",
+                        "Database",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -575,7 +830,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://git-scm.com/favicon.ico",
+                        "src": "./icons/git-scm.com-38.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -583,13 +838,20 @@
                     "url": "https://git-scm.com/learn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Git"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.bioconductor.org/favicon.ico",
+                        "src": "./icons/www.bioconductor.org-39.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -597,13 +859,20 @@
                     "url": "https://www.bioconductor.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "R"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.anaconda.com/favicon.ico",
+                        "src": "./icons/www.anaconda.com-40.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -611,13 +880,20 @@
                     "url": "https://www.anaconda.com/docs/getting-started/main",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.anaconda.com/favicon.ico",
+                        "src": "./icons/www.anaconda.com-40.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -625,13 +901,20 @@
                     "url": "https://www.anaconda.com/docs/getting-started/concepts/anaconda-or-miniconda#miniconda",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://docs.qiime2.org/favicon.ico",
+                        "src": "./icons/docs.qiime2.org-23.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -639,13 +922,20 @@
                     "url": "https://docs.qiime2.org/2024.10/tutorials/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "QIIME2"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://github.com/favicon.ico",
+                        "src": "./icons/github.com-42.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -653,13 +943,20 @@
                     "url": "https://github.com/biobakery/biobakery/wiki/MaAsLin3",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Git"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://github.com/favicon.ico",
+                        "src": "./icons/github.com-42.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -667,13 +964,20 @@
                     "url": "https://github.com/picrust/picrust2/wiki/Full-pipeline-script",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Git"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://biocyc.org/favicon.ico",
+                        "src": "./icons/biocyc.org-24.gif",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -681,13 +985,20 @@
                     "url": "https://biocyc.org/webinar.shtml",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.bioconductor.org/favicon.ico",
+                        "src": "./icons/www.bioconductor.org-39.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -695,13 +1006,20 @@
                     "url": "https://www.bioconductor.org/packages//release/bioc/vignettes/maaslin3/inst/doc/maaslin3_tutorial.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "R"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://drive5.com/favicon.ico",
+                        "src": "./icons/drive5.com-44.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -709,13 +1027,19 @@
                     "url": "https://drive5.com/usearch/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://docs.overleaf.com/favicon.ico",
+                        "src": "./icons/docs.overleaf.com-25.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -723,13 +1047,20 @@
                     "url": "https://docs.overleaf.com/getting-started/latex-tutorials",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "LaTeX"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://quarto.org/favicon.ico",
+                        "src": "./icons/quarto.org-26.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -737,7 +1068,14 @@
                     "url": "https://quarto.org/docs/get-started/hello/jupyter.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Tools",
+                        "Python"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -749,7 +1087,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.runoob.com/favicon.ico",
+                        "src": "./icons/www.runoob.com-6.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -757,13 +1095,19 @@
                     "url": "https://www.runoob.com/linux/linux-tutorial.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Chinese"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.runoob.com/favicon.ico",
+                        "src": "./icons/www.runoob.com-6.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -771,13 +1115,20 @@
                     "url": "https://www.runoob.com/git/git-tutorial.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Chinese",
+                        "Git"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://forum.qiime2.org/favicon.ico",
+                        "src": "./icons/forum.qiime2.org-52.svg",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -785,13 +1136,20 @@
                     "url": "https://forum.qiime2.org/t/qiime2-chinese-manual/838",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Chinese",
+                        "QIIME2"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.runoob.com/vscode/vscode-shortcut-keys.html",
+                        "src": "./icons/www.runoob.com-vscode-vscode-shortcut-keys.html-48.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -799,13 +1157,19 @@
                     "url": "https://www.runoob.com/vscode/vscode-shortcut-keys.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Chinese"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.runoob.com/latex/latex-intro.html",
+                        "src": "./icons/www.runoob.com-latex-latex-intro.html-49.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -813,7 +1177,14 @@
                     "url": "https://www.runoob.com/latex/latex-intro.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tutorial",
+                        "Chinese",
+                        "LaTeX"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -825,7 +1196,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://xulab.pages.dev/favicon.ico",
+                        "src": "./icons/xulab.pages.dev-50.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -833,13 +1204,19 @@
                     "url": "https://xulab.pages.dev/en/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://rnaer.pages.dev/favicon.ico",
+                        "src": "./icons/rnaer.pages.dev-28.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -847,13 +1224,19 @@
                     "url": "https://rnaer.pages.dev/lab_guide",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://github.com/favicon.ico",
+                        "src": "./icons/github.com-42.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -861,13 +1244,20 @@
                     "url": "https://github.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Git"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.google.com/favicon.ico",
+                        "src": "./icons/www.google.com-29.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -875,13 +1265,20 @@
                     "url": "https://www.google.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Search"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://mirrors.tuna.tsinghua.edu.cn/favicon.ico",
+                        "src": "./icons/mirrors.tuna.tsinghua.edu.cn-30.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -889,13 +1286,19 @@
                     "url": "https://mirrors.tuna.tsinghua.edu.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.scopus.com/favicon.ico",
+                        "src": "./icons/www.scopus.com-31.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -903,13 +1306,20 @@
                     "url": "https://www.scopus.com/pages/home",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.elsevier.com/favicon.ico",
+                        "src": "./icons/www.elsevier.com-55.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -917,13 +1327,20 @@
                     "url": "https://www.elsevier.com/en-gb",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://qiime2.org/favicon.ico",
+                        "src": "./icons/qiime2.org-62.svg",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -931,13 +1348,20 @@
                     "url": "https://qiime2.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "QIIME2"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://library.qiime2.org/favicon.ico",
+                        "src": "./icons/library.qiime2.org-57.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -945,13 +1369,20 @@
                     "url": "https://library.qiime2.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "QIIME2"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://seeing-theory.brown.edu/favicon.ico",
+                        "src": "./icons/seeing-theory.brown.edu-33.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -959,13 +1390,19 @@
                     "url": "https://seeing-theory.brown.edu/#firstPage",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.grammarly.com/favicon.ico",
+                        "src": "./icons/www.grammarly.com-34.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -973,13 +1410,20 @@
                     "url": "https://www.grammarly.com/?msockid=0955e7d2aa426a280202f09eab016bb7",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Writing"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://quillbot.com/favicon.ico",
+                        "src": "./icons/quillbot.com-60.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -987,13 +1431,20 @@
                     "url": "https://quillbot.com/?msockid=0955e7d2aa426a280202f09eab016bb7",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Writing"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "http://paperbert.com/favicon.ico",
+                        "src": "./icons/paperbert.com-35.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1001,7 +1452,14 @@
                     "url": "http://paperbert.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Common",
+                        "Tools",
+                        "Writing"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1013,7 +1471,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ablesci.com/favicon.ico",
+                        "src": "./icons/www.ablesci.com-62.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1021,13 +1479,20 @@
                     "url": "https://www.ablesci.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://scholar.google.com/favicon.ico",
+                        "src": "./icons/scholar.google.com-36.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1035,13 +1500,20 @@
                     "url": "https://scholar.google.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://pubmed.ncbi.nlm.nih.gov/favicon.ico",
+                        "src": "./icons/pubmed.ncbi.nlm.nih.gov-64.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1049,13 +1521,21 @@
                     "url": "https://pubmed.ncbi.nlm.nih.gov/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Bioinformatics",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://medcite.cn/favicon.ico",
+                        "src": "./icons/medcite.cn-65.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1063,13 +1543,20 @@
                     "url": "https://medcite.cn/home",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Database"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://gfsoso.99lb.net/favicon.ico",
+                        "src": "./icons/gfsoso.99lb.net-66.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1077,13 +1564,20 @@
                     "url": "https://gfsoso.99lb.net",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.storkapp.me/favicon.ico",
+                        "src": "./icons/www.storkapp.me-67.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1091,13 +1585,20 @@
                     "url": "https://www.storkapp.me",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "http://9312.net/favicon.ico",
+                        "src": "./icons/9312.net-68.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1105,13 +1606,20 @@
                     "url": "http://9312.net",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://sc.panda985.com/favicon.ico",
+                        "src": "./icons/sc.panda985.com-69.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1119,13 +1627,20 @@
                     "url": "https://sc.panda985.com/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://so.673.org/favicon.ico",
+                        "src": "./icons/so.673.org-70.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1133,13 +1648,20 @@
                     "url": "https://so.673.org/index.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://scholar.lanfanshu.cn/favicon.ico",
+                        "src": "./icons/scholar.lanfanshu.cn-71.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1147,13 +1669,20 @@
                     "url": "https://scholar.lanfanshu.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://x.sci-hub.org.cn/favicon.ico",
+                        "src": "./icons/x.sci-hub.org.cn-72.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1161,13 +1690,20 @@
                     "url": "https://x.sci-hub.org.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://xs.gupiaoq.com/favicon.ico",
+                        "src": "./icons/xs.gupiaoq.com-73.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1175,7 +1711,14 @@
                     "url": "https://xs.gupiaoq.com",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Research",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1187,7 +1730,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.scidown.cn/favicon.ico",
+                        "src": "./icons/www.scidown.cn-74.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1195,13 +1738,19 @@
                     "url": "https://www.scidown.cn/rank.html",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Journal",
+                        "Research"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.letpub.com.cn/favicon.ico",
+                        "src": "./icons/www.letpub.com.cn-75.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1209,13 +1758,19 @@
                     "url": "https://www.letpub.com.cn/index.php?page=journalapp&view=search",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Journal",
+                        "Research"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://forums.zotero.org/favicon.ico",
+                        "src": "./icons/forums.zotero.org-37.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1223,13 +1778,20 @@
                     "url": "https://forums.zotero.org/discussions",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Journal",
+                        "Research",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://zotero-chinese.com/favicon.ico",
+                        "src": "./icons/zotero-chinese.com-38.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1237,13 +1799,20 @@
                     "url": "https://zotero-chinese.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Journal",
+                        "Research",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.citexs.com/favicon.ico",
+                        "src": "./icons/www.citexs.com-78.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1251,7 +1820,13 @@
                     "url": "https://www.citexs.com/nsfc",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Journal",
+                        "Research"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1263,7 +1838,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://github.com/favicon.ico",
+                        "src": "./icons/github.com-42.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1271,13 +1846,20 @@
                     "url": "https://github.com/Helloxiaolaodi",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub",
+                        "Git"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.cnblogs.com/favicon.ico",
+                        "src": "./icons/www.cnblogs.com-79.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1285,13 +1867,19 @@
                     "url": "https://www.cnblogs.com/Helloxiaolaodi",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.galibierhub.org/favicon.ico",
+                        "src": "./icons/www.galibierhub.org-80.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1299,13 +1887,19 @@
                     "url": "https://galibierhub.20211003.xyz",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.paypal.com/favicon.ico",
+                        "src": "./icons/www.paypal.com-81.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1313,13 +1907,20 @@
                     "url": "https://www.paypal.com/c2/home",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub",
+                        "Payment"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.perlego.com/favicon.ico",
+                        "src": "./icons/www.perlego.com-39.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1327,13 +1928,20 @@
                     "url": "https://www.perlego.com/book/3392381/con-il-cuore-nel-fango-lepica-del-ciclismo-nella-storia-del-cobra-pdf",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub",
+                        "PDF"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://archive.org/favicon.ico",
+                        "src": "./icons/archive.org-40.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1341,7 +1949,14 @@
                     "url": "https://archive.org/details/sonofheavenabiog0000fitz/mode/2up",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Personal",
+                        "GitHub",
+                        "Bioinformatics"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1353,7 +1968,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://translate.google.com/favicon.ico",
+                        "src": "./icons/translate.google.com-41.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1361,13 +1976,20 @@
                     "url": "https://translate.google.com/?sl=auto&tl=zh-CN&op=translate",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Translation",
+                        "Tools",
+                        "Search"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://dict.cnki.net/favicon.ico",
+                        "src": "./icons/dict.cnki.net-85.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1375,13 +1997,19 @@
                     "url": "https://dict.cnki.net/index",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Translation",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://fanyi.youdao.com/favicon.ico",
+                        "src": "./icons/fanyi.youdao.com-86.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1389,13 +2017,20 @@
                     "url": "https://fanyi.youdao.com/index.html?keyfrom=baidu2#/TextTranslate",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Translation",
+                        "Tools",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://ankiweb.net/favicon.ico",
+                        "src": "./icons/ankiweb.net-42.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1403,7 +2038,14 @@
                     "url": "https://ankiweb.net/about",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Translation",
+                        "Tools",
+                        "Memory"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1415,7 +2057,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.baidu.com/favicon.ico",
+                        "src": "./icons/www.baidu.com-88.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1423,13 +2065,20 @@
                     "url": "https://www.baidu.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Search"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://infini-cloud.net/favicon.ico",
+                        "src": "./icons/infini-cloud.net-43.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1437,13 +2086,19 @@
                     "url": "https://infini-cloud.net/en/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://alistgo.com/favicon.ico",
+                        "src": "./icons/alistgo.com-90.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1451,13 +2106,19 @@
                     "url": "https://alistgo.com/tool/aliyundrive/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://webmail.linux.do/favicon.ico",
+                        "src": "./icons/webmail.linux.do-44.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1465,13 +2126,20 @@
                     "url": "https://webmail.linux.do/sso/login?url=/webmail/?homepage",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Email"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://2fa.fun/favicon.ico",
+                        "src": "./icons/2fa.fun-45.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1479,13 +2147,19 @@
                     "url": "https://2fa.fun/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.toolhelper.cn/favicon.ico",
+                        "src": "./icons/www.toolhelper.cn-93.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1493,13 +2167,20 @@
                     "url": "https://www.toolhelper.cn/EncodeDecode/Base64",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Encoding"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://clash.tkbond.us/favicon.ico",
+                        "src": "./icons/clash.tkbond.us-46.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1507,13 +2188,20 @@
                     "url": "https://clash.tkbond.us/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Proxy"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.iconfont.cn/favicon.ico",
+                        "src": "./icons/www.iconfont.cn-95.svg",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1521,13 +2209,20 @@
                     "url": "https://www.iconfont.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Design"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://open.spotify.com/favicon.ico",
+                        "src": "./icons/open.spotify.com-47.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1535,13 +2230,20 @@
                     "url": "https://open.spotify.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage",
+                        "Music"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://pkmer.cn/favicon.ico",
+                        "src": "./icons/pkmer.cn-48.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1549,7 +2251,13 @@
                     "url": "https://pkmer.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Tools",
+                        "Cloud Storage"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1561,7 +2269,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.procyclingstats.com/favicon.ico",
+                        "src": "./icons/www.procyclingstats.com-49.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1569,13 +2277,20 @@
                     "url": "https://www.procyclingstats.com",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.uci.org/favicon.ico",
+                        "src": "./icons/www.uci.org-99.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1583,13 +2298,20 @@
                     "url": "https://www.uci.org",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.letour.fr/favicon.ico",
+                        "src": "./icons/www.letour.fr-100.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1597,13 +2319,20 @@
                     "url": "https://www.letour.fr/en/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.giroditalia.it/favicon.ico",
+                        "src": "./icons/www.giroditalia.it-101.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1611,13 +2340,20 @@
                     "url": "https://www.giroditalia.it/en/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.lavuelta.es/favicon.ico",
+                        "src": "./icons/www.lavuelta.es-102.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1625,13 +2361,20 @@
                     "url": "https://www.lavuelta.es/en/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.paris-roubaix.fr/favicon.ico",
+                        "src": "./icons/www.paris-roubaix.fr-103.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1639,7 +2382,14 @@
                     "url": "https://www.paris-roubaix.fr/en",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Cycling",
+                        "Sports",
+                        "Race"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1651,7 +2401,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://rintze.zelle.me/favicon.ico",
+                        "src": "./icons/rintze.zelle.me-50.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1659,13 +2409,20 @@
                     "url": "https://rintze.zelle.me/ref-extractor/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Tools",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://anystyle.io/favicon.ico",
+                        "src": "./icons/anystyle.io-51.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1673,13 +2430,20 @@
                     "url": "https://anystyle.io/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Tools",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.doi2bib.org/favicon.ico",
+                        "src": "./icons/www.doi2bib.org-106.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1687,13 +2451,20 @@
                     "url": "https://www.doi2bib.org/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Tools",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://editor.citationstyles.org/favicon.ico",
+                        "src": "./icons/editor.citationstyles.org-52.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1701,7 +2472,14 @@
                     "url": "https://editor.citationstyles.org/about/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Literature",
+                        "Tools",
+                        "Citation"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1713,7 +2491,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://ttsmaker.cn/favicon.ico",
+                        "src": "./icons/ttsmaker.cn-108.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1721,13 +2499,19 @@
                     "url": "https://ttsmaker.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Conversion",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.online-convert.com/favicon.ico",
+                        "src": "./icons/www.online-convert.com-109.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1735,13 +2519,20 @@
                     "url": "https://www.online-convert.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Conversion",
+                        "Tools",
+                        "PDF"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.alltoall.net/favicon.ico",
+                        "src": "./icons/www.alltoall.net-53.jpg",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1749,13 +2540,20 @@
                     "url": "https://www.alltoall.net/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Conversion",
+                        "Tools",
+                        "PDF"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://smallpdf.com/favicon.ico",
+                        "src": "./icons/smallpdf.com-111.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1763,7 +2561,14 @@
                     "url": "https://smallpdf.com/cn/pdf-to-excel",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Conversion",
+                        "Tools",
+                        "PDF"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1775,7 +2580,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://clash.download/favicon.ico",
+                        "src": "./icons/clash.download-54.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1783,13 +2588,19 @@
                     "url": "https://clash.download/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Proxy",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://guatizi.com/favicon.ico",
+                        "src": "./icons/guatizi.com-113.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1797,13 +2608,19 @@
                     "url": "https://guatizi.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Proxy",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://sakura-cat-cdn1.com/favicon.ico",
+                        "src": "./icons/sakura-cat-cdn1.com-114.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1811,13 +2628,19 @@
                     "url": "https://sakura-cat-cdn1.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Proxy",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://mojie.app/favicon.ico",
+                        "src": "./icons/mojie.app-115.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1825,7 +2648,13 @@
                     "url": "https://mojie.app/login",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Proxy",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1837,7 +2666,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://opencode.ai/favicon.ico",
+                        "src": "./icons/opencode.ai-116.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1845,13 +2674,19 @@
                     "url": "https://opencode.ai/go",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "AI",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://chat.deepseek.com/favicon.ico",
+                        "src": "./icons/chat.deepseek.com-117.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1859,13 +2694,19 @@
                     "url": "https://chat.deepseek.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "AI",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://platform.deepseek.com/favicon.ico",
+                        "src": "./icons/platform.deepseek.com-118.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1873,13 +2714,19 @@
                     "url": "https://platform.deepseek.com/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "AI",
+                        "Tools"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://gemini.google.com/favicon.ico",
+                        "src": "./icons/gemini.google.com-55.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1887,7 +2734,14 @@
                     "url": "https://gemini.google.com",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "AI",
+                        "Tools",
+                        "Search"
+                    ],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 }
             ]
         },
@@ -1899,7 +2753,7 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://gmsadm.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/gmsadm.ncu.edu.cn-120.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1907,13 +2761,19 @@
                     "url": "https://gmsadm.ncu.edu.cn/navigation/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://www.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/www.ncu.edu.cn-56.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1921,13 +2781,19 @@
                     "url": "https://www.ncu.edu.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://yjsy.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/yjsy.ncu.edu.cn-57.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1935,13 +2801,19 @@
                     "url": "https://yjsy.ncu.edu.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://sfst.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/sfst.ncu.edu.cn-58.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1949,13 +2821,19 @@
                     "url": "https://sfst.ncu.edu.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://lib.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/lib.ncu.edu.cn-59.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1963,13 +2841,19 @@
                     "url": "https://lib.ncu.edu.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://cwc.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/cwc.ncu.edu.cn-60.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1977,13 +2861,19 @@
                     "url": "https://cwc.ncu.edu.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://mail.email.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/mail.email.ncu.edu.cn-61.ico",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -1991,13 +2881,20 @@
                     "url": "http://mail.email.ncu.edu.cn",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU",
+                        "Email"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 },
                 {
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "https://webvpn.ncu.edu.cn/favicon.ico",
+                        "src": "./icons/webvpn.ncu.edu.cn-62.png",
                         "backgroundColor": ""
                     },
                     "sort": 99999,
@@ -2005,9 +2902,17 @@
                     "url": "https://webvpn.ncu.edu.cn/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": ""
+                    "description": "",
+                    "tags": [
+                        "Campus",
+                        "NCU",
+                        "Proxy"
+                    ],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         }
-    ]
+    ],
+    "md5": "feca8bb046c8236b4ca58ae4b962a171"
 }

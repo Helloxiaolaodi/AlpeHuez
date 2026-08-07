@@ -1,19 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
-    <!-- 样式与脚本 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ======== 强制让加载屏享有最高渲染优先级 ======== */
+        :root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -20px;
+            background: url('1109770.jpg') no-repeat center center;
+            background-size: cover;
+            filter: blur(4px) brightness(0.85);
+            z-index: -1;
+            display: none;
+        }
+
+        html[data-theme="gradient"] body {
+            color: #111827;
+            background: linear-gradient(135deg, #B1E3FF 0%, #F8FAFC 40%, #FFE0AE 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        html[data-theme="space"] body {
+            color: #f1f5f9;
+            background-color: #0f172a;
+            min-height: 100vh;
+        }
+        html[data-theme="space"] body::before { display: block; }
+
         #loadingScreen {
             position: fixed;
             inset: 0;
             z-index: 99999;
-            background-color: #0f172a;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,138 +51,200 @@
         .spinner {
             width: 48px;
             height: 48px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
-            border-top-color: #818cf8;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        html[data-theme="gradient"] #loadingScreen {
+            background: linear-gradient(135deg, #B1E3FF 0%, #ffffff 50%, #FFE0AE 100%);
+        }
+        html[data-theme="gradient"] .spinner {
+            border: 4px solid rgba(0, 135, 235, 0.15);
+            border-top-color: #0087EB;
+        }
+        html[data-theme="gradient"] .loading-text { color: #0369a1; }
+        html[data-theme="space"] #loadingScreen { background-color: #0f172a; }
+        html[data-theme="space"] .spinner {
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #818cf8;
+        }
+        html[data-theme="space"] .loading-text { color: rgba(165, 180, 252, 0.8); }
 
-        :root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        body { color: #f1f5f9; background-color: #0f172a; selection-background-color: rgba(99, 102, 241, 0.3); }
-        
-        body::before {
-            content: "";
-            position: fixed;
-            inset: -20px; 
-            background: url('1109770.jpg') no-repeat center center;
-            background-size: cover;
-            filter: blur(4px) brightness(0.85); 
-            z-index: -1;
-        }
-        
-        .glass-sidebar { 
-            background: rgba(15, 23, 42, 0.35); 
-            backdrop-filter: blur(24px) saturate(150%); 
-            -webkit-backdrop-filter: blur(24px) saturate(150%); 
-            border-right: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-        
-        .dashboard-widget {
-            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(16px) saturate(120%); 
-            -webkit-backdrop-filter: blur(16px) saturate(120%);
-            border: 1px solid rgba(255, 255, 255, 0.06); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.05); 
-            border-radius: 14px;
-        }
-        
-        .glass-card:hover { 
-            transform: translateY(-2px); 
-            background: rgba(255, 255, 255, 0.08); 
-            border-color: rgba(255, 255, 255, 0.15); 
-            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1); 
-        }
-
-        .sidebar-link { transition: all 0.2s ease; border-radius: 8px; }
-        .sidebar-link.active { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: #ffffff; 
-            font-weight: 600; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-
+        .glass-sidebar,
+        .glass-card,
         .search-container {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+        }
+        .glass-sidebar {
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+        .glass-card {
+            border-radius: 14px;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .search-container {
             backdrop-filter: blur(8px);
             mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
-        .search-input { 
-            background: rgba(0, 0, 0, 0.4); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+
+        html[data-theme="gradient"] .glass-sidebar {
+            background: rgba(255, 255, 255, 0.65);
+            border-right: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 10px 0 30px rgba(0, 135, 235, 0.05);
         }
-        .search-input:focus { 
-            background: rgba(0, 0, 0, 0.6); 
-            border-color: rgba(129, 140, 248, 0.5); 
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), inset 0 1px 2px rgba(0,0,0,0.2); 
+        html[data-theme="gradient"] .dashboard-widget {
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        html[data-theme="gradient"] .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 135, 235, 0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+        html[data-theme="gradient"] .glass-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #0087EB;
+            box-shadow: 0 12px 24px -8px rgba(0, 135, 235, 0.15), inset 0 1px 0 rgba(255,255,255,1);
+        }
+        html[data-theme="gradient"] .sidebar-link { color: #4b5563; }
+        html[data-theme="gradient"] .sidebar-link:hover { color: #111827; background: rgba(0, 135, 235, 0.06); }
+        html[data-theme="gradient"] .sidebar-link.active { background: #0087EB; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 135, 235, 0.3); }
+        html[data-theme="gradient"] .search-container { background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, rgba(248, 250, 252, 0) 100%); }
+        html[data-theme="gradient"] .search-input { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 135, 235, 0.2); color: #111827; }
+        html[data-theme="gradient"] .search-input:focus { background: #ffffff; border-color: #0087EB; box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.15); }
+        html[data-theme="gradient"] .kbd-badge { background: rgba(0, 135, 235, 0.08); border: 1px solid rgba(0, 135, 235, 0.15); color: #0087EB; }
+        html[data-theme="gradient"] .card-title { color: #1f2937; }
+        html[data-theme="gradient"] .item-title { color: #1f2937; }
+        html[data-theme="gradient"] .item-title:hover { color: #0087EB; }
+        html[data-theme="gradient"] .workspace-muted { color: #4b5563; opacity: 0.85; }
+        html[data-theme="gradient"] .tag-badge {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(0, 135, 235, 0.15);
+            color: #334155;
+        }
+        html[data-theme="gradient"] .tag-badge.active {
+            background: #0087EB;
+            border-color: #0087EB;
+            color: #ffffff;
         }
 
-        .kbd-badge {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-bottom-width: 2px;
+        html[data-theme="space"] .glass-sidebar {
+            background: rgba(15, 23, 42, 0.35);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
+        html[data-theme="space"] .dashboard-widget {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        html[data-theme="space"] .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        html[data-theme="space"] .glass-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        html[data-theme="space"] .sidebar-link { color: #94a3b8; }
+        html[data-theme="space"] .sidebar-link:hover { color: #f1f5f9; }
+        html[data-theme="space"] .sidebar-link.active { background: rgba(255, 255, 255, 0.1); color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        html[data-theme="space"] .search-container { background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%); }
+        html[data-theme="space"] .search-input { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
+        html[data-theme="space"] .search-input:focus { background: rgba(0, 0, 0, 0.6); border-color: rgba(129, 140, 248, 0.5); box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2); }
+        html[data-theme="space"] .kbd-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
+        html[data-theme="space"] .card-title { color: #f1f5f9; }
+        html[data-theme="space"] .item-title { color: #e2e8f0; }
+        html[data-theme="space"] .item-title:hover { color: #a5b4fc; }
+        html[data-theme="space"] .workspace-muted { color: #94a3b8; opacity: 0.8; }
+        html[data-theme="space"] .tag-badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+        }
+        html[data-theme="space"] .tag-badge.active {
+            background: rgba(99, 102, 241, 0.85);
+            border-color: rgba(99, 102, 241, 0.85);
+            color: #ffffff;
+        }
+
+        .tag-badge {
+            transition: all 0.15s ease;
+            border-radius: 6px;
+        }
+        .tag-badge:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.04);
+        }
+        .sidebar-link { transition: all 0.2s ease; border-radius: 8px; }
+        .status-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 9px;
+            height: 9px;
+            border-radius: 9999px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+        }
+
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 10px; }
     </style>
     <script>
+        const storedTheme = localStorage.getItem('nav_theme');
+        const savedTheme = storedTheme === 'space' || storedTheme === 'theme-space' ? 'space' : 'gradient';
+        document.documentElement.dataset.theme = savedTheme;
+
         function generateLetterAvatar(imgElement, title) {
-            const firstLetter = title ? title.charAt(0).toUpperCase() : '🔗';
-            const avatarHtml = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0 shadow-inner">${firstLetter}</div>`;
+            const firstLetter = title ? title.charAt(0).toUpperCase() : '';
+            const avatarHtml = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-semibold text-sm shrink-0 shadow-sm">${firstLetter}</div>`;
             imgElement.outerHTML = avatarHtml;
         }
     </script>
 </head>
 <body class="flex h-screen overflow-hidden antialiased">
 
-    <!-- 🌌 专属高级加载屏 -->
     <div id="loadingScreen">
-        <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
-        <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
+        <div class="spinner shadow-md"></div>
+        <div class="mt-6 text-[12px] font-bold tracking-[0.2em] uppercase animate-pulse loading-text">
             Loading Workspaces of Helloxiaolaodi
         </div>
     </div>
 
-    <!-- 🌟 侧边栏沉浸式触发区域 -->
     <div class="fixed top-0 left-0 h-full w-[16px] hover:w-[280px] z-40 group transition-all duration-300">
-        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-20 bg-white/20 rounded-r-xl backdrop-blur-md border border-white/10 border-l-0 shadow-[0_0_15px_rgba(129,140,248,0.4)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-0 group-hover:-translate-x-full pointer-events-none"></div>
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-20 bg-white/40 rounded-r-xl backdrop-blur-md border border-white/60 border-l-0 shadow-lg transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-0 group-hover:-translate-x-full pointer-events-none"></div>
 
-        <aside class="absolute top-0 left-0 h-full w-[280px] glass-sidebar flex flex-col shadow-[15px_0_40px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-[110%] group-hover:translate-x-0">
-            <div class="p-7 pb-6">
-                <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                    <span class="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xs">✦</span>
+        <aside class="absolute top-0 left-0 h-full w-[280px] glass-sidebar flex flex-col shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-[110%] group-hover:translate-x-0">
+            <div class="p-7 pb-5">
+                <h1 class="text-2xl font-bold tracking-tight card-title flex items-center gap-2">
+                    <span class="w-6 h-6 bg-[#0087EB] text-white rounded-lg flex items-center justify-center shadow-md shadow-blue-500/30 text-xs">✦</span>
                     Homepage
                 </h1>
             </div>
-            
+
             <nav id="sidebar" class="space-y-1 overflow-y-auto flex-1 px-4 pb-4">
-                <!-- 动态渲染主目录 -->
+                <!-- tags and categories are rendered from links.json -->
             </nav>
 
-            <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/5">
+            <div class="flex flex-col items-center justify-center py-6 shrink-0 relative z-10 border-t border-white/10">
                 <div class="relative group/avatar cursor-pointer">
-                    <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 rounded-full blur-md opacity-50 group-hover/avatar:opacity-80 transition duration-500"></div>
-                    <img src="github-profile.png" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.3)] group-hover/avatar:scale-[1.03] transition-transform duration-300">
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-sky-400/40 to-amber-300/40 rounded-full blur-md opacity-50 group-hover/avatar:opacity-80 transition duration-500"></div>
+                    <img src="github-profile.jpg" alt="Profile" class="relative w-[100px] h-[100px] rounded-full object-cover border-[3px] border-white shadow-xl group-hover/avatar:scale-[1.03] transition-transform duration-300">
                 </div>
             </div>
 
             <div class="dashboard-widget p-5 mt-auto">
                 <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <h4 class="text-[11px] font-bold uppercase tracking-widest workspace-muted flex items-center gap-2">
                         <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Workspace
                     </h4>
@@ -167,216 +253,277 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                 </div>
-                
-                <div class="space-y-3">
-                    <div class="flex items-center text-sm cursor-default">
-                        <span class="text-slate-400 flex items-center gap-2 transition-colors">
-                            📝 <span class="italic tracking-wide">Con il cuore nel fango</span>
+
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center">
+                        <span class="workspace-muted flex items-center gap-2">
+                            <span class="italic tracking-wide">Con il cuore nel fango</span>
                         </span>
                     </div>
-                    
-                    <div class="flex items-center justify-between text-sm cursor-default">
-                        <span class="text-slate-400 flex items-center gap-2 transition-colors">🌐 GalibierHub</span>
-                        <span class="text-emerald-400 font-medium text-[11px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 shadow-[0_0_8px_rgba(52,211,153,0.15)]">Online</span>
+
+                    <div class="flex items-center justify-between">
+                        <span class="workspace-muted flex items-center gap-2">GalibierHub</span>
+                        <span class="text-emerald-500 font-medium text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">Online</span>
                     </div>
 
-                    <div class="flex items-center justify-between text-sm cursor-default">
-                        <span class="text-slate-400 flex items-center gap-2 transition-colors">👨‍💻 GitHub</span>
-                        <span class="text-slate-300 font-medium text-xs truncate max-w-[100px]">Helloxiaolaodi</span>
+                    <div class="flex items-center justify-between">
+                        <span class="workspace-muted flex items-center gap-2">GitHub</span>
+                        <span class="font-medium text-xs truncate max-w-[100px] opacity-90">Helloxiaolaodi</span>
                     </div>
                 </div>
             </div>
         </aside>
     </div>
 
-    <!-- 🌟 主体区域 -->
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-black/10 w-full pl-4 md:pl-6">
-        
-        <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0">
-            <div class="max-w-5xl mx-auto relative group">
+    <main class="flex-1 flex flex-col relative overflow-hidden w-full pl-4 md:pl-6">
+
+        <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0 flex items-center justify-between gap-4">
+            <div class="max-w-4xl flex-1 relative group">
                 <svg class="absolute inset-y-0 my-auto left-4 w-5 h-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-12 pr-16 text-gray-100 placeholder-gray-500 transition-all text-[15px]">
+                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-12 pr-16 transition-all text-[15px]">
                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <span class="kbd-badge text-[10px] text-gray-400 px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1">
+                    <span class="kbd-badge text-[10px] px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1 font-bold">
                         <span class="text-xs">⌘</span> K
                     </span>
                 </div>
             </div>
+
+            <button id="themeToggleBtn" type="button" class="glass-card px-4 py-3.5 flex items-center gap-2 text-sm font-medium shadow-sm cursor-pointer hover:scale-105 transition-all shrink-0" title="Switch background">
+                <span id="themeIcon"></span>
+                <span id="themeText" class="hidden md:inline">Background</span>
+            </button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-8 relative scroll-smooth -mt-8 pt-8" id="scrollContainer">
-            <div id="content" class="max-w-5xl mx-auto pb-32 space-y-16">
-                <!-- 动态渲染子目录与卡片 -->
+            <div class="max-w-5xl mx-auto pb-32 space-y-16">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-[10px] opacity-70 flex gap-4">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Direct Access (China)</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> VPN Required</span>
+                    </div>
+                    <div class="text-[10px] opacity-60">Most used links appear first</div>
+                </div>
+                <div id="content">
+                    <!-- links are rendered from links.json -->
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
+        const THEME_KEY = 'nav_theme';
+        const STATS_KEY = 'nav_stats';
+        let activeTag = 'all';
+        let searchTerm = '';
+        let allTree = [];
+        let allItems = [];
+        let contentObserver = null;
+
+        function getStats() {
+            try {
+                return JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
+            } catch {
+                return {};
+            }
+        }
+
+        function getTotalClicks(item) {
+            const saved = getStats()[item.url] || 0;
+            return (Number(item.clickCount) || 0) + saved;
+        }
+
+        function trackClick(item) {
+            const stats = getStats();
+            stats[item.url] = (stats[item.url] || 0) + 1;
+            localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+            renderContent();
+        }
+
+        function buildTree(rawGroups) {
+            const tree = {};
+            rawGroups.forEach(group => {
+                let mainTitle = group.title;
+                let subTitle = "";
+                if (group.title.includes(' - ')) {
+                    const parts = group.title.split(' - ');
+                    mainTitle = parts[0].trim();
+                    subTitle = parts[1].trim();
+                }
+                if (!tree[mainTitle]) tree[mainTitle] = [];
+                if (group.children && group.children.length > 0) {
+                    tree[mainTitle].push({ subTitle, items: group.children });
+                }
+            });
+            return Object.keys(tree).map(mainTitle => ({
+                mainTitle,
+                groups: tree[mainTitle],
+            }));
+        }
+
+        function renderTags() {
+            const sidebar = document.getElementById('sidebar');
+            const tags = [...new Set(allItems.flatMap(item => item.tags || []))].sort((a, b) => a.localeCompare(b, 'en'));
+            const tagHtml = [
+                `<div class="px-4 pt-1 pb-2 text-[11px] font-bold uppercase tracking-widest opacity-60">Tags</div>`,
+                `<div id="tagFilter" class="px-3 pb-3 flex flex-wrap gap-1.5">`,
+                `<button type="button" class="tag-badge ${activeTag === 'all' ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="all">All</button>`,
+                ...tags.map(tag => `<button type="button" class="tag-badge ${activeTag === tag ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="${tag}">${tag}</button>`),
+                `</div>`,
+                `<div id="categoryLinks" class="pt-2 space-y-1"></div>`,
+            ].join('');
+            sidebar.innerHTML = tagHtml;
+
+            document.getElementById('categoryLinks').innerHTML = allTree.map((section, index) => `
+                <a href="#main-group-${index}" class="sidebar-link block px-4 py-2.5 text-[15px] font-medium truncate transition-colors" data-target="main-group-${index}">
+                    ${section.mainTitle}
+                </a>
+            `).join('');
+
+            document.getElementById('tagFilter').addEventListener('click', (event) => {
+                const badge = event.target.closest('.tag-badge');
+                if (!badge) return;
+                activeTag = badge.dataset.tag;
+                renderTags();
+                renderContent();
+            });
+        }
+
+        function renderContent() {
+            const content = document.getElementById('content');
+            const term = searchTerm.trim().toLowerCase();
+            const stats = getStats();
+            let renderedSections = '';
+
+            allTree.forEach((section, sectionIndex) => {
+                let sectionHtml = '';
+                section.groups.forEach(subGroup => {
+                    const items = [...subGroup.items]
+                        .filter(item => {
+                            const tagMatch = activeTag === 'all' || (item.tags || []).includes(activeTag);
+                            const searchMatch = !term
+                                || item.title.toLowerCase().includes(term)
+                                || (item.tags || []).some(tag => tag.toLowerCase().includes(term));
+                            return tagMatch && searchMatch;
+                        })
+                        .sort((a, b) => getTotalClicks(b) - getTotalClicks(a));
+
+                    if (items.length === 0) return;
+                    const subTitleHtml = subGroup.subTitle ? `
+                        <div class="flex items-center gap-4 mb-4 mt-8">
+                            <h3 class="text-[13px] font-bold opacity-60 uppercase tracking-widest">${subGroup.subTitle}</h3>
+                            <div class="flex-1 h-px bg-current opacity-10"></div>
+                        </div>
+                    ` : '';
+
+                    const cardsHtml = items.map(item => {
+                        const escapedTitle = item.title.replace(/'/g, "\\'");
+                        const iconHtml = item.icon && item.icon.src
+                            ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5 shadow-sm nav-icon" alt="" loading="lazy" onerror="generateLetterAvatar(this, '${escapedTitle}')">`
+                            : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-semibold text-sm shrink-0 shadow-sm">${item.title.charAt(0).toUpperCase()}</div>`;
+                        const statusClass = item.isVpnRequired ? 'bg-red-500' : 'bg-emerald-500';
+                        const statusTitle = item.isVpnRequired ? 'VPN Required' : 'Direct Access (China)';
+
+                        return `
+                            <a href="${item.url}" target="_blank" class="glass-card relative p-4 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
+                                <span class="status-dot ${statusClass}" title="${statusTitle}"></span>
+                                ${iconHtml}
+                                <div class="overflow-hidden flex-1">
+                                    <h3 class="font-semibold text-[15px] truncate item-title transition-colors pr-2">${item.title}</h3>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+
+                    sectionHtml += `${subTitleHtml}<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-2">${cardsHtml}</div>`;
+                });
+
+                if (!sectionHtml) return;
+                renderedSections += `
+                    <div id="main-group-${sectionIndex}" class="group-section scroll-mt-32">
+                        <h2 class="text-2xl font-bold mb-6 card-title flex items-center gap-3 tracking-wide">${section.mainTitle}</h2>
+                        ${sectionHtml}
+                    </div>
+                `;
+            });
+
+            content.innerHTML = renderedSections || `<div class="py-16 text-center text-sm opacity-60">No matching links</div>`;
+
+            content.querySelectorAll('.link-item').forEach(link => {
+                const item = allItems.find(candidate => candidate.title === link.querySelector('h3').textContent);
+                if (item) {
+                    link.addEventListener('click', () => trackClick(item));
+                }
+            });
+
+            if (contentObserver) contentObserver.disconnect();
+            const scrollContainer = document.getElementById('scrollContainer');
+            contentObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+                        const activeLink = document.querySelector(`.sidebar-link[data-target="${entry.target.id}"]`);
+                        if (activeLink) activeLink.classList.add('active');
+                    }
+                });
+            }, { root: scrollContainer, rootMargin: '0px 0px -80% 0px', threshold: 0 });
+            document.querySelectorAll('.group-section').forEach(section => contentObserver.observe(section));
+        }
+
+        function updateThemeUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (theme === 'space') {
+                icon.textContent = '☀️';
+                if (text) text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                if (text) text.textContent = 'Space';
+            }
+        }
+
+        function toggleTheme() {
+            const nextTheme = document.documentElement.dataset.theme === 'space' ? 'gradient' : 'space';
+            document.documentElement.dataset.theme = nextTheme;
+            localStorage.setItem(THEME_KEY, nextTheme);
+            updateThemeUI(nextTheme);
+        }
+
+        function dismissLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => loadingScreen.remove(), 800);
+            }
+        }
+
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+        updateThemeUI(document.documentElement.dataset.theme);
+
+        document.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+                event.preventDefault();
                 document.getElementById('searchInput').focus();
             }
         });
 
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            searchTerm = event.target.value;
+            renderContent();
+        });
+
+        const startTime = Date.now();
         fetch('links.json')
             .then(res => res.json())
             .then(data => {
-                const sidebar = document.getElementById('sidebar');
-                const content = document.getElementById('content');
-                let rawGroups = data.icons || []; 
-                
-                const tree = {};
-                rawGroups.forEach(group => {
-                    let mainTitle = group.title;
-                    let subTitle = "";
-                    if (group.title.includes(' - ')) {
-                        const parts = group.title.split(' - ');
-                        mainTitle = parts[0].trim();
-                        subTitle = parts[1].trim();
-                    }
-                    if (!tree[mainTitle]) tree[mainTitle] = [];
-                    if (group.children && group.children.length > 0) {
-                        tree[mainTitle].push({ subTitle: subTitle, items: group.children });
-                    }
-                });
-
-                let mainIndex = 0;
-                Object.keys(tree).forEach((mainTitle) => {
-                    const sectionId = `main-group-${mainIndex}`;
-                    
-                    sidebar.innerHTML += `
-                        <a href="#${sectionId}" class="sidebar-link block px-4 py-2.5 text-[15px] font-medium text-slate-400 hover:text-slate-100 truncate transition-colors" data-target="${sectionId}">
-                            ${mainTitle}
-                        </a>
-                    `;
-                    
-                    let sectionHtml = `
-                        <div id="${sectionId}" class="group-section scroll-mt-32">
-                            <h2 class="text-2xl font-bold mb-6 text-slate-100 flex items-center gap-3 tracking-wide">
-                                ${mainTitle}
-                            </h2>
-                    `;
-
-                    tree[mainTitle].forEach(subGroup => {
-                        if (subGroup.subTitle) {
-                            sectionHtml += `
-                                <div class="flex items-center gap-4 mb-4 mt-8">
-                                    <h3 class="text-[13px] font-bold text-slate-400 uppercase tracking-widest">${subGroup.subTitle}</h3>
-                                    <div class="flex-1 h-px bg-white/10"></div>
-                                </div>
-                            `;
-                        }
-
-                        sectionHtml += `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-2">`;
-                        
-                        let itemsHtml = subGroup.items.map(item => {
-                            let iconHtml = item.icon && item.icon.src 
-                                ? `<img src="${item.icon.src}" class="w-10 h-10 rounded-lg bg-white/95 p-1.5 object-contain shrink-0 border border-black/5 nav-icon" onerror="generateLetterAvatar(this, '${item.title.replace(/'/g, "\\'")}')">` 
-                                : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0">${item.title.charAt(0).toUpperCase()}</div>`;
-
-                            return `
-                                <a href="${item.url}" target="_blank" class="glass-card p-4 transition-all duration-300 flex items-center gap-3.5 group link-item" data-title="${item.title.toLowerCase()}">
-                                    ${iconHtml}
-                                    <div class="overflow-hidden flex-1">
-                                        <h3 class="font-semibold text-slate-200 text-[15px] truncate group-hover:text-indigo-300 transition-colors">${item.title}</h3>
-                                    </div>
-                                </a>
-                            `;
-                        }).join('');
-
-                        sectionHtml += itemsHtml + `</div>`;
-                    });
-
-                    sectionHtml += `</div>`;
-                    content.innerHTML += sectionHtml;
-                    mainIndex++;
-                });
-
-                // ================= 核心：监听所有图标加载完毕 + 强制最少等待时间 =================
-                const startTime = Date.now();
-                const minLoadingTime = 1800; // 强制最少转圈 1.8 秒
-
-                const icons = document.querySelectorAll('.nav-icon');
-                let loadedCount = 0;
-                const totalIcons = icons.length;
-
-                function dismissLoadingScreen() {
-                    const elapsedTime = Date.now() - startTime;
-                    const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-
-                    setTimeout(() => {
-                        const loadingScreen = document.getElementById('loadingScreen');
-                        if (loadingScreen) {
-                            loadingScreen.classList.add('fade-out');
-                            setTimeout(() => loadingScreen.remove(), 800);
-                        }
-                    }, remainingTime);
-                }
-
-                if (totalIcons === 0) {
-                    dismissLoadingScreen();
-                } else {
-                    icons.forEach(img => {
-                        if (img.complete) {
-                            loadedCount++;
-                            if (loadedCount === totalIcons) dismissLoadingScreen();
-                        } else {
-                            img.onload = () => {
-                                loadedCount++;
-                                if (loadedCount === totalIcons) dismissLoadingScreen();
-                            };
-                            img.onerror = () => {
-                                // 图片加载失败时自动转为字母头像
-                                generateLetterAvatar(img, img.closest('a').querySelector('h3').textContent);
-                                loadedCount++;
-                                if (loadedCount === totalIcons) dismissLoadingScreen();
-                            };
-                        }
-                    });
-
-                    // 🛡️ 终极安全保险：最多等待 5 秒钟自动放行
-                    setTimeout(() => {
-                        dismissLoadingScreen();
-                    }, 5000);
-                }
-
-                const searchInput = document.getElementById('searchInput');
-                searchInput.addEventListener('input', (e) => {
-                    const term = e.target.value.toLowerCase();
-                    document.querySelectorAll('.group-section').forEach(section => {
-                        let hasVisible = false;
-                        section.querySelectorAll('.link-item').forEach(item => {
-                            const title = item.getAttribute('data-title');
-                            if (title.includes(term)) {
-                                item.style.display = 'flex';
-                                hasVisible = true;
-                            } else {
-                                item.style.display = 'none';
-                            }
-                        });
-                        section.style.display = hasVisible ? 'block' : 'none';
-                    });
-                });
-
-                const scrollContainer = document.getElementById('scrollContainer');
-                const observerOptions = { root: scrollContainer, rootMargin: '0px 0px -80% 0px', threshold: 0 };
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-                            const activeLink = document.querySelector(`.sidebar-link[data-target="${entry.target.id}"]`);
-                            if (activeLink) activeLink.classList.add('active');
-                        }
-                    });
-                }, observerOptions);
-
-                document.querySelectorAll('.group-section').forEach(section => observer.observe(section));
+                allItems = (data.icons || []).flatMap(group => group.children || []);
+                allTree = buildTree(data.icons || []);
+                renderTags();
+                renderContent();
+                setTimeout(dismissLoadingScreen, Math.max(0, 700 - (Date.now() - startTime)));
             })
             .catch(err => {
-                console.error("加载 links.json 失败:", err);
-                const loadingScreen = document.getElementById('loadingScreen');
-                if (loadingScreen) loadingScreen.remove();
+                console.error('Failed to load links.json:', err);
+                dismissLoadingScreen();
             });
     </script>
 </body>
