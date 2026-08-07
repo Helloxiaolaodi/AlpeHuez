@@ -118,7 +118,7 @@
     <script>
         function generateLetterAvatar(imgElement, title) {
             const firstLetter = title ? title.charAt(0).toUpperCase() : '🔗';
-            const avatarHtml = `<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0 shadow-inner">${firstLetter}</div>`;
+            const avatarHtml = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600/60 to-slate-800/60 border border-white/10 text-slate-200 flex items-center justify-center font-semibold text-sm shrink-0 shadow-inner">${firstLetter}</div>`;
             imgElement.outerHTML = avatarHtml;
         }
     </script>
@@ -129,7 +129,7 @@
     <div id="loadingScreen">
         <div class="spinner shadow-[0_0_15px_rgba(129,140,248,0.3)]"></div>
         <div class="mt-6 text-[12px] font-bold text-indigo-300/80 tracking-[0.2em] uppercase animate-pulse">
-            Loading Workspaces & Icons...
+            Loading Workspaces of Helloxiaolaodi
         </div>
     </div>
 
@@ -295,7 +295,7 @@
 
                 // ================= 核心：监听所有图标加载完毕 + 强制最少等待时间 =================
                 const startTime = Date.now();
-                const minLoadingTime = 1800; // 强制最少转圈 1.8 秒，确保视觉体验连贯
+                const minLoadingTime = 1800; // 强制最少转圈 1.8 秒
 
                 const icons = document.querySelectorAll('.nav-icon');
                 let loadedCount = 0;
@@ -318,7 +318,6 @@
                     dismissLoadingScreen();
                 } else {
                     icons.forEach(img => {
-                        // 如果图片已经从缓存加载好，或者加载成功/失败，都算完成
                         if (img.complete) {
                             loadedCount++;
                             if (loadedCount === totalIcons) dismissLoadingScreen();
@@ -328,13 +327,15 @@
                                 if (loadedCount === totalIcons) dismissLoadingScreen();
                             };
                             img.onerror = () => {
-                                loadedCount++; // 即使某张图挂了触发了 onerror 兜底，也算流程结束
+                                // 图片加载失败时自动转为字母头像
+                                generateLetterAvatar(img, img.closest('a').querySelector('h3').textContent);
+                                loadedCount++;
                                 if (loadedCount === totalIcons) dismissLoadingScreen();
                             };
                         }
                     });
 
-                    // 🛡️ 终极安全保险：如果个别外网图标因为网络极差迟迟不回调，最多强行等待 5 秒钟自动放行，防止页面死锁在加载屏
+                    // 🛡️ 终极安全保险：最多等待 5 秒钟自动放行
                     setTimeout(() => {
                         dismissLoadingScreen();
                     }, 5000);
@@ -374,7 +375,6 @@
             })
             .catch(err => {
                 console.error("加载 links.json 失败:", err);
-                // 发生错误时也移除加载屏，避免页面卡死
                 const loadingScreen = document.getElementById('loadingScreen');
                 if (loadingScreen) loadingScreen.remove();
             });
