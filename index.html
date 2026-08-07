@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
+    <link rel="preload" as="image" href="1109770.jpg">
     <script src="./tailwind.min.js"></script>
     <style>
         :root { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
@@ -17,7 +18,8 @@
             background-size: cover;
             filter: blur(4px) brightness(0.85);
             z-index: -1;
-            display: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
         }
 
         html[data-theme="gradient"] body {
@@ -31,7 +33,7 @@
             background-color: #0f172a;
             min-height: 100vh;
         }
-        html[data-theme="space"] body::before { display: block; }
+        html[data-theme="space"].bg-ready body::before { opacity: 1; }
 
         #loadingScreen {
             position: fixed;
@@ -224,6 +226,10 @@
         const savedTheme = storedTheme === 'space' || storedTheme === 'theme-space' ? 'space' : 'gradient';
         document.documentElement.dataset.theme = savedTheme;
 
+        const spaceBackground = new Image();
+        spaceBackground.onload = () => document.documentElement.classList.add('bg-ready');
+        spaceBackground.src = '1109770.jpg';
+
         function generateLetterAvatar(imgElement, title) {
             const firstLetter = title ? title.charAt(0).toUpperCase() : '';
             const avatarHtml = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-semibold text-sm shrink-0 shadow-sm">${firstLetter}</div>`;
@@ -383,12 +389,22 @@
 
         function renderTags() {
             const sidebar = document.getElementById('sidebar');
-            const tags = [...new Set(allItems.flatMap(item => item.tags || []))].sort((a, b) => a.localeCompare(b, 'en'));
+            const preferredOrder = ['AI', 'Bioinformatics', 'Database', 'Forum', 'Git', 'Literature', 'Microbiome', 'Python', 'QIIME2', 'R', 'Tutorial', 'Writing'];
+            const tags = [...new Set(allItems.flatMap(item => item.tags || []))].sort((a, b) => {
+                const aIndex = preferredOrder.indexOf(a);
+                const bIndex = preferredOrder.indexOf(b);
+                return (aIndex === -1 ? preferredOrder.length + a.localeCompare(b, 'en') : aIndex)
+                    - (bIndex === -1 ? preferredOrder.length + b.localeCompare(a, 'en') : bIndex);
+            });
+            const finalRowTags = tags.filter(tag => tag === 'Tutorial' || tag === 'Writing');
+            const mainTags = tags.filter(tag => tag !== 'Tutorial' && tag !== 'Writing');
+            const tagButton = tag => `<button type="button" class="tag-badge ${activeTag === tag ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="${tag}">${tag}</button>`;
             const tagHtml = [
                 `<div class="px-4 pt-1 pb-2 text-[11px] font-bold uppercase tracking-widest opacity-60">Tags</div>`,
                 `<div id="tagFilter" class="px-3 pb-3 flex flex-wrap gap-1.5">`,
                 `<button type="button" class="tag-badge ${activeTag === 'all' ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="all">All</button>`,
-                ...tags.map(tag => `<button type="button" class="tag-badge ${activeTag === tag ? 'active' : ''} px-2 py-1 rounded-md text-xs" data-tag="${tag}">${tag}</button>`),
+                ...mainTags.map(tagButton),
+                finalRowTags.length ? `<div class="flex w-full gap-1.5">${finalRowTags.map(tagButton).join('')}</div>` : '',
                 `</div>`,
                 `<div id="categoryLinks" class="pt-2 space-y-1"></div>`,
             ].join('');
