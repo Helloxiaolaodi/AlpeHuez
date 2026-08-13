@@ -1,0 +1,338 @@
+if (!requireNamespace("ggtext", quietly = TRUE)) {
+  install.packages("ggtext", repos = "http://cran.us.r-project.org")
+}
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(sf)
+  library(countrycode)
+  library(rnaturalearth)
+  library(rnaturalearthdata)
+  library(ggrepel)
+  library(scales)
+  library(patchwork)
+  library(ggtext)
+})
+
+sf_use_s2(FALSE)
+
+# Paths
+metadata_path <- paste0(
+  "/home/yanglun/YSD/global_oral/global_oral_v2/oral-v2-02/01-overview-sampling-distribution/02-patch-map-2/02-patch-pipeline-map/",
+  "input/metadata_oral_qc.tsv"
+)
+
+output_dir <- paste0(
+  "/home/yanglun/YSD/global_oral/global_oral_v2/oral-v2-02/01-overview-sampling-distribution/02-patch-map-2/02-patch-pipeline-map/",
+  "output"
+)
+if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+
+# Theme and palettes
+base_sz <- 16
+text_sz <- base_sz / .pt
+
+theme_map <- theme_void(base_size = base_sz, base_family = "sans") +
+  theme(
+    legend.title = element_text(size = base_sz * 0.8, face = "bold", color = "#303030"),
+    legend.text = element_text(size = base_sz * 0.7, color = "#303030"),
+    legend.position = "top",
+    legend.box = "horizontal",
+    legend.spacing.x = unit(3, "mm"), 
+    legend.key = element_blank(),
+    plot.background = element_rect(fill = "#F8F5F0", color = NA),
+    panel.background = element_rect(fill = "#F8F5F0", color = NA),
+    plot.margin = margin(5, 5, 5, 5, "pt")
+  )
+
+# Continent Point Colors
+continent_colors <- c(
+  "NAM" = "#D32F2F", "SA" = "#AB47BC", "EU" = "#4CAF50",
+  "AS"  = "#FF9800", "AF" = "#795548", "OA" = "#29B6F6"
+)
+continent_order <- c("NAM", "SA", "EU", "AS", "AF", "OA")
+
+# Distinct Site Colors
+site_cols_ordered <- c("Saliva", "Tooth", "Oral Mucosa", "Oral Swab", "Tongue", "Gingiva", "Others")
+site_colors <- c(
+  "Saliva"      = "#08306B", 
+  "Tooth"       = "#E7298A", 
+  "Oral Mucosa" = "#666666", 
+  "Oral Swab"   = "#E6AB02", 
+  "Tongue"      = "#A6761D", 
+  "Gingiva"     = "#CAB2D6", 
+  "Others"      = "#117733"  
+)
+
+# Read and clean metadata
+metadata <- read_tsv(metadata_path, show_col_types = FALSE) %>%
+  rename(
+    BioProject      = bioproject_id,
+    Country_Cleaned = country_cleaned,
+    Site_Cleaned    = site_cleaned
+  ) %>%
+  mutate(
+    Site_Cleaned = str_to_title(Site_Cleaned),
+    Site_Cleaned = case_when(Site_Cleaned == "Other" ~ "Others", TRUE ~ Site_Cleaned)
+  ) %>%
+  filter(!(Site_Cleaned %in% c("Nasal", "Tonsils")), !is.na(Country_Cleaned), Country_Cleaned != "") %>%
+  mutate(iso3c = countrycode(Country_Cleaned, origin = "country.name", destination = "iso3c"))
+
+south_america_iso3c <- c("ARG", "BOL", "BRA", "CHL", "COL", "ECU", "GUY", "PRY", "PER", "SUR", "URY", "VEN", "FLK", "GUF")
+
+meta_clean <- metadata %>%
+  mutate(
+    Temp_Continent = countrycode(iso3c, "iso3c", "continent"),
+    Continent = case_when(
+      Temp_Continent == "Americas" & (iso3c %in% south_america_iso3c) ~ "SA",
+      Temp_Continent == "Americas" & !(iso3c %in% south_america_iso3c) ~ "NAM",
+      Temp_Continent == "Europe"   ~ "EU",
+      Temp_Continent == "Asia"     ~ "AS",
+      Temp_Continent == "Africa"   ~ "AF",
+      Temp_Continent == "Oceania"  ~ "OA",
+      iso3c == "ATA"               ~ "Antarctica",
+      TRUE                         ~ Temp_Continent
+    ),
+    age_num = suppressWarnings(as.numeric(age_cleaned)),
+    bmi_num = suppressWarnings(as.numeric(bmi_cleaned)),
+    sex_label = case_when(
+      tolower(sex_cleaned) %in% c("f", "female") ~ "F",
+      tolower(sex_cleaned) %in% c("m", "male")   ~ "M",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!Continent %in% c("Other", "Antarctica")) %>%
+  mutate(Continent = factor(Continent, levels = continent_order))
+
+# Continent-Level Demographics
+continent_summary <- meta_clean %>%
+  group_by(Continent) %>%
+  summarise(
+    Age_mean = mean(age_num, na.rm = TRUE),
+    Age_sd   = sd(age_num, na.rm = TRUE),
+    BMI_mean = mean(bmi_num[bmi_num > 10 & bmi_num < 60], na.rm = TRUE),
+    BMI_sd   = sd(bmi_num[bmi_num > 10 & bmi_num < 60], na.rm = TRUE),
+    n_F      = sum(sex_label == "F", na.rm = TRUE),
+    n_M      = sum(sex_label == "M", na.rm = TRUE),
+    .groups  = "drop"
+  ) %>%
+  mutate(
+    total_sex = n_F + n_M,
+    pct_F = if_else(total_sex > 0, round((n_F / total_sex) * 100, 1), 0),
+    pct_M = if_else(total_sex > 0, round((n_M / total_sex) * 100, 1), 0),
+    Age_str = if_else(!is.na(Age_mean), paste0(round(Age_mean, 1), " \u00B1 ", round(Age_sd, 1)), "N/A"),
+    BMI_str = if_else(!is.na(BMI_mean), paste0(round(BMI_mean, 1), " \u00B1 ", round(BMI_sd, 1)), "N/A"),
+    Full_Name = case_when(
+      Continent == "NAM" ~ "North America (NA)",
+      Continent == "SA"  ~ "South America (SA)",
+      Continent == "EU"  ~ "Europe (EU)",
+      Continent == "AS"  ~ "Asia (AS)",
+      Continent == "AF"  ~ "Africa (AF)",
+      Continent == "OA"  ~ "Oceania (OA)"
+    ),
+    card_label = paste0(
+      "<span style='font-size: ", round(base_sz * 0.70), "pt;'><b>", Full_Name, "</b></span><br>",
+      "<span style='font-size: ", round(base_sz * 0.52), "pt;'>",
+      "Age = ", Age_str, "<br>",
+      "Sex = F (", pct_F, "%), M (", pct_M, "%)<br>",
+      "BMI = ", BMI_str,
+      "</span>"
+    )
+  )
+
+# Absolute safe zone coordinates for continent information boxes
+continent_coords <- data.frame(
+  Continent = c("NAM", "SA", "EU", "AS", "AF", "OA"),
+  lon_pie   = c(-175, -135,  -80,  145,   -40,   75),  
+  lat_pie   = c(  30,  -30,   75,   10,  -40,  -35)  
+)
+continent_summary <- continent_summary %>% left_join(continent_coords, by = "Continent")
+
+# Country-Level Bubble & Label Data
+country_summary <- meta_clean %>%
+  group_by(Country_Cleaned, Continent) %>%
+  summarise(
+    n_samples = n(),
+    n_studies = n_distinct(BioProject),
+    .groups = "drop"
+  ) %>%
+  mutate(iso3c = countrycode(Country_Cleaned, "country.name", "iso3c"))
+
+world_sf <- rnaturalearth::ne_countries(scale = 110, returnclass = "sf") %>%
+  filter(name != "Antarctica") %>%
+  mutate(iso3c = iso_a3)
+
+centroids <- world_sf %>%
+  filter(!is.na(iso3c)) %>%
+  st_point_on_surface() %>%
+  mutate(lon = st_coordinates(geometry)[, 1], lat = st_coordinates(geometry)[, 2]) %>%
+  st_drop_geometry() %>%
+  select(iso3c, lon, lat)
+
+country_map_data <- country_summary %>%
+  left_join(centroids, by = "iso3c") %>%
+  mutate(
+    lon = ifelse(is.na(lon) & iso3c == "BRB", -59.5, lon),
+    lat = ifelse(is.na(lat) & iso3c == "BRB", 13.2, lat)
+  ) %>%
+  filter(!is.na(lon), !is.na(lat)) %>%
+  mutate(Continent = factor(Continent, levels = continent_order))
+
+country_map_labels <- country_map_data %>%
+  mutate(
+    country_label = paste0(Country_Cleaned, "\n(", n_studies, " bp; n=", scales::comma(n_samples), ")")
+  )
+
+# Generate Pie Charts as Grobs
+site_continent_data <- meta_clean %>%
+  filter(!is.na(Site_Cleaned)) %>%
+  count(Continent, Site_Cleaned) %>%
+  group_by(Continent) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(Site_Cleaned = factor(Site_Cleaned, levels = site_cols_ordered))
+
+pie_grobs <- lapply(continent_order, function(cont) {
+  df <- site_continent_data %>% filter(Continent == cont)
+  if(nrow(df) == 0) return(grid::nullGrob())
+  p <- ggplot(df, aes(x = "", y = prop, fill = Site_Cleaned)) +
+    geom_bar(stat = "identity", width = 1, color = "white", linewidth = 0.3) +
+    coord_polar("y", start = 0) +
+    scale_fill_manual(values = site_colors, limits = site_cols_ordered) +
+    theme_void() +
+    theme(legend.position = "none", plot.background = element_blank(), panel.background = element_blank())
+  ggplotGrob(p)
+})
+
+r_pie <- 7.5  
+pie_layers <- lapply(1:length(continent_order), function(i) {
+  cont <- continent_order[i]
+  coords <- continent_coords %>% filter(Continent == cont)
+  annotation_custom(
+    grob = pie_grobs[[i]],
+    xmin = coords$lon_pie - r_pie, xmax = coords$lon_pie + r_pie,
+    ymin = coords$lat_pie - r_pie, ymax = coords$lat_pie + r_pie
+  )
+})
+
+# Core Map Rendering
+p_map_base <- ggplot() +
+  geom_sf(data = world_sf, fill = "#EFEBDD", color = "#D5D0C5", linewidth = 0.3) +
+  
+  geom_point(
+    data = country_map_data,
+    aes(x = lon, y = lat, size = n_samples, color = Continent),
+    shape = 16, alpha = 0.85
+  ) +
+  scale_size_continuous(
+    name   = "Number of samples",
+    range  = c(3, 28),
+    breaks = c(10, 100, 1000, 10000, 40000),
+    labels = c("10", "100", "1K", "10K", "40K"),
+    guide  = guide_legend(override.aes = list(color = "grey60", alpha = 1, fill = "transparent", shape = 16))
+  ) +
+  scale_color_manual(values = continent_colors, guide = "none") +
+  
+  pie_layers +
+  
+  geom_richtext(
+    data = continent_summary,
+    aes(x = lon_pie + 9.5, y = lat_pie, label = card_label),
+    hjust = 0,                   
+    vjust = 0.5,
+    fill = "#F8F5F0",
+    color = "#303030",
+    label.color = "grey75",      
+    label.padding = unit(0.4, "lines"),
+    label.r = unit(0.15, "lines"), 
+    lineheight = 1.3,            
+    alpha = 0.95
+  ) +
+  
+  # LAYER SPLIT: 1. All countries EXCEPT United States
+  geom_text_repel(
+    data          = country_map_labels %>% filter(Country_Cleaned != "United States"),
+    aes(x = lon, y = lat, label = country_label, color = Continent),
+    size          = text_sz * 0.55,
+    fontface      = "bold",
+    lineheight    = 0.85,
+    min.segment.length = 0,      
+    force         = 3,           
+    max.overlaps  = Inf,         
+    segment.color = "#888888",
+    segment.size  = 0.4,
+    box.padding   = 0.6,
+    point.padding = 1.2,
+    seed          = 42
+  ) +
+  
+  # LAYER SPLIT: 2. United States ONLY
+  geom_text_repel(
+    data          = country_map_labels %>% filter(Country_Cleaned == "United States"),
+    aes(x = lon, y = lat, label = country_label, color = Continent),
+    size          = text_sz * 0.55,
+    fontface      = "bold",
+    lineheight    = 0.85,
+    min.segment.length = 0,
+    nudge_x       = 45,
+    nudge_y       = 2,
+    force         = 1,
+    max.overlaps  = Inf,
+    segment.color = "#888888",
+    segment.size  = 0.4,
+    box.padding   = 0.6,
+    point.padding = 1.2,
+    seed          = 42
+  ) +
+  
+  coord_sf(xlim = c(-180, 180), ylim = c(-55, 75), expand = FALSE, clip = "off") +
+  theme_map
+
+# Transparent Legend Generation 
+p_site_legend <- ggplot(data.frame(Site = factor(site_cols_ordered, levels = site_cols_ordered)), 
+                        aes(x = 1, y = 1, fill = Site)) +
+  geom_point(shape = 21, size = 0, color = NA, stroke = 0) + 
+  scale_fill_manual(
+    name = "Sampling Site", 
+    values = site_colors, 
+    limits = site_cols_ordered,
+    guide = guide_legend(override.aes = list(size = 5, color = "white", stroke = 0.5, alpha = 1))
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "left",
+    legend.title = element_text(size = base_sz * 0.85, face = "bold", color = "#303030"),
+    legend.text = element_text(size = base_sz * 0.75, color = "#303030"),
+    legend.key.size = unit(5, "mm"),
+    legend.background = element_blank(),
+    plot.background = element_blank(),
+    panel.background = element_blank(),
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+# Composite Map
+p_final_map <- p_map_base +
+  inset_element(
+    p_site_legend,
+    left   = 0.01,
+    bottom = 0.05,
+    right  = 0.20,
+    top    = 0.35,
+    align_to = "full",
+    clip   = FALSE
+  ) +
+  plot_annotation(
+    theme = theme(
+      plot.background = element_rect(fill = "#F8F5F0", color = NA),
+      panel.background = element_rect(fill = NA, color = NA)
+    )
+  )
+
+# Save Outputs 
+ggsave(file.path(output_dir, "global_sampling_world_map_final_cropped.pdf"),
+       plot = p_final_map, width = 18, height = 7.2, device = "pdf")
+ggsave(file.path(output_dir, "global_sampling_world_map_final_cropped.png"),
+       plot = p_final_map, width = 18, height = 7.2,
+       device = "png", dpi = 600, bg = "#F8F5F0")
+
+message("Saved: global_sampling_world_map_final_cropped.pdf / .png to ", output_dir)
