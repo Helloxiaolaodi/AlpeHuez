@@ -28,7 +28,7 @@ engine: knitr
 ## 1.1 Study design
 
 The TargetC cohort is an adenoma follow-up study. Every subject in the
-follow-up cohort was sampled **twice** (T1 = baseline, T2 = follow-up):
+follow-up cohort was sampled twice:
 
 | Group            | T1 sample | T2 sample |
 |------------------|-----------|-----------|
@@ -36,29 +36,12 @@ follow-up cohort was sampled **twice** (T1 = baseline, T2 = follow-up):
 | Non_recurrence   | Non1      | Non2      |
 
 A cross-sectional comparison of the two groups ignores each subject's own
-baseline. The statistically correct unit is therefore the **within-individual
-change**:
+baseline. The statistically correct unit is the **within-individual change**:
 
 $$\Delta_i = \mathrm{CLR}(T2_i) - \mathrm{CLR}(T1_i)$$
 
 and the analysis compares **Recurrence-delta vs Non_recurrence-delta**
 (117 paired subjects: Recurrence = 59, Non_recurrence = 58).
-
-## 1.2 Data sources
-
-Nine feature matrices are analysed with the same delta framework:
-
-| Source | Description | Compositional |
-|--------|-------------|---------------|
-| `mp4_species` | MetaPhlAn4 species relative abundances (needs a T-number bridge file) | yes (CLR) |
-| `humann3_pathabundance` | HUMAnN3 pathway abundance (RPK, community level) | yes (CLR) |
-| `humann3_pathcoverage` | HUMAnN3 pathway presence/absence → transition (gain/loss) analysis | — |
-| `microtrait_proportion` | microTrait compositional trait proportions | yes (CLR) |
-| `microtrait_score` | microTrait coverage-weighted trait scores | no (raw delta) |
-| `traitar_proportion` | Traitar phenotype proportions | yes (CLR) |
-| `traitar_score` | Traitar phenotype scores | no (raw delta) |
-| `dbcan3_proportion` | dbCAN3 CAZyme family proportions | yes (CLR) |
-| `dbcan3_score` | dbCAN3 CAZyme family scores | no (raw delta) |
 
 ## 1.3 Statistical methods
 
@@ -66,50 +49,25 @@ Nine feature matrices are analysed with the same delta framework:
   (Recurrence vs Non_recurrence), BH-FDR corrected; paired Wilcoxon (T2 vs T1)
   within each group as a descriptive check; effect sizes Cliff's delta and
   bias-corrected Hedges' g.
-- **ANCOVA** (more powerful than the plain delta test): per feature
-  `delta ~ group + baseline`, i.e. the group effect on the change adjusted for
-  the subject's own baseline CLR value.
+- **ANCOVA**: per feature, `delta ~ group + baseline`, i.e. group effect on the
+  change adjusted for the subject's own baseline CLR value.
 - **Multivariate**: PERMANOVA (`adonis2`, 999 permutations) + `betadisper` +
   PCoA on the Euclidean distance of the delta matrix (Aitchison geometry on the
   paired changes).
-- **Composite module scores**: to cut the multiple-testing burden from
-  hundreds of features to a handful of biologically-motivated modules, curated
-  CAZyme families (mucin core / mucin extended / chitin / plant) and HUMAnN3
-  pathway keywords (butyrate / propionate / LPS) are collapsed into 7 module
-  scores; each module is tested with the same Wilcoxon + ANCOVA framework.
-- **Transition analysis** (pathcoverage): per pathway, the number of subjects
-  that gained (0→1) or lost (1→0) the pathway between T1 and T2 is compared
-  between groups (Wilcoxon on the transition value + Fisher's exact test on the
-  gain/loss contingency table).
-
-## 1.4 Output layout
-
-```
-results/
-  stats/   delta_matrix_<source>.tsv, clr_t1/t2_<source>.tsv,
-           per_feature_stats_<source>.tsv, permanova_<source>.tsv,
-           pcoa_<source>.tsv, analysis_summary_<source>.txt,
-           composite_scores.tsv, composite_delta_stats.tsv,
-           composite_analysis_summary.txt, transition_stats_*.tsv
-  metadata/ metadata_longitudinal.tsv, metadata_longitudinal_paired.tsv
-  fig1_*_pcoa_delta.png, fig2_*_volcano.png, fig3_*_topbox.png,
-  fig4_*_trajectory.png, fig5_*_heatmap.png, fig6_*_manhattan.png,
-  figC1_composite_module_delta_boxplot.png, figC2_composite_module_volcano.png,
-  figC3_composite_module_trajectory.png, fig1_pathcoverage_transitions.png
-```
-
+- **Composite module scores**: curated CAZyme families and HUMAnN3 pathway
+  keywords are collapsed into 7 modules; each is tested with the same Wilcoxon
+  + ANCOVA framework.
+- **Transition analysis** (pathcoverage): per pathway, gain (0->1) or loss
+  (1->0) between T1 and T2 is compared between groups (Wilcoxon + Fisher's
+  exact test).
 # 2. Script
 
-The analysis is split into two R scripts run by the SLURM wrapper
-`run-targetc-delta.sh`:
+The pipeline is run by `run-targetc-delta.sh`, which calls
+`targetc_delta_analysis.R` for statistics and `targetc_delta_plot.R` for
+figures.
+## 2.1 run-targetc-delta.sh
 
-1. `targetc_delta_analysis.R` — builds the longitudinal design, computes the
-   per-subject deltas, runs all per-feature + multivariate + composite tests,
-   and writes the `stats/` tables.
-2. `targetc_delta_plot.R` — reads the `stats/` tables and produces the
-   publication figures + figure-data CSVs.
-
-## 2.1 SLURM wrapper
+**Script:** run-targetc-delta.sh
 
 ```bash
 #!/bin/bash
@@ -124,7 +82,24 @@ The analysis is split into two R scripts run by the SLURM wrapper
 #SBATCH --error=/home/yanglun/YSD/TargetC/phenotypes-analysis/05-DeltaAnalysis/scripts/logs/targetc_delta_%j.err
 #SBATCH --exclude=cu01
 
+# Paired individual-level delta analysis + figures for the TargetC follow-up
+# cohort. All paths are absolute so the job does NOT depend on where sbatch
+# was invoked from.
+#   sbatch run-targetc-delta.sh
+#
+# Pipeline:
+#   1. targetc_delta_analysis.R  -- longitudinal design + per-subject delta
+#      delta = CLR(T2) - CLR(T1), per-feature + multivariate tests
+#      -> <delta-plot>/stats/*.tsv
+#   2. targetc_delta_plot.R      -- publication figures + figure CSVs
+#      -> <delta-plot>/fig*.png
+#
+# Optional overrides (uncomment to set):
 export TARGETC_DELTA_OUT=/home/yanglun/YSD/TargetC/phenotypes-analysis/05-DeltaAnalysis/results
+#   export TARGETC_MP4_BRIDGE=/home/yanglun/YSD/TargetC/input/mp4_profile_column_bridge.tsv
+#   export TARGETC_DELTA_SOURCES=mp4_species,humann3_pathabundance,humann3_pathcoverage,microtrait_proportion,microtrait_score,traitar_proportion,traitar_score,dbcan3_proportion,dbcan3_score
+#   export TARGETC_TRAITAR_ANNOTATED_DIR=/home/yanglun/YSD/TargetC/enhanced/Results/trait_summary_annotated_mimag90_fixed
+#   export TARGETC_DBCAN3_ANNOTATED_DIR=/home/yanglun/YSD/TargetC/phenotypes-analysis/dbcan3-analysis/results/cazy_summary_annotated_mimag90
 
 SCRIPT_DIR=/home/yanglun/YSD/TargetC/phenotypes-analysis/05-DeltaAnalysis/scripts
 LOG_DIR="${SCRIPT_DIR}/logs"
@@ -139,13 +114,149 @@ export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
 
 source /home/yanglun/miniconda3/bin/activate r-env
 
+echo "Running on node: $(hostname)"
+echo "Start time: $(date)"
+echo "R environment: $(which R)"
+echo "R version: $(Rscript -e 'cat(R.version.string)')"
+
 Rscript targetc_delta_analysis.R
 Rscript targetc_delta_plot.R
+
+echo "End time: $(date)"
 ```
 
-## 2.2 Longitudinal design and CLR
+## 2.2 targetc_delta_analysis.R
+
+**Script:** targetc_delta_analysis.R
 
 ```r
+#!/usr/bin/env Rscript
+# ============================================================================
+# targetc_delta_analysis.R
+# ----------------------------------------------------------------------------
+# Paired individual-level delta analysis for the TargetC adenoma follow-up cohort.
+#
+# Design:
+#   Every subject in the follow-up cohort was sampled twice (T1, T2):
+#     Recurrence     group: Re1 = T1, Re2 = T2   (adenoma recurrence)
+#     Non_recurrence group: Non1 = T1, Non2 = T2 (no recurrence)
+#   Per subject and per feature we define
+#         delta = CLR(T2) - CLR(T1)
+#   i.e. the within-individual log-ratio change over the follow-up interval.
+#   The cross-sectional comparison is replaced by the between-group comparison
+#   of the within-subject deltas:
+#         Recurrence-delta  vs  Non_recurrence-delta
+#
+# Data sources (each analysed with the same delta framework):
+#   1. mp4_species            MetaPhlAn4 species relative abundances
+#                             (requires a bridge file mapping the mp4 T-numbers
+#                              to the profile_column keys, see TARGETC_MP4_BRIDGE)
+#   2. humann3_pathabundance  HUMAnN3 pathway abundance (RPK) -- community level
+#   3. humann3_pathcoverage   HUMAnN3 pathway presence/absence -> transition analysis
+#   4. microtrait_proportion  microTrait compositional trait proportions (CLR)
+#   5. microtrait_score       microTrait coverage-weighted trait scores (raw delta)
+#
+# Statistics:
+#   - per-feature two-sample Wilcoxon rank-sum on delta, BH-corrected
+#   - paired Wilcoxon (T2 vs T1) within each group (descriptive)
+#   - effect sizes: Cliff's delta and bias-corrected Hedges' g
+#   - multivariate: PERMANOVA (adonis2) + betadisper + PCoA on the Euclidean
+#     distance of the delta matrix (Aitchison geometry on the paired changes)
+#
+# Output (under $TARGETC_DELTA_OUT, default .../results/delta-plot):
+#   stats/delta_matrix_<source>.tsv      subject x feature delta matrix
+#   stats/clr_t1_<source>.tsv            CLR-transformed T1 (subject x feature)
+#   stats/clr_t2_<source>.tsv            CLR-transformed T2 (subject x feature)
+#   stats/per_feature_stats_<source>.tsv per-feature test results
+#   stats/permanova_<source>.tsv         PERMANOVA + betadisper
+#   stats/pcoa_<source>.tsv              PCoA coordinates + group
+#   stats/analysis_summary_<source>.txt  run summary
+#   metadata/...                         longitudinal design tables (built here)
+#
+# Environment overrides:
+#   TARGETC_PROJ_DIR, TARGETC_DELTA_OUT, TARGETC_MICROTRAIT_ANNOTATED_DIR,
+#   TARGETC_HUMANN3_DIR, TARGETC_MP4_PROFILE, TARGETC_MP4_BRIDGE,
+#   TARGETC_METADATA_PAIRED (optional override), TARGETC_DELTA_SOURCES,
+#   TARGETC_MIN_PREVALENCE, TARGETC_N_PERM
+# ============================================================================
+
+suppressPackageStartupMessages({
+  library(vegan)
+})
+
+# ----------------------------- configuration -------------------------------
+
+get_config <- function() {
+  proj <- Sys.getenv("TARGETC_PROJ_DIR", "/home/yanglun/YSD/TargetC")
+  out  <- Sys.getenv("TARGETC_DELTA_OUT",
+                     file.path(proj, "phenotypes-analysis", "microtrait-analysis",
+                               "results", "delta-plot"))
+  mt_dir <- Sys.getenv("TARGETC_MICROTRAIT_ANNOTATED_DIR",
+                       file.path(proj, "phenotypes-analysis", "microtrait-analysis",
+                                 "results", "trait_summary_annotated_mimag90"))
+  traitar_dir <- Sys.getenv("TARGETC_TRAITAR_ANNOTATED_DIR",
+                            file.path(proj, "enhanced", "Results",
+                                      "trait_summary_annotated_mimag90_fixed"))
+  dbcan3_dir <- Sys.getenv("TARGETC_DBCAN3_ANNOTATED_DIR",
+                           file.path(proj, "phenotypes-analysis", "dbcan3-analysis",
+                                     "results", "cazy_summary_annotated_mimag90"))
+  list(
+    proj          = proj,
+    out           = out,
+    stats_dir     = file.path(out, "stats"),
+    meta_dir      = file.path(out, "metadata"),
+    mt_dir        = mt_dir,
+    mt_prop       = file.path(mt_dir, "annotated_binary_sample_trait_proportion_coverage.tsv"),
+    mt_score      = file.path(mt_dir, "annotated_binary_sample_trait_score_coverage.tsv"),
+    traitar_prop  = file.path(traitar_dir, "annotated_trait_proportion_coverage.tsv"),
+    traitar_score = file.path(traitar_dir, "annotated_trait_score_coverage.tsv"),
+    dbcan3_prop   = file.path(dbcan3_dir, "annotated_cazyme_proportion_coverage.tsv"),
+    dbcan3_score  = file.path(dbcan3_dir, "annotated_cazyme_score_coverage.tsv"),
+    humann3_dir   = Sys.getenv("TARGETC_HUMANN3_DIR", file.path(proj, "input", "humann3")),
+    mp4_profile   = Sys.getenv("TARGETC_MP4_PROFILE", file.path(proj, "input", "sysucc_n460.mp4.profile")),
+    mp4_bridge    = Sys.getenv("TARGETC_MP4_BRIDGE", file.path(proj, "input", "mp4_profile_column_bridge.tsv")),
+    meta_paired   = Sys.getenv("TARGETC_METADATA_PAIRED", ""),
+    sources       = strsplit(Sys.getenv("TARGETC_DELTA_SOURCES",
+                                        "mp4_species,humann3_pathabundance,humann3_pathcoverage,microtrait_proportion,microtrait_score,traitar_proportion,traitar_score,dbcan3_proportion,dbcan3_score"),
+                             ",")[[1]],
+    min_prev      = as.numeric(Sys.getenv("TARGETC_MIN_PREVALENCE", "0.10")),
+    n_perm        = as.integer(Sys.getenv("TARGETC_N_PERM", "999"))
+  )
+}
+
+# ------------------------------- helpers -----------------------------------
+
+write_tsv <- function(x, path) {
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  write.table(x, path, sep = "\t", quote = FALSE, row.names = FALSE,
+              col.names = TRUE)
+  cat(sprintf("  wrote %s (%d rows)\n", path, nrow(x)))
+}
+
+# write a matrix, keeping the rownames as an explicit first column
+write_mat <- function(m, path, name = "subject_id") {
+  df <- data.frame(id = rownames(m), m, check.names = FALSE,
+                   stringsAsFactors = FALSE)
+  names(df)[1] <- name
+  write_tsv(df, path)
+}
+
+cliff_delta <- function(x, y) {
+  n1 <- length(x); n2 <- length(y)
+  if (n1 == 0 || n2 == 0) return(NA_real_)
+  sum(vapply(x, function(a) sum(a > y) - sum(a < y), numeric(1))) / (n1 * n2)
+}
+
+hedges_g <- function(x, y) {
+  n1 <- length(x); n2 <- length(y)
+  if (n1 < 2 || n2 < 2) return(NA_real_)
+  sp2 <- ((n1 - 1) * var(x) + (n2 - 1) * var(y)) / (n1 + n2 - 2)
+  if (sp2 <= 0) return(NA_real_)
+  d <- (mean(x) - mean(y)) / sqrt(sp2)
+  J <- 1 - 3 / (4 * (n1 + n2) - 9)
+  d * J
+}
+
 # Multiplicative-replacement + CLR on a samples x features matrix.
 # Features with prevalence < min_prevalence (or all-zero) are dropped.
 clr_matrix <- function(X, min_prevalence = 0.10, pc_factor = 0.5) {
@@ -169,8 +280,8 @@ clr_matrix <- function(X, min_prevalence = 0.10, pc_factor = 0.5) {
   list(clr = clr, kept = colnames(X))
 }
 
-# Build the paired design from the annotated table's SID / source columns.
-# Re1/Non1 -> T1, Re2/Non2 -> T2; pairs are merged on subject_id.
+# ------------------------- longitudinal design -----------------------------
+
 build_design <- function(annotated) {
   d <- data.frame(subject_id   = annotated$SID,
                   profile_col  = annotated$profile_column,
@@ -194,11 +305,85 @@ build_design <- function(annotated) {
   pairs <- pairs[, c("subject_id", "group", "sample_T1", "sample_T2")]
   list(design = d, pairs = pairs)
 }
-```
 
-## 2.3 Generic annotated loader + SID-based key alignment
+# Optional: read an externally supplied paired metadata table
+# (columns subject_id, group, sample_T1, sample_T2).
+override_design <- function(pairs, file) {
+  if (!file.exists(file)) {
+    cat(sprintf("  metadata override not found, keeping SID-derived design: %s\n", file))
+    return(pairs)
+  }
+  m <- read.delim(file, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+  m <- m[, c("subject_id", "group", "sample_T1", "sample_T2")]
+  cat(sprintf("  using external metadata design: %d paired subjects\n", nrow(m)))
+  m
+}
 
-```r
+# ----------------------------- data loaders --------------------------------
+
+# HUMAnN3 per-sample files: <sample>_<suffix>.tsv with one header line then
+# feature<TAB>value rows. Returns a sample x feature matrix (0-filled).
+load_humann3 <- function(dir, suffix) {
+  files <- list.files(dir, pattern = paste0("_", suffix, "\\.tsv$"),
+                      full.names = TRUE)
+  if (length(files) == 0) return(NULL)
+  cat(sprintf("  reading %d %s files...\n", length(files), suffix))
+  mats <- list()
+  for (f in files) {
+    base <- sub(paste0("_", suffix, "\\.tsv$"), "", basename(f))
+    lines <- readLines(f, warn = FALSE)
+    if (length(lines) < 2) next
+    tab <- read.delim(text = paste(lines[-1], collapse = "\n"),
+                      sep = "\t", header = FALSE, check.names = FALSE,
+                      stringsAsFactors = FALSE,
+                      colClasses = c("character", "numeric"))
+    tab <- tab[!grepl("^(UNMAPPED|UNINTEGRATED|UNGROUPED)", tab[, 1]) &
+               !grepl("\\|", tab[, 1]), ]
+    mats[[base]] <- tab
+  }
+  if (length(mats) == 0) return(NULL)
+  allfeats <- unique(unlist(lapply(mats, function(m) m[, 1]), use.names = FALSE))
+  X <- matrix(0, nrow = length(mats), ncol = length(allfeats),
+              dimnames = list(names(mats), allfeats))
+  for (b in names(mats)) {
+    idx <- match(mats[[b]][, 1], allfeats)
+    X[b, idx] <- mats[[b]][, 2]
+  }
+  X
+}
+
+# MetaPhlAn4 merged profile: clades x samples (T-numbers). Species rows only.
+# Renamed to profile_column keys via the bridge file, then subset to the design.
+load_mp4_species <- function(profile_file, bridge_file) {
+  if (!file.exists(profile_file)) return(NULL)
+  cat("  reading MetaPhlAn4 merged profile...\n")
+  mp <- read.delim(profile_file, sep = "\t", check.names = FALSE,
+                   row.names = 1, stringsAsFactors = FALSE)
+  mp <- mp[grepl("^s__", rownames(mp)), , drop = FALSE]
+  if (nrow(mp) == 0) return(NULL)
+  X <- t(mp)  # samples x species
+  rownames(X) <- sub("\\.mp4$", "", rownames(X))
+
+  if (!file.exists(bridge_file)) {
+    cat(sprintf("  WARNING: mp4 bridge file not found (%s); skipping species\n",
+                bridge_file))
+    return(NULL)
+  }
+  br <- read.delim(bridge_file, sep = "\t", stringsAsFactors = FALSE,
+                   check.names = FALSE)
+  if (!all(c("mp4_sample", "profile_column") %in% names(br))) {
+    cat("  WARNING: bridge needs columns mp4_sample, profile_column; skipping\n")
+    return(NULL)
+  }
+  br$mp4_sample <- sub("\\.mp4$", "", br$mp4_sample)
+  map <- setNames(br$profile_column, br$mp4_sample)
+  keep <- rownames(X) %in% names(map)
+  X <- X[keep, , drop = FALSE]
+  rownames(X) <- map[rownames(X)]
+  X <- X[!duplicated(rownames(X)), , drop = FALSE]
+  X
+}
+
 # Annotated sample x feature matrix (first columns are annotation keys).
 # Returns a matrix keyed by profile_column with attr(X, "meta") holding the
 # SID/profile_column/source columns (used by align_to_design for key remapping).
@@ -214,6 +399,8 @@ load_annotated <- function(file, exclude = c("SID", "profile_column", "source", 
                         drop = FALSE]
   X
 }
+
+load_microtrait <- function(file) load_annotated(file)
 
 # Remap a source matrix's rownames to the design's sample keys (pairs$sample_T1/T2)
 # via (SID, timepoint). No-op when the source has no SID metadata (e.g. HUMAnN3)
@@ -234,11 +421,9 @@ align_to_design <- function(X, pairs) {
   rownames(X) <- newkey[ok]
   X[!duplicated(rownames(X)), , drop = FALSE]
 }
-```
 
-## 2.4 Per-feature tests (Wilcoxon + ANCOVA)
+# --------------------------- per-feature tests ------------------------------
 
-```r
 feature_tests <- function(delta, clr_t1, clr_t2, pairs) {
   grp <- setNames(pairs$group, pairs$subject_id)
   feats <- colnames(delta)
@@ -254,7 +439,6 @@ feature_tests <- function(delta, clr_t1, clr_t2, pairs) {
                    error = function(e) NA_real_)
     pn <- tryCatch(wilcox.test(n1, n2, paired = TRUE)$p.value,
                    error = function(e) NA_real_)
-    # ANCOVA: group effect on the change, adjusted for the baseline
     anc <- tryCatch({
       fit <- lm(dv ~ grp + base, data = data.frame(
         dv   = delta[, f],
@@ -294,11 +478,9 @@ feature_tests <- function(delta, clr_t1, clr_t2, pairs) {
   out$sig_bh <- out$p_wilcox_bh < 0.05
   out[order(out$p_wilcox), ]
 }
-```
 
-## 2.5 Multivariate (PERMANOVA + betadisper + PCoA)
+# ---------------------------- multivariate ---------------------------------
 
-```r
 multivariate <- function(delta, pairs, n_perm) {
   grp <- factor(pairs$group, levels = c("Recurrence", "Non_recurrence"))
   dm  <- dist(delta)
@@ -321,6 +503,7 @@ multivariate <- function(delta, pairs, n_perm) {
     stringsAsFactors = FALSE)
   betadisp <- NULL
   if (!is.null(bd)) {
+    # parametric F-test on group distances (standard betadisper assessment)
     av <- tryCatch(anova(bd), error = function(e) NULL)
     betadisp <- data.frame(
       group_f = if (is.null(av)) NA_real_ else unname(av[["F value"]][1]),
@@ -329,11 +512,120 @@ multivariate <- function(delta, pairs, n_perm) {
   }
   list(permanova = permanova, betadisp = betadisp, coords = coords)
 }
-```
 
-## 2.6 Composite module scores
+# ---------------------- pathcoverage transition tests -----------------------
 
-```r
+transition_tests <- function(cov, pairs) {
+  t1v <- cov[pairs$sample_T1, , drop = FALSE]
+  t2v <- cov[pairs$sample_T2, , drop = FALSE]
+  rownames(t1v) <- pairs$subject_id
+  rownames(t2v) <- pairs$subject_id
+  trans <- t2v - t1v
+  v <- apply(trans, 2, var, na.rm = TRUE)
+  trans <- trans[, !is.na(v) & v > 0, drop = FALSE]
+  grp <- setNames(pairs$group, pairs$subject_id)
+  feats <- colnames(trans)
+  out <- do.call(rbind, lapply(feats, function(f) {
+    re  <- trans[grp == "Recurrence", f]
+    non <- trans[grp == "Non_recurrence", f]
+    wt  <- tryCatch(wilcox.test(re, non)$p.value, error = function(e) NA_real_)
+    ch_re  <- table(factor(re != 0, levels = c(FALSE, TRUE)))
+    ch_non <- table(factor(non != 0, levels = c(FALSE, TRUE)))
+    ft <- tryCatch(fisher.test(cbind(ch_re, ch_non))$p.value,
+                   error = function(e) NA_real_)
+    data.frame(
+      feature        = f,
+      mean_trans_re  = mean(re),
+      mean_trans_non = mean(non),
+      n_re           = length(re),
+      n_non          = length(non),
+      n_gain_re      = sum(re == 1),
+      n_loss_re      = sum(re == -1),
+      n_gain_non     = sum(non == 1),
+      n_loss_non     = sum(non == -1),
+      p_wilcox       = wt,
+      p_fisher       = ft,
+      stringsAsFactors = FALSE)
+  }))
+  out$p_wilcox_bh <- p.adjust(out$p_wilcox, method = "BH")
+  out$p_fisher_bh <- p.adjust(out$p_fisher, method = "BH")
+  out[order(out$p_wilcox), ]
+}
+
+# ------------------------------ one source ----------------------------------
+
+analyze_source <- function(name, X, pairs, compositional, cfg) {
+  cat(sprintf("\n=== %s ===\n", name))
+  X <- align_to_design(X, pairs)
+  present_t1 <- pairs$sample_T1 %in% rownames(X)
+  present_t2 <- pairs$sample_T2 %in% rownames(X)
+  ok <- present_t1 & present_t2
+  sub <- pairs[ok, ]
+  cat(sprintf("  paired subjects with both timepoints: %d (Recurrence=%d, Non_recurrence=%d)\n",
+              nrow(sub), sum(sub$group == "Recurrence"), sum(sub$group == "Non_recurrence")))
+  if (nrow(sub) < 6) { cat("  too few subjects; skipping\n"); return(invisible(NULL)) }
+
+  Xs <- X[unique(c(sub$sample_T1, sub$sample_T2)), , drop = FALSE]
+  if (compositional) {
+    res <- tryCatch(clr_matrix(Xs, min_prevalence = cfg$min_prev),
+                    error = function(e) NULL)
+    if (is.null(res)) {
+      cat(sprintf("  no features pass the prevalence filter; skipping %s\n", name))
+      return(invisible(NULL))
+    }
+    Xclr <- res$clr
+    cat(sprintf("  features after CLR filter: %d\n", ncol(Xclr)))
+  } else {
+    Xclr <- Xs
+  }
+
+  clr_t1 <- Xclr[sub$sample_T1, , drop = FALSE]
+  clr_t2 <- Xclr[sub$sample_T2, , drop = FALSE]
+  rownames(clr_t1) <- sub$subject_id
+  rownames(clr_t2) <- sub$subject_id
+  delta <- clr_t2 - clr_t1
+
+  v <- apply(delta, 2, var, na.rm = TRUE)
+  delta <- delta[, !is.na(v) & v > 0, drop = FALSE]
+  if (ncol(delta) == 0) { cat("  no variable features; skipping\n"); return(invisible(NULL)) }
+  cat(sprintf("  variable features for delta tests: %d\n", ncol(delta)))
+
+  st <- feature_tests(delta, clr_t1, clr_t2, sub)
+  mv <- multivariate(delta, sub, cfg$n_perm)
+
+  st_dir <- cfg$stats_dir
+  write_mat(delta,  file.path(st_dir, paste0("delta_matrix_", name, ".tsv")))
+  write_mat(clr_t1, file.path(st_dir, paste0("clr_t1_", name, ".tsv")))
+  write_mat(clr_t2, file.path(st_dir, paste0("clr_t2_", name, ".tsv")))
+  write_tsv(st,             file.path(st_dir, paste0("per_feature_stats_", name, ".tsv")))
+  write_tsv(mv$coords,      file.path(st_dir, paste0("pcoa_", name, ".tsv")))
+  write_tsv(rbind(mv$permanova,
+                  data.frame(term = "betadisper", df = NA, sum_of_sq = NA,
+                             f_stat = if (is.null(mv$betadisp)) NA_real_ else mv$betadisp$group_f,
+                             r2 = NA, p = if (is.null(mv$betadisp)) NA_real_ else mv$betadisp$group_p,
+                             stringsAsFactors = FALSE)),
+            file.path(st_dir, paste0("permanova_", name, ".tsv")))
+
+  n_sig <- sum(st$sig_bh)
+  summary_lines <- c(
+    sprintf("source: %s", name),
+    sprintf("paired subjects: %d (Recurrence=%d, Non_recurrence=%d)",
+            nrow(sub), sum(sub$group == "Recurrence"), sum(sub$group == "Non_recurrence")),
+    sprintf("features tested: %d", nrow(st)),
+    sprintf("features with BH-FDR < 0.05: %d", n_sig),
+    sprintf("top 10 by raw p:"))
+  top <- st[seq_len(min(10, nrow(st))),
+            c("feature", "delta_diff", "p_wilcox", "p_wilcox_bh", "p_ancova", "p_ancova_bh")]
+  sink(file.path(st_dir, paste0("analysis_summary_", name, ".txt")))
+  cat(paste(summary_lines, collapse = "\n"), "\n")
+  print(top, row.names = FALSE)
+  sink()
+  cat(sprintf("  done. %d significant features at FDR<0.05\n", n_sig))
+  invisible(list(stats = st, delta = delta))
+}
+
+# ------------------------- composite score analysis -------------------------
+
 # Curated functional modules (CAZyme families, from targetc_dbcan3_mucin_modules.R)
 COMPOSITE_MODULES_DB <- list(
   mucin_core = c("GH29", "GH95", "GH33", "GH109", "GH16", "GH136"),
@@ -352,8 +644,23 @@ COMPOSITE_MODULES_HU <- list(
   lps        = "lipid A|lipopolysaccharide|endotoxin|KDO"
 )
 
+COMPOSITE_LABELS <- c(
+  mucin_core = "Mucin degradation (core)",
+  mucin_ext  = "Mucin degradation (extended)",
+  chitin     = "Chitin utilization",
+  plant      = "Plant polysaccharide degradation",
+  butyrate   = "Butyrate production",
+  propionate = "Propionate production",
+  lps        = "LPS biosynthesis (pro-inflammatory)"
+)
+
 composite_analysis <- function(cfg, pairs) {
+  cat("\n=== composite scores ===\n")
   db <- load_annotated(cfg$dbcan3_prop)
+  if (is.null(db)) {
+    cat("  dbCAN3 annotated table missing; skipping composite analysis\n")
+    return(invisible(NULL))
+  }
   db <- align_to_design(db, pairs)
   hu <- if (dir.exists(cfg$humann3_dir)) load_humann3(cfg$humann3_dir, "pathabundance")
         else NULL
@@ -378,22 +685,28 @@ composite_analysis <- function(cfg, pairs) {
         stringsAsFactors = FALSE)
     }
   }
+  if (length(score_rows) == 0) {
+    cat("  no modules computable; skipping composite analysis\n")
+    return(invisible(NULL))
+  }
   scores <- do.call(rbind, score_rows)
 
-  # log-transform with a per-module multiplicative pseudocount
   minpos <- tapply(scores$score, scores$module, function(v) {
     m <- min(v[v > 0]); if (length(m) == 0) NA_real_ else m
   })
   scores$pc <- 0.5 * minpos[scores$module]
   scores$score_log <- log(scores$score + scores$pc)
 
-  # per-subject delta per module, then Wilcoxon + ANCOVA (same framework)
   key_tp <- rbind(
     data.frame(sample_id = pairs$sample_T1, subject_id = pairs$subject_id,
                timepoint = "T1", group = pairs$group, stringsAsFactors = FALSE),
     data.frame(sample_id = pairs$sample_T2, subject_id = pairs$subject_id,
                timepoint = "T2", group = pairs$group, stringsAsFactors = FALSE))
   scores <- merge(scores, key_tp, by = "sample_id", all.x = FALSE)
+  if (nrow(scores) == 0) {
+    cat("  no samples matched the design; skipping composite analysis\n")
+    return(invisible(NULL))
+  }
 
   mods <- unique(scores$module)
   out <- do.call(rbind, lapply(mods, function(m) {
@@ -433,18 +746,537 @@ composite_analysis <- function(cfg, pairs) {
 
   write_tsv(scores, file.path(cfg$stats_dir, "composite_scores.tsv"))
   write_tsv(out, file.path(cfg$stats_dir, "composite_delta_stats.tsv"))
+  summary_lines <- c(
+    "composite score delta analysis",
+    sprintf("paired subjects: %d (Recurrence=%d, Non_recurrence=%d)",
+            nrow(pairs), sum(pairs$group == "Recurrence"),
+            sum(pairs$group == "Non_recurrence")),
+    sprintf("modules tested: %d", nrow(out)),
+    sprintf("modules with BH-FDR < 0.05: %d",
+            sum(out$p_wilcox_bh < 0.05, na.rm = TRUE)))
+  sink(file.path(cfg$stats_dir, "composite_analysis_summary.txt"))
+  cat(paste(summary_lines, collapse = "\n"), "\n")
+  print(out[, c("module", "label", "delta_diff", "p_wilcox", "p_wilcox_bh",
+                "p_ancova", "p_ancova_bh")], row.names = FALSE)
+  sink()
+  cat(sprintf("  composite analysis done. %d modules, %d significant at FDR<0.05\n",
+              nrow(out), sum(out$p_wilcox_bh < 0.05, na.rm = TRUE)))
   invisible(list(scores = scores, stats = out))
 }
+
+# --------------------------------- main ------------------------------------
+
+main <- function() {
+  cfg <- get_config()
+  dir.create(cfg$stats_dir, recursive = TRUE, showWarnings = FALSE)
+  dir.create(cfg$meta_dir,  recursive = TRUE, showWarnings = FALSE)
+
+  cat("==========================================\n")
+  cat("TargetC paired delta analysis\n")
+  cat("Output:       ", cfg$out, "\n")
+  cat("Sources:      ", paste(cfg$sources, collapse = ", "), "\n")
+  cat("Min prevalence:", cfg$min_prev, "\n")
+  cat("Start:        ", format(Sys.time()), "\n")
+  cat("==========================================\n")
+
+  if (!file.exists(cfg$mt_prop)) {
+    stop("annotated microTrait table not found (required for the longitudinal design): ",
+         cfg$mt_prop)
+  }
+  annotated <- read.delim(cfg$mt_prop, sep = "\t", check.names = FALSE,
+                          stringsAsFactors = FALSE)
+  design <- build_design(annotated)
+  pairs  <- design$pairs
+  if (nzchar(cfg$meta_paired)) pairs <- override_design(pairs, cfg$meta_paired)
+  cat(sprintf("Longitudinal design: %d paired subjects (Recurrence=%d, Non_recurrence=%d)\n",
+              nrow(pairs), sum(pairs$group == "Recurrence"),
+              sum(pairs$group == "Non_recurrence")))
+
+  # write the design tables (mirrors targetc_build_metadata.py)
+  write_tsv(design$design, file.path(cfg$meta_dir, "metadata_longitudinal.tsv"))
+  write_tsv(pairs,         file.path(cfg$meta_dir, "metadata_longitudinal_paired.tsv"))
+
+  for (s in cfg$sources) {
+    if (s == "humann3_pathabundance" || s == "humann3_pathcoverage") {
+      suffix <- sub("humann3_", "", s)
+      X <- if (dir.exists(cfg$humann3_dir)) load_humann3(cfg$humann3_dir, suffix)
+           else { cat(sprintf("  humann3 dir missing (%s); skipping %s\n",
+                              cfg$humann3_dir, s)); NULL }
+      if (!is.null(X)) {
+        if (s == "humann3_pathcoverage") {
+          X[X > 0] <- 1
+          trans <- transition_tests(X, pairs)
+          st_dir <- cfg$stats_dir
+          write_tsv(trans, file.path(st_dir, "transition_stats_humann3_pathcoverage.tsv"))
+          write_mat(X, file.path(st_dir, "pathcoverage_matrix_humann3.tsv"),
+                    name = "sample_id")
+          cat(sprintf("  transition analysis done (%d variable pathways)\n", nrow(trans)))
+        } else {
+          analyze_source(s, X, pairs, compositional = TRUE, cfg)
+        }
+      }
+    } else if (s == "mp4_species") {
+      X <- load_mp4_species(cfg$mp4_profile, cfg$mp4_bridge)
+      if (is.null(X)) cat("  species analysis skipped\n")
+      else analyze_source(s, X, pairs, compositional = TRUE, cfg)
+    } else if (s == "microtrait_proportion") {
+      X <- load_microtrait(cfg$mt_prop)
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = TRUE, cfg)
+    } else if (s == "microtrait_score") {
+      X <- load_microtrait(cfg$mt_score)
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = FALSE, cfg)
+    } else if (s == "traitar_proportion") {
+      X <- load_annotated(cfg$traitar_prop, exclude = c("SID", "profile_column",
+                                                        "source", "sample_id", "score"))
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = TRUE, cfg)
+    } else if (s == "traitar_score") {
+      X <- load_annotated(cfg$traitar_score, exclude = c("SID", "profile_column",
+                                                         "source", "sample_id", "score"))
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = FALSE, cfg)
+    } else if (s == "dbcan3_proportion") {
+      X <- load_annotated(cfg$dbcan3_prop)
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = TRUE, cfg)
+    } else if (s == "dbcan3_score") {
+      X <- load_annotated(cfg$dbcan3_score)
+      if (!is.null(X)) analyze_source(s, X, pairs, compositional = FALSE, cfg)
+    } else {
+      cat(sprintf("  unknown source '%s'; skipping\n", s))
+    }
+  }
+
+  composite_analysis(cfg, pairs)
+
+  cat("\nEnd: ", format(Sys.time()), "\n")
+  cat("==========================================\n")
+}
+
+main()
 ```
 
-## 2.7 Composite figures
+## 2.3 targetc_delta_plot.R
+
+**Script:** targetc_delta_plot.R
 
 ```r
+#!/usr/bin/env Rscript
+# ============================================================================
+# targetc_delta_plot.R
+# ----------------------------------------------------------------------------
+# Publication-quality figures for the TargetC paired delta analysis.
+# Reads the statistics written by targetc_delta_analysis.R from
+#   <OUT>/stats/*.tsv
+# and writes figures (large text, small canvas, Nature sub-journal style) plus
+# figure-data CSVs to <OUT>/.
+#
+# Per compositional/abundance source (species / pathabundance / microtrait):
+#   fig1_<source>_pcoa_delta.png        PCoA of the delta matrix, PERMANOVA in caption
+#   fig2_<source>_volcano.png           delta_diff vs -log10(p), top features labelled
+#   fig3_<source>_topbox.png            delta boxplots of the top features by group
+#   fig4_<source>_trajectory.png        paired T1 -> T2 trajectories, top features
+#   fig5_<source>_heatmap.png           per-subject delta heatmap of top features
+#   fig6_<source>_manhattan.png         sorted -log10(p) waterfall
+# For the pathway coverage source:
+#   fig1_pathcoverage_transitions.png   gain / loss / unchanged counts, top pathways
+#   fig2_pathcoverage_volcano.png       transition volcano (Fisher / Wilcoxon)
+#   fig3_pathcoverage_heatmap.png       per-subject transition heatmap
+#
+# Environment overrides:
+#   TARGETC_PROJ_DIR, TARGETC_DELTA_OUT, TARGETC_TOP_K, TARGETC_TOP_HEAT
+# ============================================================================
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(vegan)
+  library(pheatmap)
+})
+
+# ----------------------------- configuration -------------------------------
+
+get_config <- function() {
+  proj <- Sys.getenv("TARGETC_PROJ_DIR", "/home/yanglun/YSD/TargetC")
+  out  <- Sys.getenv("TARGETC_DELTA_OUT",
+                     file.path(proj, "phenotypes-analysis", "microtrait-analysis",
+                               "results", "delta-plot"))
+  list(
+    out       = out,
+    stats_dir = file.path(out, "stats"),
+    meta_dir  = file.path(out, "metadata"),
+    top_k     = as.integer(Sys.getenv("TARGETC_TOP_K", "12")),
+    top_heat  = as.integer(Sys.getenv("TARGETC_TOP_HEAT", "30")),
+    label_k   = as.integer(Sys.getenv("TARGETC_LABEL_K", "5"))
+  )
+}
+
+# --------------------------------- style -----------------------------------
+
+GROUP_COLORS <- c(Recurrence     = "#B2182B",
+                  Non_recurrence = "#2166AC")
+
+theme_nature <- function(base_size = 15) {
+  theme_minimal(base_size = base_size) +
+    theme(
+      panel.grid.major = element_line(colour = "grey92", linewidth = 0.3),
+      panel.grid.minor = element_blank(),
+      axis.line        = element_line(colour = "grey25", linewidth = 0.4),
+      axis.text        = element_text(colour = "grey15", size = base_size * 0.82),
+      axis.title       = element_text(size = base_size, face = "bold"),
+      plot.title       = element_text(size = base_size + 1, face = "bold",
+                                      hjust = 0),
+      plot.subtitle    = element_text(size = base_size * 0.85, colour = "grey30",
+                                      hjust = 0),
+      strip.text       = element_text(size = base_size * 0.85, face = "bold"),
+      legend.title     = element_text(size = base_size * 0.85, face = "bold"),
+      legend.text      = element_text(size = base_size * 0.8),
+      plot.caption     = element_text(size = base_size * 0.75, colour = "grey40"),
+      plot.margin      = margin(8, 10, 8, 8)
+    )
+}
+
+# wrap long feature names (HUMAnN3 pathway descriptions are verbose)
+wl <- function(width) {
+  function(x) vapply(x, function(s) paste(strwrap(s, width = width),
+                                          collapse = "\n"), character(1))
+}
+
+# Short, readable volcano label:
+# - very long hierarchical names (microTrait "A:B:C:...") -> keep the leaf
+#   after the last colon (e.g. "amino sugar transport")
+# - otherwise keep the full name, wrapped to width 30
+volcano_label <- function(x) {
+  vapply(x, function(s) {
+    if (nchar(s) > 40 && grepl(":", s, fixed = TRUE)) {
+      parts <- strsplit(s, ":", fixed = TRUE)[[1]]
+      s <- trimws(parts[length(parts)])
+    }
+    paste(strwrap(s, width = 30), collapse = "\n")
+  }, character(1))
+}
+
+fmt_p <- function(p) {
+  ifelse(p < 0.001, formatC(p, format = "e", digits = 1),
+         sprintf("%.3f", p))
+}
+
+ggsave_nat <- function(plot, file, w = 6.8, h = 5.6) {
+  ggsave(file, plot, width = w, height = h, dpi = 300, bg = "white")
+  cat(sprintf("  %s\n", file))
+}
+
+# ------------------------------- utilities ---------------------------------
+
+read_stats <- function(cfg, name) {
+  read.delim(file.path(cfg$stats_dir, paste0("per_feature_stats_", name, ".tsv")),
+             sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+}
+
+read_matrix <- function(cfg, prefix, name) {
+  p <- file.path(cfg$stats_dir, paste0(prefix, name, ".tsv"))
+  if (!file.exists(p)) return(NULL)
+  m <- as.matrix(read.delim(p, sep = "\t", row.names = 1, check.names = FALSE))
+  m
+}
+
+read_design <- function(cfg) {
+  p <- file.path(cfg$meta_dir, "metadata_longitudinal_paired.tsv")
+  if (!file.exists(p)) return(NULL)
+  read.delim(p, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+}
+
+top_features <- function(st, k) {
+  st$rank <- seq_len(nrow(st))
+  sig <- st[st$p_wilcox_bh < 0.05, ]
+  if (nrow(sig) > 0) head(sig$feature, k) else head(st$feature, k)
+}
+
+# ------------------------------ figure 1 -----------------------------------
+
+fig_pcoa <- function(cfg, name, pcoa, perm) {
+  grp_row <- which(perm$term == "grp")
+  cap <- ""
+  if (length(grp_row) == 1) {
+    cap <- sprintf("PERMANOVA  F=%.2f  P=%.3f  (R^2=%.3f)",
+                   perm$f_stat[grp_row], perm$p[grp_row], perm$r2[grp_row])
+  }
+  p <- ggplot(pcoa, aes(axis1, axis2, colour = group)) +
+    geom_point(size = 2.6, alpha = 0.85) +
+    stat_ellipse(level = 0.8, linewidth = 0.7, linetype = "dashed") +
+    scale_colour_manual(values = GROUP_COLORS, name = "Group") +
+    labs(title = paste0(name, ": within-subject delta"),
+         subtitle = "PCoA on Aitchison distance of paired deltas",
+         x = "PCoA axis 1", y = "PCoA axis 2",
+         caption = cap) +
+    theme_nature()
+  ggsave_nat(p, file.path(cfg$out, paste0("fig1_", name, "_pcoa_delta.png")),
+             w = 6.8, h = 5.6)
+  write.table(pcoa, file.path(cfg$out, paste0("figure_data_pcoa_", name, ".tsv")),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
+# ------------------------------ figure 2 -----------------------------------
+
+fig_volcano <- function(cfg, name, st) {
+  d <- st
+  d$sig <- d$p_wilcox_bh < 0.05
+  d$lab <- ""
+  # label only the top few features (short, wrapped) to avoid overplotting
+  top <- head(d, cfg$label_k)
+  d$lab[match(top$feature, d$feature)] <- volcano_label(top$feature)
+  xmax <- max(abs(d$delta_diff), na.rm = TRUE)
+  xlim <- c(-xmax, xmax) * 1.05
+  p <- ggplot(d, aes(delta_diff, -log10(p_wilcox))) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed",
+               colour = "grey50", linewidth = 0.4) +
+    geom_point(aes(colour = sig), size = 2.2, alpha = 0.8) +
+    ggrepel::geom_text_repel(aes(label = lab), size = 3.2, max.overlaps = 15,
+                             min.segment.length = 0, segment.colour = "grey60",
+                             seed = 42, force = 2, box.padding = 0.5,
+                             max.time = 2, max.iter = 20000) +
+    scale_colour_manual(values = c("FALSE" = "grey55", "TRUE" = "#B2182B"),
+                        name = "BH-FDR < 0.05") +
+    scale_x_continuous(limits = xlim) +
+    labs(title = paste0(name, ": per-feature delta comparison"),
+         subtitle = "Recurrence delta vs Non_recurrence delta",
+         x = expression(Delta[Recurrence] - Delta[Non~recurrence]),
+         y = expression(-log[10](p)),
+         caption = "dashed line: raw p = 0.05") +
+    theme_nature() +
+    theme(legend.position = if (sum(d$sig) > 0) "right" else "none")
+  ggsave_nat(p, file.path(cfg$out, paste0("fig2_", name, "_volcano.png")),
+             w = 7.2, h = 6.0)
+  write.table(d[d$lab != "" | d$sig, ],
+              file.path(cfg$out, paste0("figure_data_volcano_", name, ".tsv")),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
+# ------------------------------ figure 3 -----------------------------------
+
+fig_topbox <- function(cfg, name, st, delta, design) {
+  feats <- top_features(st, cfg$top_k)
+  grp <- setNames(design$group, design$subject_id)
+  subj <- rownames(delta)
+  long <- do.call(rbind, lapply(feats, function(f) {
+    data.frame(feature = f, subject = subj,
+               group = grp[subj], delta = delta[, f],
+               stringsAsFactors = FALSE)
+  }))
+  lab <- data.frame(feature = feats,
+                    p = st$p_wilcox_bh[match(feats, st$feature)],
+                    stringsAsFactors = FALSE)
+  long$feature <- factor(long$feature, levels = feats)
+  p <- ggplot(long, aes(group, delta, fill = group)) +
+    geom_boxplot(outlier.shape = NA, linewidth = 0.35, width = 0.55,
+                 alpha = 0.9) +
+    geom_jitter(width = 0.12, size = 0.7, alpha = 0.45,
+                colour = "grey25") +
+    geom_text(data = lab, aes(x = 1.5, y = Inf, label = paste0("FDR=", fmt_p(p))),
+              hjust = 0.5, vjust = 1.6, size = 3.2, inherit.aes = FALSE) +
+    scale_fill_manual(values = GROUP_COLORS, name = "Group") +
+    facet_wrap(~ feature, scales = "free_y", ncol = 3,
+               labeller = labeller(feature = wl(24))) +
+    labs(title = paste0(name, ": top delta features"),
+         x = NULL,
+         y = expression(Delta ~ (CLR(T2) - CLR(T1)))) +
+    theme_nature() +
+    theme(axis.text.x = element_blank(),
+          strip.background = element_rect(fill = "grey93", colour = NA))
+  ggsave_nat(p, file.path(cfg$out, paste0("fig3_", name, "_topbox.png")),
+             w = 8.6, h = 7.4)
+  write.table(long, file.path(cfg$out, paste0("figure_data_topbox_", name, ".tsv")),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
+# ------------------------------ figure 4 -----------------------------------
+
+fig_trajectory <- function(cfg, name, st, clr_t1, clr_t2, design) {
+  feats <- head(top_features(st, cfg$top_k), 6)
+  grp <- setNames(design$group, design$subject_id)
+  long <- do.call(rbind, lapply(feats, function(f) {
+    rbind(
+      data.frame(feature = f, subject = rownames(clr_t1), group = grp[rownames(clr_t1)],
+                 timepoint = "T1", clr = clr_t1[, f], stringsAsFactors = FALSE),
+      data.frame(feature = f, subject = rownames(clr_t2), group = grp[rownames(clr_t2)],
+                 timepoint = "T2", clr = clr_t2[, f], stringsAsFactors = FALSE))
+  }))
+  long$feature <- factor(long$feature, levels = feats)
+  p <- ggplot(long, aes(timepoint, clr)) +
+    geom_line(aes(group = subject, colour = group), alpha = 0.30,
+              linewidth = 0.45) +
+    geom_point(aes(colour = group), size = 0.9, alpha = 0.5) +
+    stat_summary(aes(group = group, colour = group), fun = mean, geom = "line",
+                 linewidth = 1.3) +
+    scale_colour_manual(values = GROUP_COLORS, name = "Group") +
+    facet_wrap(~ feature, scales = "free_y", ncol = 3,
+               labeller = labeller(feature = wl(26))) +
+    labs(title = paste0(name, ": paired T1 -> T2 trajectories"),
+         subtitle = "thin lines: individual subjects; thick lines: group mean",
+         x = "Timepoint", y = "CLR abundance") +
+    theme_nature() +
+    theme(strip.background = element_rect(fill = "grey93", colour = NA))
+  ggsave_nat(p, file.path(cfg$out, paste0("fig4_", name, "_trajectory.png")),
+             w = 8.6, h = 6.2)
+  write.table(long, file.path(cfg$out, paste0("figure_data_trajectory_", name, ".tsv")),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
+# ------------------------------ figure 5 -----------------------------------
+
+fig_heatmap <- function(cfg, name, st, delta, design) {
+  feats <- head(top_features(st, cfg$top_heat), cfg$top_heat)
+  grp <- setNames(design$group, design$subject_id)
+  subj <- rownames(delta)
+  mat <- delta[subj, feats, drop = FALSE]
+  anno <- data.frame(group = factor(grp[subj], levels = c("Recurrence",
+                                                          "Non_recurrence")),
+                     row.names = subj)
+  ann_colors <- list(group = GROUP_COLORS)
+  pheatmap(t(mat),  # features x subjects, features as rows (readable names)
+           annotation_col = anno,
+           annotation_colors = ann_colors,
+           cluster_cols = FALSE,
+           cluster_rows = FALSE,
+           show_colnames = FALSE,
+           show_rownames = TRUE,
+           fontsize_row = 7,
+           fontsize_col = 6,
+           color = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+           breaks = seq(-max(abs(mat)), max(abs(mat)), length.out = 101),
+           border_color = NA,
+           main = paste0(name, ": per-subject delta (top ",
+                         length(feats), " features)"),
+           legend_labels = "delta",
+           filename = file.path(cfg$out, paste0("fig5_", name, "_heatmap.png")),
+           width = 8, height = 7.5)
+  cat(sprintf("  %s\n", file.path(cfg$out, paste0("fig5_", name, "_heatmap.png"))))
+}
+
+# ------------------------------ figure 6 -----------------------------------
+
+fig_manhattan <- function(cfg, name, st) {
+  d <- st[order(st$p_wilcox), ]
+  d$index <- seq_len(nrow(d))
+  d$sig <- d$p_wilcox_bh < 0.05
+  d$lab <- ""
+  top <- head(d, cfg$top_k)
+  d$lab[match(top$feature, d$feature)] <- d$feature[match(top$feature, d$feature)]
+  p <- ggplot(d, aes(index, -log10(p_wilcox))) +
+    geom_point(aes(colour = sig), size = 1.6, alpha = 0.75) +
+    ggrepel::geom_text_repel(aes(label = lab), size = 3.2, max.overlaps = 20,
+                             min.segment.length = 0, seed = 42) +
+    scale_colour_manual(values = c("FALSE" = "grey60", "TRUE" = "#B2182B"),
+                        name = "BH-FDR < 0.05") +
+    labs(title = paste0(name, ": p-value waterfall"),
+         x = "features sorted by p", y = expression(-log[10](p))) +
+    theme_nature()
+  ggsave_nat(p, file.path(cfg$out, paste0("fig6_", name, "_manhattan.png")),
+             w = 7.6, h = 5.2)
+}
+
+# ----------------------- pathcoverage transition figs -----------------------
+
+fig_transitions <- function(cfg, name, trans) {
+  feats <- head(trans$feature, cfg$top_k)
+  d <- trans[trans$feature %in% feats, ]
+  bar <- do.call(rbind, lapply(seq_len(nrow(d)), function(i) {
+    data.frame(feature = d$feature[i],
+               group = rep(c("Recurrence", "Non_recurrence"), each = 3),
+               change = rep(c("gained", "lost", "unchanged"), 2),
+               n = c(d$n_gain_re[i], d$n_loss_re[i],
+                     d$n_re[i] - d$n_gain_re[i] - d$n_loss_re[i],
+                     d$n_gain_non[i], d$n_loss_non[i],
+                     d$n_non[i] - d$n_gain_non[i] - d$n_loss_non[i]),
+               stringsAsFactors = FALSE)
+  }))
+  bar$feature <- factor(bar$feature, levels = feats)
+  bar$change <- factor(bar$change, levels = c("gained", "unchanged", "lost"))
+  # short group labels for narrow facets
+  bar$group_short <- ifelse(bar$group == "Recurrence", "Rec", "Non-Rec")
+  p <- ggplot(bar, aes(group_short, n, fill = change)) +
+    geom_col(position = "dodge", width = 0.65, colour = "grey25",
+             linewidth = 0.25) +
+    scale_fill_manual(values = c(gained = "#B2182B", unchanged = "grey75",
+                                 lost = "#2166AC"), name = "T1 -> T2") +
+    scale_y_continuous(n.breaks = 3) +
+    facet_wrap(~ feature, scales = "free_y", ncol = 3,
+               labeller = labeller(feature = label_wrap_gen(width = 20))) +
+    labs(title = paste0(name, ": pathway gain / loss transitions"),
+         x = NULL, y = "subjects") +
+    theme_nature() +
+    theme(axis.text.x = element_text(angle = 20, hjust = 1),
+          strip.background = element_rect(fill = "grey93", colour = NA),
+          strip.text = element_text(size = 9))
+  ggsave_nat(p, file.path(cfg$out, "fig1_pathcoverage_transitions.png"),
+             w = 12, h = 9)
+
+  d2 <- trans
+  d2$sig <- d2$p_fisher_bh < 0.05
+  d2$lab <- ""
+  top2 <- head(d2, cfg$label_k)
+  d2$lab[match(top2$feature, d2$feature)] <- volcano_label(top2$feature)
+  p2 <- ggplot(d2, aes(mean_trans_re - mean_trans_non,
+                       -log10(p_fisher))) +
+    geom_point(aes(colour = sig), size = 2.2, alpha = 0.8) +
+    ggrepel::geom_text_repel(aes(label = lab), size = 3.2, max.overlaps = 15,
+                             min.segment.length = 0, seed = 42,
+                             force = 2, box.padding = 0.5,
+                             max.time = 2, max.iter = 20000) +
+    scale_colour_manual(values = c("FALSE" = "grey55", "TRUE" = "#B2182B"),
+                        name = "BH-FDR < 0.05") +
+    labs(title = paste0(name, ": transition volcano"),
+         x = "mean transition (Recurrence - Non_recurrence)",
+         y = expression(-log[10](p[fisher]))) +
+    theme_nature() +
+    theme(legend.position = if (sum(d2$sig) > 0) "right" else "none")
+  ggsave_nat(p2, file.path(cfg$out, "fig2_pathcoverage_volcano.png"),
+             w = 7.2, h = 5.8)
+  write.table(d2, file.path(cfg$out, "figure_data_pathcoverage_volcano.tsv"),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+
+  cov <- read_matrix(cfg, "pathcoverage_matrix_", "humann3")
+  design <- read_design(cfg)
+  if (!is.null(cov) && !is.null(design)) {
+    t1v <- cov[design$sample_T1, , drop = FALSE]
+    t2v <- cov[design$sample_T2, , drop = FALSE]
+    rownames(t1v) <- design$subject_id
+    rownames(t2v) <- design$subject_id
+    tr <- t2v - t1v
+    feats <- head(trans$feature, cfg$top_heat)
+    mat <- t(tr[design$subject_id, feats, drop = FALSE])
+    anno <- data.frame(group = factor(design$group,
+                                      levels = c("Recurrence", "Non_recurrence")),
+                       row.names = design$subject_id)
+    ann_colors <- list(group = GROUP_COLORS)
+    pheatmap(mat,
+             annotation_col = anno,
+             annotation_colors = ann_colors,
+             cluster_cols = FALSE,
+             cluster_rows = FALSE,
+             show_colnames = FALSE,
+             show_rownames = TRUE,
+             fontsize_row = 7,
+             color = colorRampPalette(c("#2166AC", "white", "#B2182B"))(3),
+             breaks = c(-1.5, -0.5, 0.5, 1.5),
+             border_color = NA,
+             main = paste0(name, ": per-subject transitions (top ",
+                           length(feats), " pathways)"),
+             filename = file.path(cfg$out, "fig3_pathcoverage_heatmap.png"),
+             width = 8, height = 7.5)
+    cat(sprintf("  %s\n", file.path(cfg$out, "fig3_pathcoverage_heatmap.png")))
+  }
+}
+
+# ------------------------- composite score figures ---------------------------
+
 fig_composite <- function(cfg) {
-  st <- read.delim(file.path(cfg$stats_dir, "composite_delta_stats.tsv"),
-                   sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
-  sc <- read.delim(file.path(cfg$stats_dir, "composite_scores.tsv"),
-                   sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+  st_file <- file.path(cfg$stats_dir, "composite_delta_stats.tsv")
+  sc_file <- file.path(cfg$stats_dir, "composite_scores.tsv")
+  if (!file.exists(st_file) || !file.exists(sc_file)) {
+    cat("  composite stats/scores not found; skipping composite figures\n")
+    return(invisible(NULL))
+  }
+  st <- read.delim(st_file, sep = "\t", stringsAsFactors = FALSE,
+                   check.names = FALSE)
+  sc <- read.delim(sc_file, sep = "\t", stringsAsFactors = FALSE,
+                   check.names = FALSE)
   st <- st[order(st$p_wilcox), ]
 
   # per-subject module delta from the long scores table
@@ -461,13 +1293,15 @@ fig_composite <- function(cfg) {
                  alpha = 0.9) +
     geom_jitter(width = 0.12, size = 0.7, alpha = 0.45, colour = "grey25") +
     scale_fill_manual(values = GROUP_COLORS, name = "Group") +
-    facet_wrap(~ label, scales = "free_y", ncol = 3) +
+    facet_wrap(~ label, scales = "free_y", ncol = 3,
+               labeller = label_wrap_gen(width = 15)) +
     labs(title = "Composite functional modules: delta comparison",
          subtitle = "Recurrence delta vs Non_recurrence delta",
          x = NULL, y = expression(Delta ~ (log(T2) - log(T1)))) +
     theme_nature() +
     theme(axis.text.x = element_blank(),
-          strip.background = element_rect(fill = "grey93", colour = NA))
+          strip.background = element_rect(fill = "grey93", colour = NA),
+          strip.text = element_text(size = 9))
   ggsave_nat(p1, file.path(cfg$out, "figC1_composite_module_delta_boxplot.png"),
              w = 8.6, h = 6.4)
   write.table(dlt, file.path(cfg$out, "figure_data_composite_delta.tsv"),
@@ -500,16 +1334,83 @@ fig_composite <- function(cfg) {
     geom_line(linewidth = 1.2) +
     geom_point(size = 2.4) +
     scale_colour_manual(values = GROUP_COLORS, name = "Group") +
-    facet_wrap(~ label, scales = "free_y", ncol = 3) +
+    facet_wrap(~ label, scales = "free_y", ncol = 3,
+               labeller = label_wrap_gen(width = 15)) +
     labs(title = "Composite functional modules: group mean trajectories",
          x = "Timepoint", y = "mean log module score") +
     theme_nature() +
-    theme(strip.background = element_rect(fill = "grey93", colour = NA))
+    theme(strip.background = element_rect(fill = "grey93", colour = NA),
+          strip.text = element_text(size = 9))
   ggsave_nat(p3, file.path(cfg$out, "figC3_composite_module_trajectory.png"),
              w = 8.6, h = 6.4)
   write.table(tr, file.path(cfg$out, "figure_data_composite_trajectory.tsv"),
               sep = "\t", quote = FALSE, row.names = FALSE)
 }
+
+# --------------------------------- main ------------------------------------
+
+main <- function() {
+  cfg <- get_config()
+  if (!dir.exists(cfg$stats_dir)) {
+    stop("stats dir not found: ", cfg$stats_dir,
+         "\nRun targetc_delta_analysis.R first.")
+  }
+  cat("==========================================\n")
+  cat("TargetC delta plots\n")
+  cat("Stats:   ", cfg$stats_dir, "\n")
+  cat("Output:  ", cfg$out, "\n")
+  cat("Start:   ", format(Sys.time()), "\n")
+  cat("==========================================\n")
+
+  design <- read_design(cfg)
+
+  stat_files <- list.files(cfg$stats_dir, pattern = "^per_feature_stats_.*\\.tsv$",
+                           full.names = FALSE)
+  for (f in stat_files) {
+    name <- sub("^per_feature_stats_(.*)\\.tsv$", "\\1", f)
+    st <- read.delim(file.path(cfg$stats_dir, f), sep = "\t",
+                     stringsAsFactors = FALSE, check.names = FALSE)
+    st <- st[order(st$p_wilcox), ]
+    cat(sprintf("\n=== %s ===\n", name))
+    delta  <- read_matrix(cfg, "delta_matrix_", name)
+    clr_t1 <- read_matrix(cfg, "clr_t1_", name)
+    clr_t2 <- read_matrix(cfg, "clr_t2_", name)
+    pcoa   <- read.delim(file.path(cfg$stats_dir, paste0("pcoa_", name, ".tsv")),
+                         sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+    perm   <- read.delim(file.path(cfg$stats_dir, paste0("permanova_", name, ".tsv")),
+                         sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+    if (is.null(design)) {
+      design <- data.frame(subject_id = rownames(delta),
+                           group = pcoa$group[match(rownames(delta), pcoa$subject_id)],
+                           stringsAsFactors = FALSE)
+    }
+    if (!is.null(delta)) fig_pcoa(cfg, name, pcoa, perm)
+    fig_volcano(cfg, name, st)
+    if (!is.null(delta)) fig_topbox(cfg, name, st, delta, design)
+    if (!is.null(clr_t1) && !is.null(clr_t2)) {
+      fig_trajectory(cfg, name, st, clr_t1, clr_t2, design)
+    }
+    if (!is.null(delta)) fig_heatmap(cfg, name, st, delta, design)
+    fig_manhattan(cfg, name, st)
+  }
+
+  tr_file <- file.path(cfg$stats_dir, "transition_stats_humann3_pathcoverage.tsv")
+  if (file.exists(tr_file)) {
+    cat("\n=== humann3_pathcoverage transitions ===\n")
+    trans <- read.delim(tr_file, sep = "\t", stringsAsFactors = FALSE,
+                        check.names = FALSE)
+    trans <- trans[order(trans$p_fisher), ]
+    fig_transitions(cfg, "humann3_pathcoverage", trans)
+  }
+
+  cat("\n=== composite modules ===\n")
+  fig_composite(cfg)
+
+  cat("\nEnd: ", format(Sys.time()), "\n")
+  cat("==========================================\n")
+}
+
+main()
 ```
 
 # 3. Results
@@ -714,41 +1615,24 @@ BH = 0.184) — the strongest transition signal in the cohort.
 
 # 5. Interpretation
 
-1. **No feature survives multiple-testing correction in any of the seven
-   per-feature sources.** After BH-FDR correction, zero features (out of 437 +
-   114 + 139 + 59 + 66 + 304 + 387 = 1506 per-feature tests) and zero of the
-   seven composite modules are significant. The paired delta design is
-   statistically sound (117 paired subjects, correct within-subject pairing),
-   so this is a genuine null result at the current sample size, not an analysis
-   artefact.
-
+1. **No feature or composite module survives multiple-testing correction.**
+   Across the seven per-feature sources (1506 tests) and seven composite
+   modules, zero results reach BH-FDR < 0.05. The paired design is sound
+   (117 paired subjects), so this is a genuine null result at the current
+   sample size.
 2. **The strongest raw-p candidates are biologically coherent but not
-   significant.** The top hits point in a consistent direction — butyrate /
-   succinate-to-butanoate fermentation (HUMAnN3), denitrification to nitrite
-   (microTrait), acetate utilization (Traitar), and carbohydrate-binding /
-   hemicellulose-degrading CAZyme families CBM27/CBM23/GH26 (dbCAN3) all
-   changed more in the Recurrence group. The vitamin B6 (pyridoxal
-   5'-phosphate) biosynthesis pathway was gained in Recurrence and lost in
-   Non_recurrence subjects (p = 0.00175, BH = 0.184). These are hypothesis-
-   generating leads, not confirmations.
-
-3. **ANCOVA is more powerful than the plain delta Wilcoxon.** Adjusting for
-   the baseline CLR value sharpened several tests (e.g. dbCAN3 CBM27:
-   p_wilcox = 0.018 → p_ancova = 0.00055; Traitar acetate utilization:
-   p_wilcox = 0.023 → p_ancova = 0.0024), confirming that baseline adjustment
-   recovers signal that the unadjusted test misses. Even so, no ANCOVA hit
-   survives FDR correction.
-
-4. **Multivariate structure is absent.** PERMANOVA P values range from 0.241
-   (dbCAN3) to 0.998 (HUMAnN3) with R² ≈ 0.004–0.010, and betadisper is not
-   significant — the two groups' delta vectors occupy the same multivariate
-   space.
-
-5. **Implications.** At n = 117 paired subjects the cohort is underpowered to
-   detect per-feature differences after correction for ~1500 tests. The
-   composite-module approach (7 tests) is the right scale for this cohort and
-   shows the expected direction of effect (butyrate, mucin degradation higher
-   in Recurrence) without reaching significance. Next steps: (i) increase
-   sample size or pool timepoints; (ii) focus on the pre-specified composite
-   modules rather than genome-wide per-feature tests; (iii) validate the
-   vitamin B6 / butyrate / mucin leads in an independent cohort.
+   significant.** Butyrate / succinate-to-butanoate fermentation,
+   denitrification to nitrite, acetate utilization, CBM27/CBM23/GH26, and
+   vitamin B6 pathway gain/loss all point toward Recurrence-associated shifts
+   but do not survive correction.
+3. **ANCOVA is more sensitive than the plain delta Wilcoxon** (e.g. CBM27
+   p_wilcox = 0.018 -> p_ancova = 0.00055; Traitar acetate utilization 0.023
+   -> 0.0024), but no ANCOVA hit survives FDR.
+4. **Multivariate structure is absent.** PERMANOVA P ranges from 0.241 to
+   0.998 with R2 about 0.004-0.010; betadisper is not significant.
+5. **Implications.** At n = 117 paired subjects the cohort is underpowered for
+   ~1500 per-feature tests. The seven composite modules are the right scale and
+   show the expected directions (butyrate, mucin degradation higher in
+   Recurrence) without reaching significance. Next steps: increase sample size
+   or pool timepoints, focus on pre-specified modules, and validate the vitamin
+   B6 / butyrate / mucin leads independently.

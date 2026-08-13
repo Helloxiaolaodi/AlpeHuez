@@ -8,8 +8,24 @@
       "dateAdded": "2024-08-10",
       "folders": [],
       "files": [
-        { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "126 KB" },
-        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "131 KB" }
+        {
+          "name": "TargetC-phenotypes-analysis-260814.html",
+          "kind": "report",
+          "size": "846 KB",
+          "source": {
+            "qmd": "TargetC-phenotypes-analysis-260814.qmd",
+            "figures": "TargetC-phenotypes-analysis-260814-figures.zip"
+          }
+        },
+        {
+          "name": "TargetC-phenotypes-analysis-delta-260814.html",
+          "kind": "report",
+          "size": "312 KB",
+          "source": {
+            "qmd": "TargetC-phenotypes-analysis-delta-260814.qmd",
+            "figures": "TargetC-phenotypes-analysis-delta-260814-figures.zip"
+          }
+        }
       ]
     },
     {

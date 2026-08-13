@@ -121,23 +121,69 @@
       });
       const filesEl = document.getElementById('files');
       filesEl.innerHTML = files.length
-        ? `<div class="section-title">Files</div><div class="list">` + files.map((f) => {
+        ? `<div class="section-title">Files</div><div class="list">` + files.map((f, index) => {
             const isSource = f.kind === 'source';
             const href = `${nodePath}/${encodeURIComponent(f.name)}`;
-            return `<a href="${href}" class="glass row"${isSource ? ' download' : ''}>
-              <div class="icon ${isSource ? 'source' : 'report'}">${isSource ? SVG.code : SVG.report}</div>
-              <div class="name">${escapeHtml(f.name)}</div>
-              <div class="meta">
-                <span class="size-badge">${escapeHtml(f.size || '')}</span>
-                <span class="action">${isSource ? 'Download ↓' : 'Open ›'}</span>
-              </div>
-            </a>`;
+            const source = f.source || null;
+            const menuId = `source-menu-${index}`;
+            const rowMain = isSource
+              ? `<a href="${href}" class="row-main" download>`
+              : `<a href="${href}" class="row-main">`;
+            const sourceButton = source
+              ? `<button type="button" class="source-btn" data-source-menu="${escapeHtml(menuId)}" aria-expanded="false" aria-controls="${escapeHtml(menuId)}">Source</button>`
+              : '';
+            const sourceMenu = source
+              ? `<div class="source-menu" id="${escapeHtml(menuId)}" hidden>
+                   <a href="${nodePath}/${encodeURIComponent(source.qmd || f.name.replace(/\.html$/, '.qmd'))}" download>Download QMD</a>
+                   <a href="${nodePath}/${encodeURIComponent(source.figures)}" download>Download Figures ZIP</a>
+                 </div>`
+              : '';
+            return `<div class="glass row file-row">
+              ${rowMain}
+                <div class="icon ${isSource ? 'source' : 'report'}">${isSource ? SVG.code : SVG.report}</div>
+                <div class="name">${escapeHtml(f.name)}</div>
+                <div class="meta">
+                  <span class="size-badge">${escapeHtml(f.size || '')}</span>
+                  <span class="action">${isSource ? 'Download' : 'Open >'}</span>
+                </div>
+              </a>
+              ${sourceButton}
+              ${sourceMenu}
+            </div>`;
           }).join('') + `</div>`
         : '';
     }
 
     if (filterInput) filterInput.addEventListener('input', render);
     if (sortSelect) sortSelect.addEventListener('change', render);
+
+    const filesEl = document.getElementById('files');
+    filesEl.addEventListener('click', (event) => {
+      const toggle = event.target.closest('[data-source-menu]');
+      if (toggle) {
+        event.preventDefault();
+        const menu = document.getElementById(toggle.getAttribute('data-source-menu'));
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        filesEl.querySelectorAll('.source-menu').forEach((m) => { m.hidden = true; });
+        filesEl.querySelectorAll('.source-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+        if (!open && menu) {
+          menu.hidden = false;
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+      if (!event.target.closest('.source-menu')) {
+        filesEl.querySelectorAll('.source-menu').forEach((m) => { m.hidden = true; });
+        filesEl.querySelectorAll('.source-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#files .file-row')) {
+        filesEl.querySelectorAll('.source-menu').forEach((m) => { m.hidden = true; });
+        filesEl.querySelectorAll('.source-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      }
+    });
+
     render();
   }
 

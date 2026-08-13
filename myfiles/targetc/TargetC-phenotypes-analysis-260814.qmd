@@ -28,8 +28,8 @@ engine: knitr
 ## 1.1 Study design
 
 The TargetC cohort is an adenoma follow-up study. MAG-level genomes were
-recovered from 393 metagenomic samples and their **microbial phenotypes were
-predicted** with three complementary tools. Six clinical groups are compared:
+recovered from 393 metagenomic samples, and their microbial phenotypes were
+predicted with three complementary tools across six clinical groups:
 
 | Group | Description |
 |-------|-------------|
@@ -40,143 +40,551 @@ predicted** with three complementary tools. Six clinical groups are compared:
 | Non2  | Non_recurrence_2 (adenoma non-recurrence, 2nd sampling) |
 | CRC   | CRC |
 
-The main biological question is the **adenoma follow-up subset** (4 groups:
-Re1 / Re2 / Non1 / Non2, n = 236 samples, 59 per group): do the predicted
-phenotypes of the gut microbiome differ between subjects whose adenoma
-recurred and those who did not, and do they change between the two samplings?
+The main analysis is the **4-group adenoma follow-up subset** (Re1 / Re2 /
+Non1 / Non2, n = 236 samples, 59 per group): do predicted microbial
+phenotypes differ by recurrence status or change between samplings?
 
-## 1.2 The three phenotype-prediction tools
+## 1.2 Phenotype-prediction tools
 
-| Tool | What it predicts | Input | Output |
-|------|------------------|-------|--------|
-| **Traitar** | 67 classical microbial phenotypes (Gram stain, oxygen requirement, carbohydrate utilization, enzyme activity, biochemical tests, growth conditions) | MAG genomes | per-MAG trait calls → per-sample proportion / coverage-weighted prevalence |
-| **microTrait** | Hierarchical life-history traits (Resource Acquisition / Resource Use / Stress Tolerance; substrate uptake, degradation, assimilation, chemotrophy, phototrophy) | MAG genomes | per-MAG binary trait calls → per-sample proportion / coverage-weighted score |
-| **dbCAN3** | CAZyme (carbohydrate-active enzyme) families (GH / GT / PL / CE / AA / CBM) | MAG genomes | per-MAG CAZyme counts → per-sample proportion / score / present-count |
+| Tool | Prediction | Output |
+|------|------------|--------|
+| **Traitar** | 67 classical microbial phenotypes | per-MAG trait calls -> per-sample proportion / coverage-weighted prevalence |
+| **microTrait** | Hierarchical life-history traits | per-MAG binary trait calls -> per-sample proportion / coverage-weighted score |
+| **dbCAN3** | CAZyme families (GH / GT / PL / CE / AA / CBM) | per-MAG CAZyme counts -> per-sample proportion / score / present-count |
 
-All three tools share the same annotated-table format
+All tools use the same annotated-table format
 (`SID, profile_column, source, <features...>`), so the same downstream
 visualisation framework is reused.
 
 ## 1.3 Statistical methods
 
-- **Aitchison distance** (CLR + Euclidean) for compositional proportion data —
-  NOT Bray-Curtis or UniFrac. Zeros are handled by multiplicative replacement
-  (pseudocount = half the minimum positive value per row).
-- **PERMANOVA** (`adonis2`, 999 permutations) preceded by a **betadisper** test
-  for homogeneity of dispersion; PCoA ordination with 68% confidence ellipses.
-- **Kruskal-Wallis global test** (not pairwise Wilcoxon) for the 6-group and
+- **Aitchison distance** (CLR + Euclidean) for compositional proportion data;
+  zeros handled by multiplicative replacement.
+- **PERMANOVA** (`adonis2`, 999 permutations) + `betadisper` + PCoA with 68%
+  confidence ellipses.
+- **Kruskal-Wallis global test** (not pairwise Wilcoxon) for 6-group and
   4-group comparisons, with BH-FDR correction.
-- **Effect sizes**: max − min group median (or mean) per trait.
-- **dbCAN3 differential analysis**: ALDEx2 (Monte Carlo CLR, 128 Dirichlet
-  samples, Kruskal-Wallis test) when installed, with a plain
-  Kruskal-Wallis + BH fallback.
-- **Targeted mucin modules**: curated CAZyme families are collapsed into four
-  biologically-motivated modules (mucin core / mucin extended / chitin /
-  plant) to reduce the multiple-testing burden.
-
-## 1.4 Output layout
-
-```
-01-Traitar/enhanced/Results/traitar_plot_02/       6-group figures + CSV tables
-  traitar_4/                                        4-group (adenoma) figures + CSV tables
-02-MicroTrait/results/microtrait-plot/              6-group figures + CSV tables
-  plot-4/                                           4-group (adenoma) figures + CSV tables
-04-dbcan3/results/dbcan3-plot-02/                  6-group figures + CSV tables
-  plot-4/                                           4-group (adenoma) figures + CSV tables
-  pairwise/                                         pairwise comparisons
-04-dbcan3/results/dbcan3-plot-mucin/               mucin-module analysis
-  dbcan3-4/                                         4-group (adenoma) figures + CSV tables
-```
-
+- **Effect sizes**: max - min group median (or mean) per trait.
+- **dbCAN3**: ALDEx2 Monte Carlo CLR (128 Dirichlet samples, Kruskal-Wallis)
+  when installed, with Kruskal-Wallis + BH fallback.
+- **Targeted mucin modules**: curated CAZyme families collapsed into four
+  biologically-motivated modules.
 # 2. Traitar
 
 ## 2.1 Overview
 
-Traitar (Weimann et al., 2016) predicts 67 classical microbial phenotypes from
-genome content. For each sample, the fraction of MAGs carrying each trait
-(proportion) and the coverage-weighted prevalence (fraction of the community
-carrying the trait) are computed. The analysis compares the 6 clinical groups
-and the 4-group adenoma follow-up subset.
+Traitar predicts 67 classical microbial phenotypes from MAGs. Per-sample trait
+proportion and coverage-weighted prevalence are compared across the 6 clinical
+groups and the 4-group adenoma follow-up subset.
 
-**Key results (4-group adenoma subset):**
-
-- **No trait is significant after BH-FDR correction.** The strongest raw-p hit
-  is *Acetate utilization* (Kruskal-Wallis p = 0.0099, padj = 0.652).
-- The largest between-group effect is *Trehalose utilization*
-  (effect size 0.088, Recurrence_2 vs Non_recurrence_1).
-- PERMANOVA finds no multivariate separation: 6-group R² = 0.013, P = 0.448;
-  4-group R² = 0.012, P = 0.523. The 6-group betadisper test is marginally
-  significant (P = 0.043), i.e. the groups differ slightly in dispersion, not
-  location.
-
+**Key results (4-group subset):** no trait survives BH-FDR (best p = 0.0099,
+padj = 0.652); largest effect is Trehalose utilization (0.088); PERMANOVA
+shows no separation (4-group R2 = 0.012, P = 0.523; 6-group R2 = 0.013,
+P = 0.448).
 ## 2.2 Script
 
+**Script:** targetc_traitar_plot_02.R
+
 ```r
-# targetc_traitar_plot_02.R — key functions
-# Groups: N / Re1 / Re2 / Non1 / Non2 / CRC; 4-group adenoma subset
+#!/usr/bin/env Rscript
+# ==============================================================================
+# TargetC Traitar Phenotype Visualization (Publication Quality)
+# ==============================================================================
+# Groups (6):
+#   N    -> Normal
+#   Re1  -> Recurrence_1   (adenoma recurrence, 1st sampling)
+#   Re2  -> Recurrence_2   (adenoma recurrence, 2nd sampling)
+#   Non1 -> Non_recurrence_1 (adenoma non-recurrence, 1st sampling)
+#   Non2 -> Non_recurrence_2 (adenoma non-recurrence, 2nd sampling)
+#   CRC  -> CRC
+#   (8 samples with empty source are excluded)
+#
+# Key methodology:
+#   - Aitchison distance (CLR + Euclidean) for compositional data, NOT Bray-Curtis
+#   - PERMANOVA preceded by betadisper test for homogeneity of dispersion
+#   - Kruskal-Wallis global test (not pairwise Wilcoxon) for group comparisons
+#   - Symmetric error bars: mean +/- SE
+# ==============================================================================
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(tibble)
+  library(pheatmap)
+  library(cowplot)
+  library(scales)
+  library(RColorBrewer)
+  library(ggpubr)
+  library(vegan)
+})
+
+# ==============================================================================
+# 0. Paths and parameters
+# ==============================================================================
+RESULT_DIR <- "/home/yanglun/YSD/TargetC/enhanced/Results"
+ANNOTATED_DIR <- file.path(RESULT_DIR, "trait_summary_annotated_mimag90_fixed")
+OUTPUT_DIR <- "/home/yanglun/YSD/TargetC/enhanced/Results/traitar_plot_02"
+FOUR_DIR <- file.path(OUTPUT_DIR, "traitar_4")
+if (!dir.exists(OUTPUT_DIR)) dir.create(OUTPUT_DIR, recursive = TRUE)
+if (!dir.exists(FOUR_DIR)) dir.create(FOUR_DIR, recursive = TRUE)
+
+PROP_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_trait_proportion_coverage.tsv")
+WMEAN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_trait_wmean_coverage.tsv")
+COUNT_FILE   <- file.path(ANNOTATED_DIR, "annotated_trait_present_count.tsv")
+
+# Trait category definitions
+TRAIT_CATEGORIES <- list(
+  `Carbohydrate utilization` = c(
+    "Gas from glucose", "Glucose fermenter", "Glucose oxidizer",
+    "Cellobiose", "D-Mannitol", "D-Mannose", "D-Sorbitol", "D-Xylose",
+    "Glycerol", "Lactose", "L-Arabinose", "L-Rhamnose", "Maltose",
+    "Melibiose", "myo-Inositol", "ONPG (beta galactosidase)", "Raffinose",
+    "Salicin", "Sucrose", "Trehalose", "Esculin hydrolysis",
+    "Methyl red", "Voges Proskauer"
+  ),
+  `Nitrogen metabolism` = c(
+    "Nitrate to nitrite", "Nitrite to gas",
+    "Arginine dihydrolase", "Urea hydrolysis", "Indole",
+    "Lysine decarboxylase", "Ornithine decarboxylase"
+  ),
+  `Enzyme activity` = c(
+    "Alkaline phosphatase", "Catalase", "Oxidase",
+    "DNase", "Lipase", "Coagulase production",
+    "Hydrogen sulfide", "Casein hydrolysis", "Gelatin hydrolysis",
+    "Starch hydrolysis"
+  ),
+  `Oxygen requirement` = c(
+    "Aerobe", "Anaerobe", "Capnophilic", "Facultative"
+  ),
+  `Morphology & Gram stain` = c(
+    "Gram negative", "Gram positive",
+    "Bacillus or coccobacillus", "Coccus",
+    "Coccus - clusters or groups predominate",
+    "Coccus - pairs or chains predominate",
+    "Motile", "Spore formation", "Yellow pigment"
+  ),
+  `Growth conditions` = c(
+    "Growth at 42°C", "Growth in 6.5% NaCl", "Growth in KCN",
+    "Growth on MacConkey agar", "Growth on ordinary blood agar",
+    "Bile-susceptible", "Colistin-Polymyxin susceptible"
+  ),
+  `Biochemical tests` = c(
+    "Citrate", "Malonate", "Tartrate utilization",
+    "Acetate utilization", "Mucate utilization",
+    "Pyrrolidonyl-beta-naphthylamide", "Beta hemolysis"
+  )
+)
+
+ALL_DEFINED_TRAITS <- unlist(TRAIT_CATEGORIES, use.names = FALSE)
+
+# Group mapping and levels
 GROUP_LABELS <- c("N" = "Normal", "Re1" = "Recurrence_1", "Re2" = "Recurrence_2",
-                  "Non1" = "Non_recurrence_1", "Non2" = "Non_recurrence_2", "CRC" = "CRC")
+                   "Non1" = "Non_recurrence_1", "Non2" = "Non_recurrence_2", "CRC" = "CRC")
 GROUP_LEVELS <- unname(GROUP_LABELS)
-FOUR_LEVELS  <- c("Recurrence_1", "Recurrence_2", "Non_recurrence_1", "Non_recurrence_2")
+FOUR_LEVELS <- c("Recurrence_1", "Recurrence_2", "Non_recurrence_1", "Non_recurrence_2")
+
+GROUP_COLORS <- c(
+  "Normal" = "#00A087", "Recurrence_1" = "#E64B35", "Recurrence_2" = "#F39B7F",
+  "Non_recurrence_1" = "#4DBBD5", "Non_recurrence_2" = "#91D1C2", "CRC" = "#3C5488"
+)
+FOUR_COLORS <- c(
+  "Recurrence_1" = "#E64B35", "Recurrence_2" = "#F39B7F",
+  "Non_recurrence_1" = "#4DBBD5", "Non_recurrence_2" = "#91D1C2"
+)
+
+CAT_COLORS <- c(
+  `Carbohydrate utilization` = "#E64B35", `Nitrogen metabolism` = "#4DBBD5",
+  `Enzyme activity` = "#00A087", `Oxygen requirement` = "#3C5488",
+  `Morphology & Gram stain` = "#F39B7F", `Growth conditions` = "#8491B4",
+  `Biochemical tests` = "#91D1C2", `Other` = "#CCCCCC"
+)
+
+# ==============================================================================
+# Theme & helpers
+# ==============================================================================
+theme_nature <- function(base_size = 14) {
+  theme_cowplot(base_size) +
+    theme(
+      text = element_text(size = base_size, color = "black"),
+      axis.title = element_text(size = base_size + 2, face = "bold"),
+      axis.text = element_text(size = base_size, color = "black"),
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+      plot.title = element_text(size = base_size + 2, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = base_size, hjust = 0.5, face = "italic", color = "grey30"),
+      strip.text = element_text(size = base_size, face = "bold", margin = margin(t = 4, b = 4)),
+      strip.background = element_rect(fill = "grey90", color = "black", linewidth = 1),
+      legend.text = element_text(size = base_size),
+      legend.title = element_text(size = base_size + 1, face = "bold"),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+      axis.line = element_blank(),
+      panel.grid.major = element_line(linewidth = 0.3, color = "grey85", linetype = "dashed"),
+      legend.position = "right",
+      legend.key.size = unit(0.6, "cm")
+    )
+}
+
+# Map raw source values to display Group factor
+to_group <- function(src, levels = GROUP_LEVELS) {
+  mapped <- GROUP_LABELS[as.character(src)]
+  mapped[is.na(mapped)] <- NA_character_
+  factor(mapped, levels = levels)
+}
 
 # CLR transform with zero handling (multiplicative replacement via pseudocount)
 clr_transform <- function(mat) {
+  # Replace zeros with half the minimum non-zero value per row (standard pseudocount)
   mat_out <- mat
   for (i in seq_len(nrow(mat_out))) {
     row_vals <- mat_out[i, ]
     min_pos <- min(row_vals[row_vals > 0], na.rm = TRUE)
     mat_out[i, row_vals == 0] <- min_pos / 2
   }
+  # CLR: log-ratio transform
   gm <- apply(mat_out, 1, function(x) exp(mean(log(x))))
   log(mat_out / gm)
 }
 
-# Aitchison PCoA + PERMANOVA + betadisper
+# ==============================================================================
+# 1. Read and prepare data
+# ==============================================================================
+cat("==============================================================\n")
+cat(" TargetC Traitar Phenotype Visualization\n")
+cat("==============================================================\n\n")
+
+cat("Reading data files...\n")
+prop_cov <- read.delim(PROP_COV_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+wmean_cov <- read.delim(WMEAN_COV_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+present_count <- read.delim(COUNT_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+
+cat(sprintf("  Proportion coverage: %d rows x %d cols\n", nrow(prop_cov), ncol(prop_cov)))
+cat(sprintf("  Weighted mean prevalence: %d rows x %d cols\n", nrow(wmean_cov), ncol(wmean_cov)))
+cat(sprintf("  Present count: %d rows x %d cols\n", nrow(present_count), ncol(present_count)))
+
+meta_cols <- c("SID", "profile_column", "source")
+
+# Exclude empty/NA source rows
+prop_cov <- prop_cov %>% filter(!is.na(source) & source != "")
+wmean_cov <- wmean_cov %>% filter(!is.na(source) & source != "")
+present_count <- present_count %>% filter(!is.na(source) & source != "")
+
+# Exclude samples where ALL trait columns are NA (samples without Traitar data)
+# These come from the left join in script 09 — they have no trait predictions
+prop_cov$row_id <- paste0("row_", seq_len(nrow(prop_cov)))
+wmean_cov$row_id <- paste0("row_", seq_len(nrow(wmean_cov)))
+present_count$row_id <- paste0("row_", seq_len(nrow(present_count)))
+
+# Trait columns (only defined categories)
+# Use proportion data for heatmaps and Aitchison PCoA (compositional, rows sum to 1)
+trait_cols <- intersect(setdiff(colnames(prop_cov), c(meta_cols, "row_id", "Group")), ALL_DEFINED_TRAITS)
+# Use weighted mean prevalence for KW tests, boxplots, and per-trait comparisons (independent across traits)
+trait_cols_wmean <- intersect(setdiff(colnames(wmean_cov), c(meta_cols, "row_id", "Group")), ALL_DEFINED_TRAITS)
+trait_cols_count <- intersect(setdiff(colnames(present_count), c(meta_cols, "row_id", "Group")), ALL_DEFINED_TRAITS)
+
+# Identify and remove samples with all-NA trait data (Traitar failures)
+n_prop_all_na <- sum(rowSums(is.na(prop_cov[, trait_cols, drop = FALSE])) == length(trait_cols))
+n_wmean_all_na <- sum(rowSums(is.na(wmean_cov[, trait_cols_wmean, drop = FALSE])) == length(trait_cols_wmean))
+n_count_all_na <- sum(rowSums(is.na(present_count[, trait_cols_count, drop = FALSE])) == length(trait_cols_count))
+if (n_prop_all_na > 0) cat(sprintf("  Note: Removing %d samples with all-NA trait data from proportion\n", n_prop_all_na))
+if (n_wmean_all_na > 0) cat(sprintf("  Note: Removing %d samples with all-NA trait data from wmean\n", n_wmean_all_na))
+if (n_count_all_na > 0) cat(sprintf("  Note: Removing %d samples with all-NA trait data from count\n", n_count_all_na))
+
+prop_cov <- prop_cov %>% filter(rowSums(is.na(.[, trait_cols, drop = FALSE])) < length(trait_cols))
+wmean_cov <- wmean_cov %>% filter(rowSums(is.na(.[, trait_cols_wmean, drop = FALSE])) < length(trait_cols_wmean))
+present_count <- present_count %>% filter(rowSums(is.na(.[, trait_cols_count, drop = FALSE])) < length(trait_cols_count))
+
+# For remaining rows with partial NA, fill with 0 (Traitar predicted absent for that trait)
+prop_cov[, trait_cols] <- lapply(prop_cov[, trait_cols, drop = FALSE], function(x) ifelse(is.na(x), 0, x))
+wmean_cov[, trait_cols_wmean] <- lapply(wmean_cov[, trait_cols_wmean, drop = FALSE], function(x) ifelse(is.na(x), 0, x))
+present_count[, trait_cols_count] <- lapply(present_count[, trait_cols_count, drop = FALSE], function(x) ifelse(is.na(x), 0, x))
+
+# Re-assign row_ids after filtering
+prop_cov$row_id <- paste0("row_", seq_len(nrow(prop_cov)))
+wmean_cov$row_id <- paste0("row_", seq_len(nrow(wmean_cov)))
+present_count$row_id <- paste0("row_", seq_len(nrow(present_count)))
+
+# Add Group display label
+prop_cov$Group <- to_group(prop_cov$source)
+wmean_cov$Group <- to_group(wmean_cov$source)
+present_count$Group <- to_group(present_count$source)
+
+dropped <- setdiff(setdiff(colnames(prop_cov), c(meta_cols, "row_id", "Group")), trait_cols)
+if (length(dropped) > 0) cat(sprintf("  Note: %d data traits not in category defs (excluded): %s\n",
+                                       length(dropped), paste(head(dropped, 5), collapse = ", ")))
+
+cat(sprintf("  Trait columns used (proportion): %d\n", length(trait_cols)))
+cat(sprintf("  Trait columns used (wmean): %d\n", length(trait_cols_wmean)))
+cat(sprintf("  Final sample counts: prop=%d, wmean=%d, count=%d\n", nrow(prop_cov), nrow(wmean_cov), nrow(present_count)))
+
+# Long format: proportion (for Aitchison PCoA and heatmaps)
+prop_long <- prop_cov %>%
+  select(all_of(c(meta_cols, "row_id", "Group", trait_cols))) %>%
+  pivot_longer(cols = all_of(trait_cols), names_to = "trait", values_to = "proportion") %>%
+  filter(!is.na(Group))
+
+# Long format: weighted mean prevalence (for KW tests, boxplots, per-trait comparisons)
+wmean_long <- wmean_cov %>%
+  select(all_of(c(meta_cols, "row_id", "Group", trait_cols_wmean))) %>%
+  pivot_longer(cols = all_of(trait_cols_wmean), names_to = "trait", values_to = "wmean") %>%
+  filter(!is.na(Group))
+
+trait_cat_df <- do.call(rbind, lapply(names(TRAIT_CATEGORIES), function(cat) {
+  data.frame(trait = TRAIT_CATEGORIES[[cat]], category = cat, stringsAsFactors = FALSE)
+}))
+prop_long <- prop_long %>% left_join(trait_cat_df, by = "trait") %>% filter(!is.na(category))
+wmean_long <- wmean_long %>% left_join(trait_cat_df, by = "trait") %>% filter(!is.na(category))
+
+group_sizes <- prop_cov %>% filter(!is.na(Group)) %>% group_by(Group) %>% summarise(n = n(), .groups = "drop") %>% arrange(Group)
+cat("\nGroup sizes:\n"); print(group_sizes)
+
+# ==============================================================================
+# 2. Figure 1: Heatmap (6 groups)
+# ==============================================================================
+cat("\nCreating Figure 1: Phenotype heatmap...\n")
+
+heatmap_data <- prop_cov %>%
+  select(all_of(c("row_id", trait_cols))) %>%
+  column_to_rownames("row_id") %>% as.matrix()
+
+group_anno <- prop_cov %>% select(row_id, Group) %>%
+  column_to_rownames("row_id") %>%
+  mutate(Group = factor(Group, levels = GROUP_LEVELS))
+
+# Remove zero-variance traits for scale="row"
+trait_vars_hm <- apply(heatmap_data, 2, var, na.rm = TRUE)
+valid_hm <- names(trait_vars_hm)[!is.na(trait_vars_hm) & trait_vars_hm > 0]
+top_traits <- names(sort(trait_vars_hm[valid_hm], decreasing = TRUE))[1:min(40, length(valid_hm))]
+
+heatmap_mat <- t(heatmap_data[, top_traits, drop = FALSE])
+
+cat_anno <- data.frame(trait = rownames(heatmap_mat), stringsAsFactors = FALSE) %>%
+  left_join(trait_cat_df, by = "trait") %>% filter(!is.na(category))
+heatmap_mat <- heatmap_mat[cat_anno$trait, , drop = FALSE]
+rownames(cat_anno) <- cat_anno$trait; cat_anno$trait <- NULL
+
+anno_colors <- list(Group = GROUP_COLORS[GROUP_LEVELS],
+                    category = CAT_COLORS[unique(cat_anno$category)])
+
+pheatmap(heatmap_mat, scale = "row", cluster_rows = TRUE, cluster_cols = TRUE,
+  show_colnames = FALSE, show_rownames = TRUE, fontsize_row = 8, fontsize_col = 9,
+  annotation_col = group_anno, annotation_row = cat_anno, annotation_colors = anno_colors,
+  color = colorRampPalette(rev(brewer.pal(11, "RdYlBu")))(100), border_color = NA,
+  main = "Top Variable Phenotypes (All 6 Groups)",
+  filename = file.path(OUTPUT_DIR, "fig1_phenotype_heatmap.png"), width = 14, height = 8, dpi = 300)
+
+# 4-group heatmap
+heatmap_data_4 <- prop_cov %>% filter(Group %in% FOUR_LEVELS) %>%
+  select(all_of(c("row_id", trait_cols))) %>%
+  column_to_rownames("row_id") %>% as.matrix()
+group_anno_4 <- prop_cov %>% filter(Group %in% FOUR_LEVELS) %>%
+  select(row_id, Group) %>% column_to_rownames("row_id") %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS))
+
+tv4 <- apply(heatmap_data_4, 2, var, na.rm = TRUE)
+valid4 <- names(tv4)[!is.na(tv4) & tv4 > 0]
+top4 <- names(sort(tv4[valid4], decreasing = TRUE))[1:min(40, length(valid4))]
+hm4 <- t(heatmap_data_4[, top4, drop = FALSE])
+ca4 <- data.frame(trait = rownames(hm4), stringsAsFactors = FALSE) %>%
+  left_join(trait_cat_df, by = "trait") %>% filter(!is.na(category))
+hm4 <- hm4[ca4$trait, , drop = FALSE]; rownames(ca4) <- ca4$trait; ca4$trait <- NULL
+
+pheatmap(hm4, scale = "row", cluster_rows = TRUE, cluster_cols = TRUE,
+  show_colnames = FALSE, show_rownames = TRUE, fontsize_row = 8, fontsize_col = 9,
+  annotation_col = group_anno_4, annotation_row = ca4,
+  annotation_colors = list(Group = FOUR_COLORS[FOUR_LEVELS], category = CAT_COLORS[unique(ca4$category)]),
+  color = colorRampPalette(rev(brewer.pal(11, "RdYlBu")))(100), border_color = NA,
+  main = "Top Variable Phenotypes (Adenoma Follow-up)",
+  filename = file.path(FOUR_DIR, "fig1_phenotype_heatmap.png"), width = 12, height = 8, dpi = 300)
+
+# ==============================================================================
+# 3. Figure 2: Category boxplots (KW global test)
+# ==============================================================================
+cat("\nCreating Figure 2: Category boxplots...\n")
+
+cat_prop <- wmean_long %>%
+  group_by(row_id, Group, category) %>%
+  summarise(cat_wmean = sum(wmean, na.rm = TRUE), .groups = "drop") %>%
+  mutate(category = factor(category, levels = names(TRAIT_CATEGORIES)))
+
+cat_prop_4 <- cat_prop %>% filter(Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS))
+
+plot_cat_box <- function(df, grp_lvls, colors, title) {
+  ggplot(df, aes(x = Group, y = cat_wmean, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.6, linewidth = 0.6) +
+    geom_jitter(position = position_jitter(width = 0.15), alpha = 0.4, size = 0.8, aes(color = Group)) +
+    facet_wrap(~category, scales = "free_y", ncol = 3) +
+    stat_compare_means(method = "kruskal.test", label = "p.signif", size = 3.5,
+                      label.y.npc = "top", label.x.npc = "left") +
+    scale_fill_manual(values = colors[grp_lvls]) +
+    scale_color_manual(values = colors[grp_lvls]) +
+    labs(title = title, x = "Group", y = "Weighted mean prevalence") +
+    theme_nature(base_size = 10) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8),
+          plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
+}
+
+p2 <- plot_cat_box(cat_prop, GROUP_LEVELS, GROUP_COLORS, "Phenotype Category Proportions")
+p2_4 <- plot_cat_box(cat_prop_4, FOUR_LEVELS, FOUR_COLORS, "Phenotype Category (Adenoma Follow-up)")
+ggsave(file.path(OUTPUT_DIR, "fig2_category_boxplots.png"), p2, width = 11, height = 8, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig2_category_boxplots.png"), p2_4, width = 11, height = 8, dpi = 300)
+
+# ==============================================================================
+# 4. Figure 3: Key traits boxplots (KW global test)
+# ==============================================================================
+cat("\nCreating Figure 3: Key traits boxplots...\n")
+
+key_traits <- intersect(c("Aerobe", "Anaerobe", "Facultative",
+  "Gram negative", "Gram positive", "Motile", "Spore formation",
+  "Catalase", "Oxidase", "Urea hydrolysis",
+  "Growth at 42°C", "Growth in 6.5% NaCl", "Bile-susceptible",
+  "Glucose fermenter", "Lactose", "Sucrose",
+  "Nitrate to nitrite", "Indole", "Colistin-Polymyxin susceptible"), trait_cols)
+
+plot_key_box <- function(df, grp_lvls, colors, title) {
+  df_f <- df %>% filter(trait %in% key_traits) %>%
+    mutate(trait = factor(trait, levels = key_traits))
+  ggplot(df_f, aes(x = Group, y = wmean, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.6, linewidth = 0.6) +
+    geom_jitter(position = position_jitter(width = 0.15), alpha = 0.3, size = 0.6, aes(color = Group)) +
+    facet_wrap(~trait, scales = "free_y", ncol = 5) +
+    stat_compare_means(method = "kruskal.test", label = "p.signif", size = 3,
+                      label.y.npc = "top", label.x.npc = "left") +
+    scale_fill_manual(values = colors[grp_lvls]) +
+    scale_color_manual(values = colors[grp_lvls]) +
+    labs(title = title, x = "Group", y = "Weighted mean prevalence") +
+    theme_nature(base_size = 10) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 7),
+          strip.text = element_text(face = "bold", size = 8),
+          plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
+}
+
+p3 <- plot_key_box(wmean_long, GROUP_LEVELS, GROUP_COLORS, "Key Phenotype Weighted Mean Prevalence")
+p3_4 <- plot_key_box(wmean_long %>% filter(Group %in% FOUR_LEVELS) %>% mutate(Group = factor(Group, levels = FOUR_LEVELS)),
+                     FOUR_LEVELS, FOUR_COLORS, "Key Phenotypes (Adenoma Follow-up)")
+ggsave(file.path(OUTPUT_DIR, "fig3_key_traits_boxplots.png"), p3, width = 14, height = 11, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig3_key_traits_boxplots.png"), p3_4, width = 14, height = 11, dpi = 300)
+
+# ==============================================================================
+# 5. Figure 4: Prevalence heatmap
+# ==============================================================================
+cat("\nCreating Figure 4: Trait prevalence heatmap...\n")
+
+write_prevalence_hm <- function(pcount, tcols, grp_lvls, colors, fname, width) {
+  prev <- pcount %>% filter(!is.na(Group)) %>%
+    select(all_of(c("Group", tcols))) %>%
+    pivot_longer(cols = all_of(tcols), names_to = "trait", values_to = "count") %>%
+    mutate(present = count > 0) %>%
+    group_by(Group, trait) %>%
+    summarise(n_total = n(), n_present = sum(present), prevalence = n_present / n_total * 100, .groups = "drop") %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+
+  pw <- prev %>% select(Group, trait, prevalence) %>%
+    pivot_wider(names_from = Group, values_from = prevalence, values_fn = mean) %>%
+    column_to_rownames("trait") %>% mutate(across(everything(), as.numeric))
+
+  pw <- pw %>% rownames_to_column("trait") %>% left_join(trait_cat_df, by = "trait") %>%
+    mutate(category = ifelse(is.na(category), "Other", category)) %>%
+    arrange(category, desc(!!sym(grp_lvls[1]))) %>% select(-category) %>%
+    column_to_rownames("trait") %>% as.matrix()
+
+  pheatmap(pw, cluster_rows = TRUE, cluster_cols = FALSE,
+    show_rownames = TRUE, show_colnames = TRUE, fontsize_row = 6, fontsize_col = 8,
+    color = colorRampPalette(c("#F7FBFF", "#6BAED6", "#08306B"))(100),
+    border_color = "grey80", main = "Trait Prevalence (% samples with trait)",
+    breaks = seq(0, 100, length.out = 101),
+    filename = fname, width = width, height = 12, dpi = 300)
+}
+
+write_prevalence_hm(present_count, trait_cols_count, GROUP_LEVELS, GROUP_COLORS,
+  file.path(OUTPUT_DIR, "fig4_trait_prevalence_heatmap.png"), width = 6)
+write_prevalence_hm(present_count %>% filter(Group %in% FOUR_LEVELS),
+  trait_cols_count, FOUR_LEVELS, FOUR_COLORS,
+  file.path(FOUR_DIR, "fig4_trait_prevalence_heatmap.png"), width = 5)
+
+# ==============================================================================
+# 6. Figure 5: Aitchison PCoA + PERMANOVA (with betadisper test)
+# ==============================================================================
+cat("\nCreating Figure 5: Aitchison PCoA + PERMANOVA...\n")
+
 make_pcoa <- function(pcov_df, grp_lvls, colors, title_str, out_file) {
   df <- pcov_df %>% filter(!is.na(Group)) %>% filter(Group %in% grp_lvls) %>%
     mutate(Group = factor(Group, levels = grp_lvls))
+
   mat <- df %>% select(all_of(c("row_id", trait_cols))) %>%
     column_to_rownames("row_id") %>% as.matrix()
+
+  # Remove zero-variance columns
   tv <- apply(mat, 2, var, na.rm = TRUE)
   mat <- mat[, tv > 0]
+
+  # CLR transform (handles zeros with pseudocount)
   clr_mat <- clr_transform(mat)
-  dist_mat <- dist(clr_mat, method = "euclidean")   # Aitchison distance
+
+  # Euclidean distance on CLR = Aitchison distance
+  dist_mat <- dist(clr_mat, method = "euclidean")
+
+  # PCoA via cmdscale
   pcoa_res <- cmdscale(dist_mat, k = min(2, nrow(clr_mat) - 1), eig = TRUE)
+
+  # Variance explained (positive eigenvalues only)
   pos_eig <- pcoa_res$eig[pcoa_res$eig > 0]
   var_exp <- round(pos_eig[1:min(2, length(pos_eig))] / sum(pos_eig) * 100, 1)
+
   scores <- as.data.frame(pcoa_res$points)
   colnames(scores) <- c("PCoA1", "PCoA2")[1:ncol(scores)]
   scores$row_id <- rownames(scores)
-  scores <- scores %>% left_join(df %>% select(row_id, Group) %>% distinct(), by = "row_id")
+
+  rid_grp <- df %>% select(row_id, Group) %>% distinct()
+  scores <- scores %>% left_join(rid_grp, by = "row_id")
   scores$Group <- factor(scores$Group, levels = grp_lvls)
 
+  # PERMANOVA (adonis2)
   grp_vec <- scores$Group[match(labels(dist_mat), scores$row_id)]
   set.seed(42)
   adonis_res <- adonis2(dist_mat ~ grp_vec, permutations = 999)
   p_val <- adonis_res$`Pr(>F)`[1]
   r2 <- round(adonis_res$R2[1], 3)
+
+  # Betadisper test (homogeneity of dispersion)
   beta_disp <- betadisper(dist_mat, grp_vec)
   beta_p <- anova(beta_disp)$`Pr(>F)`[1]
 
+  cat(sprintf("  PERMANOVA: R2=%.3f, p=%.4f | Betadisper p=%.4f\n", r2, p_val, beta_p))
+
   centroids <- scores %>% group_by(Group) %>%
     summarise(PCoA1 = mean(PCoA1), PCoA2 = mean(PCoA2), .groups = "drop")
+
   subtitle <- bquote("PERMANOVA: " ~ R^2 == .(r2) ~ ", p" == .(format.pval(p_val, digits = 3)) ~
     " | Dispersion p" == .(format.pval(beta_p, digits = 3)))
+
   p <- ggplot(scores, aes(x = PCoA1, y = PCoA2, color = Group, fill = Group)) +
     geom_point(alpha = 0.6, size = 2) +
-    geom_point(data = centroids, shape = 21, size = 5, stroke = 1.5, color = "black") +
+    geom_point(data = centroids, aes(x = PCoA1, y = PCoA2), shape = 21, size = 5, stroke = 1.5, color = "black") +
     stat_ellipse(level = 0.68, linewidth = 0.8, alpha = 0.7) +
     scale_color_manual(values = colors[grp_lvls]) +
     scale_fill_manual(values = colors[grp_lvls]) +
     labs(title = title_str, subtitle = subtitle,
          x = sprintf("PCoA1 (%.1f%%)", var_exp[1]),
-         y = sprintf("PCoA2 (%.1f%%)", var_exp[2])) +
-    theme_nature(base_size = 12)
+         y = if(ncol(scores) >= 2) sprintf("PCoA2 (%.1f%%)", var_exp[2]) else "PCoA2",
+         fill = "Group", color = "Group") +
+    theme_nature(base_size = 12) +
+    theme(legend.position = "right", axis.text.x = element_text(angle = 0, hjust = 0.5))
+
   ggsave(out_file, p, width = 8, height = 6, dpi = 300)
   list(scores = scores, adonis_r2 = r2, adonis_p = p_val, betadisper_p = beta_p)
 }
 
-# Kruskal-Wallis global test + volcano
+res_6 <- make_pcoa(prop_cov, GROUP_LEVELS, GROUP_COLORS,
+  "Aitchison PCoA (All 6 Groups)", file.path(OUTPUT_DIR, "fig5_pcoa_phenotype.png"))
+res_4 <- make_pcoa(prop_cov %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+  "Aitchison PCoA (Adenoma Follow-up)", file.path(FOUR_DIR, "fig5_pcoa_phenotype.png"))
+
+# ==============================================================================
+# 7. Figure 6: Differential analysis (KW + volcano)
+# ==============================================================================
+cat("\nCreating Figure 6: Differential phenotype analysis...\n")
+
 make_kw_volcano <- function(long_df, title_str, out_file) {
   kw_res <- long_df %>% filter(!is.na(Group)) %>%
     group_by(trait) %>%
@@ -185,23 +593,388 @@ make_kw_volcano <- function(long_df, title_str, out_file) {
     mutate(kw_padj = p.adjust(kw_pval, method = "BH"),
            neg_log10_padj = -log10(kw_padj)) %>%
     left_join(trait_cat_df, by = "trait") %>% arrange(kw_padj)
+  kw_res$category[is.na(kw_res$category)] <- "Other"
+
   grp_med <- long_df %>% filter(!is.na(Group)) %>%
     group_by(trait, Group) %>% summarise(med = median(wmean, na.rm = TRUE), .groups = "drop")
   eff <- grp_med %>% group_by(trait) %>%
     summarise(effect_size = max(med) - min(med), .groups = "drop")
-  kw_volc <- kw_res %>% left_join(eff, by = "trait")
+
+  kw_volc <- kw_res %>% left_join(eff, by = "trait") %>%
+    mutate(category = factor(category, levels = c(names(TRAIT_CATEGORIES), "Other")))
   sig <- kw_volc %>% filter(kw_padj < 0.05) %>% slice_max(order_by = neg_log10_padj, n = 15)
+
   p <- ggplot(kw_volc, aes(x = effect_size, y = neg_log10_padj, color = category)) +
     geom_point(alpha = 0.7, size = 2) +
     geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "grey40", linewidth = 0.6) +
     scale_color_manual(values = CAT_COLORS) +
-    ggrepel::geom_text_repel(data = sig, aes(label = trait), size = 3, max.overlaps = 20) +
-    labs(title = title_str, x = "Effect Size (max - min group median)",
-         y = expression(-log[10](adj.~p)), color = "Category") +
+    ggrepel::geom_text_repel(data = sig, aes(label = trait), size = 3, max.overlaps = 20,
+      box.padding = 0.4, segment.color = "grey50", segment.size = 0.3) +
+    labs(title = title_str,
+         x = "Effect Size (max - min group median)", y = expression(-log[10](adj.~p)), color = "Category") +
     theme_nature(base_size = 12)
+
   ggsave(out_file, p, width = 8, height = 5.5, dpi = 300)
   kw_res
 }
+
+kw_6 <- make_kw_volcano(wmean_long, "Differential Phenotypes (All 6 Groups, Kruskal-Wallis)",
+  file.path(OUTPUT_DIR, "fig6_differential_phenotype.png"))
+kw_4 <- make_kw_volcano(wmean_long %>% filter(Group %in% FOUR_LEVELS),
+  "Differential Phenotypes (Adenoma Follow-up, Kruskal-Wallis)",
+  file.path(FOUR_DIR, "fig6_differential_phenotype.png"))
+
+# ==============================================================================
+# 8. Figure 7: Oxygen requirement (stacked, position="fill")
+# ==============================================================================
+cat("\nCreating Figure 7: Oxygen requirement...\n")
+oxygen_traits <- intersect(c("Aerobe", "Anaerobe", "Capnophilic", "Facultative"), trait_cols)
+
+plot_oxygen <- function(long_df, grp_lvls, colors, title, out_file) {
+  df <- long_df %>% filter(trait %in% oxygen_traits, !is.na(Group)) %>%
+    mutate(Group = factor(Group, levels = grp_lvls)) %>%
+    group_by(Group, trait) %>%
+    summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop")
+  ggplot(df, aes(x = Group, y = mean_wmean, fill = trait)) +
+    geom_bar(stat = "identity", position = "fill", width = 0.75, color = "black", linewidth = 0.4) +
+    scale_fill_brewer(palette = "Set1", name = "Oxygen\nrequirement") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = title, x = "Group", y = "Relative Proportion") +
+    theme_nature(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig7_oxygen_stacked_bar.png"),
+  plot_oxygen(wmean_long, GROUP_LEVELS, GROUP_COLORS, "Oxygen Requirement (All 6 Groups)"), width = 6, height = 5, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig7_oxygen_stacked_bar.png"),
+  plot_oxygen(wmean_long %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+    "Oxygen Requirement (Adenoma Follow-up)"), width = 6, height = 5, dpi = 300)
+
+# ==============================================================================
+# 9. Figure 8: Gram & morphology (mean +/- SE)
+# ==============================================================================
+cat("\nCreating Figure 8: Gram & morphology...\n")
+gram_traits <- intersect(c("Gram negative", "Gram positive", "Bacillus or coccobacillus",
+  "Coccus", "Motile", "Spore formation"), trait_cols)
+
+plot_morph <- function(long_df, grp_lvls, colors, title, out_file) {
+  df <- long_df %>% filter(trait %in% gram_traits, !is.na(Group)) %>%
+    mutate(Group = factor(Group, levels = grp_lvls)) %>%
+    group_by(Group, trait) %>%
+    summarise(mean_wmean = mean(wmean, na.rm = TRUE),
+              se = sd(wmean, na.rm = TRUE) / sqrt(n()), .groups = "drop")
+  ggplot(df, aes(x = Group, y = mean_wmean, fill = trait)) +
+    geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", linewidth = 0.4) +
+    geom_errorbar(aes(ymin = pmax(0, mean_wmean - se), ymax = mean_wmean + se),
+                  position = position_dodge(width = 0.7), width = 0.25, linewidth = 0.5) +
+    scale_fill_brewer(palette = "Set2", name = "Trait") +
+    labs(title = title, x = "Group", y = "Weighted mean prevalence +/- SE") +
+    theme_nature(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig8_gram_morphology_bar.png"),
+  plot_morph(wmean_long, GROUP_LEVELS, GROUP_COLORS, "Gram Stain & Morphology (All 6 Groups)"),
+  width = 9, height = 5.5, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig8_gram_morphology_bar.png"),
+  plot_morph(wmean_long %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+    "Gram Stain & Morphology (Adenoma Follow-up)"),
+  width = 9, height = 5.5, dpi = 300)
+
+# ==============================================================================
+# 10. Figure 9: Category grouped bar (mean +/- SE)
+# ==============================================================================
+cat("\nCreating Figure 9: Category grouped bar...\n")
+
+plot_cat_bar <- function(cprop, grp_lvls, colors, title, out_file) {
+  df <- cprop %>% group_by(Group, category) %>%
+    summarise(mean_wmean = mean(cat_wmean, na.rm = TRUE),
+              se = sd(cat_wmean, na.rm = TRUE) / sqrt(n()), .groups = "drop") %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+  ggplot(df, aes(x = category, y = mean_wmean, fill = Group)) +
+    geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7, color = "black", linewidth = 0.4) +
+    geom_errorbar(aes(ymin = pmax(0, mean_wmean - se), ymax = mean_wmean + se),
+                  position = position_dodge(width = 0.8), width = 0.25, linewidth = 0.5) +
+    scale_fill_manual(values = colors[grp_lvls], name = "Group") +
+    labs(title = title, x = NULL, y = "Mean weighted prevalence +/- SE") +
+    theme_nature(base_size = 10) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1, size = 8))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig9_category_grouped_bar.png"),
+  plot_cat_bar(cat_prop, GROUP_LEVELS, GROUP_COLORS, "Mean Phenotype Categories (All 6 Groups)"),
+  width = 12, height = 5.5, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig9_category_grouped_bar.png"),
+  plot_cat_bar(cat_prop_4, FOUR_LEVELS, FOUR_COLORS, "Mean Phenotype Categories (Adenoma Follow-up)"),
+  width = 12, height = 5.5, dpi = 300)
+
+# ==============================================================================
+# 11. Figure 10: Cleveland dot plot (all traits)
+# ==============================================================================
+cat("\nCreating Figure 10: All traits dot plot...\n")
+
+plot_dotplot <- function(long_df, grp_lvls, colors, title, out_file) {
+  df <- long_df %>% filter(!is.na(Group)) %>%
+    group_by(Group, category, trait) %>%
+    summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+    mutate(category = factor(category, levels = names(TRAIT_CATEGORIES)),
+           trait = reorder(trait, mean_wmean, FUN = mean))
+  global_max <- max(df$mean_wmean, na.rm = TRUE) * 1.1
+
+  ggplot(df, aes(x = mean_wmean, y = trait, color = Group)) +
+    geom_segment(aes(x = 0, xend = global_max, y = trait, yend = trait),
+                 color = "grey90", linewidth = 0.3) +
+    geom_point(alpha = 0.8, size = 2.5) +
+    facet_grid(category ~ ., scales = "free_y", space = "free_y") +
+    scale_color_manual(values = colors[grp_lvls], name = "Group") +
+    labs(title = title, x = "Mean Weighted Prevalence (coverage-weighted)", y = NULL) +
+    theme_nature(base_size = 10) +
+    theme(strip.text.y = element_text(angle = 0, size = 8, face = "bold"),
+          strip.background = element_rect(fill = "grey90", color = "black", linewidth = 0.5),
+          axis.text.y = element_text(size = 7),
+          panel.grid.major.y = element_blank(), panel.spacing = unit(0.2, "lines"))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig10_all_traits_dotplot.png"),
+  plot_dotplot(wmean_long, GROUP_LEVELS, GROUP_COLORS, "All 67 Phenotypes (All 6 Groups)"),
+  width = 10, height = 14, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig10_all_traits_dotplot.png"),
+  plot_dotplot(wmean_long %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+    "All Phenotypes (Adenoma Follow-up)"),
+  width = 10, height = 14, dpi = 300)
+
+# ==============================================================================
+# 12. Save statistical results (CSV tables)
+# ==============================================================================
+cat("\nSaving statistical results as CSV tables...\n")
+
+save_csv <- function(df, path) {
+  write.csv(df, path, row.names = FALSE)
+}
+
+# --- Table 1: Sample grouping summary ---
+cat("  Table 1: Sample grouping summary...\n")
+sample_groups <- prop_cov %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group) %>%
+  summarise(n_samples = n(), .groups = "drop") %>%
+  mutate(percentage = round(n_samples / sum(n_samples) * 100, 1))
+save_csv(sample_groups, file.path(OUTPUT_DIR, "table1_sample_grouping.csv"))
+
+# --- Table 2: Per-trait per-group descriptive statistics (weighted mean prevalence) ---
+cat("  Table 2: Per-trait descriptive statistics...\n")
+group_trait_stats <- wmean_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, category, trait) %>%
+  summarise(
+    n = n(),
+    mean_wmean = mean(wmean, na.rm = TRUE),
+    median_wmean = median(wmean, na.rm = TRUE),
+    sd_wmean = sd(wmean, na.rm = TRUE),
+    se_wmean = sd(wmean, na.rm = TRUE) / sqrt(n()),
+    q25 = quantile(wmean, 0.25, na.rm = TRUE),
+    q75 = quantile(wmean, 0.75, na.rm = TRUE),
+    min_wmean = min(wmean, na.rm = TRUE),
+    max_wmean = max(wmean, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(category, trait, Group)
+save_csv(group_trait_stats, file.path(OUTPUT_DIR, "table2_trait_descriptive_statistics.csv"))
+
+# --- Table 3: Category-level descriptive statistics (weighted mean prevalence) ---
+cat("  Table 3: Category descriptive statistics...\n")
+cat_stats <- cat_prop %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, category) %>%
+  summarise(
+    n = n(),
+    mean_wmean = mean(cat_wmean, na.rm = TRUE),
+    median_wmean = median(cat_wmean, na.rm = TRUE),
+    sd_wmean = sd(cat_wmean, na.rm = TRUE),
+    se_wmean = sd(cat_wmean, na.rm = TRUE) / sqrt(n()),
+    q25 = quantile(cat_wmean, 0.25, na.rm = TRUE),
+    q75 = quantile(cat_wmean, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(category, Group)
+save_csv(cat_stats, file.path(OUTPUT_DIR, "table3_category_descriptive_statistics.csv"))
+
+# --- Table 4: Trait prevalence per group ---
+cat("  Table 4: Trait prevalence per group...\n")
+prevalence_table <- present_count %>%
+  filter(!is.na(Group)) %>%
+  select(all_of(c("Group", trait_cols_count))) %>%
+  pivot_longer(cols = all_of(trait_cols_count), names_to = "trait", values_to = "count") %>%
+  mutate(present = count > 0) %>%
+  group_by(Group, trait) %>%
+  summarise(
+    n_total = n(),
+    n_present = sum(present),
+    prevalence_pct = round(n_present / n_total * 100, 1),
+    .groups = "drop"
+  ) %>%
+  left_join(trait_cat_df, by = "trait") %>%
+  mutate(category = ifelse(is.na(category), "Other", category)) %>%
+  arrange(category, trait, Group)
+save_csv(prevalence_table, file.path(OUTPUT_DIR, "table4_trait_prevalence.csv"))
+
+# --- Table 5: Kruskal-Wallis test results (6 groups) ---
+cat("  Table 5: Kruskal-Wallis results (6 groups)...\n")
+save_csv(kw_6, file.path(OUTPUT_DIR, "table5_kruskal_wallis_6groups.csv"))
+
+# --- Table 6: Kruskal-Wallis test results (4 adenoma groups) ---
+cat("  Table 6: Kruskal-Wallis results (adenoma)...\n")
+save_csv(kw_4, file.path(FOUR_DIR, "table6_kruskal_wallis_4adenoma.csv"))
+
+# --- Table 7: Pairwise effect sizes (max-min weighted mean prevalence per trait) ---
+cat("  Table 7: Pairwise effect sizes...\n")
+pairwise_eff <- wmean_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(trait, Group) %>%
+  summarise(median_wmean = median(wmean, na.rm = TRUE),
+            mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop")
+# Max - min effect size per trait across groups
+global_eff <- pairwise_eff %>%
+  group_by(trait) %>%
+  summarise(
+    effect_size_maxmin = round(max(mean_wmean) - min(mean_wmean), 6),
+    group_max = Group[which.max(mean_wmean)],
+    group_min = Group[which.min(mean_wmean)],
+    .groups = "drop"
+  ) %>%
+  left_join(trait_cat_df, by = "trait") %>%
+  mutate(category = ifelse(is.na(category), "Other", category)) %>%
+  arrange(desc(effect_size_maxmin))
+save_csv(global_eff, file.path(OUTPUT_DIR, "table7_trait_effect_sizes.csv"))
+
+# 4-group version
+pairwise_eff_4 <- wmean_long %>%
+  filter(!is.na(Group), Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(trait, Group) %>%
+  summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop")
+global_eff_4 <- pairwise_eff_4 %>%
+  group_by(trait) %>%
+  summarise(
+    effect_size_maxmin = round(max(mean_wmean) - min(mean_wmean), 6),
+    group_max = Group[which.max(mean_wmean)],
+    group_min = Group[which.min(mean_wmean)],
+    .groups = "drop"
+  ) %>%
+  left_join(trait_cat_df, by = "trait") %>%
+  mutate(category = ifelse(is.na(category), "Other", category)) %>%
+  arrange(desc(effect_size_maxmin))
+save_csv(global_eff_4, file.path(FOUR_DIR, "table7_trait_effect_sizes_4adenoma.csv"))
+
+# --- Table 8: PCoA sample coordinates ---
+cat("  Table 8: PCoA sample coordinates...\n")
+pcoa_coords_6 <- res_6$scores %>%
+  left_join(prop_cov %>% select(row_id, SID, profile_column, source), by = "row_id") %>%
+  select(SID, profile_column, source, Group, PCoA1, PCoA2) %>%
+  arrange(Group)
+save_csv(pcoa_coords_6, file.path(OUTPUT_DIR, "table8_pcoa_coordinates_6groups.csv"))
+
+pcoa_coords_4 <- res_4$scores %>%
+  left_join(prop_cov %>% select(row_id, SID, profile_column, source), by = "row_id") %>%
+  filter(Group %in% FOUR_LEVELS) %>%
+  select(SID, profile_column, source, Group, PCoA1, PCoA2) %>%
+  arrange(Group)
+save_csv(pcoa_coords_4, file.path(FOUR_DIR, "table8_pcoa_coordinates_4adenoma.csv"))
+
+# --- Table 9: PERMANOVA + betadisper results ---
+cat("  Table 9: PERMANOVA and betadisper results...\n")
+pcoa_stats <- data.frame(
+  Comparison = c("All 6 groups", "Adenoma follow-up (4 groups)"),
+  n_samples = c(nrow(res_6$scores), nrow(res_4$scores)),
+  R2 = c(res_6$adonis_r2, res_4$adonis_r2),
+  PERMANOVA_p = c(res_6$adonis_p, res_4$adonis_p),
+  Betadisper_p = c(res_6$betadisper_p, res_4$betadisper_p),
+  Distance_method = "Aitchison (CLR + Euclidean)",
+  Permutations = 999
+)
+save_csv(pcoa_stats, file.path(OUTPUT_DIR, "table9_permanova_betadisper.csv"))
+
+# --- Table 10: Wide-format weighted mean prevalence matrix (group x trait) ---
+cat("  Table 10: Group x trait weighted mean prevalence matrix...\n")
+wide_matrix <- wmean_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, trait) %>%
+  summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = trait, values_from = mean_wmean) %>%
+  arrange(match(Group, GROUP_LEVELS))
+save_csv(wide_matrix, file.path(OUTPUT_DIR, "table10_group_trait_mean_matrix.csv"))
+
+wide_matrix_4 <- wmean_long %>%
+  filter(!is.na(Group), Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(Group, trait) %>%
+  summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = trait, values_from = mean_wmean) %>%
+  arrange(Group)
+save_csv(wide_matrix_4, file.path(FOUR_DIR, "table10_group_trait_mean_matrix_4adenoma.csv"))
+
+# --- Table 11: Category-level wide matrix (group x category) ---
+cat("  Table 11: Group x category weighted mean prevalence matrix...\n")
+cat_wide <- cat_prop %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, category) %>%
+  summarise(mean_wmean = mean(cat_wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = category, values_from = mean_wmean) %>%
+  arrange(match(Group, GROUP_LEVELS))
+save_csv(cat_wide, file.path(OUTPUT_DIR, "table11_group_category_mean_matrix.csv"))
+
+cat_wide_4 <- cat_prop %>%
+  filter(!is.na(Group), Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(Group, category) %>%
+  summarise(mean_wmean = mean(cat_wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = category, values_from = mean_wmean) %>%
+  arrange(Group)
+save_csv(cat_wide_4, file.path(FOUR_DIR, "table11_group_category_mean_matrix_4adenoma.csv"))
+
+cat("\n==============================================================\n")
+cat(" Visualization Complete!\n")
+cat("==============================================================\n\n")
+cat(sprintf("Output (6 groups):  %s\n", OUTPUT_DIR))
+cat(sprintf("Output (4 adenoma): %s\n\n", FOUR_DIR))
+cat("Figures per group set:\n")
+cat("  fig1  Phenotype heatmap\n")
+cat("  fig2  Category boxplots (KW test)\n")
+cat("  fig3  Key traits boxplots (KW test)\n")
+cat("  fig4  Trait prevalence heatmap\n")
+cat("  fig5  Aitchison PCoA + PERMANOVA + betadisper\n")
+cat("  fig6  Differential phenotype volcano (KW)\n")
+cat("  fig7  Oxygen requirement (relative stacked bar)\n")
+cat("  fig8  Gram & morphology (mean +/- SE)\n")
+cat("  fig9  Category grouped bar (mean +/- SE)\n")
+cat("  fig10 All 67 traits dot plot\n\n")
+cat("CSV tables (6 groups):\n")
+cat("  table1  Sample grouping summary\n")
+cat("  table2  Per-trait per-group descriptive statistics\n")
+cat("  table3  Category-level descriptive statistics\n")
+cat("  table4  Trait prevalence per group (%)\n")
+cat("  table5  Kruskal-Wallis test results\n")
+cat("  table7  Trait effect sizes (max-min group mean)\n")
+cat("  table8  PCoA sample coordinates\n")
+cat("  table9  PERMANOVA + betadisper results\n")
+cat("  table10 Group x trait mean proportion matrix\n")
+cat("  table11 Group x category mean proportion matrix\n\n")
+cat("CSV tables (4 adenoma groups only):\n")
+cat("  table6  Kruskal-Wallis results (adenoma)\n")
+cat("  table7  Trait effect sizes (adenoma)\n")
+cat("  table8  PCoA coordinates (adenoma)\n")
+cat("  table10 Group x trait matrix (adenoma)\n")
+cat("  table11 Group x category matrix (adenoma)\n\n")
+cat("Methodology notes:\n")
+cat("  - Per-trait comparisons (KW tests, boxplots, dot plots): weighted mean prevalence\n")
+cat("    (coverage-weighted fraction of MAGs carrying each trait; independent across traits)\n")
+cat("  - Multivariate analysis (PCoA, PERMANOVA): Aitchison distance (CLR + Euclidean)\n")
+cat("    on compositional proportion data; NOT Bray-Curtis or UniFrac\n")
+cat("  - UniFrac requires phylogenetic tree; phenotypic traits lack this structure\n")
+cat("  - PERMANOVA preceded by betadisper test for homogeneity\n")
+cat("  - KW global test (not pairwise) for multi-group comparisons\n")
+cat("  - Error bars: mean +/- SE with pmax(0, mean-SE) floor\n")
+cat("==============================================================\n")
 ```
 
 ## 2.3 Results
@@ -265,43 +1038,148 @@ y = −log10 adjusted p). No trait crosses the FDR < 0.05 threshold.
 
 ## 2.5 Interpretation
 
-1. **No Traitar phenotype differs significantly between the four adenoma
-   follow-up groups** (best raw p = 0.0099 for Acetate utilization, padj =
-   0.652). The predicted classical phenotypes of the gut microbiome are
-   essentially stable across recurrence status and sampling time.
-2. The largest effect sizes (Trehalose, Alkaline phosphatase, Bile-susceptible)
-   are small (0.08–0.09 on a 0–1 prevalence scale) and point in no consistent
-   biological direction.
-3. The marginally significant 6-group betadisper (P = 0.043) reflects slightly
-   heterogeneous dispersion (the CRC group is the most distinct), not a
-   location shift — PERMANOVA itself is non-significant.
-
+1. **No Traitar phenotype is significant** after BH-FDR; the predicted
+   classical phenotypes are stable across recurrence status and sampling time.
+2. Effect sizes are small (0.08-0.09) and directionally inconsistent.
+3. The only marginal signal is 6-group betadisper (P = 0.043), a dispersion
+   effect driven by CRC, not a location shift.
 # 3. microTrait
 
 ## 3.1 Overview
 
-microTrait (Karaoz & Brodie, 2022) predicts hierarchical life-history traits
-from genome content. Traits are organised as `Top:Mid:Leaf` (e.g.
-`Resource Acquisition:Substrate uptake:polysaccharide transport`). For each
-sample, the coverage-weighted score (sum of MAG-level binary calls weighted by
-coverage) is used for per-trait tests, and the compositional proportion for
-multivariate analysis.
+microTrait predicts hierarchical life-history traits from MAGs.
+Coverage-weighted scores are used for per-trait tests; compositional
+proportions are used for multivariate analysis.
 
-**Key results (4-group adenoma subset):**
-
-- **No trait is significant after BH-FDR correction** (all padj = 0.357).
-  The strongest raw-p hits are *polysaccharide transport* (p = 0.0115),
-  *nucleotide transport* (p = 0.0192) and *lipid precursor transport*
-  (p = 0.0220).
-- The largest effect size is *protein degradation* (5939.6, Non_recurrence_2 vs
-  Recurrence_1) — a large absolute score difference driven by coverage.
-- PERMANOVA: 6-group R² = 0.015, P = 0.201; 4-group R² = 0.014, P = 0.266.
-  No multivariate separation.
-
+**Key results (4-group subset):** no trait survives BH-FDR (all padj = 0.357;
+best raw p = 0.0115 for polysaccharide transport); largest effect size
+(protein degradation, 5939.6) is coverage-driven; PERMANOVA shows no
+separation (4-group R2 = 0.014, P = 0.266; 6-group R2 = 0.015, P = 0.201).
 ## 3.2 Script
 
+**Script:** targetc_micotrait_plot.R
+
 ```r
-# targetc_micotrait_plot.R — key functions
+#!/usr/bin/env Rscript
+# ==============================================================================
+# TargetC microTrait Phenotype Visualization (Nature-quality)
+# ==============================================================================
+# Groups (6):
+#   N    -> Normal                       (endoscopy-normal control)
+#   Re1  -> Recurrence_1                 (adenoma recurrence, 1st sampling)
+#   Re2  -> Recurrence_2                 (adenoma recurrence, 2nd sampling)
+#   Non1 -> Non_recurrence_1             (adenoma non-recurrence, 1st sampling)
+#   Non2 -> Non_recurrence_2             (adenoma non-recurrence, 2nd sampling)
+#   CRC  -> CRC
+#   (samples with empty source are excluded)
+#
+# Input  : trait_summary_annotated_mimag90  (output of Step 09 annotate)
+#   annotated_binary_sample_trait_proportion_coverage.tsv  compositional (PCoA, heatmap)
+#   annotated_binary_sample_trait_score_coverage.tsv       coverage-weighted score (KW, boxplots)
+#   annotated_binary_sample_trait_present_count.tsv        MAG count carrying trait (prevalence)
+#   annotated_continuous_sample_continuous_summary.tsv     continuous traits (genome size, growth, OGT)
+#
+# Output : microtrait-plot/        6-group figures + CSV tables
+#          microtrait-plot/plot-4/ 4-group (adenoma follow-up) figures + CSV tables
+#
+# Methodology:
+#   - Aitchison distance (CLR + Euclidean) for compositional proportion data, NOT Bray-Curtis
+#   - PERMANOVA preceded by betadisper test for homogeneity of dispersion
+#   - Kruskal-Wallis global test (not pairwise Wilcoxon) for group comparisons
+#   - Error bars: mean +/- SE
+# ==============================================================================
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(tibble)
+  library(pheatmap)
+  library(cowplot)
+  library(scales)
+  library(RColorBrewer)
+  library(ggpubr)
+  library(vegan)
+  library(ggrepel)
+})
+
+# ==============================================================================
+# 0. Paths and parameters
+# ==============================================================================
+ANNOTATED_DIR <- Sys.getenv(
+  "TARGETC_MICROTRAIT_ANNOTATED_DIR",
+  "/home/yanglun/YSD/TargetC/phenotypes-analysis/microtrait-analysis/results/trait_summary_annotated_mimag90")
+OUTPUT_DIR <- Sys.getenv(
+  "TARGETC_MICROTRAIT_PLOT_DIR",
+  "/home/yanglun/YSD/TargetC/phenotypes-analysis/microtrait-analysis/results/microtrait-plot")
+FOUR_DIR <- file.path(OUTPUT_DIR, "plot-4")
+if (!dir.exists(OUTPUT_DIR)) dir.create(OUTPUT_DIR, recursive = TRUE)
+if (!dir.exists(FOUR_DIR)) dir.create(FOUR_DIR, recursive = TRUE)
+
+PROP_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_binary_sample_trait_proportion_coverage.tsv")
+WMEAN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_binary_sample_trait_score_coverage.tsv")
+COUNT_FILE    <- file.path(ANNOTATED_DIR, "annotated_binary_sample_trait_present_count.tsv")
+CONT_FILE     <- file.path(ANNOTATED_DIR, "annotated_continuous_sample_continuous_summary.tsv")
+
+# ---- Group mapping: source -> Group display labels ----
+GROUP_LABELS <- c("N" = "Normal", "Re1" = "Recurrence_1", "Re2" = "Recurrence_2",
+                  "Non1" = "Non_recurrence_1", "Non2" = "Non_recurrence_2", "CRC" = "CRC")
+GROUP_LEVELS <- unname(GROUP_LABELS)
+FOUR_LEVELS  <- c("Recurrence_1", "Recurrence_2", "Non_recurrence_1", "Non_recurrence_2")
+
+# Nature-style palette (matched to the NPG/nejm schemes used by ggpubr)
+GROUP_COLORS <- c(
+  "Normal" = "#00A087", "Recurrence_1" = "#E64B35", "Recurrence_2" = "#F39B7F",
+  "Non_recurrence_1" = "#4DBBD5", "Non_recurrence_2" = "#91D1C2", "CRC" = "#3C5488")
+FOUR_COLORS <- c(
+  "Recurrence_1" = "#E64B35", "Recurrence_2" = "#F39B7F",
+  "Non_recurrence_1" = "#4DBBD5", "Non_recurrence_2" = "#91D1C2")
+
+SUPER_COLORS <- c(
+  "Resource Acquisition" = "#E64B35", "Resource Use" = "#4DBBD5",
+  "Stress Tolerance" = "#3C5488")
+
+CATEGORY_COLORS <- c(
+  "Substrate uptake" = "#E64B35", "Substrate degradation" = "#F39B7F",
+  "Substrate assimilation" = "#00A087", "Chemotrophy" = "#4DBBD5",
+  "Phototrophy" = "#91D1C2", "General" = "#3C5488", "Specific" = "#8491B4")
+
+CONT_COLORS <- c(
+  "Genome length (Mb)" = "#00A087",
+  "Minimum generation time (h)" = "#E64B35",
+  "Optimal growth temperature (°C)" = "#3C5488")
+
+# ==============================================================================
+# Theme & helpers
+# ==============================================================================
+theme_nature <- function(base_size = 15) {
+  theme_cowplot(base_size) +
+    theme(
+      text = element_text(size = base_size, color = "black"),
+      axis.title = element_text(size = base_size + 2, face = "bold"),
+      axis.text = element_text(size = base_size - 1, color = "black"),
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+      plot.title = element_text(size = base_size + 3, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = base_size - 1, hjust = 0.5, face = "italic", color = "grey30"),
+      strip.text = element_text(size = base_size, face = "bold", margin = margin(t = 5, b = 5)),
+      strip.background = element_rect(fill = "grey92", color = "black", linewidth = 1),
+      legend.text = element_text(size = base_size - 1),
+      legend.title = element_text(size = base_size, face = "bold"),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+      axis.line = element_blank(),
+      panel.grid.major = element_line(linewidth = 0.3, color = "grey85", linetype = "dashed"),
+      legend.position = "right",
+      legend.key.size = unit(0.65, "cm")
+    )
+}
+
+# Map raw source values to display Group factor
+to_group <- function(src, levels = GROUP_LEVELS) {
+  mapped <- GROUP_LABELS[as.character(src)]
+  mapped[is.na(mapped)] <- NA_character_
+  factor(mapped, levels = levels)
+}
+
 # microTrait traits are hierarchical, colon-separated: "Top:Mid:Leaf:..."
 parse_trait_categories <- function(trait_names) {
   do.call(rbind, lapply(trait_names, function(t) {
@@ -313,6 +1191,13 @@ parse_trait_categories <- function(trait_names) {
       stringsAsFactors = FALSE
     )
   }))
+}
+
+display_trait <- function(t) gsub(":", " / ", t, fixed = TRUE)
+short_category <- function(c) sub("^.* > ", "", c)
+wrap_label <- function(x, width = 26) {
+  vapply(as.character(x), function(s) paste(strwrap(s, width = width), collapse = "\n"),
+         character(1))
 }
 
 # CLR transform with zero handling (multiplicative replacement via pseudocount)
@@ -327,52 +1212,338 @@ clr_transform <- function(mat) {
   log(mat_out / gm)
 }
 
-# Aitchison PCoA + PERMANOVA + betadisper (same framework as Traitar)
+# ==============================================================================
+# 1. Read and prepare data
+# ==============================================================================
+cat("==============================================================\n")
+cat(" TargetC microTrait Phenotype Visualization\n")
+cat("==============================================================\n\n")
+
+cat("Reading data files...\n")
+prop_cov <- read.delim(PROP_COV_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+wmean_cov <- read.delim(WMEAN_COV_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+present_count <- read.delim(COUNT_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+cont_sum <- read.delim(CONT_FILE, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+
+cat(sprintf("  Proportion coverage: %d rows x %d cols\n", nrow(prop_cov), ncol(prop_cov)))
+cat(sprintf("  Score coverage:      %d rows x %d cols\n", nrow(wmean_cov), ncol(wmean_cov)))
+cat(sprintf("  Present count:       %d rows x %d cols\n", nrow(present_count), ncol(present_count)))
+cat(sprintf("  Continuous summary:  %d rows x %d cols\n", nrow(cont_sum), ncol(cont_sum)))
+
+meta_cols <- c("SID", "profile_column", "source", "sample_id")
+
+# Exclude empty/NA source rows
+prop_cov <- prop_cov %>% filter(!is.na(source) & source != "")
+wmean_cov <- wmean_cov %>% filter(!is.na(source) & source != "")
+present_count <- present_count %>% filter(!is.na(source) & source != "")
+cont_sum <- cont_sum %>% filter(!is.na(source) & source != "")
+
+prop_cov$row_id <- paste0("row_", seq_len(nrow(prop_cov)))
+wmean_cov$row_id <- paste0("row_", seq_len(nrow(wmean_cov)))
+present_count$row_id <- paste0("row_", seq_len(nrow(present_count)))
+
+trait_cols <- setdiff(colnames(prop_cov), c(meta_cols, "row_id", "Group"))
+trait_cols_wmean <- setdiff(colnames(wmean_cov), c(meta_cols, "row_id", "Group"))
+trait_cols_count <- setdiff(colnames(present_count), c(meta_cols, "row_id", "Group"))
+
+stopifnot(identical(trait_cols, trait_cols_wmean),
+          identical(trait_cols, trait_cols_count))
+
+# Remove samples where ALL trait columns are NA (no microTrait predictions), then
+# fill any partial NA with 0 (trait predicted absent).
+filter_allna <- function(df, tcols) {
+  n_na <- sum(rowSums(is.na(df[, tcols, drop = FALSE])) == length(tcols))
+  if (n_na > 0) cat(sprintf("  Note: Removing %d samples with all-NA trait data\n", n_na))
+  df <- df %>% filter(rowSums(is.na(.[, tcols, drop = FALSE])) < length(tcols))
+  df[, tcols] <- lapply(df[, tcols, drop = FALSE], function(x) ifelse(is.na(x), 0, x))
+  df$row_id <- paste0("row_", seq_len(nrow(df)))
+  df
+}
+prop_cov <- filter_allna(prop_cov, trait_cols)
+wmean_cov <- filter_allna(wmean_cov, trait_cols_wmean)
+present_count <- filter_allna(present_count, trait_cols_count)
+
+# Add Group display label
+prop_cov$Group <- to_group(prop_cov$source)
+wmean_cov$Group <- to_group(wmean_cov$source)
+present_count$Group <- to_group(present_count$source)
+cont_sum$Group <- to_group(cont_sum$source)
+
+# Trait category annotation (derived from the hierarchical trait names)
+trait_cat_df <- parse_trait_categories(trait_cols)
+trait_cat_df$category <- factor(trait_cat_df$category,
+                                levels = unique(trait_cat_df$category))
+trait_cat_df$super_category <- factor(trait_cat_df$super_category,
+                                      levels = names(SUPER_COLORS))
+cat(sprintf("  %d traits; %d super-categories; %d categories\n",
+            nrow(trait_cat_df), nlevels(trait_cat_df$super_category), nlevels(trait_cat_df$category)))
+
+# Long format: coverage-weighted score (independent across traits; KW, boxplots, dotplot)
+wmean_long <- wmean_cov %>%
+  select(all_of(c(meta_cols, "row_id", "Group", trait_cols_wmean))) %>%
+  pivot_longer(cols = all_of(trait_cols_wmean), names_to = "trait", values_to = "wmean") %>%
+  filter(!is.na(Group)) %>%
+  left_join(trait_cat_df, by = "trait")
+
+# Long format: continuous traits (genome size / growth / OGT)
+cont_long <- cont_sum %>%
+  filter(!is.na(Group)) %>%
+  mutate(`Genome length (Mb)` = genome_length_wmean_coverage / 1e6,
+         `Minimum generation time (h)` = mingentime_wmean_coverage,
+         `Optimal growth temperature (°C)` = optimumT_wmean_coverage) %>%
+  select(Group, `Genome length (Mb)`, `Minimum generation time (h)`,
+         `Optimal growth temperature (°C)`) %>%
+  pivot_longer(cols = -Group, names_to = "ctrait", values_to = "value") %>%
+  mutate(ctrait = factor(ctrait, levels = names(CONT_COLORS)))
+
+group_sizes <- prop_cov %>% filter(!is.na(Group)) %>% group_by(Group) %>% summarise(n = n(), .groups = "drop") %>% arrange(Group)
+cat("\nGroup sizes:\n"); print(group_sizes)
+
+# ==============================================================================
+# 2. Figure 1: Top-variable phenotype heatmap
+# ==============================================================================
+cat("\nCreating Figure 1: Phenotype heatmap...\n")
+
+write_heatmap <- function(pcov_df, tcols, grp_lvls, colors, title, out_file, n_top = 30,
+                          width = NULL, height = NULL) {
+  hm_df <- pcov_df %>% filter(Group %in% grp_lvls) %>%
+    select(all_of(c("row_id", tcols))) %>%
+    column_to_rownames("row_id") %>% as.matrix()
+
+  group_anno <- pcov_df %>% filter(Group %in% grp_lvls) %>%
+    select(row_id, Group) %>% column_to_rownames("row_id") %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+
+  tv <- apply(hm_df, 2, var, na.rm = TRUE)
+  valid <- names(tv)[!is.na(tv) & tv > 0]
+  top_traits <- names(sort(tv[valid], decreasing = TRUE))[1:min(n_top, length(valid))]
+  hm_mat <- t(hm_df[, top_traits, drop = FALSE])
+  rownames(hm_mat) <- display_trait(rownames(hm_mat))
+
+  cat_anno <- trait_cat_df %>% filter(trait %in% top_traits)
+  hm_mat <- hm_mat[display_trait(cat_anno$trait), , drop = FALSE]
+  rownames(cat_anno) <- rownames(hm_mat)
+  obs_cats <- short_category(as.character(cat_anno$category))
+  cat_anno$category <- factor(obs_cats, levels = unique(obs_cats))
+  cat_anno$trait <- NULL; cat_anno$super_category <- NULL
+
+  n_groups <- length(grp_lvls)
+  pheatmap(hm_mat, scale = "row", cluster_rows = TRUE, cluster_cols = TRUE,
+    show_colnames = FALSE, show_rownames = TRUE,
+    fontsize_row = 9, fontsize_col = 10,
+    annotation_col = group_anno, annotation_row = cat_anno,
+    annotation_colors = list(Group = colors[grp_lvls],
+                             category = CATEGORY_COLORS[as.character(levels(cat_anno$category))]),
+    color = colorRampPalette(rev(brewer.pal(11, "RdYlBu")))(100), border_color = NA,
+    main = title,
+    filename = out_file,
+    width = if (is.null(width)) (if (n_groups >= 5) 9 else 7) else width,
+    height = if (is.null(height)) 6.5 else height,
+    dpi = 300)
+}
+
+write_heatmap(prop_cov, trait_cols, GROUP_LEVELS, GROUP_COLORS,
+  "Top Variable Phenotypic Traits (All 6 Groups)",
+  file.path(OUTPUT_DIR, "fig1_phenotype_heatmap.png"))
+write_heatmap(prop_cov, trait_cols, FOUR_LEVELS, FOUR_COLORS,
+  "Top Variable Phenotypic Traits (Adenoma Follow-up)",
+  file.path(FOUR_DIR, "fig1_phenotype_heatmap.png"),
+  width = 9, height = 8)
+
+# ==============================================================================
+# 3. Figure 2: Category boxplots (KW global test)
+# ==============================================================================
+cat("\nCreating Figure 2: Category boxplots...\n")
+
+cat_prop <- wmean_long %>%
+  group_by(row_id, Group, category) %>%
+  summarise(cat_wmean = sum(wmean, na.rm = TRUE), .groups = "drop") %>%
+  mutate(category = factor(short_category(as.character(category)),
+                           levels = unique(short_category(as.character(trait_cat_df$category)))))
+
+cat_prop_4 <- cat_prop %>% filter(Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS))
+
+plot_cat_box <- function(df, grp_lvls, colors, title) {
+  ggplot(df, aes(x = Group, y = cat_wmean, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.6, linewidth = 0.6) +
+    geom_jitter(position = position_jitter(width = 0.15), alpha = 0.4, size = 0.8, aes(color = Group)) +
+    facet_wrap(~category, scales = "free_y", ncol = 3) +
+    stat_compare_means(method = "kruskal.test", label = "p.signif", size = 5,
+                       label.y.npc = "top", label.x.npc = "left") +
+    scale_fill_manual(values = colors[grp_lvls]) +
+    scale_color_manual(values = colors[grp_lvls]) +
+    labs(title = title, x = "Group", y = "Coverage-weighted category score") +
+    theme_nature(base_size = 15) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 11),
+          plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
+}
+
+p2 <- plot_cat_box(cat_prop, GROUP_LEVELS, GROUP_COLORS,
+  "Functional Category Score by Group (Kruskal-Wallis)")
+p2_4 <- plot_cat_box(cat_prop_4, FOUR_LEVELS, FOUR_COLORS,
+  "Functional Category Score (Adenoma Follow-up)")
+ggsave(file.path(OUTPUT_DIR, "fig2_category_boxplots.png"), p2, width = 13, height = 9.5, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig2_category_boxplots.png"), p2_4, width = 12, height = 8.5, dpi = 300)
+
+# ==============================================================================
+# 4. Figure 3: Key traits boxplots (KW global test)
+# ==============================================================================
+cat("\nCreating Figure 3: Key traits boxplots...\n")
+
+# Rank traits by global group effect (max - min group median) and pick the top
+eff_scores <- wmean_long %>%
+  group_by(trait, Group) %>% summarise(med = median(wmean, na.rm = TRUE), .groups = "drop") %>%
+  group_by(trait) %>% summarise(effect = max(med) - min(med), .groups = "drop") %>%
+  arrange(desc(effect))
+key_traits <- head(eff_scores$trait, 12)
+
+plot_key_box <- function(df, grp_lvls, colors, title) {
+  df_f <- df %>% filter(trait %in% key_traits) %>%
+    mutate(trait = factor(display_trait(trait), levels = display_trait(key_traits)))
+  ggplot(df_f, aes(x = Group, y = wmean, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.6, linewidth = 0.6) +
+    geom_jitter(position = position_jitter(width = 0.15), alpha = 0.3, size = 0.6, aes(color = Group)) +
+    facet_wrap(~trait, scales = "free_y", ncol = 4,
+               labeller = label_wrap_gen(width = 20)) +
+    stat_compare_means(method = "kruskal.test", label = "p.signif", size = 4.5,
+                       label.y.npc = "top", label.x.npc = "left") +
+    scale_fill_manual(values = colors[grp_lvls]) +
+    scale_color_manual(values = colors[grp_lvls]) +
+    labs(title = title, x = "Group", y = "Coverage-weighted trait score") +
+    theme_nature(base_size = 14) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10),
+          strip.text = element_text(face = "bold", size = 10),
+          plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
+}
+
+p3 <- plot_key_box(wmean_long, GROUP_LEVELS, GROUP_COLORS,
+  "Most Variable Phenotypic Traits (All 6 Groups)")
+p3_4 <- plot_key_box(wmean_long %>% filter(Group %in% FOUR_LEVELS) %>%
+                       mutate(Group = factor(Group, levels = FOUR_LEVELS)),
+                     FOUR_LEVELS, FOUR_COLORS, "Most Variable Phenotypic Traits (Adenoma Follow-up)")
+ggsave(file.path(OUTPUT_DIR, "fig3_key_traits_boxplots.png"), p3, width = 15, height = 11, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig3_key_traits_boxplots.png"), p3_4, width = 18, height = 13, dpi = 300)
+
+# ==============================================================================
+# 5. Figure 4: Trait prevalence heatmap (% samples carrying trait)
+# ==============================================================================
+cat("\nCreating Figure 4: Trait prevalence heatmap...\n")
+
+write_prevalence_hm <- function(pcount, tcols, grp_lvls, fname, width) {
+  prev <- pcount %>% filter(Group %in% grp_lvls) %>%
+    select(all_of(c("Group", tcols))) %>%
+    pivot_longer(cols = all_of(tcols), names_to = "trait", values_to = "count") %>%
+    mutate(present = count > 0) %>%
+    group_by(Group, trait) %>%
+    summarise(n_total = n(), n_present = sum(present),
+              prevalence = n_present / n_total * 100, .groups = "drop") %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+
+  pw <- prev %>% select(Group, trait, prevalence) %>%
+    pivot_wider(names_from = Group, values_from = prevalence, values_fn = mean) %>%
+    column_to_rownames("trait")
+
+  pw <- pw %>% rownames_to_column("trait") %>%
+    left_join(trait_cat_df, by = "trait") %>%
+    mutate(category = short_category(as.character(category))) %>%
+    arrange(category, desc(!!sym(grp_lvls[1]))) %>%
+    select(-category, -super_category) %>%
+    column_to_rownames("trait") %>% as.matrix()
+
+  pheatmap(pw, cluster_rows = TRUE, cluster_cols = FALSE,
+    show_rownames = FALSE, show_colnames = TRUE, fontsize_row = 6, fontsize_col = 11,
+    color = colorRampPalette(c("#F7FBFF", "#6BAED6", "#08306B"))(100),
+    border_color = NA, main = "Trait Prevalence (% samples carrying trait)",
+    breaks = seq(0, 100, length.out = 101),
+    filename = fname, width = width, height = 13, dpi = 300)
+}
+
+write_prevalence_hm(present_count, trait_cols_count, GROUP_LEVELS,
+  file.path(OUTPUT_DIR, "fig4_trait_prevalence_heatmap.png"), width = 6)
+write_prevalence_hm(present_count, trait_cols_count, FOUR_LEVELS,
+  file.path(FOUR_DIR, "fig4_trait_prevalence_heatmap.png"), width = 5.5)
+
+# ==============================================================================
+# 6. Figure 5: Aitchison PCoA + PERMANOVA (with betadisper test)
+# ==============================================================================
+cat("\nCreating Figure 5: Aitchison PCoA + PERMANOVA...\n")
+
 make_pcoa <- function(pcov_df, grp_lvls, colors, title_str, out_file) {
   df <- pcov_df %>% filter(Group %in% grp_lvls) %>%
     mutate(Group = factor(Group, levels = grp_lvls))
+
   mat <- df %>% select(all_of(c("row_id", trait_cols))) %>%
     column_to_rownames("row_id") %>% as.matrix()
+
+  # Remove zero-variance columns
   tv <- apply(mat, 2, var, na.rm = TRUE)
   mat <- mat[, tv > 0]
+
+  # CLR transform (handles zeros with pseudocount) -> Aitchison distance
   clr_mat <- clr_transform(mat)
-  dist_mat <- dist(clr_mat, method = "euclidean")   # Aitchison distance
+  dist_mat <- dist(clr_mat, method = "euclidean")
+
+  # PCoA via cmdscale
   pcoa_res <- cmdscale(dist_mat, k = min(2, nrow(clr_mat) - 1), eig = TRUE)
+
   pos_eig <- pcoa_res$eig[pcoa_res$eig > 0]
   var_exp <- round(pos_eig[1:min(2, length(pos_eig))] / sum(pos_eig) * 100, 1)
+
   scores <- as.data.frame(pcoa_res$points)
   colnames(scores) <- c("PCoA1", "PCoA2")[1:ncol(scores)]
   scores$row_id <- rownames(scores)
-  scores <- scores %>% left_join(df %>% select(row_id, Group) %>% distinct(), by = "row_id")
+
+  rid_grp <- df %>% select(row_id, Group) %>% distinct()
+  scores <- scores %>% left_join(rid_grp, by = "row_id")
   scores$Group <- factor(scores$Group, levels = grp_lvls)
 
+  # PERMANOVA (adonis2)
   grp_vec <- scores$Group[match(labels(dist_mat), scores$row_id)]
   set.seed(42)
   adonis_res <- adonis2(dist_mat ~ grp_vec, permutations = 999)
   p_val <- adonis_res$`Pr(>F)`[1]
   r2 <- round(adonis_res$R2[1], 3)
+
+  # Betadisper test (homogeneity of dispersion)
   beta_disp <- betadisper(dist_mat, grp_vec)
   beta_p <- anova(beta_disp)$`Pr(>F)`[1]
 
+  cat(sprintf("  PERMANOVA: R2=%.3f, p=%.4f | Betadisper p=%.4f\n", r2, p_val, beta_p))
+
   centroids <- scores %>% group_by(Group) %>%
     summarise(PCoA1 = mean(PCoA1), PCoA2 = mean(PCoA2), .groups = "drop")
+
   subtitle <- bquote("PERMANOVA: " ~ R^2 == .(r2) ~ ", p" == .(format.pval(p_val, digits = 3)) ~
     " | Dispersion p" == .(format.pval(beta_p, digits = 3)))
+
   p <- ggplot(scores, aes(x = PCoA1, y = PCoA2, color = Group, fill = Group)) +
     geom_point(alpha = 0.6, size = 2) +
-    geom_point(data = centroids, shape = 21, size = 5, stroke = 1.5, color = "black") +
+    geom_point(data = centroids, aes(x = PCoA1, y = PCoA2), shape = 21, size = 5, stroke = 1.5, color = "black") +
     stat_ellipse(level = 0.68, linewidth = 0.8, alpha = 0.7) +
     scale_color_manual(values = colors[grp_lvls]) +
     scale_fill_manual(values = colors[grp_lvls]) +
     labs(title = title_str, subtitle = subtitle,
          x = sprintf("PCoA1 (%.1f%%)", var_exp[1]),
-         y = sprintf("PCoA2 (%.1f%%)", var_exp[2])) +
-    theme_nature(base_size = 15)
+         y = if (ncol(scores) >= 2) sprintf("PCoA2 (%.1f%%)", var_exp[2]) else "PCoA2",
+         fill = "Group", color = "Group") +
+    theme_nature(base_size = 15) +
+    theme(legend.position = "right", axis.text.x = element_text(angle = 0, hjust = 0.5))
+
   ggsave(out_file, p, width = 7.5, height = 5.8, dpi = 300)
   list(scores = scores, adonis_r2 = r2, adonis_p = p_val, betadisper_p = beta_p)
 }
 
-# Kruskal-Wallis global test + volcano (super-category coloured)
+res_6 <- make_pcoa(prop_cov, GROUP_LEVELS, GROUP_COLORS,
+  "Aitchison PCoA (All 6 Groups)", file.path(OUTPUT_DIR, "fig5_pcoa_phenotype.png"))
+res_4 <- make_pcoa(prop_cov %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+  "Aitchison PCoA (Adenoma Follow-up)", file.path(FOUR_DIR, "fig5_pcoa_phenotype.png"))
+
+# ==============================================================================
+# 7. Figure 6: Differential analysis (KW + volcano)
+# ==============================================================================
+cat("\nCreating Figure 6: Differential phenotype analysis...\n")
+
 make_kw_volcano <- function(long_df, title_str, out_file) {
   kw_res <- long_df %>% filter(!is.na(Group)) %>%
     group_by(trait) %>%
@@ -381,25 +1552,417 @@ make_kw_volcano <- function(long_df, title_str, out_file) {
     mutate(kw_padj = p.adjust(kw_pval, method = "BH"),
            neg_log10_padj = -log10(kw_padj)) %>%
     left_join(trait_cat_df, by = "trait") %>% arrange(kw_padj)
+
   grp_med <- long_df %>% filter(!is.na(Group)) %>%
     group_by(trait, Group) %>% summarise(med = median(wmean, na.rm = TRUE), .groups = "drop")
   eff <- grp_med %>% group_by(trait) %>%
     summarise(effect_size = max(med) - min(med), .groups = "drop")
+
   kw_volc <- kw_res %>% left_join(eff, by = "trait") %>%
     mutate(super_category = factor(super_category, levels = names(SUPER_COLORS)))
   sig <- kw_volc %>% filter(kw_padj < 0.05) %>% slice_max(order_by = neg_log10_padj, n = 15)
+
   p <- ggplot(kw_volc, aes(x = effect_size, y = neg_log10_padj, color = super_category)) +
     geom_point(alpha = 0.7, size = 2.2) +
     geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "grey40", linewidth = 0.6) +
     scale_color_manual(values = SUPER_COLORS, name = "Super-category") +
     ggrepel::geom_text_repel(data = sig, aes(label = wrap_label(display_trait(trait))),
-      size = 3.5, max.overlaps = 25) +
-    labs(title = title_str, x = "Effect Size (max - min group median)",
+      size = 3.5, max.overlaps = 25,
+      box.padding = 0.4, segment.color = "grey50", segment.size = 0.3, min.segment.length = 0) +
+    labs(title = title_str,
+         x = "Effect Size (max - min group median)",
          y = expression(-log[10](adjusted ~ italic(p)))) +
     theme_nature(base_size = 15)
+
   ggsave(out_file, p, width = 8, height = 5.8, dpi = 300)
   kw_res %>% select(trait, super_category, category, kw_stat, kw_pval, kw_padj)
 }
+
+kw_6 <- make_kw_volcano(wmean_long, "Differential Phenotypic Traits (All 6 Groups)",
+  file.path(OUTPUT_DIR, "fig6_differential_phenotype.png"))
+kw_4 <- make_kw_volcano(wmean_long %>% filter(Group %in% FOUR_LEVELS),
+  "Differential Phenotypic Traits (Adenoma Follow-up)",
+  file.path(FOUR_DIR, "fig6_differential_phenotype.png"))
+
+# ==============================================================================
+# 8. Figure 7: Super-category composition (stacked, position="fill")
+# ==============================================================================
+cat("\nCreating Figure 7: Super-category composition...\n")
+
+plot_super_bar <- function(long_df, grp_lvls, title, out_file) {
+  df <- long_df %>% filter(Group %in% grp_lvls) %>%
+    mutate(Group = factor(Group, levels = grp_lvls)) %>%
+    group_by(Group, super_category) %>%
+    summarise(mean_score = mean(wmean, na.rm = TRUE), .groups = "drop")
+  ggplot(df, aes(x = Group, y = mean_score, fill = super_category)) +
+    geom_bar(stat = "identity", position = "fill", width = 0.75, color = "black", linewidth = 0.4) +
+    scale_fill_manual(values = SUPER_COLORS, name = "Super-category") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = title, x = "Group", y = "Relative Proportion") +
+    theme_nature(base_size = 15) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig7_supercategory_stacked_bar.png"),
+  plot_super_bar(wmean_long, GROUP_LEVELS, "Functional Composition (All 6 Groups)"),
+  width = 6.5, height = 5, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig7_supercategory_stacked_bar.png"),
+  plot_super_bar(wmean_long %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS,
+    "Functional Composition (Adenoma Follow-up)"),
+  width = 6, height = 5, dpi = 300)
+
+# ==============================================================================
+# 9. Figure 8: Continuous traits (genome size / growth / OGT) boxplots
+# ==============================================================================
+cat("\nCreating Figure 8: Continuous trait boxplots...\n")
+
+plot_cont_box <- function(clong, grp_lvls, colors, title) {
+  df <- clong %>% filter(Group %in% grp_lvls) %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+  ggplot(df, aes(x = Group, y = value, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, width = 0.6, linewidth = 0.6) +
+    geom_jitter(position = position_jitter(width = 0.15), alpha = 0.35, size = 0.8, aes(color = Group)) +
+    facet_wrap(~ctrait, scales = "free_y", ncol = 3) +
+    stat_compare_means(method = "kruskal.test", label = "p.signif", size = 5,
+                       label.y.npc = "top", label.x.npc = "left") +
+    scale_fill_manual(values = colors[grp_lvls]) +
+    scale_color_manual(values = colors[grp_lvls]) +
+    labs(title = title, x = "Group", y = NULL) +
+    theme_nature(base_size = 15) +
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 11))
+}
+
+ggsave(file.path(OUTPUT_DIR, "fig8_continuous_traits_boxplots.png"),
+  plot_cont_box(cont_long, GROUP_LEVELS, GROUP_COLORS,
+    "Genome-Scale Physiological Traits (All 6 Groups)"),
+  width = 12, height = 4.8, dpi = 300)
+ggsave(file.path(FOUR_DIR, "fig8_continuous_traits_boxplots.png"),
+  plot_cont_box(cont_long, FOUR_LEVELS, FOUR_COLORS,
+    "Genome-Scale Physiological Traits (Adenoma Follow-up)"),
+  width = 12, height = 4.8, dpi = 300)
+
+# ==============================================================================
+# 10. Figure 9: Category grouped bar (mean +/- SE)
+# ==============================================================================
+cat("\nCreating Figure 9: Category grouped bar...\n")
+
+plot_cat_bar <- function(cprop, grp_lvls, colors, title, out_file) {
+  df <- cprop %>% filter(Group %in% grp_lvls) %>%
+    group_by(Group, category) %>%
+    summarise(mean_wmean = mean(cat_wmean, na.rm = TRUE),
+              se = sd(cat_wmean, na.rm = TRUE) / sqrt(n()), .groups = "drop") %>%
+    mutate(Group = factor(Group, levels = grp_lvls))
+  p <- ggplot(df, aes(x = category, y = mean_wmean, fill = Group)) +
+    geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7, color = "black", linewidth = 0.4) +
+    geom_errorbar(aes(ymin = pmax(0, mean_wmean - se), ymax = mean_wmean + se),
+                  position = position_dodge(width = 0.8), width = 0.25, linewidth = 0.5) +
+    scale_fill_manual(values = colors[grp_lvls], name = "Group") +
+    labs(title = title, x = NULL, y = "Mean coverage-weighted score +/- SE") +
+    theme_nature(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1, size = 12))
+  ggsave(out_file, p, width = 12, height = 6, dpi = 300)
+}
+
+plot_cat_bar(cat_prop, GROUP_LEVELS, GROUP_COLORS,
+  "Mean Functional Category Score (All 6 Groups)", file.path(OUTPUT_DIR, "fig9_category_grouped_bar.png"))
+plot_cat_bar(cat_prop_4, FOUR_LEVELS, FOUR_COLORS,
+  "Mean Functional Category Score (Adenoma Follow-up)", file.path(FOUR_DIR, "fig9_category_grouped_bar.png"))
+
+# ==============================================================================
+# 11. Figure 10: All-trait dot plot (faceted by category)
+# ==============================================================================
+cat("\nCreating Figure 10: All-trait dot plot...\n")
+
+plot_dotplot <- function(long_df, grp_lvls, colors, title, out_file) {
+  df <- long_df %>% filter(Group %in% grp_lvls) %>%
+    group_by(Group, category, trait) %>%
+    summarise(mean_wmean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+    mutate(category = factor(short_category(as.character(category)),
+                             levels = unique(short_category(as.character(trait_cat_df$category)))),
+           trait = reorder(display_trait(trait), mean_wmean, FUN = mean))
+  global_max <- max(df$mean_wmean, na.rm = TRUE) * 1.1
+
+  p <- ggplot(df, aes(x = mean_wmean, y = trait, color = Group)) +
+    geom_segment(aes(x = 0, xend = global_max, y = trait, yend = trait),
+                 color = "grey90", linewidth = 0.3) +
+    geom_point(alpha = 0.8, size = 2.2) +
+    facet_grid(category ~ ., scales = "free_y", space = "free_y") +
+    scale_color_manual(values = colors[grp_lvls], name = "Group") +
+    labs(title = title, x = "Mean Coverage-Weighted Trait Score", y = NULL) +
+    theme_nature(base_size = 14) +
+    theme(strip.text.y = element_text(angle = 0, size = 11, face = "bold"),
+          strip.background = element_rect(fill = "grey92", color = "black", linewidth = 0.5),
+          axis.text.y = element_text(size = 7.5),
+          panel.grid.major.y = element_blank(), panel.spacing = unit(0.2, "lines"))
+  ggsave(out_file, p, width = 11, height = 18, dpi = 300)
+}
+
+plot_dotplot(wmean_long, GROUP_LEVELS, GROUP_COLORS,
+  "All Phenotypic Traits (All 6 Groups)", file.path(OUTPUT_DIR, "fig10_all_traits_dotplot.png"))
+plot_dotplot(wmean_long %>% filter(Group %in% FOUR_LEVELS), FOUR_LEVELS, FOUR_COLORS,
+  "All Phenotypic Traits (Adenoma Follow-up)", file.path(FOUR_DIR, "fig10_all_traits_dotplot.png"))
+
+# ==============================================================================
+# 12. Statistical results (CSV tables)
+# ==============================================================================
+cat("\nSaving statistical results as CSV tables...\n")
+
+save_csv <- function(df, path) write.csv(df, path, row.names = FALSE)
+
+# --- Table 1: Sample grouping summary ---
+cat("  Table 1: Sample grouping summary...\n")
+sample_groups <- prop_cov %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group) %>%
+  summarise(n_samples = n(), .groups = "drop") %>%
+  mutate(percentage = round(n_samples / sum(n_samples) * 100, 1)) %>%
+  arrange(Group)
+save_csv(sample_groups, file.path(OUTPUT_DIR, "table1_sample_grouping.csv"))
+
+# --- Table 2: Per-trait per-group descriptive statistics (coverage-weighted score) ---
+cat("  Table 2: Per-trait descriptive statistics...\n")
+group_trait_stats <- wmean_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, super_category, category, trait) %>%
+  summarise(
+    n = n(),
+    mean = mean(wmean, na.rm = TRUE),
+    median = median(wmean, na.rm = TRUE),
+    sd = sd(wmean, na.rm = TRUE),
+    se = sd(wmean, na.rm = TRUE) / sqrt(n()),
+    q25 = quantile(wmean, 0.25, na.rm = TRUE),
+    q75 = quantile(wmean, 0.75, na.rm = TRUE),
+    min = min(wmean, na.rm = TRUE),
+    max = max(wmean, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(category, trait, Group)
+save_csv(group_trait_stats, file.path(OUTPUT_DIR, "table2_trait_descriptive_statistics.csv"))
+
+# --- Table 3: Category-level descriptive statistics ---
+cat("  Table 3: Category descriptive statistics...\n")
+cat_stats <- cat_prop %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, category) %>%
+  summarise(
+    n = n(),
+    mean = mean(cat_wmean, na.rm = TRUE),
+    median = median(cat_wmean, na.rm = TRUE),
+    sd = sd(cat_wmean, na.rm = TRUE),
+    se = sd(cat_wmean, na.rm = TRUE) / sqrt(n()),
+    q25 = quantile(cat_wmean, 0.25, na.rm = TRUE),
+    q75 = quantile(cat_wmean, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(category, Group)
+save_csv(cat_stats, file.path(OUTPUT_DIR, "table3_category_descriptive_statistics.csv"))
+
+# --- Table 4: Trait prevalence per group ---
+cat("  Table 4: Trait prevalence per group...\n")
+prevalence_table <- present_count %>%
+  filter(!is.na(Group)) %>%
+  select(all_of(c("Group", trait_cols_count))) %>%
+  pivot_longer(cols = all_of(trait_cols_count), names_to = "trait", values_to = "count") %>%
+  mutate(present = count > 0) %>%
+  group_by(Group, trait) %>%
+  summarise(
+    n_total = n(),
+    n_present = sum(present),
+    prevalence_pct = round(n_present / n_total * 100, 1),
+    .groups = "drop"
+  ) %>%
+  left_join(trait_cat_df, by = "trait") %>%
+  arrange(super_category, category, trait, Group)
+save_csv(prevalence_table, file.path(OUTPUT_DIR, "table4_trait_prevalence.csv"))
+
+# --- Table 5 / 6: Kruskal-Wallis results ---
+cat("  Table 5/6: Kruskal-Wallis results...\n")
+save_csv(kw_6, file.path(OUTPUT_DIR, "table5_kruskal_wallis_6groups.csv"))
+save_csv(kw_4, file.path(FOUR_DIR, "table6_kruskal_wallis_4adenoma.csv"))
+
+# --- Table 7: Trait effect sizes (max-min group mean) ---
+cat("  Table 7: Trait effect sizes...\n")
+trait_effect <- function(long_df) {
+  long_df %>%
+    filter(!is.na(Group)) %>%
+    group_by(trait, Group) %>%
+    summarise(mean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+    group_by(trait) %>%
+    summarise(
+      effect_size_maxmin = round(max(mean) - min(mean), 6),
+      group_max = Group[which.max(mean)],
+      group_min = Group[which.min(mean)],
+      .groups = "drop"
+    ) %>%
+    left_join(trait_cat_df, by = "trait") %>%
+    arrange(desc(effect_size_maxmin))
+}
+save_csv(trait_effect(wmean_long), file.path(OUTPUT_DIR, "table7_trait_effect_sizes.csv"))
+save_csv(trait_effect(wmean_long %>% filter(Group %in% FOUR_LEVELS)),
+         file.path(FOUR_DIR, "table7_trait_effect_sizes_4adenoma.csv"))
+
+# --- Table 8: PCoA sample coordinates ---
+cat("  Table 8: PCoA sample coordinates...\n")
+pcoa_coords_6 <- res_6$scores %>%
+  left_join(prop_cov %>% select(row_id, SID, profile_column, source, sample_id), by = "row_id") %>%
+  select(SID, profile_column, sample_id, source, Group, PCoA1, PCoA2) %>%
+  arrange(Group)
+save_csv(pcoa_coords_6, file.path(OUTPUT_DIR, "table8_pcoa_coordinates_6groups.csv"))
+
+pcoa_coords_4 <- res_4$scores %>%
+  left_join(prop_cov %>% select(row_id, SID, profile_column, source, sample_id), by = "row_id") %>%
+  filter(Group %in% FOUR_LEVELS) %>%
+  select(SID, profile_column, sample_id, source, Group, PCoA1, PCoA2) %>%
+  arrange(Group)
+save_csv(pcoa_coords_4, file.path(FOUR_DIR, "table8_pcoa_coordinates_4adenoma.csv"))
+
+# --- Table 9: PERMANOVA + betadisper results ---
+cat("  Table 9: PERMANOVA and betadisper results...\n")
+pcoa_stats <- data.frame(
+  Comparison = c("All 6 groups", "Adenoma follow-up (4 groups)"),
+  n_samples = c(nrow(res_6$scores), nrow(res_4$scores)),
+  R2 = c(res_6$adonis_r2, res_4$adonis_r2),
+  PERMANOVA_p = c(res_6$adonis_p, res_4$adonis_p),
+  Betadisper_p = c(res_6$betadisper_p, res_4$betadisper_p),
+  Distance_method = "Aitchison (CLR + Euclidean)",
+  Permutations = 999
+)
+save_csv(pcoa_stats, file.path(OUTPUT_DIR, "table9_permanova_betadisper.csv"))
+
+# --- Table 10: Group x trait mean matrix ---
+cat("  Table 10: Group x trait mean matrix...\n")
+wide_matrix <- wmean_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, trait) %>%
+  summarise(mean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = trait, values_from = mean) %>%
+  arrange(match(Group, GROUP_LEVELS))
+save_csv(wide_matrix, file.path(OUTPUT_DIR, "table10_group_trait_mean_matrix.csv"))
+
+wide_matrix_4 <- wmean_long %>%
+  filter(Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(Group, trait) %>%
+  summarise(mean = mean(wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = trait, values_from = mean) %>%
+  arrange(Group)
+save_csv(wide_matrix_4, file.path(FOUR_DIR, "table10_group_trait_mean_matrix_4adenoma.csv"))
+
+# --- Table 11: Group x category mean matrix ---
+cat("  Table 11: Group x category mean matrix...\n")
+cat_wide <- cat_prop %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, category) %>%
+  summarise(mean = mean(cat_wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = category, values_from = mean) %>%
+  arrange(match(Group, GROUP_LEVELS))
+save_csv(cat_wide, file.path(OUTPUT_DIR, "table11_group_category_mean_matrix.csv"))
+
+cat_wide_4 <- cat_prop %>%
+  filter(Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(Group, category) %>%
+  summarise(mean = mean(cat_wmean, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = category, values_from = mean) %>%
+  arrange(Group)
+save_csv(cat_wide_4, file.path(FOUR_DIR, "table11_group_category_mean_matrix_4adenoma.csv"))
+
+# --- Table 12: Continuous trait descriptive statistics per group ---
+cat("  Table 12: Continuous trait descriptive statistics...\n")
+cont_stats <- cont_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(Group, ctrait) %>%
+  summarise(
+    n = n(),
+    mean = mean(value, na.rm = TRUE),
+    median = median(value, na.rm = TRUE),
+    sd = sd(value, na.rm = TRUE),
+    se = sd(value, na.rm = TRUE) / sqrt(n()),
+    q25 = quantile(value, 0.25, na.rm = TRUE),
+    q75 = quantile(value, 0.75, na.rm = TRUE),
+    min = min(value, na.rm = TRUE),
+    max = max(value, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(ctrait, Group)
+save_csv(cont_stats, file.path(OUTPUT_DIR, "table12_continuous_descriptive_statistics.csv"))
+
+# --- Table 13: Kruskal-Wallis for continuous traits ---
+cat("  Table 13: Continuous trait Kruskal-Wallis results...\n")
+cont_kw <- cont_long %>%
+  filter(!is.na(Group)) %>%
+  group_by(ctrait) %>%
+  summarise(kw_stat = kruskal.test(value ~ Group)$statistic,
+            kw_pval = kruskal.test(value ~ Group)$p.value, .groups = "drop") %>%
+  mutate(kw_padj = p.adjust(kw_pval, method = "BH"))
+cont_kw_4 <- cont_long %>%
+  filter(Group %in% FOUR_LEVELS) %>%
+  mutate(Group = factor(Group, levels = FOUR_LEVELS)) %>%
+  group_by(ctrait) %>%
+  summarise(kw_stat = kruskal.test(value ~ Group)$statistic,
+            kw_pval = kruskal.test(value ~ Group)$p.value, .groups = "drop") %>%
+  mutate(kw_padj = p.adjust(kw_pval, method = "BH"))
+save_csv(cont_kw, file.path(OUTPUT_DIR, "table13_continuous_kruskal_wallis.csv"))
+save_csv(cont_kw_4, file.path(FOUR_DIR, "table13_continuous_kruskal_wallis_4adenoma.csv"))
+
+# --- Table 14: Full continuous summary per sample ---
+cat("  Table 14: Per-sample continuous trait summary...\n")
+cont_sample <- cont_sum %>%
+  filter(!is.na(Group)) %>%
+  select(SID, profile_column, source, Group, sample_id, n_mags,
+         genome_length_mean, genome_length_median, genome_length_wmean_coverage,
+         mingentime_mean, mingentime_median, mingentime_wmean_coverage,
+         optimumT_mean, optimumT_median, optimumT_wmean_coverage) %>%
+  arrange(Group)
+save_csv(cont_sample, file.path(OUTPUT_DIR, "table14_sample_continuous_traits.csv"))
+
+cat("\n==============================================================\n")
+cat(" Visualization Complete!\n")
+cat("==============================================================\n\n")
+cat(sprintf("Output (6 groups):  %s\n", OUTPUT_DIR))
+cat(sprintf("Output (4 adenoma): %s\n\n", FOUR_DIR))
+cat("Figures per group set:\n")
+cat("  fig1  Top-variable phenotype heatmap\n")
+cat("  fig2  Category boxplots (KW test)\n")
+cat("  fig3  Most-variable key traits boxplots (KW test)\n")
+cat("  fig4  Trait prevalence heatmap\n")
+cat("  fig5  Aitchison PCoA + PERMANOVA + betadisper\n")
+cat("  fig6  Differential phenotype volcano (KW)\n")
+cat("  fig7  Super-category composition (relative stacked bar)\n")
+cat("  fig8  Continuous traits boxplots (genome size / growth / OGT)\n")
+cat("  fig9  Category grouped bar (mean +/- SE)\n")
+cat("  fig10 All-traits dot plot (faceted by category)\n\n")
+cat("CSV tables (6 groups):\n")
+cat("  table1   Sample grouping summary\n")
+cat("  table2   Per-trait per-group descriptive statistics\n")
+cat("  table3   Category-level descriptive statistics\n")
+cat("  table4   Trait prevalence per group (%)\n")
+cat("  table5   Kruskal-Wallis results (6 groups)\n")
+cat("  table7   Trait effect sizes (max-min group mean)\n")
+cat("  table8   PCoA sample coordinates\n")
+cat("  table9   PERMANOVA + betadisper results\n")
+cat("  table10  Group x trait mean matrix\n")
+cat("  table11  Group x category mean matrix\n")
+cat("  table12  Continuous trait descriptive statistics\n")
+cat("  table13  Continuous trait Kruskal-Wallis results\n")
+cat("  table14  Per-sample continuous trait summary\n\n")
+cat("CSV tables (4 adenoma groups, plot-4/):\n")
+cat("  table6   Kruskal-Wallis results (adenoma)\n")
+cat("  table7   Trait effect sizes (adenoma)\n")
+cat("  table8   PCoA coordinates (adenoma)\n")
+cat("  table10  Group x trait matrix (adenoma)\n")
+cat("  table11  Group x category matrix (adenoma)\n")
+cat("  table13  Continuous Kruskal-Wallis results (adenoma)\n\n")
+cat("Methodology notes:\n")
+cat("  - Per-trait comparisons (KW, boxplots, dot plot): coverage-weighted score\n")
+cat("    (coverage-weighted sum of MAG-level binary trait calls; independent across traits)\n")
+cat("  - Multivariate analysis (PCoA, PERMANOVA): Aitchison distance (CLR + Euclidean)\n")
+cat("    on compositional proportion data; NOT Bray-Curtis or UniFrac\n")
+cat("  - PERMANOVA preceded by betadisper test for homogeneity of dispersion\n")
+cat("  - KW global test (not pairwise) for multi-group comparisons\n")
+cat("  - Error bars: mean +/- SE with pmax(0, mean-SE) floor\n")
+cat("==============================================================\n")
 ```
 
 ## 3.3 Results
@@ -466,50 +2029,262 @@ Kruskal-Wallis labels. None are significant.
 
 ## 3.5 Interpretation
 
-1. **No microTrait trait differs significantly between the four adenoma
-   follow-up groups** (best raw p = 0.0115 for polysaccharide transport, padj =
-   0.357). The predicted life-history traits of the gut microbiome are stable
-   across recurrence status and sampling time.
-2. The top raw-p candidates (polysaccharide / nucleotide / lipid precursor
-   transport, thiosulfate oxidation) are all *Resource Acquisition / Resource
-   Use* traits — i.e. substrate-uptake and energy-metabolism capacity — but
-   none survive correction.
-3. The large effect sizes (protein degradation, free amino acid transport) are
-   driven by coverage weighting and are not statistically significant; they
-   reflect the Non_recurrence_2 group's slightly higher MAG coverage, not a
-   robust biological signal.
-
+1. **No microTrait trait is significant** after BH-FDR; predicted life-history
+   traits are stable across recurrence status and sampling time.
+2. Top raw-p traits are substrate-uptake and energy traits, but none survive
+   correction.
+3. Large effect sizes are coverage-driven and not supported by statistical
+   tests.
 # 4. dbCAN3
 
 ## 4.1 Overview
 
-dbCAN3 (Zheng et al., 2023) annotates carbohydrate-active enzymes (CAZymes) in
-MAG genomes. CAZyme families are grouped into classes (GH, GT, PL, CE, AA,
-CBM). For each sample, the proportion of MAGs carrying each family
-(compositional) and the coverage-weighted score are computed. The analysis
-compares the 6 clinical groups and the 4-group adenoma follow-up subset
-(n = 236, 59 per group).
+dbCAN3 annotates CAZyme families from MAGs (GH, GT, PL, CE, AA, CBM).
+Per-sample proportions and coverage-weighted scores are compared across the 6
+clinical groups and the 4-group adenoma subset (n = 236).
 
-**Key results (4-group adenoma subset):**
-
-- **No CAZyme family is significant after BH-FDR correction** (all FDR = 0.955).
-  The strongest raw-p hits are *CBM27* (p = 0.0040), *GH125* (p = 0.0062),
-  *GH26* (p = 0.0104) and *GH6* (p = 0.0152).
-- PERMANOVA: R² = 0.0124, P = 0.545; dispersion P = 0.224. No multivariate
-  separation.
-
+**Key results (4-group subset):** no family survives BH-FDR (all FDR = 0.955;
+best raw p = 0.0040 for CBM27); PERMANOVA shows no separation (R2 = 0.0124,
+P = 0.545).
 ## 4.2 Script
 
+**Script:** targetc_dbcan3_plot_02.R
+
 ```r
-# targetc_dbcan3_plot_02.R — key functions
-# CAZyme class from family name (e.g. "GH29" -> "GH")
+#!/usr/bin/env Rscript
+# ============================================================================
+# TargetC dbCAN3 CAZyme Visualization v2 (Publication Grade, Nature-sub style)
+# ============================================================================
+# Input:
+#   Step 9 annotated CAZyme tables from 09-targetc_dbcan3_annotate_mimag90.py
+#     cazy_summary_annotated_mimag90/
+#       annotated_cazyme_proportion_coverage.tsv
+#       annotated_cazyme_proportion_len_cov.tsv
+#       annotated_cazyme_score_coverage.tsv
+#       annotated_cazyme_score_len_cov.tsv
+#       annotated_cazyme_present_count.tsv
+# Output:
+#   dbcan3-plot-02/            all six clinical groups
+#   dbcan3-plot-02/plot-4/     Recurrence_1/Recurrence_2/Non_recurrence_1/Non_recurrence_2
+#   dbcan3-plot-02/pairwise/   pairwise comparisons, kept separate from main figures
+#   Every table is written as both .tsv and .csv
+# Style:
+#   Large fonts, compact figure canvases (Nature-family journals).
+# ============================================================================
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(tibble)
+  library(pheatmap)
+  library(cowplot)
+  library(scales)
+  library(vegan)
+  library(ggrepel)
+})
+
+# ============================================================================
+# Paths and group definitions
+# ============================================================================
+ANNOTATED_DIR <- "/home/yanglun/YSD/TargetC/phenotypes-analysis/dbcan3-analysis/results/cazy_summary_annotated_mimag90"
+OUTPUT_DIR <- "/home/yanglun/YSD/TargetC/phenotypes-analysis/dbcan3-analysis/results/dbcan3-plot-02"
+FOUR_GROUP_OUTPUT_DIR <- file.path(OUTPUT_DIR, "plot-4")
+PAIRWISE_OUTPUT_DIR <- file.path(OUTPUT_DIR, "pairwise")
+PAIRWISE_FOUR_OUTPUT_DIR <- file.path(PAIRWISE_OUTPUT_DIR, "plot-4")
+
+PROP_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_proportion_coverage.tsv")
+PROP_LEN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_proportion_len_cov.tsv")
+SCORE_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_score_coverage.tsv")
+SCORE_LEN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_score_len_cov.tsv")
+COUNT_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_present_count.tsv")
+
+# source -> clinical Group label
+GROUP_LABELS <- c(
+  "N"    = "Normal",
+  "Non1" = "Non_recurrence_1",
+  "Non2" = "Non_recurrence_2",
+  "Re1"  = "Recurrence_1",
+  "Re2"  = "Recurrence_2",
+  "CRC"  = "CRC"
+)
+
+GROUP_LEVELS <- unname(GROUP_LABELS)
+FOUR_GROUP_LEVELS <- c(
+  "Recurrence_1",
+  "Recurrence_2",
+  "Non_recurrence_1",
+  "Non_recurrence_2"
+)
+
+GROUP_COLORS <- c(
+  "Normal"           = "#2166AC",
+  "Recurrence_1"     = "#B2182B",
+  "Recurrence_2"     = "#D6604D",
+  "Non_recurrence_1" = "#1B7837",
+  "Non_recurrence_2" = "#35978F",
+  "CRC"              = "#762A83"
+)
+
+CLASS_COLORS <- c(
+  GH  = "#B2182B",
+  GT  = "#2166AC",
+  PL  = "#1B7837",
+  CE  = "#E08214",
+  AA  = "#762A83",
+  CBM = "#35978F",
+  Other = "grey60"
+)
+
+# ============================================================================
+# Helpers
+# ============================================================================
+get_family_cols <- function(dat) {
+  setdiff(
+    colnames(dat),
+    c("SID", "profile_column", "source", "sample_id", "Group")
+  )
+}
+
 cazyme_class <- function(x) {
   cls <- sub("^([A-Z]+).*$", "\\1", as.character(x))
   cls[!cls %in% names(CLASS_COLORS)] <- "Other"
   factor(cls, levels = names(CLASS_COLORS))
 }
 
-# CLR transform with zero handling (multiplicative replacement via pseudocount)
+read_annotated <- function(path) {
+  dat <- read.delim(
+    path,
+    header = TRUE,
+    stringsAsFactors = FALSE,
+    check.names = FALSE,
+    na.strings = c("NA", "")
+  )
+  required <- c("SID", "profile_column", "source")
+  missing_cols <- setdiff(required, colnames(dat))
+  if (length(missing_cols) > 0) {
+    stop(
+      "Missing required columns in ", path, ": ",
+      paste(missing_cols, collapse = ", ")
+    )
+  }
+
+  input_rows <- nrow(dat)
+  dat$sample_id <- dat$profile_column
+  dat$Group <- unname(GROUP_LABELS[as.character(dat$source)])
+  dat$Group <- factor(dat$Group, levels = unname(GROUP_LABELS))
+  excluded_rows <- sum(is.na(dat$Group))
+  out <- dat[!is.na(dat$Group), , drop = FALSE]
+  attr(out, "input_rows") <- input_rows
+  attr(out, "excluded_rows") <- excluded_rows
+  out
+}
+
+subset_group <- function(dat, group_levels) {
+  dat %>%
+    filter(Group %in% group_levels) %>%
+    mutate(Group = factor(Group, levels = group_levels))
+}
+
+make_long <- function(dat, value_name) {
+  fams <- get_family_cols(dat)
+  dat %>%
+    select(sample_id, source, Group, all_of(fams)) %>%
+    pivot_longer(
+      cols = all_of(fams),
+      names_to = "family",
+      values_to = value_name
+    ) %>%
+    mutate(class = cazyme_class(family))
+}
+
+make_class_by_sample <- function(prop_long) {
+  prop_long %>%
+    group_by(sample_id, source, Group, class) %>%
+    summarise(
+      class_proportion = sum(proportion, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+
+write_results <- function(x, file) {
+  dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+  write.table(
+    x,
+    file = file,
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE,
+    na = "NA"
+  )
+  csv_file <- sub("[.]tsv$", ".csv", file)
+  write.table(
+    x,
+    file = csv_file,
+    sep = ",",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE,
+    na = "NA"
+  )
+}
+
+save_figure <- function(p, prefix, dir, width = 5.5, height = 4.5) {
+  ggsave(
+    file.path(dir, paste0(prefix, ".png")),
+    p,
+    width = width,
+    height = height,
+    units = "in",
+    dpi = 300
+  )
+  ggsave(
+    file.path(dir, paste0(prefix, ".pdf")),
+    p,
+    width = width,
+    height = height,
+    units = "in"
+  )
+}
+
+format_p <- function(p) {
+  ifelse(
+    is.na(p),
+    "NA",
+    ifelse(
+      p < 0.001,
+      formatC(p, format = "e", digits = 2),
+      sprintf("%.3f", p)
+    )
+  )
+}
+
+# Publication theme: large fonts on a compact canvas (Nature-sub style)
+theme_nature <- function(base_size = 17) {
+  theme_bw(base_size = base_size) +
+    theme(
+      text = element_text(color = "black"),
+      axis.title = element_text(size = base_size + 2, face = "bold"),
+      axis.text = element_text(size = base_size - 1, color = "black"),
+      axis.line = element_line(color = "black", linewidth = 0.5),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.25),
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "grey95", color = "black", linewidth = 0.4),
+      strip.text = element_text(size = base_size, face = "bold"),
+      plot.title = element_text(size = base_size + 3, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = base_size - 2, hjust = 0.5, face = "italic", color = "grey30"),
+      legend.title = element_text(size = base_size, face = "bold"),
+      legend.text = element_text(size = base_size - 1),
+      legend.key.size = unit(0.45, "cm"),
+      legend.position = "right"
+    )
+}
+
+# ============================================================================
+# CLR / Aitchison PCoA
+# ============================================================================
 clr_transform <- function(mat) {
   mat[is.na(mat)] <- 0
   pos <- mat[mat > 0]
@@ -518,83 +2293,1163 @@ clr_transform <- function(mat) {
   t(apply(mat, 1, function(x) log(x) - mean(log(x))))
 }
 
-# Aitchison PCoA + PERMANOVA + betadisper
 run_beta <- function(prop_wide, group_levels) {
   fams <- get_family_cols(prop_wide)
   dat <- prop_wide %>%
     filter(!is.na(Group)) %>%
     mutate(Group = factor(Group, levels = group_levels))
+
   mat <- as.matrix(dat[, fams, drop = FALSE])
   rownames(mat) <- dat$sample_id
   clr <- clr_transform(mat)
-  d <- dist(clr, method = "euclidean")          # Aitchison distance
+  d <- dist(clr, method = "euclidean")
+
   set.seed(42)
   ad <- adonis2(d ~ Group, data = dat, permutations = 999)
   disp <- anova(betadisper(d, dat$Group))
+
   pcoa <- cmdscale(d, k = 2, eig = TRUE)
   eig <- pcoa$eig[pcoa$eig > 0]
-  var_explained <- if (length(eig) >= 2) round(eig[1:2] / sum(eig) * 100, 1)
-                   else c(NA_real_, NA_real_)
+  var_explained <- if (length(eig) >= 2) {
+    round(eig[1:2] / sum(eig) * 100, 1)
+  } else {
+    c(NA_real_, NA_real_)
+  }
+
   scores <- as.data.frame(pcoa$points)
   colnames(scores) <- c("PCoA1", "PCoA2")
   scores$sample_id <- rownames(scores)
-  scores <- scores %>% left_join(dat %>% select(sample_id, Group), by = "sample_id")
-  list(scores = scores, var_explained = var_explained,
-       r2 = ad$R2[1], p = ad$`Pr(>F)`[1], disp_p = disp$`Pr(>F)`[1])
+  scores <- scores %>%
+    left_join(dat %>% select(sample_id, Group), by = "sample_id")
+
+  list(
+    scores = scores,
+    var_explained = var_explained,
+    r2 = ad$R2[1],
+    p = ad$`Pr(>F)`[1],
+    disp_p = disp$`Pr(>F)`[1]
+  )
 }
 
-# Differential analysis: ALDEx2 (Monte Carlo CLR) or Kruskal-Wallis + BH fallback
+plot_pcoa <- function(beta, group_levels, title) {
+  scores <- beta$scores
+  centroids <- scores %>%
+    group_by(Group) %>%
+    summarise(
+      PCoA1 = mean(PCoA1, na.rm = TRUE),
+      PCoA2 = mean(PCoA2, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  subtitle <- sprintf(
+    "PERMANOVA R2 = %.3f, P = %s | dispersion P = %s",
+    beta$r2,
+    format_p(beta$p),
+    format_p(beta$disp_p)
+  )
+
+  ggplot(scores, aes(x = PCoA1, y = PCoA2, color = Group, fill = Group)) +
+    geom_point(alpha = 0.65, size = 2.2) +
+    geom_point(
+      data = centroids,
+      shape = 21,
+      size = 5.5,
+      stroke = 1.2,
+      color = "black"
+    ) +
+    stat_ellipse(level = 0.68, linewidth = 0.8, alpha = 0.25) +
+    scale_color_manual(values = GROUP_COLORS[group_levels]) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = sprintf("PCoA1 (%.1f%%)", beta$var_explained[1]),
+      y = sprintf("PCoA2 (%.1f%%)", beta$var_explained[2]),
+      color = "Group",
+      fill = "Group"
+    ) +
+    coord_fixed() +
+    theme_nature(base_size = 15)
+}
+
+# ============================================================================
+# CAZyme class figures
+# ============================================================================
+plot_class_stack <- function(class_by_sample, group_levels, title) {
+  class_summary <- class_by_sample %>%
+    group_by(Group, class) %>%
+    summarise(
+      mean_prop = mean(class_proportion, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  ggplot(class_summary, aes(x = Group, y = mean_prop, fill = class)) +
+    geom_bar(
+      stat = "identity",
+      position = "fill",
+      width = 0.72,
+      color = "black",
+      linewidth = 0.3
+    ) +
+    scale_fill_manual(values = CLASS_COLORS) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      title = title,
+      subtitle = "Mean relative contribution of CAZyme classes",
+      x = "Group",
+      y = "Relative contribution",
+      fill = "CAZyme class"
+    ) +
+    theme_nature(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+plot_gh_pl <- function(prop_long, group_levels, title) {
+  sub <- prop_long %>%
+    filter(class %in% c("GH", "PL"), !is.na(Group))
+
+  stats <- sub %>%
+    group_by(class) %>%
+    summarise(
+      p = suppressWarnings(
+        tryCatch(
+          kruskal.test(proportion, Group)$p.value,
+          error = function(e) NA_real_
+        )
+      ),
+      .groups = "drop"
+    )
+
+  ggplot(sub, aes(x = Group, y = proportion, fill = Group)) +
+    geom_violin(alpha = 0.35, scale = "width", width = 0.85) +
+    geom_boxplot(width = 0.14, fill = "white", outlier.shape = NA) +
+    geom_jitter(width = 0.08, size = 0.5, alpha = 0.35, color = "grey20") +
+    facet_wrap(~class, scales = "free_y", ncol = 2) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    geom_text(
+      data = stats,
+      aes(
+        x = 1.5,
+        y = Inf,
+        label = paste0("Kruskal-Wallis P = ", format_p(p))
+      ),
+      inherit.aes = FALSE,
+      vjust = 1.5,
+      size = 4.5
+    ) +
+    labs(
+      title = title,
+      subtitle = "GH and PL family proportions by clinical group",
+      x = "Group",
+      y = "CAZyme family proportion",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 15) +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    ) +
+    scale_y_continuous(expand = expansion(mult = c(0.02, 0.18)))
+}
+
+# ============================================================================
+# Differential analysis
+# ============================================================================
 differential_analysis <- function(prop_long, count_wide, group_levels) {
   fams <- get_family_cols(count_wide)
   dat <- count_wide %>%
     filter(!is.na(Group)) %>%
     mutate(Group = factor(Group, levels = group_levels))
-  present_fams <- fams[colSums(dat[, fams, drop = FALSE] > 0, na.rm = TRUE) > 0]
+
+  present_fams <- fams[
+    colSums(dat[, fams, drop = FALSE] > 0, na.rm = TRUE) > 0
+  ]
 
   use_aldex <- requireNamespace("ALDEx2", quietly = TRUE)
+  method <- "Kruskal-Wallis + BH (ALDEx2 not installed)"
   res <- NULL
+
   if (use_aldex && length(present_fams) > 1) {
     count_mat <- as.matrix(dat[, present_fams, drop = FALSE])
     rownames(count_mat) <- dat$sample_id
     set.seed(42)
-    al <- tryCatch(ALDEx2::aldex(count_mat, dat$Group, mc.samples = 128,
-                                 test = "kw", effect = TRUE, denom = "all"),
-                   error = function(e) e)
+    al <- tryCatch(
+      ALDEx2::aldex(
+        count_mat,
+        dat$Group,
+        mc.samples = 128,
+        test = "kw",
+        effect = TRUE,
+        denom = "all"
+      ),
+      error = function(e) e
+    )
+
     if (!inherits(al, "error")) {
-      res <- data.frame(family = rownames(al), p.value = al$kw.ep,
-                        FDR = al$kw.eBH, aldex_effect = al$effect,
-                        stringsAsFactors = FALSE)
-    } else use_aldex <- FALSE
+      res <- data.frame(
+        family = rownames(al),
+        p.value = al$kw.ep,
+        FDR = al$kw.eBH,
+        aldex_effect = al$effect,
+        stringsAsFactors = FALSE
+      )
+      method <- "ALDEx2 Kruskal-Wallis (Monte Carlo CLR; 128 Dirichlet samples)"
+      use_aldex <- TRUE
+    } else {
+      use_aldex <- FALSE
+      warning("ALDEx2 failed; falling back to Kruskal-Wallis: ", conditionMessage(al))
+    }
+  } else {
+    use_aldex <- FALSE
   }
+
   if (!use_aldex) {
     res <- prop_long %>%
       group_by(family) %>%
-      summarise(p.value = suppressWarnings(tryCatch(
-        kruskal.test(proportion, Group)$p.value, error = function(e) NA_real_)),
-        .groups = "drop")
+      summarise(
+        p.value = suppressWarnings(
+          tryCatch(
+            kruskal.test(proportion, Group)$p.value,
+            error = function(e) NA_real_
+          )
+        ),
+        .groups = "drop"
+      )
     res$FDR <- NA_real_
     idx <- !is.na(res$p.value)
     res$FDR[idx] <- p.adjust(res$p.value[idx], method = "BH")
     res$aldex_effect <- NA_real_
   }
-  # effect size = range of group median proportions; log2FC = max/min median
+
   stats <- prop_long %>%
     group_by(family, Group) %>%
-    summarise(mean_prop = mean(proportion, na.rm = TRUE),
-              median_prop = median(proportion, na.rm = TRUE), .groups = "drop")
-  median_wide <- stats %>% select(family, Group, median_prop) %>%
+    summarise(
+      mean_prop = mean(proportion, na.rm = TRUE),
+      median_prop = median(proportion, na.rm = TRUE),
+      sd_prop = sd(proportion, na.rm = TRUE),
+      n_samples = n(),
+      .groups = "drop"
+    )
+
+  median_wide <- stats %>%
+    select(family, Group, median_prop) %>%
     pivot_wider(names_from = Group, values_from = median_prop)
-  median_mat <- as.matrix(median_wide[, setdiff(colnames(median_wide), "family"), drop = FALSE])
-  effect_size <- apply(median_mat, 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-  log2fc <- log2((apply(median_mat, 1, max, na.rm = TRUE) + 1e-6) /
-                 (apply(median_mat, 1, min, na.rm = TRUE) + 1e-6))
+  mean_wide <- stats %>%
+    select(family, Group, mean_prop) %>%
+    pivot_wider(names_from = Group, values_from = mean_prop)
+
+  med_cols <- setdiff(colnames(median_wide), "family")
+  mean_cols <- setdiff(colnames(mean_wide), "family")
+  median_mat <- as.matrix(median_wide[, med_cols, drop = FALSE])
+  mean_mat <- as.matrix(mean_wide[, mean_cols, drop = FALSE])
+
+  effect_size <- apply(
+    median_mat,
+    1,
+    function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+  )
+  log2fc <- log2(
+    (apply(median_mat, 1, max, na.rm = TRUE) + 1e-6) /
+      (apply(median_mat, 1, min, na.rm = TRUE) + 1e-6)
+  )
+  mean_range <- apply(
+    mean_mat,
+    1,
+    function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+  )
+
+  effect_df <- data.frame(
+    family = median_wide$family,
+    effect_size = effect_size,
+    log2FC = log2fc,
+    mean_range = mean_range,
+    stringsAsFactors = FALSE
+  )
+
   res <- res %>%
-    left_join(data.frame(family = median_wide$family, effect_size = effect_size,
-                         log2FC = log2fc, stringsAsFactors = FALSE), by = "family") %>%
+    left_join(effect_df, by = "family") %>%
+    left_join(median_wide, by = "family") %>%
+    left_join(mean_wide, by = "family") %>%
     mutate(class = cazyme_class(family)) %>%
     arrange(FDR, desc(abs(effect_size)))
+
+  attr(res, "method") <- method
   res
 }
+
+plot_volcano <- function(
+  diff_res,
+  group_levels,
+  title,
+  subtitle = "FDR from ALDEx2 or Kruskal-Wallis; effect size = range of group median proportions",
+  x_label = "Effect size (max-min group median proportion)"
+) {
+  dat <- diff_res %>%
+    filter(!is.na(FDR), !is.na(effect_size))
+  dat$FDR <- pmax(dat$FDR, 1e-300)
+  sig <- dat %>%
+    filter(FDR < 0.05) %>%
+    arrange(FDR, desc(abs(effect_size))) %>%
+    head(15)
+
+  p <- ggplot(dat, aes(x = effect_size, y = -log10(FDR), color = class)) +
+    geom_point(size = 2.2, alpha = 0.75) +
+    geom_hline(
+      yintercept = -log10(0.05),
+      linetype = "dashed",
+      color = "grey30",
+      linewidth = 0.5
+    ) +
+    geom_vline(xintercept = 0, color = "grey40", linewidth = 0.3) +
+    scale_color_manual(values = CLASS_COLORS) +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = x_label,
+      y = expression(-log[10](FDR)),
+      color = "CAZyme class"
+    ) +
+    theme_nature(base_size = 15) +
+    theme(plot.margin = margin(t = 8, r = 10, b = 20, l = 8))
+
+  if (nrow(sig) > 0) {
+    p <- p +
+      geom_text_repel(
+        data = sig,
+        aes(label = family),
+        size = 3.6,
+        max.overlaps = 30,
+        box.padding = 0.4,
+        segment.color = "grey50",
+        segment.size = 0.3,
+        show.legend = FALSE
+      )
+  }
+  p
+}
+
+plot_top_family_boxplots <- function(prop_long, diff_res, group_levels) {
+  sig <- diff_res %>%
+    filter(!is.na(FDR)) %>%
+    arrange(FDR, desc(abs(effect_size))) %>%
+    head(12)
+  if (nrow(sig) == 0) {
+    sig <- diff_res %>% arrange(desc(abs(effect_size))) %>% head(12)
+  }
+
+  sub <- prop_long %>%
+    filter(family %in% sig$family) %>%
+    mutate(family = factor(family, levels = sig$family))
+
+  ggplot(sub, aes(x = Group, y = proportion, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.65, width = 0.55) +
+    geom_jitter(width = 0.12, size = 0.5, alpha = 0.35, color = "grey20") +
+    facet_wrap(~family, scales = "free_y", ncol = 3) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = "Top Differential CAZyme Families",
+      x = "Group",
+      y = "Proportion (coverage-weighted)",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 14) +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+      panel.spacing = unit(0.6, "lines"),
+      plot.margin = margin(t = 8, r = 8, b = 8, l = 12)
+    ) +
+    scale_y_continuous(n.breaks = 3)
+}
+
+save_diff_heatmap <- function(
+  prop_cov,
+  diff_res,
+  group_levels,
+  filename,
+  width = 6.5,
+  height = 6.5
+) {
+  sig <- diff_res %>% filter(!is.na(FDR), FDR < 0.05)
+  if (nrow(sig) == 0) {
+    sig <- diff_res %>%
+      filter(!is.na(FDR)) %>%
+      arrange(FDR) %>%
+      head(40)
+  }
+  sig <- sig %>%
+    arrange(FDR, desc(abs(effect_size))) %>%
+    head(40)
+
+  fams <- sig$family
+  if (length(fams) == 0) {
+    return(invisible(NULL))
+  }
+
+  dat <- prop_cov %>% filter(!is.na(Group))
+  mat <- as.matrix(dat[, fams, drop = FALSE])
+  rownames(mat) <- dat$sample_id
+  mat_t <- t(mat)
+  mat_z <- t(scale(t(mat_t)))
+  keep <- apply(
+    mat_z,
+    1,
+    function(x) !any(!is.finite(x)) && sd(x, na.rm = TRUE) > 0
+  )
+  mat_z <- mat_z[keep, , drop = FALSE]
+  if (nrow(mat_z) == 0) {
+    return(invisible(NULL))
+  }
+
+  ann_row <- data.frame(
+    Class = cazyme_class(rownames(mat_z)),
+    row.names = rownames(mat_z)
+  )
+  ann_col <- data.frame(
+    Group = dat$Group,
+    row.names = dat$sample_id
+  )
+
+  pheatmap(
+    mat_z,
+    scale = "none",
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_row = ann_row,
+    annotation_col = ann_col,
+    annotation_colors = list(
+      Group = GROUP_COLORS[group_levels],
+      Class = CLASS_COLORS
+    ),
+    color = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+    border_color = NA,
+    show_colnames = FALSE,
+    show_rownames = TRUE,
+    fontsize_row = 11,
+    fontsize_col = 12,
+    main = "Z-score Heatmap of Differential CAZyme Families",
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = 300
+  )
+}
+
+# ============================================================================
+# Prevalence, richness, and dotplot figures
+# ============================================================================
+prevalence_summary <- function(count_long, group_levels) {
+  count_long %>%
+    filter(!is.na(Group)) %>%
+    group_by(Group, family) %>%
+    summarise(
+      n_present = sum(count > 0, na.rm = TRUE),
+      n_samples = n(),
+      prevalence = 100 * sum(count > 0, na.rm = TRUE) / n(),
+      .groups = "drop"
+    ) %>%
+    mutate(class = cazyme_class(family))
+}
+
+plot_prevalence_heatmap <- function(
+  prev,
+  group_levels,
+  filename,
+  width = 4.5,
+  height = 9.5
+) {
+  prev_wide <- prev %>%
+    select(family, Group, prevalence) %>%
+    pivot_wider(names_from = Group, values_from = prevalence) %>%
+    column_to_rownames("family") %>%
+    as.matrix()
+  prev_wide <- prev_wide[
+    ,
+    group_levels[group_levels %in% colnames(prev_wide)],
+    drop = FALSE
+  ]
+
+  ann_row <- data.frame(
+    Class = cazyme_class(rownames(prev_wide)),
+    row.names = rownames(prev_wide)
+  )
+
+  pheatmap(
+    prev_wide,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    annotation_row = ann_row,
+    annotation_colors = list(Class = CLASS_COLORS),
+    color = colorRampPalette(c("white", "#FDBE85", "#B2182B"))(100),
+    breaks = seq(0, 100, length.out = 101),
+    border_color = "grey85",
+    show_rownames = FALSE,
+    show_colnames = TRUE,
+    fontsize_row = 10,
+    fontsize_col = 12,
+    main = "CAZyme Family Prevalence (%)",
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = 300
+  )
+}
+
+plot_richness_abundance <- function(prop_cov, count_wide, group_levels) {
+  fams <- get_family_cols(prop_cov)
+  rich_df <- data.frame(
+    sample_id = count_wide$sample_id,
+    Group = factor(count_wide$Group, levels = group_levels),
+    richness = rowSums(count_wide[, fams, drop = FALSE] > 0, na.rm = TRUE),
+    stringsAsFactors = FALSE
+  )
+  abund_df <- data.frame(
+    sample_id = prop_cov$sample_id,
+    total_prop = rowSums(prop_cov[, fams, drop = FALSE], na.rm = TRUE),
+    stringsAsFactors = FALSE
+  )
+  dat <- merge(rich_df, abund_df, by = "sample_id")
+
+  p1 <- ggplot(dat, aes(x = Group, y = richness, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.65, width = 0.55) +
+    geom_jitter(width = 0.12, size = 0.6, alpha = 0.35, color = "grey20") +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = "CAZyme Family Richness",
+      x = "Group",
+      y = "Number of present families",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 17) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+
+  p2 <- ggplot(dat, aes(x = Group, y = total_prop, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.65, width = 0.55) +
+    geom_jitter(width = 0.12, size = 0.6, alpha = 0.35, color = "grey20") +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = "Total CAZyme Abundance",
+      x = "Group",
+      y = "Sum of coverage-weighted proportions",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 17) +
+    theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+
+  plot_grid(
+    p1,
+    p2,
+    ncol = 2,
+    labels = c("A", "B"),
+    align = "h",
+    axis = "tb"
+  )
+}
+
+plot_family_dotplot <- function(prop_long, group_levels, title) {
+  family_mean <- prop_long %>%
+    group_by(Group, class, family) %>%
+    summarise(
+      mean_prop = mean(proportion, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(family = reorder(family, mean_prop, FUN = mean))
+
+  ggplot(
+    family_mean,
+    aes(x = mean_prop, y = family, color = Group)
+  ) +
+    geom_point(size = 1.4, alpha = 0.8) +
+    facet_grid(class ~ ., scales = "free_y", space = "free_y") +
+    scale_color_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = title,
+      subtitle = "Mean CAZyme family proportion by clinical group",
+      x = "Mean proportion (coverage-weighted)",
+      y = NULL,
+      color = "Group"
+    ) +
+    theme_nature(base_size = 13) +
+    theme(
+      strip.text.y = element_text(angle = 0, size = 11, face = "bold"),
+      axis.text.y = element_text(size = 7),
+      panel.grid.major.y = element_blank(),
+      panel.spacing = unit(0.3, "lines")
+    )
+}
+
+# ============================================================================
+# Pairwise comparison results (written only under dbcan3-plot-02/pairwise/)
+# ============================================================================
+pairwise_groups <- function(prop_long, group_levels) {
+  group_levels <- group_levels[group_levels %in% prop_long$Group]
+  if (length(group_levels) < 2) {
+    return(data.frame())
+  }
+
+  combs <- combn(group_levels, 2, simplify = FALSE)
+  out <- lapply(combs, function(grp) {
+    g1 <- grp[1]
+    g2 <- grp[2]
+    dat <- prop_long %>%
+      filter(Group %in% grp) %>%
+      mutate(Group = factor(Group, levels = grp))
+
+    res <- dat %>%
+      group_by(family) %>%
+      summarise(
+        n1 = sum(Group == g1),
+        n2 = sum(Group == g2),
+        median1 = median(proportion[Group == g1], na.rm = TRUE),
+        median2 = median(proportion[Group == g2], na.rm = TRUE),
+        mean1 = mean(proportion[Group == g1], na.rm = TRUE),
+        mean2 = mean(proportion[Group == g2], na.rm = TRUE),
+        p.value = suppressWarnings(
+          tryCatch(
+            wilcox.test(
+              proportion[Group == g1],
+              proportion[Group == g2]
+            )$p.value,
+            error = function(e) NA_real_
+          )
+        ),
+        .groups = "drop"
+      )
+    res$FDR <- NA_real_
+    idx <- !is.na(res$p.value)
+    res$FDR[idx] <- p.adjust(res$p.value[idx], method = "BH")
+    res$log2FC <- log2(
+      (res$median1 + 1e-6) / (res$median2 + 1e-6)
+    )
+    res$effect_size <- res$median1 - res$median2
+    res$group1 <- g1
+    res$group2 <- g2
+    res$comparison <- paste0(g1, "_vs_", g2)
+    res$class <- cazyme_class(res$family)
+    res
+  })
+
+  bind_rows(out)
+}
+
+write_pairwise_matrices <- function(pairwise, tables_dir, prefix = "cazyme") {
+  if (nrow(pairwise) == 0) {
+    return(invisible(NULL))
+  }
+
+  comparisons <- unique(pairwise$comparison)
+  families <- unique(pairwise$family)
+
+  matrix_from_pairwise <- function(value_col) {
+    mat <- matrix(
+      NA_real_,
+      nrow = length(families),
+      ncol = length(comparisons),
+      dimnames = list(families, comparisons)
+    )
+    for (i in seq_len(nrow(pairwise))) {
+      mat[pairwise$family[i], pairwise$comparison[i]] <-
+        pairwise[[value_col]][i]
+    }
+    mat
+  }
+
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("log2FC")),
+      as.data.frame(matrix_from_pairwise("log2FC"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_log2FC_matrix.tsv"))
+  )
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("FDR")),
+      as.data.frame(matrix_from_pairwise("FDR"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_FDR_matrix.tsv"))
+  )
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("effect_size")),
+      as.data.frame(matrix_from_pairwise("effect_size"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_effect_size_matrix.tsv"))
+  )
+}
+
+save_pairwise_heatmap <- function(
+  pairwise,
+  filename,
+  width = 6,
+  height = 9
+) {
+  if (nrow(pairwise) == 0) {
+    return(invisible(NULL))
+  }
+
+  sig_fams <- pairwise %>%
+    filter(!is.na(FDR), FDR < 0.05) %>%
+    pull(family) %>%
+    unique()
+  if (length(sig_fams) == 0) {
+    sig_fams <- pairwise %>%
+      group_by(family) %>%
+      summarise(min_fdr = min(FDR, na.rm = TRUE), .groups = "drop") %>%
+      arrange(min_fdr) %>%
+      head(40) %>%
+      pull(family)
+  }
+  if (length(sig_fams) == 0) {
+    return(invisible(NULL))
+  }
+
+  mat <- pairwise %>%
+    filter(family %in% sig_fams) %>%
+    select(family, comparison, log2FC) %>%
+    pivot_wider(names_from = comparison, values_from = log2FC) %>%
+    column_to_rownames("family") %>%
+    as.matrix()
+  mat[is.na(mat)] <- 0
+
+  finite_vals <- mat[is.finite(mat)]
+  if (any(is.infinite(mat))) {
+    max_abs <- max(abs(finite_vals), na.rm = TRUE)
+    mat[is.infinite(mat)] <- sign(mat[is.infinite(mat)]) * max_abs
+  }
+  if (max(abs(mat), na.rm = TRUE) == 0) {
+    return(invisible(NULL))
+  }
+  lim <- max(abs(mat), na.rm = TRUE)
+
+  ann_row <- data.frame(
+    Class = cazyme_class(rownames(mat)),
+    row.names = rownames(mat)
+  )
+
+  pheatmap(
+    mat,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_row = ann_row,
+    annotation_colors = list(Class = CLASS_COLORS),
+    color = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+    breaks = seq(-lim, lim, length.out = 101),
+    border_color = "grey85",
+    show_rownames = TRUE,
+    show_colnames = TRUE,
+    fontsize_row = 11,
+    fontsize_col = 12,
+    main = "Pairwise Log2FC (FDR-significant families)",
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = 300
+  )
+}
+
+run_pairwise_outputs <- function(
+  prop_cov,
+  group_levels,
+  output_dir,
+  title_tag
+) {
+  dir.create(file.path(output_dir, "tables"), recursive = TRUE, showWarnings = FALSE)
+  tables_dir <- file.path(output_dir, "tables")
+
+  cat("\nPairwise processing:", title_tag, "->", output_dir, "\n")
+
+  prop_long <- make_long(prop_cov, "proportion")
+  pairwise <- pairwise_groups(prop_long, group_levels)
+
+  if (nrow(pairwise) == 0) {
+    cat("  No pairwise comparisons produced.\n")
+    return(invisible(NULL))
+  }
+
+  write_results(
+    pairwise,
+    file.path(tables_dir, "cazyme_pairwise_results.tsv")
+  )
+  write_pairwise_matrices(pairwise, tables_dir)
+
+  comparison_summary <- pairwise %>%
+    group_by(comparison, group1, group2, n1, n2) %>%
+    summarise(
+      n_families = n(),
+      n_significant_FDR_0.05 = sum(FDR < 0.05, na.rm = TRUE),
+      n_upregulated_in_group1 = sum(log2FC > 0 & FDR < 0.05, na.rm = TRUE),
+      n_downregulated_in_group1 = sum(log2FC < 0 & FDR < 0.05, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    arrange(comparison)
+  write_results(
+    comparison_summary,
+    file.path(tables_dir, "cazyme_pairwise_comparison_summary.tsv")
+  )
+
+  save_pairwise_heatmap(
+    pairwise,
+    file.path(output_dir, "figS2_pairwise_differential_heatmap.png"),
+    width = 6,
+    height = 9
+  )
+
+  comparisons <- unique(pairwise$comparison)
+  for (cc in comparisons) {
+    cc_dat <- pairwise %>% filter(comparison == cc)
+    prefix <- paste0(
+      "figS1_pairwise_volcano_",
+      gsub("[^A-Za-z0-9_]+", "_", cc)
+    )
+    save_figure(
+      plot_volcano(
+        cc_dat,
+        group_levels,
+        paste(title_tag, "CAZyme Pairwise Volcano:", cc),
+        subtitle = "Wilcoxon rank-sum test with BH FDR; effect size = median1 - median2",
+        x_label = "Effect size (median group1 - median group2)"
+      ),
+      prefix,
+      output_dir,
+      width = 5.5,
+      height = 5
+    )
+  }
+
+  cat("  Finished pairwise:", title_tag, "\n")
+}
+
+# ============================================================================
+# Summary tables
+# ============================================================================
+make_metric_summary <- function(metric_wides, group_levels) {
+  fams <- get_family_cols(metric_wides[[1]])
+  out <- lapply(names(metric_wides), function(nm) {
+    metric_wides[[nm]] %>%
+      filter(!is.na(Group)) %>%
+      select(sample_id, Group, all_of(fams)) %>%
+      pivot_longer(all_of(fams), names_to = "family", values_to = "value") %>%
+      group_by(Group, family) %>%
+      summarise(
+        mean = mean(value, na.rm = TRUE),
+        median = median(value, na.rm = TRUE),
+        sd = sd(value, na.rm = TRUE),
+        n_samples = n(),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        metric = nm,
+        class = cazyme_class(family),
+        Group = factor(Group, levels = group_levels)
+      )
+  })
+  bind_rows(out)
+}
+
+# ============================================================================
+# Run one output set
+# ============================================================================
+run_outputs <- function(
+  prop_cov,
+  prop_len_cov,
+  score_cov,
+  score_len_cov,
+  count_wide,
+  group_levels,
+  output_dir,
+  title_tag
+) {
+  dir.create(file.path(output_dir, "tables"), recursive = TRUE, showWarnings = FALSE)
+  tables_dir <- file.path(output_dir, "tables")
+
+  cat("\nProcessing:", title_tag, "->", output_dir, "\n")
+
+  prop_long <- make_long(prop_cov, "proportion")
+  count_long <- make_long(count_wide, "count")
+
+  sample_summary <- prop_cov %>%
+    group_by(Group) %>%
+    summarise(n_samples = n(), .groups = "drop")
+  write_results(
+    sample_summary,
+    file.path(tables_dir, "group_sample_summary.tsv")
+  )
+
+  class_by_sample <- make_class_by_sample(prop_long)
+  class_summary <- class_by_sample %>%
+    group_by(Group, class) %>%
+    summarise(
+      mean = mean(class_proportion, na.rm = TRUE),
+      median = median(class_proportion, na.rm = TRUE),
+      sd = sd(class_proportion, na.rm = TRUE),
+      se = sd(class_proportion, na.rm = TRUE) / sqrt(n()),
+      n_samples = n(),
+      .groups = "drop"
+    )
+  write_results(
+    class_summary,
+    file.path(tables_dir, "cazyme_class_summary.tsv")
+  )
+
+  family_summary <- prop_long %>%
+    group_by(Group, class, family) %>%
+    summarise(
+      mean_prop = mean(proportion, na.rm = TRUE),
+      median_prop = median(proportion, na.rm = TRUE),
+      sd_prop = sd(proportion, na.rm = TRUE),
+      n_samples = n(),
+      .groups = "drop"
+    )
+  write_results(
+    family_summary,
+    file.path(tables_dir, "cazyme_family_summary.tsv")
+  )
+
+  metric_wides <- list(
+    proportion_coverage = prop_cov,
+    proportion_len_cov = prop_len_cov,
+    score_coverage = score_cov,
+    score_len_cov = score_len_cov,
+    present_count = count_wide
+  )
+  metric_summary <- make_metric_summary(metric_wides, group_levels)
+  write_results(
+    metric_summary,
+    file.path(tables_dir, "cazyme_metric_family_summary.tsv")
+  )
+
+  write_results(
+    prop_long,
+    file.path(tables_dir, "cazyme_proportion_long.tsv")
+  )
+  write_results(
+    count_long,
+    file.path(tables_dir, "cazyme_present_count_long.tsv")
+  )
+
+  beta <- run_beta(prop_cov, group_levels)
+  write_results(
+    data.frame(
+      analysis = title_tag,
+      method = "Aitchison PCoA (CLR + Euclidean distance)",
+      PERMANOVA_R2 = beta$r2,
+      PERMANOVA_P = beta$p,
+      Dispersion_P = beta$disp_p,
+      stringsAsFactors = FALSE
+    ),
+    file.path(tables_dir, "cazyme_permanova_stats.tsv")
+  )
+  write_results(
+    beta$scores,
+    file.path(tables_dir, "cazyme_aitchison_pcoa_scores.tsv")
+  )
+  save_figure(
+    plot_pcoa(beta, group_levels, paste(title_tag, "Aitchison PCoA")),
+    "fig1_aitchison_pcoa",
+    output_dir,
+    width = 8,
+    height = 6
+  )
+
+  diff_res <- differential_analysis(prop_long, count_wide, group_levels)
+  cat("  Differential method:", attr(diff_res, "method"), "\n")
+  write_results(
+    diff_res,
+    file.path(tables_dir, "cazyme_differential_results.tsv")
+  )
+  save_figure(
+    plot_volcano(
+      diff_res,
+      group_levels,
+      paste(title_tag, "CAZyme Differential Volcano")
+    ),
+    "fig4_differential_volcano",
+    output_dir,
+    width = 7,
+    height = 6
+  )
+  save_diff_heatmap(
+    prop_cov,
+    diff_res,
+    group_levels,
+    file.path(output_dir, "fig5_diff_cazyme_heatmap.png"),
+    width = 6.5,
+    height = 6.5
+  )
+  save_figure(
+    plot_top_family_boxplots(prop_long, diff_res, group_levels),
+    "fig7_top_family_boxplots",
+    output_dir,
+    width = 10,
+    height = 7
+  )
+
+  save_figure(
+    plot_class_stack(
+      class_by_sample,
+      group_levels,
+      paste(title_tag, "CAZyme Class Composition")
+    ),
+    "fig2_class_stacked_bar",
+    output_dir,
+    width = 10,
+    height = 7
+  )
+  save_figure(
+    plot_gh_pl(
+      prop_long,
+      group_levels,
+      paste(title_tag, "GH and PL Family Proportions")
+    ),
+    "fig3_gh_pl_violin",
+    output_dir,
+    width = 9,
+    height = 6
+  )
+
+  prev <- prevalence_summary(count_long, group_levels)
+  write_results(
+    prev,
+    file.path(tables_dir, "cazyme_prevalence_summary.tsv")
+  )
+  plot_prevalence_heatmap(
+    prev,
+    group_levels,
+    file.path(output_dir, "fig6_prevalence_heatmap.png"),
+    width = 6,
+    height = 14
+  )
+
+  save_figure(
+    plot_richness_abundance(prop_cov, count_wide, group_levels),
+    "fig8_richness_abundance",
+    output_dir,
+    width = 7,
+    height = 3.8
+  )
+
+  save_figure(
+    plot_family_dotplot(
+      prop_long,
+      group_levels,
+      paste(title_tag, "CAZyme Family Dot Plot")
+    ),
+    "fig10_cazyme_family_dotplot",
+    output_dir,
+    width = 8,
+    height = 20
+  )
+
+  cat("  Finished:", title_tag, "\n")
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+cat("Reading Step 9 annotated CAZyme tables...\n")
+prop_cov_all <- read_annotated(PROP_COV_FILE)
+prop_len_cov_all <- read_annotated(PROP_LEN_COV_FILE)
+score_cov_all <- read_annotated(SCORE_COV_FILE)
+score_len_cov_all <- read_annotated(SCORE_LEN_COV_FILE)
+count_all <- read_annotated(COUNT_FILE)
+
+input_summary <- do.call(
+  rbind,
+  lapply(
+    list(
+      proportion_coverage = prop_cov_all,
+      proportion_len_cov = prop_len_cov_all,
+      score_coverage = score_cov_all,
+      score_len_cov = score_len_cov_all,
+      present_count = count_all
+    ),
+    function(dat) {
+      data.frame(
+        input_rows = attr(dat, "input_rows"),
+        annotated_rows = nrow(dat),
+        excluded_rows = attr(dat, "excluded_rows"),
+        cazyme_families = length(get_family_cols(dat)),
+        stringsAsFactors = FALSE
+      )
+    }
+  )
+)
+input_summary$file <- rownames(input_summary)
+input_summary <- input_summary[, c(
+  "file",
+  "input_rows",
+  "annotated_rows",
+  "excluded_rows",
+  "cazyme_families"
+)]
+
+dir.create(file.path(OUTPUT_DIR, "tables"), recursive = TRUE, showWarnings = FALSE)
+write_results(
+  input_summary,
+  file.path(OUTPUT_DIR, "tables", "input_file_summary.tsv")
+)
+
+if (!dir.exists(OUTPUT_DIR)) {
+  dir.create(OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(FOUR_GROUP_OUTPUT_DIR)) {
+  dir.create(FOUR_GROUP_OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(PAIRWISE_OUTPUT_DIR)) {
+  dir.create(PAIRWISE_OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(PAIRWISE_FOUR_OUTPUT_DIR)) {
+  dir.create(PAIRWISE_FOUR_OUTPUT_DIR, recursive = TRUE)
+}
+
+prop_cov_4 <- subset_group(prop_cov_all, FOUR_GROUP_LEVELS)
+prop_len_cov_4 <- subset_group(prop_len_cov_all, FOUR_GROUP_LEVELS)
+score_cov_4 <- subset_group(score_cov_all, FOUR_GROUP_LEVELS)
+score_len_cov_4 <- subset_group(score_len_cov_all, FOUR_GROUP_LEVELS)
+count_4 <- subset_group(count_all, FOUR_GROUP_LEVELS)
+
+run_outputs(
+  prop_cov_all,
+  prop_len_cov_all,
+  score_cov_all,
+  score_len_cov_all,
+  count_all,
+  GROUP_LEVELS,
+  OUTPUT_DIR,
+  "All groups"
+)
+
+run_outputs(
+  prop_cov_4,
+  prop_len_cov_4,
+  score_cov_4,
+  score_len_cov_4,
+  count_4,
+  FOUR_GROUP_LEVELS,
+  FOUR_GROUP_OUTPUT_DIR,
+  "Follow-up groups"
+)
+
+run_pairwise_outputs(
+  prop_cov_all,
+  GROUP_LEVELS,
+  PAIRWISE_OUTPUT_DIR,
+  "All groups"
+)
+
+run_pairwise_outputs(
+  prop_cov_4,
+  FOUR_GROUP_LEVELS,
+  PAIRWISE_FOUR_OUTPUT_DIR,
+  "Follow-up groups"
+)
+
+cat("\n==============================================================\n")
+cat(" dbCAN3 CAZyme visualization v2 complete\n")
+cat(" Main output:", OUTPUT_DIR, "\n")
+cat(" Follow-up output:", FOUR_GROUP_OUTPUT_DIR, "\n")
+cat(" Pairwise output:", PAIRWISE_OUTPUT_DIR, "\n")
+cat("==============================================================\n")
 ```
 
 ## 4.3 Results
@@ -674,24 +3529,18 @@ The four groups track each other closely across all families.
 
 ## 4.5 Interpretation
 
-1. **No CAZyme family differs significantly between the four adenoma follow-up
-   groups** (best raw p = 0.0040 for CBM27, FDR = 0.955). The carbohydrate-
-   active enzyme repertoire of the gut microbiome is stable across recurrence
-   status and sampling time.
-2. The top raw-p hits are carbohydrate-binding modules (CBM27, CBM23) and
-   glycoside hydrolases (GH125, GH26, GH6) — i.e. hemicellulose/xylan- and
-   cellulose-degrading machinery — but none survive correction.
-3. The 6-group analysis (including Normal and CRC) is likewise non-significant
-   (PERMANOVA R² = 0.0127, P = 0.597), confirming that CAZyme composition does
-   not separate any clinical group.
-
+1. **No CAZyme family is significant** after FDR; the carbohydrate-active
+   repertoire is stable across recurrence status and sampling time.
+2. Top raw-p hits are CBM and GH families involved in hemicellulose, xylan and
+   cellulose degradation, but none survive correction.
+3. Including Normal and CRC gives the same null multivariate result
+   (R2 = 0.0127, P = 0.597).
 # 5. dbCAN3 mucin modules
 
 ## 5.1 Overview
 
-To reduce the multiple-testing burden of ~300 CAZyme families, curated
-families are collapsed into four biologically-motivated **mucin / glycan
-modules** (defined in `targetc_dbcan3_mucin_modules.R`):
+To reduce multiple testing, curated CAZyme families are collapsed into four
+mucin / glycan modules:
 
 | Module | CAZyme families | Biological role |
 |--------|-----------------|-----------------|
@@ -700,32 +3549,1304 @@ modules** (defined in `targetc_dbcan3_mucin_modules.R`):
 | chitin | GH18, GH19, GH20, GH23, CBM2, CBM5 | Chitin utilization |
 | plant | GH5, GH26, GH28, GH43, GH51, GH53, GH67, GH78, GH105, GH115, CE1, CE4, CE12, PL1, PL3, PL4, PL9 | Plant polysaccharide degradation |
 
-**Key results (4-group adenoma subset):**
-
-- **No module differs significantly** (Kruskal-Wallis on module proportion:
-  plant p = 0.178, chitin p = 0.396, mucin_ext p = 0.671, mucin_core p =
-  0.676).
-- PERMANOVA on the target families: R² = 0.0124, P = 0.503.
-- The strongest single-family hit is *GH26* (plant module, p = 0.0104,
-  FDR = 0.418).
-
+**Key results (4-group subset):** no module is significant (plant p = 0.178,
+chitin p = 0.396, mucin_ext p = 0.671, mucin_core p = 0.676); PERMANOVA
+R2 = 0.0124, P = 0.503; strongest family hit is GH26 (p = 0.0104,
+FDR = 0.418).
 ## 5.2 Script
 
+**Script:** targetc_dbcan3_mucin_modules.R
+
 ```r
-# targetc_dbcan3_mucin_modules.R — key definitions
-MODULES <- list(
-  mucin_core = c("GH29", "GH95", "GH33", "GH109", "GH16", "GH136"),
-  mucin_ext  = c("GH2", "GH20", "GH35", "GH42", "GH84", "GH85",
-                 "GH89", "GH97", "GH98", "GH101", "GH123", "GH129", "GH151"),
-  chitin = c("GH18", "GH19", "GH20", "GH23", "CBM2", "CBM5"),
-  plant  = c("GH5", "GH26", "GH28", "GH43", "GH51", "GH53", "GH67",
-             "GH78", "GH105", "GH115", "CE1", "CE4", "CE12",
-             "PL1", "PL3", "PL4", "PL9")
+#!/usr/bin/env Rscript
+# ============================================================================
+# TargetC dbCAN3 Targeted Mechanism-Module Analysis (Mucin / Chitin / Plant)
+# ============================================================================
+# Rationale:
+#   Aggregating CAZymes into broad classes (GH/GT/PL) hides function-specific
+#   signal behind metabolic redundancy. This script instead targets curated
+#   functional modules:
+#     - mucin_core : core mucin O-glycan degradation families
+#                   (GH29, GH95, GH33, GH109, GH16, GH136)
+#     - mucin_ext  : extended mucin O-glycan degradation families
+#     - chitin     : chitin utilization
+#     - plant      : plant polysaccharide degradation
+#   For each module a per-sample "module degradation potential" is computed
+#   (sum of coverage-weighted family proportions), tested across clinical
+#   groups, and the targeted families themselves are taken through
+#   differential / pairwise / prevalence / ordination analyses.
+# Input:
+#   Step 9 annotated CAZyme tables (same as targetc_dbcan3_plot.R)
+# Output:
+#   dbcan3-plot-mucin/            all six clinical groups  (mucin_-prefixed files)
+#   dbcan3-plot-mucin/dbcan3-4/   Recurrence_1/Recurrence_2/Non_recurrence_1/Non_recurrence_2
+#   dbcan3-plot-mucin/pairwise/   pairwise comparisons
+#   Every table is written as both .tsv and .csv
+# ============================================================================
+
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(tibble)
+  library(pheatmap)
+  library(scales)
+  library(vegan)
+  library(ggrepel)
+})
+
+# ============================================================================
+# Paths and group definitions
+# ============================================================================
+ANNOTATED_DIR <- "/home/yanglun/YSD/TargetC/phenotypes-analysis/dbcan3-analysis/results/cazy_summary_annotated_mimag90"
+OUTPUT_DIR <- "/home/yanglun/YSD/TargetC/phenotypes-analysis/dbcan3-analysis/results/dbcan3-plot-mucin"
+FOUR_GROUP_OUTPUT_DIR <- file.path(OUTPUT_DIR, "dbcan3-4")
+PAIRWISE_OUTPUT_DIR <- file.path(OUTPUT_DIR, "pairwise")
+PAIRWISE_FOUR_OUTPUT_DIR <- file.path(PAIRWISE_OUTPUT_DIR, "dbcan3-4")
+
+PROP_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_proportion_coverage.tsv")
+PROP_LEN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_proportion_len_cov.tsv")
+SCORE_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_score_coverage.tsv")
+SCORE_LEN_COV_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_score_len_cov.tsv")
+COUNT_FILE <- file.path(ANNOTATED_DIR, "annotated_cazyme_present_count.tsv")
+
+GROUP_LABELS <- c(
+  "N"    = "Normal",
+  "Non1" = "Non_recurrence_1",
+  "Non2" = "Non_recurrence_2",
+  "Re1"  = "Recurrence_1",
+  "Re2"  = "Recurrence_2",
+  "CRC"  = "CRC"
 )
 
-# Per-sample module score = sum of the module's family proportions
-# (module proportion), and module richness = number of families present.
-# Each module is then tested with Kruskal-Wallis across the 4 groups.
+GROUP_LEVELS <- unname(GROUP_LABELS)
+FOUR_GROUP_LEVELS <- c(
+  "Recurrence_1",
+  "Recurrence_2",
+  "Non_recurrence_1",
+  "Non_recurrence_2"
+)
+
+GROUP_COLORS <- c(
+  "Normal"           = "#2166AC",
+  "Recurrence_1"     = "#B2182B",
+  "Recurrence_2"     = "#D6604D",
+  "Non_recurrence_1" = "#1B7837",
+  "Non_recurrence_2" = "#35978F",
+  "CRC"              = "#762A83"
+)
+
+# ============================================================================
+# Targeted functional modules
+# ============================================================================
+MODULES <- list(
+  mucin_core = c("GH29", "GH95", "GH33", "GH109", "GH16", "GH136"),
+  mucin_ext  = c(
+    "GH2",  "GH20", "GH35", "GH42", "GH84", "GH85",
+    "GH89", "GH97", "GH98", "GH101", "GH123", "GH129", "GH151"
+  ),
+  chitin = c("GH18", "GH19", "GH20", "GH23", "CBM2", "CBM5"),
+  plant  = c(
+    "GH5", "GH26", "GH28", "GH43", "GH51", "GH53", "GH67",
+    "GH78", "GH105", "GH115", "CE1", "CE4", "CE12", "PL1", "PL3", "PL4", "PL9"
+  )
+)
+
+MODULE_LABELS <- c(
+  mucin_core = "Mucin degradation (core)",
+  mucin_ext  = "Mucin degradation (extended)",
+  chitin     = "Chitin utilization",
+  plant      = "Plant polysaccharide degradation"
+)
+
+MODULE_COLORS <- c(
+  mucin_core = "#B2182B",
+  mucin_ext  = "#D6604D",
+  chitin     = "#2166AC",
+  plant      = "#1B7837"
+)
+
+# family -> modules lookup (a family may belong to >1 module)
+fam_to_modules <- list()
+for (.m in names(MODULES)) {
+  for (.f in MODULES[[.m]]) {
+    fam_to_modules[[.f]] <- c(fam_to_modules[[.f]], .m)
+  }
+}
+
+module_annotation <- function(fams) {
+  vapply(as.character(fams), function(f) {
+    ms <- fam_to_modules[[f]]
+    if (is.null(ms)) return("unassigned")
+    paste(sort(unique(ms)), collapse = "+")
+  }, character(1))
+}
+
+primary_module <- function(fams) {
+  vapply(as.character(fams), function(f) {
+    ms <- fam_to_modules[[f]]
+    if (is.null(ms)) return("unassigned")
+    idx <- match(ms, names(MODULES))
+    names(MODULES)[min(idx)]
+  }, character(1))
+}
+
+# ============================================================================
+# Helpers
+# ============================================================================
+get_family_cols <- function(dat) {
+  setdiff(
+    colnames(dat),
+    c("SID", "profile_column", "source", "sample_id", "Group")
+  )
+}
+
+cazyme_class <- function(x) {
+  cls <- sub("^([A-Z]+).*$", "\\1", as.character(x))
+  factor(cls)
+}
+
+read_annotated <- function(path) {
+  dat <- read.delim(
+    path,
+    header = TRUE,
+    stringsAsFactors = FALSE,
+    check.names = FALSE,
+    na.strings = c("NA", "")
+  )
+  required <- c("SID", "profile_column", "source")
+  missing_cols <- setdiff(required, colnames(dat))
+  if (length(missing_cols) > 0) {
+    stop(
+      "Missing required columns in ", path, ": ",
+      paste(missing_cols, collapse = ", ")
+    )
+  }
+
+  input_rows <- nrow(dat)
+  dat$sample_id <- dat$profile_column
+  dat$Group <- unname(GROUP_LABELS[as.character(dat$source)])
+  dat$Group <- factor(dat$Group, levels = unname(GROUP_LABELS))
+  excluded_rows <- sum(is.na(dat$Group))
+  out <- dat[!is.na(dat$Group), , drop = FALSE]
+  attr(out, "input_rows") <- input_rows
+  attr(out, "excluded_rows") <- excluded_rows
+  out
+}
+
+subset_group <- function(dat, group_levels) {
+  dat %>%
+    filter(Group %in% group_levels) %>%
+    mutate(Group = factor(Group, levels = group_levels))
+}
+
+make_long <- function(dat, value_name) {
+  fams <- get_family_cols(dat)
+  dat %>%
+    select(sample_id, source, Group, all_of(fams)) %>%
+    pivot_longer(
+      cols = all_of(fams),
+      names_to = "family",
+      values_to = value_name
+    )
+}
+
+write_results <- function(x, file) {
+  dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+  write.table(
+    x,
+    file = file,
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE,
+    na = "NA"
+  )
+  csv_file <- sub("[.]tsv$", ".csv", file)
+  write.table(
+    x,
+    file = csv_file,
+    sep = ",",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE,
+    na = "NA"
+  )
+}
+
+save_figure <- function(p, prefix, dir, width = 5.5, height = 4.5) {
+  if (is.null(p)) return(invisible(NULL))
+  ggsave(
+    file.path(dir, paste0(prefix, ".png")),
+    p,
+    width = width,
+    height = height,
+    units = "in",
+    dpi = 300
+  )
+  ggsave(
+    file.path(dir, paste0(prefix, ".pdf")),
+    p,
+    width = width,
+    height = height,
+    units = "in"
+  )
+}
+
+format_p <- function(p) {
+  ifelse(
+    is.na(p),
+    "NA",
+    ifelse(
+      p < 0.001,
+      formatC(p, format = "e", digits = 2),
+      sprintf("%.3f", p)
+    )
+  )
+}
+
+theme_nature <- function(base_size = 17) {
+  theme_bw(base_size = base_size) +
+    theme(
+      text = element_text(color = "black"),
+      axis.title = element_text(size = base_size + 2, face = "bold"),
+      axis.text = element_text(size = base_size - 1, color = "black"),
+      axis.line = element_line(color = "black", linewidth = 0.5),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.25),
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "grey95", color = "black", linewidth = 0.4),
+      strip.text = element_text(size = base_size, face = "bold"),
+      plot.title = element_text(size = base_size + 3, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = base_size - 2, hjust = 0.5, face = "italic", color = "grey30"),
+      legend.title = element_text(size = base_size, face = "bold"),
+      legend.text = element_text(size = base_size - 1),
+      legend.key.size = unit(0.45, "cm"),
+      legend.position = "right"
+    )
+}
+
+# ============================================================================
+# Module aggregate (degradation potential per sample per module)
+# ============================================================================
+target_families <- function(dat) {
+  intersect(unique(unlist(MODULES)), get_family_cols(dat))
+}
+
+module_aggregate <- function(prop_cov, count_wide) {
+  tfams <- target_families(prop_cov)
+  if (length(tfams) == 0) {
+    return(data.frame())
+  }
+  prop_mat <- as.matrix(prop_cov[, tfams, drop = FALSE])
+  count_mat <- as.matrix(count_wide[, intersect(tfams, colnames(count_wide)), drop = FALSE])
+  out <- lapply(names(MODULES), function(m) {
+    fams <- intersect(MODULES[[m]], tfams)
+    if (length(fams) == 0) return(NULL)
+    data.frame(
+      sample_id = prop_cov$sample_id,
+      Group = prop_cov$Group,
+      module_key = m,
+      module = MODULE_LABELS[[m]],
+      n_families = length(fams),
+      module_proportion = rowSums(prop_mat[, fams, drop = FALSE], na.rm = TRUE),
+      module_count = rowSums(count_mat[, fams, drop = FALSE], na.rm = TRUE),
+      module_richness = rowSums(count_mat[, fams, drop = FALSE] > 0, na.rm = TRUE),
+      stringsAsFactors = FALSE
+    )
+  })
+  bind_rows(out)
+}
+
+module_group_summary <- function(mod_agg) {
+  mod_agg %>%
+    group_by(module_key, module, Group) %>%
+    summarise(
+      n_samples = n(),
+      mean_proportion = mean(module_proportion, na.rm = TRUE),
+      median_proportion = median(module_proportion, na.rm = TRUE),
+      sd_proportion = sd(module_proportion, na.rm = TRUE),
+      mean_richness = mean(module_richness, na.rm = TRUE),
+      median_richness = median(module_richness, na.rm = TRUE),
+      sd_richness = sd(module_richness, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+
+module_kw_stats <- function(mod_agg) {
+  mod_agg %>%
+    group_by(module_key, module) %>%
+    summarise(
+      kruskal_p_proportion = suppressWarnings(
+        tryCatch(
+          kruskal.test(module_proportion, Group)$p.value,
+          error = function(e) NA_real_
+        )
+      ),
+      kruskal_p_richness = suppressWarnings(
+        tryCatch(
+          kruskal.test(module_richness, Group)$p.value,
+          error = function(e) NA_real_
+        )
+      ),
+      .groups = "drop"
+    )
+}
+
+plot_module_boxplots <- function(mod_agg, group_levels, title) {
+  stats <- mod_agg %>%
+    group_by(module_key, module) %>%
+    summarise(
+      p = suppressWarnings(
+        tryCatch(
+          kruskal.test(module_proportion, Group)$p.value,
+          error = function(e) NA_real_
+        )
+      ),
+      .groups = "drop"
+    )
+
+  ggplot(mod_agg, aes(x = Group, y = module_proportion, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.65, width = 0.6) +
+    geom_jitter(width = 0.12, size = 0.55, alpha = 0.3, color = "grey25") +
+    facet_wrap(~module, scales = "free_y", ncol = 2) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    geom_text(
+      data = stats,
+      aes(
+        x = 1.5,
+        y = Inf,
+        label = paste0("Kruskal-Wallis P = ", format_p(p))
+      ),
+      inherit.aes = FALSE,
+      vjust = 1.5,
+      size = 4
+    ) +
+    labs(
+      title = title,
+      subtitle = "Module degradation potential (sum of coverage-weighted family proportions)",
+      x = "Group",
+      y = "Module proportion",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 17) +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+}
+
+module_pairwise <- function(mod_agg) {
+  group_levels <- levels(mod_agg$Group)
+  group_levels <- group_levels[group_levels %in% mod_agg$Group]
+  if (length(group_levels) < 2) {
+    return(data.frame())
+  }
+  combs <- combn(group_levels, 2, simplify = FALSE)
+  out <- lapply(unique(mod_agg$module_key), function(mk) {
+    d <- mod_agg %>% filter(module_key == mk)
+    mod_label <- unique(d$module)
+    lapply(combs, function(grp) {
+      g1 <- grp[1]
+      g2 <- grp[2]
+      dat <- d %>% filter(Group %in% grp) %>% mutate(Group = factor(Group, levels = grp))
+      data.frame(
+        module_key = mk,
+        module = mod_label,
+        comparison = paste0(g1, "_vs_", g2),
+        group1 = g1,
+        group2 = g2,
+        n1 = sum(dat$Group == g1, na.rm = TRUE),
+        n2 = sum(dat$Group == g2, na.rm = TRUE),
+        median1 = median(dat$module_proportion[dat$Group == g1], na.rm = TRUE),
+        median2 = median(dat$module_proportion[dat$Group == g2], na.rm = TRUE),
+        mean1 = mean(dat$module_proportion[dat$Group == g1], na.rm = TRUE),
+        mean2 = mean(dat$module_proportion[dat$Group == g2], na.rm = TRUE),
+        p.value = suppressWarnings(
+          tryCatch(
+            wilcox.test(
+              dat$module_proportion[dat$Group == g1],
+              dat$module_proportion[dat$Group == g2]
+            )$p.value,
+            error = function(e) NA_real_
+          )
+        ),
+        stringsAsFactors = FALSE
+      )
+    }) %>% bind_rows()
+  }) %>% bind_rows()
+
+  if (nrow(out) == 0) {
+    return(out)
+  }
+  out <- out %>%
+    group_by(module_key) %>%
+    mutate(
+      FDR = if (all(is.na(p.value))) NA_real_ else p.adjust(p.value, method = "BH")
+    ) %>%
+    ungroup()
+  out$log2FC <- log2((out$median1 + 1e-6) / (out$median2 + 1e-6))
+  out$effect_size <- out$median1 - out$median2
+  out
+}
+
+# ============================================================================
+# CLR / Aitchison PCoA (restricted to target families)
+# ============================================================================
+clr_transform <- function(mat) {
+  mat[is.na(mat)] <- 0
+  pos <- mat[mat > 0]
+  delta <- if (length(pos) > 0) min(pos) / 2 else 0.5
+  mat[mat == 0] <- delta
+  t(apply(mat, 1, function(x) log(x) - mean(log(x))))
+}
+
+run_beta <- function(prop_wide, group_levels) {
+  fams <- get_family_cols(prop_wide)
+  dat <- prop_wide %>%
+    filter(!is.na(Group)) %>%
+    mutate(Group = factor(Group, levels = group_levels))
+
+  mat <- as.matrix(dat[, fams, drop = FALSE])
+  rownames(mat) <- dat$sample_id
+  clr <- clr_transform(mat)
+  d <- dist(clr, method = "euclidean")
+
+  set.seed(42)
+  ad <- adonis2(d ~ Group, data = dat, permutations = 999)
+  disp <- anova(betadisper(d, dat$Group))
+
+  pcoa <- cmdscale(d, k = 2, eig = TRUE)
+  eig <- pcoa$eig[pcoa$eig > 0]
+  var_explained <- if (length(eig) >= 2) {
+    round(eig[1:2] / sum(eig) * 100, 1)
+  } else {
+    c(NA_real_, NA_real_)
+  }
+
+  scores <- as.data.frame(pcoa$points)
+  colnames(scores) <- c("PCoA1", "PCoA2")
+  scores$sample_id <- rownames(scores)
+  scores <- scores %>%
+    left_join(dat %>% select(sample_id, Group), by = "sample_id")
+
+  list(
+    scores = scores,
+    var_explained = var_explained,
+    r2 = ad$R2[1],
+    p = ad$`Pr(>F)`[1],
+    disp_p = disp$`Pr(>F)`[1]
+  )
+}
+
+plot_pcoa <- function(beta, group_levels, title) {
+  scores <- beta$scores
+  centroids <- scores %>%
+    group_by(Group) %>%
+    summarise(
+      PCoA1 = mean(PCoA1, na.rm = TRUE),
+      PCoA2 = mean(PCoA2, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  subtitle <- sprintf(
+    "PERMANOVA R2 = %.3f, P = %s | dispersion P = %s",
+    beta$r2,
+    format_p(beta$p),
+    format_p(beta$disp_p)
+  )
+
+  ggplot(scores, aes(x = PCoA1, y = PCoA2, color = Group, fill = Group)) +
+    geom_point(alpha = 0.65, size = 2.2) +
+    geom_point(
+      data = centroids,
+      shape = 21,
+      size = 5.5,
+      stroke = 1.2,
+      color = "black"
+    ) +
+    stat_ellipse(level = 0.68, linewidth = 0.8, alpha = 0.25) +
+    scale_color_manual(values = GROUP_COLORS[group_levels]) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = sprintf("PCoA1 (%.1f%%)", beta$var_explained[1]),
+      y = sprintf("PCoA2 (%.1f%%)", beta$var_explained[2]),
+      color = "Group",
+      fill = "Group"
+    ) +
+    coord_fixed() +
+    theme_nature(base_size = 15)
+}
+
+# ============================================================================
+# Targeted-family differential analysis
+# ============================================================================
+differential_analysis <- function(prop_long, count_wide, group_levels) {
+  fams <- get_family_cols(count_wide)
+  dat <- count_wide %>%
+    filter(!is.na(Group)) %>%
+    mutate(Group = factor(Group, levels = group_levels))
+
+  present_fams <- fams[
+    colSums(dat[, fams, drop = FALSE] > 0, na.rm = TRUE) > 0
+  ]
+
+  use_aldex <- requireNamespace("ALDEx2", quietly = TRUE)
+  method <- "Kruskal-Wallis + BH (ALDEx2 not installed)"
+  res <- NULL
+
+  if (use_aldex && length(present_fams) > 1) {
+    count_mat <- as.matrix(dat[, present_fams, drop = FALSE])
+    rownames(count_mat) <- dat$sample_id
+    set.seed(42)
+    al <- tryCatch(
+      ALDEx2::aldex(
+        count_mat,
+        dat$Group,
+        mc.samples = 128,
+        test = "kw",
+        effect = TRUE,
+        denom = "all"
+      ),
+      error = function(e) e
+    )
+
+    if (!inherits(al, "error")) {
+      res <- data.frame(
+        family = rownames(al),
+        p.value = al$kw.ep,
+        FDR = al$kw.eBH,
+        aldex_effect = al$effect,
+        stringsAsFactors = FALSE
+      )
+      method <- "ALDEx2 Kruskal-Wallis (Monte Carlo CLR; 128 Dirichlet samples)"
+      use_aldex <- TRUE
+    } else {
+      use_aldex <- FALSE
+      warning("ALDEx2 failed; falling back to Kruskal-Wallis: ", conditionMessage(al))
+    }
+  } else {
+    use_aldex <- FALSE
+  }
+
+  if (!use_aldex) {
+    res <- prop_long %>%
+      group_by(family) %>%
+      summarise(
+        p.value = suppressWarnings(
+          tryCatch(
+            kruskal.test(proportion, Group)$p.value,
+            error = function(e) NA_real_
+          )
+        ),
+        .groups = "drop"
+      )
+    res$FDR <- NA_real_
+    idx <- !is.na(res$p.value)
+    res$FDR[idx] <- p.adjust(res$p.value[idx], method = "BH")
+    res$aldex_effect <- NA_real_
+  }
+
+  stats <- prop_long %>%
+    group_by(family, Group) %>%
+    summarise(
+      mean_prop = mean(proportion, na.rm = TRUE),
+      median_prop = median(proportion, na.rm = TRUE),
+      sd_prop = sd(proportion, na.rm = TRUE),
+      n_samples = n(),
+      .groups = "drop"
+    )
+
+  median_wide <- stats %>%
+    select(family, Group, median_prop) %>%
+    pivot_wider(names_from = Group, values_from = median_prop)
+  mean_wide <- stats %>%
+    select(family, Group, mean_prop) %>%
+    pivot_wider(names_from = Group, values_from = mean_prop)
+
+  med_cols <- setdiff(colnames(median_wide), "family")
+  mean_cols <- setdiff(colnames(mean_wide), "family")
+  median_mat <- as.matrix(median_wide[, med_cols, drop = FALSE])
+  mean_mat <- as.matrix(mean_wide[, mean_cols, drop = FALSE])
+
+  effect_size <- apply(
+    median_mat,
+    1,
+    function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+  )
+  log2fc <- log2(
+    (apply(median_mat, 1, max, na.rm = TRUE) + 1e-6) /
+      (apply(median_mat, 1, min, na.rm = TRUE) + 1e-6)
+  )
+  mean_range <- apply(
+    mean_mat,
+    1,
+    function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+  )
+
+  effect_df <- data.frame(
+    family = median_wide$family,
+    effect_size = effect_size,
+    log2FC = log2fc,
+    mean_range = mean_range,
+    stringsAsFactors = FALSE
+  )
+
+  res <- res %>%
+    left_join(effect_df, by = "family") %>%
+    left_join(median_wide, by = "family") %>%
+    left_join(mean_wide, by = "family") %>%
+    mutate(class = cazyme_class(family)) %>%
+    arrange(FDR, desc(abs(effect_size)))
+
+  attr(res, "method") <- method
+  res
+}
+
+plot_volcano_module <- function(
+  diff_res,
+  title,
+  subtitle = "FDR from ALDEx2 or Kruskal-Wallis; effect size = range of group median proportions",
+  x_label = "Effect size (max-min group median proportion)"
+) {
+  dat <- diff_res %>%
+    filter(!is.na(FDR), !is.na(effect_size))
+  if (nrow(dat) == 0) {
+    return(NULL)
+  }
+  dat$FDR <- pmax(dat$FDR, 1e-300)
+  sig <- dat %>%
+    filter(FDR < 0.05) %>%
+    arrange(FDR, desc(abs(effect_size))) %>%
+    head(15)
+
+  p <- ggplot(dat, aes(x = effect_size, y = -log10(FDR), color = primary_module)) +
+    geom_point(size = 2.4, alpha = 0.8) +
+    geom_hline(
+      yintercept = -log10(0.05),
+      linetype = "dashed",
+      color = "grey30",
+      linewidth = 0.5
+    ) +
+    geom_vline(xintercept = 0, color = "grey40", linewidth = 0.3) +
+    scale_color_manual(values = MODULE_COLORS, labels = MODULE_LABELS[names(MODULE_COLORS)]) +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = x_label,
+      y = expression(-log[10](FDR)),
+      color = "Target module"
+    ) +
+    scale_x_continuous(n.breaks = 3) +
+    theme_nature(base_size = 15) +
+    theme(plot.margin = margin(t = 8, r = 10, b = 20, l = 8))
+
+  if (nrow(sig) > 0) {
+    p <- p +
+      geom_text_repel(
+        data = sig,
+        aes(label = family),
+        size = 3.6,
+        max.overlaps = 30,
+        box.padding = 0.4,
+        segment.color = "grey50",
+        segment.size = 0.3,
+        show.legend = FALSE
+      )
+  }
+  p
+}
+
+plot_top_family_boxplots <- function(prop_long, diff_res, group_levels) {
+  sig <- diff_res %>%
+    filter(!is.na(FDR)) %>%
+    arrange(FDR, desc(abs(effect_size))) %>%
+    head(12)
+  if (nrow(sig) == 0) {
+    sig <- diff_res %>% arrange(desc(abs(effect_size))) %>% head(12)
+  }
+
+  sub <- prop_long %>%
+    filter(family %in% sig$family) %>%
+    mutate(family = factor(family, levels = sig$family))
+
+  ggplot(sub, aes(x = Group, y = proportion, fill = Group)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.65, width = 0.55) +
+    geom_jitter(width = 0.12, size = 0.5, alpha = 0.35, color = "grey20") +
+    facet_wrap(~family, scales = "free_y", ncol = 3) +
+    scale_fill_manual(values = GROUP_COLORS[group_levels]) +
+    scale_y_continuous(n.breaks = 3) +
+    labs(
+      title = "Top Differential Target CAZyme Families",
+      x = "Group",
+      y = "Proportion (coverage-weighted)",
+      fill = "Group"
+    ) +
+    theme_nature(base_size = 14) +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+      panel.spacing = unit(0.6, "lines"),
+      plot.margin = margin(t = 8, r = 8, b = 8, l = 12)
+    )
+}
+
+# ============================================================================
+# Prevalence
+# ============================================================================
+prevalence_summary <- function(count_long, group_levels) {
+  count_long %>%
+    filter(!is.na(Group)) %>%
+    group_by(Group, family) %>%
+    summarise(
+      n_present = sum(count > 0, na.rm = TRUE),
+      n_samples = n(),
+      prevalence = 100 * sum(count > 0, na.rm = TRUE) / n(),
+      .groups = "drop"
+    )
+}
+
+plot_prevalence_heatmap_module <- function(
+  prev,
+  group_levels,
+  filename,
+  width = 5,
+  height = 9
+) {
+  prev_wide <- prev %>%
+    select(family, Group, prevalence) %>%
+    pivot_wider(names_from = Group, values_from = prevalence) %>%
+    column_to_rownames("family") %>%
+    as.matrix()
+  prev_wide <- prev_wide[
+    ,
+    group_levels[group_levels %in% colnames(prev_wide)],
+    drop = FALSE
+  ]
+
+  ann_vals <- factor(
+    primary_module(rownames(prev_wide)),
+    levels = names(MODULE_COLORS)
+  )
+  ann_row <- data.frame(
+    Module = ann_vals,
+    row.names = rownames(prev_wide)
+  )
+
+  pheatmap(
+    prev_wide,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    annotation_row = ann_row,
+    annotation_colors = list(Module = MODULE_COLORS),
+    color = colorRampPalette(c("white", "#FDBE85", "#B2182B"))(100),
+    breaks = seq(0, 100, length.out = 101),
+    border_color = "grey85",
+    show_rownames = TRUE,
+    show_colnames = TRUE,
+    fontsize_row = 11,
+    fontsize_col = 12,
+    main = "Target CAZyme Family Prevalence (%)",
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = 300
+  )
+}
+
+# ============================================================================
+# Pairwise (family level)
+# ============================================================================
+pairwise_groups <- function(prop_long, group_levels) {
+  group_levels <- group_levels[group_levels %in% prop_long$Group]
+  if (length(group_levels) < 2) {
+    return(data.frame())
+  }
+
+  combs <- combn(group_levels, 2, simplify = FALSE)
+  out <- lapply(combs, function(grp) {
+    g1 <- grp[1]
+    g2 <- grp[2]
+    dat <- prop_long %>%
+      filter(Group %in% grp) %>%
+      mutate(Group = factor(Group, levels = grp))
+
+    res <- dat %>%
+      group_by(family) %>%
+      summarise(
+        n1 = sum(Group == g1),
+        n2 = sum(Group == g2),
+        median1 = median(proportion[Group == g1], na.rm = TRUE),
+        median2 = median(proportion[Group == g2], na.rm = TRUE),
+        mean1 = mean(proportion[Group == g1], na.rm = TRUE),
+        mean2 = mean(proportion[Group == g2], na.rm = TRUE),
+        p.value = suppressWarnings(
+          tryCatch(
+            wilcox.test(
+              proportion[Group == g1],
+              proportion[Group == g2]
+            )$p.value,
+            error = function(e) NA_real_
+          )
+        ),
+        .groups = "drop"
+      )
+    res$FDR <- NA_real_
+    idx <- !is.na(res$p.value)
+    res$FDR[idx] <- p.adjust(res$p.value[idx], method = "BH")
+    res$log2FC <- log2(
+      (res$median1 + 1e-6) / (res$median2 + 1e-6)
+    )
+    res$effect_size <- res$median1 - res$median2
+    res$group1 <- g1
+    res$group2 <- g2
+    res$comparison <- paste0(g1, "_vs_", g2)
+    res
+  })
+
+  bind_rows(out)
+}
+
+write_pairwise_matrices <- function(pairwise, tables_dir, prefix = "mucin") {
+  if (nrow(pairwise) == 0) {
+    return(invisible(NULL))
+  }
+
+  comparisons <- unique(pairwise$comparison)
+  families <- unique(pairwise$family)
+
+  matrix_from_pairwise <- function(value_col) {
+    mat <- matrix(
+      NA_real_,
+      nrow = length(families),
+      ncol = length(comparisons),
+      dimnames = list(families, comparisons)
+    )
+    for (i in seq_len(nrow(pairwise))) {
+      mat[pairwise$family[i], pairwise$comparison[i]] <-
+        pairwise[[value_col]][i]
+    }
+    mat
+  }
+
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("log2FC")),
+      as.data.frame(matrix_from_pairwise("log2FC"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_log2FC_matrix.tsv"))
+  )
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("FDR")),
+      as.data.frame(matrix_from_pairwise("FDR"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_FDR_matrix.tsv"))
+  )
+  write_results(
+    cbind(
+      family = rownames(matrix_from_pairwise("effect_size")),
+      as.data.frame(matrix_from_pairwise("effect_size"), check.names = FALSE)
+    ),
+    file.path(tables_dir, paste0(prefix, "_pairwise_effect_size_matrix.tsv"))
+  )
+}
+
+save_pairwise_heatmap <- function(
+  pairwise,
+  filename,
+  width = 6.5,
+  height = 9
+) {
+  if (nrow(pairwise) == 0) {
+    return(invisible(NULL))
+  }
+
+  sig_fams <- pairwise %>%
+    filter(!is.na(FDR), FDR < 0.05) %>%
+    pull(family) %>%
+    unique()
+  if (length(sig_fams) == 0) {
+    sig_fams <- pairwise %>%
+      group_by(family) %>%
+      summarise(min_fdr = min(FDR, na.rm = TRUE), .groups = "drop") %>%
+      arrange(min_fdr) %>%
+      head(40) %>%
+      pull(family)
+  }
+  if (length(sig_fams) == 0) {
+    return(invisible(NULL))
+  }
+
+  mat <- pairwise %>%
+    filter(family %in% sig_fams) %>%
+    select(family, comparison, log2FC) %>%
+    pivot_wider(names_from = comparison, values_from = log2FC) %>%
+    column_to_rownames("family") %>%
+    as.matrix()
+  mat[is.na(mat)] <- 0
+
+  finite_vals <- mat[is.finite(mat)]
+  if (any(is.infinite(mat))) {
+    max_abs <- max(abs(finite_vals), na.rm = TRUE)
+    mat[is.infinite(mat)] <- sign(mat[is.infinite(mat)]) * max_abs
+  }
+  if (max(abs(mat), na.rm = TRUE) == 0) {
+    return(invisible(NULL))
+  }
+  lim <- max(abs(mat), na.rm = TRUE)
+
+  ann_vals <- factor(
+    primary_module(rownames(mat)),
+    levels = names(MODULE_COLORS)
+  )
+  ann_row <- data.frame(
+    Module = ann_vals,
+    row.names = rownames(mat)
+  )
+
+  pheatmap(
+    mat,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_row = ann_row,
+    annotation_colors = list(Module = MODULE_COLORS),
+    color = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+    breaks = seq(-lim, lim, length.out = 101),
+    border_color = "grey85",
+    show_rownames = TRUE,
+    show_colnames = TRUE,
+    fontsize_row = 11,
+    fontsize_col = 12,
+    main = "Pairwise Log2FC (FDR-significant target families)",
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = 300
+  )
+}
+
+# ============================================================================
+# Orchestrators
+# ============================================================================
+restrict_to_targets <- function(dat, tfams) {
+  dat[, c("sample_id", "source", "Group", tfams), drop = FALSE]
+}
+
+run_mucin_outputs <- function(
+  prop_cov,
+  count_wide,
+  group_levels,
+  output_dir,
+  title_tag
+) {
+  dir.create(file.path(output_dir, "tables"), recursive = TRUE, showWarnings = FALSE)
+  tables_dir <- file.path(output_dir, "tables")
+
+  cat("\nTargeted module processing:", title_tag, "->", output_dir, "\n")
+
+  tfams <- target_families(prop_cov)
+  cat("  Target families available:", length(tfams), "\n")
+  missing <- setdiff(unique(unlist(MODULES)), tfams)
+  if (length(missing) > 0) {
+    cat("  Not found in data:", paste(missing, collapse = ", "), "\n")
+  }
+  if (length(tfams) == 0) {
+    cat("  No target families available. Skipping.\n")
+    return(invisible(NULL))
+  }
+
+  prop_r <- restrict_to_targets(prop_cov, tfams)
+  count_r <- restrict_to_targets(count_wide, intersect(tfams, colnames(count_wide)))
+
+  # --- module aggregate ---
+  mod_agg <- module_aggregate(prop_cov, count_wide)
+  mod_agg$Group <- factor(mod_agg$Group, levels = group_levels)
+  mod_group_sum <- module_group_summary(mod_agg)
+  mod_kw <- module_kw_stats(mod_agg)
+  write_results(
+    left_join(mod_group_sum, mod_kw, by = c("module_key", "module")),
+    file.path(tables_dir, "mucin_module_aggregate_summary.tsv")
+  )
+  write_results(
+    mod_agg,
+    file.path(tables_dir, "mucin_module_long.tsv")
+  )
+  save_figure(
+    plot_module_boxplots(
+      mod_agg,
+      group_levels,
+      paste(title_tag, "Targeted Module Degradation Potential")
+    ),
+    "figM1_mucin_module_boxplots",
+    output_dir,
+    width = 7,
+    height = 5.5
+  )
+
+  # --- CLR PCoA restricted to target families ---
+  beta <- run_beta(prop_r, group_levels)
+  write_results(
+    data.frame(
+      analysis = title_tag,
+      method = "Aitchison PCoA (CLR + Euclidean distance) on target families",
+      PERMANOVA_R2 = beta$r2,
+      PERMANOVA_P = beta$p,
+      Dispersion_P = beta$disp_p,
+      stringsAsFactors = FALSE
+    ),
+    file.path(tables_dir, "mucin_permanova_stats.tsv")
+  )
+  write_results(
+    beta$scores,
+    file.path(tables_dir, "mucin_aitchison_pcoa_scores.tsv")
+  )
+  save_figure(
+    plot_pcoa(beta, group_levels, paste(title_tag, "Targeted CAZyme Aitchison PCoA")),
+    "figM5_mucin_clr_pcoa",
+    output_dir,
+    width = 8,
+    height = 6
+  )
+
+  # --- family-level differential ---
+  prop_long <- make_long(prop_r, "proportion")
+  count_long <- make_long(count_r, "count")
+  diff_res <- differential_analysis(prop_long, count_r, group_levels)
+  diff_res$module <- module_annotation(diff_res$family)
+  diff_res$primary_module <- primary_module(diff_res$family)
+  cat("  Differential method:", attr(diff_res, "method"), "\n")
+  write_results(
+    diff_res,
+    file.path(tables_dir, "mucin_target_family_differential.tsv")
+  )
+  save_figure(
+    plot_volcano_module(
+      diff_res,
+      paste(title_tag, "Targeted CAZyme Differential Volcano")
+    ),
+    "figM2_mucin_family_volcano",
+    output_dir,
+    width = 8,
+    height = 6
+  )
+  save_figure(
+    plot_top_family_boxplots(prop_long, diff_res, group_levels),
+    "figM3_mucin_top_family_boxplots",
+    output_dir,
+    width = 10,
+    height = 7
+  )
+
+  # --- family summary + prevalence ---
+  fam_sum <- prop_long %>%
+    group_by(Group, family) %>%
+    summarise(
+      mean_prop = mean(proportion, na.rm = TRUE),
+      median_prop = median(proportion, na.rm = TRUE),
+      sd_prop = sd(proportion, na.rm = TRUE),
+      n_samples = n(),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      module = module_annotation(family),
+      primary_module = primary_module(family)
+    ) %>%
+    arrange(Group, primary_module, family)
+  write_results(
+    fam_sum,
+    file.path(tables_dir, "mucin_target_family_summary.tsv")
+  )
+
+  prev <- prevalence_summary(count_long, group_levels)
+  prev$module <- module_annotation(prev$family)
+  prev$primary_module <- primary_module(prev$family)
+  write_results(
+    prev,
+    file.path(tables_dir, "mucin_target_prevalence_summary.tsv")
+  )
+  plot_prevalence_heatmap_module(
+    prev,
+    group_levels,
+    file.path(output_dir, "figM4_mucin_prevalence_heatmap.png"),
+    width = 5,
+    height = 9
+  )
+
+  write_results(
+    prop_long,
+    file.path(tables_dir, "mucin_target_proportion_long.tsv")
+  )
+  write_results(
+    count_long,
+    file.path(tables_dir, "mucin_target_present_count_long.tsv")
+  )
+
+  cat("  Finished:", title_tag, "\n")
+}
+
+run_mucin_pairwise <- function(
+  prop_cov,
+  count_wide,
+  group_levels,
+  output_dir,
+  title_tag
+) {
+  dir.create(file.path(output_dir, "tables"), recursive = TRUE, showWarnings = FALSE)
+  tables_dir <- file.path(output_dir, "tables")
+
+  cat("\nTargeted pairwise processing:", title_tag, "->", output_dir, "\n")
+
+  tfams <- target_families(prop_cov)
+  if (length(tfams) == 0) {
+    cat("  No target families available. Skipping pairwise.\n")
+    return(invisible(NULL))
+  }
+
+  prop_r <- restrict_to_targets(prop_cov, tfams)
+  count_r <- restrict_to_targets(count_wide, intersect(tfams, colnames(count_wide)))
+  prop_long <- make_long(prop_r, "proportion")
+
+  pairwise <- pairwise_groups(prop_long, group_levels)
+  if (nrow(pairwise) > 0) {
+    pairwise$module <- module_annotation(pairwise$family)
+    pairwise$primary_module <- primary_module(pairwise$family)
+    write_results(
+      pairwise,
+      file.path(tables_dir, "mucin_family_pairwise_results.tsv")
+    )
+    write_pairwise_matrices(pairwise, tables_dir)
+
+    comparison_summary <- pairwise %>%
+      group_by(comparison, group1, group2, n1, n2) %>%
+      summarise(
+        n_families = n(),
+        n_significant_FDR_0.05 = sum(FDR < 0.05, na.rm = TRUE),
+        n_upregulated_in_group1 = sum(log2FC > 0 & FDR < 0.05, na.rm = TRUE),
+        n_downregulated_in_group1 = sum(log2FC < 0 & FDR < 0.05, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      arrange(comparison)
+    write_results(
+      comparison_summary,
+      file.path(tables_dir, "mucin_family_pairwise_comparison_summary.tsv")
+    )
+
+    save_pairwise_heatmap(
+      pairwise,
+      file.path(output_dir, "figS2_mucin_pairwise_differential_heatmap.png"),
+      width = 6.5,
+      height = 9
+    )
+
+    comparisons <- unique(pairwise$comparison)
+    for (cc in comparisons) {
+      cc_dat <- pairwise %>% filter(comparison == cc)
+      prefix <- paste0(
+        "figS1_mucin_pairwise_volcano_",
+        gsub("[^A-Za-z0-9_]+", "_", cc)
+      )
+      save_figure(
+        plot_volcano_module(
+          cc_dat,
+          paste(title_tag, "Targeted CAZyme Pairwise Volcano:", cc),
+          subtitle = "Wilcoxon rank-sum test with BH FDR; effect size = median1 - median2",
+          x_label = "Effect size (median group1 - median group2)"
+        ),
+        prefix,
+        output_dir,
+        width = 6,
+        height = 5.5
+      )
+    }
+  }
+
+  # --- module-level pairwise ---
+  mod_agg <- module_aggregate(prop_cov, count_wide)
+  mod_agg$Group <- factor(mod_agg$Group, levels = group_levels)
+  mod_pair <- module_pairwise(mod_agg)
+  if (nrow(mod_pair) > 0) {
+    write_results(
+      mod_pair,
+      file.path(tables_dir, "mucin_module_pairwise_results.tsv")
+    )
+  }
+
+  cat("  Finished pairwise:", title_tag, "\n")
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+cat("Reading Step 9 annotated CAZyme tables...\n")
+prop_cov_all <- read_annotated(PROP_COV_FILE)
+prop_len_cov_all <- read_annotated(PROP_LEN_COV_FILE)
+score_cov_all <- read_annotated(SCORE_COV_FILE)
+score_len_cov_all <- read_annotated(SCORE_LEN_COV_FILE)
+count_all <- read_annotated(COUNT_FILE)
+
+cat("Target families requested per module:\n")
+for (.m in names(MODULES)) {
+  cat("  ", MODULE_LABELS[[.m]], " (", .m, "): ",
+      length(MODULES[[.m]]), " families\n", sep = "")
+}
+
+if (!dir.exists(OUTPUT_DIR)) {
+  dir.create(OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(FOUR_GROUP_OUTPUT_DIR)) {
+  dir.create(FOUR_GROUP_OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(PAIRWISE_OUTPUT_DIR)) {
+  dir.create(PAIRWISE_OUTPUT_DIR, recursive = TRUE)
+}
+if (!dir.exists(PAIRWISE_FOUR_OUTPUT_DIR)) {
+  dir.create(PAIRWISE_FOUR_OUTPUT_DIR, recursive = TRUE)
+}
+
+prop_cov_4 <- subset_group(prop_cov_all, FOUR_GROUP_LEVELS)
+count_4 <- subset_group(count_all, FOUR_GROUP_LEVELS)
+
+run_mucin_outputs(
+  prop_cov_all,
+  count_all,
+  GROUP_LEVELS,
+  OUTPUT_DIR,
+  "All groups"
+)
+
+run_mucin_outputs(
+  prop_cov_4,
+  count_4,
+  FOUR_GROUP_LEVELS,
+  FOUR_GROUP_OUTPUT_DIR,
+  "Follow-up groups"
+)
+
+run_mucin_pairwise(
+  prop_cov_all,
+  count_all,
+  GROUP_LEVELS,
+  PAIRWISE_OUTPUT_DIR,
+  "All groups"
+)
+
+run_mucin_pairwise(
+  prop_cov_4,
+  count_4,
+  FOUR_GROUP_LEVELS,
+  PAIRWISE_FOUR_OUTPUT_DIR,
+  "Follow-up groups"
+)
+
+cat("\n==============================================================\n")
+cat(" Targeted module (mucin/chitin/plant) analysis complete\n")
+cat(" Main output:", OUTPUT_DIR, "\n")
+cat(" Follow-up output:", FOUR_GROUP_OUTPUT_DIR, "\n")
+cat(" Pairwise output:", PAIRWISE_OUTPUT_DIR, "\n")
+cat("==============================================================\n")
 ```
 
 ## 5.3 Results
@@ -776,44 +4897,25 @@ strongest raw-p hit but does not survive FDR correction.
 
 ## 5.5 Interpretation
 
-1. **No mucin / glycan module differs significantly between the four adenoma
-   follow-up groups.** The mucin-degradation capacity of the gut microbiome
-   (core and extended modules) is stable across recurrence status and sampling
-   time.
-2. The plant-polysaccharide module shows the strongest (still
-   non-significant) trend (p = 0.178), driven mainly by GH26 (xylan/glucan
-   backbone) — consistent with the dbCAN3 per-family result.
-3. The module-level approach reduces the multiple-testing burden from ~300
-   families to 4 tests, but the effect sizes are simply too small to reach
-   significance at n = 236.
-
+1. **No mucin / glycan module is significant**; mucin-degradation capacity is
+   stable across recurrence status and sampling time.
+2. The strongest trend is plant polysaccharide degradation (p = 0.178), driven
+   mainly by GH26 and consistent with the dbCAN3 per-family result.
+3. Module-level testing reduces the burden from ~300 families to 4 tests, but
+   effect sizes are too small to reach significance at n = 236.
 # 6. Overall interpretation
 
-1. **All three phenotype-prediction tools agree: the predicted microbial
-   phenotypes of the gut microbiome do not differ significantly between the
-   four adenoma follow-up groups** (Recurrence_1/2 vs Non_recurrence_1/2).
-   This holds for classical phenotypes (Traitar), life-history traits
-   (microTrait) and CAZyme families (dbCAN3), and for both per-feature tests
-   (Kruskal-Wallis + BH) and multivariate tests (PERMANOVA).
-
-2. **The strongest raw-p candidates are biologically coherent but not
-   significant.** Across tools they point to carbohydrate metabolism —
-   polysaccharide transport (microTrait, p = 0.0115), CBM27/GH26/GH125 (dbCAN3,
-   p = 0.004–0.010), trehalose utilization (Traitar) — and the plant-
-   polysaccharide module (p = 0.178). These are hypothesis-generating leads,
-   not confirmations.
-
-3. **Multivariate structure is absent.** PERMANOVA R² ≈ 0.012–0.015 with
-   P = 0.20–0.55 across all three tools and both group sets; betadisper is
-   non-significant except for the 6-group Traitar comparison (P = 0.043, a
-   dispersion rather than location effect). The groups occupy the same
-   multivariate space.
-
-4. **Implications.** At n = 236 (4-group) the cohort is underpowered to detect
-   per-feature differences after correction for 60–300 tests. The targeted
-   module approach (4–7 tests) is the right scale and shows the expected
-   direction (plant/mucin glycan degradation slightly higher in
-   Non_recurrence) without reaching significance. Next steps: (i) increase
-   sample size; (ii) focus on pre-specified modules; (iii) integrate with the
-   paired delta analysis (see the delta report), which uses the same tools on
-   within-individual changes.
+1. **All three phenotype-prediction tools agree: no predicted phenotype differs
+   significantly between the four adenoma follow-up groups** in per-feature or
+   multivariate tests.
+2. **Top raw-p candidates are biologically coherent but not significant.** They
+   point to carbohydrate metabolism, polysaccharide transport, and plant/mucin
+   glycan degradation, but remain hypothesis-generating leads.
+3. **Multivariate separation is absent.** PERMANOVA R2 is about 0.012-0.015
+   with P = 0.20-0.55; betadisper is non-significant except for 6-group Traitar
+   (P = 0.043, a dispersion rather than location effect).
+4. **Implications.** At n = 236 (4-group) the cohort is underpowered after
+   correction for 60-300 tests. The targeted module approach is the right scale
+   and shows the expected direction without reaching significance. Next steps:
+   increase sample size, focus on pre-specified modules, and integrate with the
+   paired delta analysis.
