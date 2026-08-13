@@ -1,3 +1,5 @@
+import { PASSWORD, COOKIE_NAME, COOKIE_VALUE } from './_auth.js';
+
 export async function onRequestPost(context) {
   const { request } = context;
   const url = new URL(request.url);
@@ -7,7 +9,6 @@ export async function onRequestPost(context) {
     return new Response('Bad request', { status: 400 });
   }
 
-  const PASSWORD = 'yanglun';
   const password = form.get('password') || '';
   let next = form.get('next') || '/myfiles/targetc/TargetC-phenotypes-analysis-260814.html';
 
@@ -24,8 +25,6 @@ export async function onRequestPost(context) {
     });
   }
 
-  const COOKIE_NAME = 'targetc_auth';
-  const COOKIE_VALUE = btoa(PASSWORD);
   return new Response(null, {
     status: 302,
     headers: {

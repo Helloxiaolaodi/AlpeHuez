@@ -1,3 +1,5 @@
+import { COOKIE_NAME, COOKIE_VALUE } from './_auth.js';
+
 export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
@@ -8,8 +10,6 @@ export async function onRequest(context) {
     return next();
   }
 
-  const COOKIE_NAME = 'targetc_auth';
-  const COOKIE_VALUE = btoa('yanglun');
   const cookieHeader = request.headers.get('Cookie') || '';
   const authed = cookieHeader
     .split(';')
