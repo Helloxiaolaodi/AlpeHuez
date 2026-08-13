@@ -616,6 +616,8 @@
         const engineBtn = document.getElementById('engineBtn');
         const engineLabel = document.getElementById('engineLabel');
         const engineMenu = document.getElementById('engineMenu');
+        // 移出 .search-container：其 backdrop-filter 会劫持 fixed 定位、mask-image 会裁剪菜单
+        document.body.appendChild(engineMenu);
         let activeEngine = localStorage.getItem('nav_engine') || 'google';
         if (!ENGINES[activeEngine]) activeEngine = 'google';
         engineLabel.textContent = ENGINES[activeEngine].label;
@@ -676,6 +678,7 @@
         ];
         const commandMenu = document.getElementById('commandMenu');
         const commandList = document.getElementById('commandList');
+        document.body.appendChild(commandMenu);
         let commandIndex = 0;
         let filteredCommands = [];
 
