@@ -96,6 +96,20 @@
           </a>`;
         }).join('') + `</div>`
       : '';
+
+    // Open in Explorer button handler
+    const openExplorerBtn = document.getElementById('openExplorerBtn');
+    if (openExplorerBtn) {
+      openExplorerBtn.addEventListener('click', () => {
+        const localPath = 'file:///D:/YL2026/sun-panel/my-nav/my-nav/myfiles/';
+        try {
+          window.open(localPath, '_blank');
+        } catch (e) {
+          console.error('Failed to open Explorer:', e);
+          alert('Local path: D:\\YL2026\\sun-panel\\my-nav\\my-nav\\myfiles\\');
+        }
+      });
+    }
   }
 
   if (document.readyState === 'loading') {

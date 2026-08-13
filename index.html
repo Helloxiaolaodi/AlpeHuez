@@ -230,18 +230,44 @@
         html[data-theme="gradient"] .engine-trigger:hover { background: rgba(0, 135, 235, 0.16); }
         html[data-theme="space"] .engine-trigger { color: #a5b4fc; background: rgba(255, 255, 255, 0.08); }
         html[data-theme="space"] .engine-trigger:hover { background: rgba(255, 255, 255, 0.16); }
-        .engine-option { transition: background-color 0.12s ease; }
-        html[data-theme="gradient"] .engine-option { color: #374151; }
-        html[data-theme="gradient"] .engine-option:hover { background: rgba(0, 135, 235, 0.08); color: #0087EB; }
-        html[data-theme="space"] .engine-option { color: #e2e8f0; }
-        html[data-theme="space"] .engine-option:hover { background: rgba(255, 255, 255, 0.1); color: #a5b4fc; }
-        .command-option { display: block; cursor: pointer; transition: background-color 0.12s ease; }
-        .command-option .command-name { font-size: 13px; font-weight: 600; }
-        .command-option .command-desc { font-size: 11px; opacity: 0.7; margin-top: 1px; }
-        html[data-theme="gradient"] .command-option { color: #374151; }
-        html[data-theme="gradient"] .command-option:hover, html[data-theme="gradient"] .command-option.active { background: rgba(0, 135, 235, 0.08); color: #0087EB; }
-        html[data-theme="space"] .command-option { color: #e2e8f0; }
-        html[data-theme="space"] .command-option:hover, html[data-theme="space"] .command-option.active { background: rgba(255, 255, 255, 0.1); color: #a5b4fc; }
+
+        /* dropdown panels: fine light border + deep soft shadow so they float above the page */
+        .menu-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+        }
+        html[data-theme="space"] .menu-panel { background: rgba(30, 41, 59, 0.92); border-color: rgba(255, 255, 255, 0.1); }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            text-align: left;
+            padding: 9px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.12s ease;
+        }
+        html[data-theme="gradient"] .menu-item { color: #111827; }
+        html[data-theme="gradient"] .menu-item:hover, html[data-theme="gradient"] .menu-item.active { background: rgba(0, 135, 235, 0.1); }
+        html[data-theme="space"] .menu-item { color: #f1f5f9; }
+        html[data-theme="space"] .menu-item:hover, html[data-theme="space"] .menu-item.active { background: rgba(255, 255, 255, 0.1); }
+
+        .menu-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .menu-icon svg { width: 18px; height: 18px; }
+
+        .command-text { flex: 1; min-width: 0; }
+        .command-name { display: block; font-size: 13px; font-weight: 600; color: #111827; }
+        .command-desc { display: block; font-size: 11px; color: #6b7280; margin-top: 1px; }
+        html[data-theme="space"] .command-name { color: #f1f5f9; }
+        html[data-theme="space"] .command-desc { color: #94a3b8; }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -337,12 +363,25 @@
                     <span id="engineLabel">Google</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                 </button>
-                <div id="engineMenu" class="hidden fixed glass-card rounded-xl shadow-xl z-50 overflow-hidden py-1" style="width:150px">
-                    <button type="button" data-engine="google" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">Google</button>
-                    <button type="button" data-engine="bing" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">Bing</button>
-                    <button type="button" data-engine="github" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">GitHub</button>
+                <div id="engineMenu" class="menu-panel hidden fixed z-50">
+                    <button type="button" data-engine="google" class="menu-item engine-option">
+                        <span class="menu-icon"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg></span>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" data-engine="bing" class="menu-item engine-option">
+                        <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                        <span>Bing</span>
+                    </button>
+                    <button type="button" data-engine="github" class="menu-item engine-option">
+                        <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></span>
+                        <span>GitHub</span>
+                    </button>
+                    <button type="button" data-engine="myfiles" class="menu-item engine-option">
+                        <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>
+                        <span>My Files</span>
+                    </button>
                 </div>
-                <div id="commandMenu" class="hidden fixed glass-card rounded-xl shadow-xl z-50 overflow-hidden py-1" style="min-width:280px">
+                <div id="commandMenu" class="menu-panel hidden fixed z-50">
                     <div id="commandList"></div>
                 </div>
                 <input type="text" id="searchInput" placeholder="Search or type / for commands..." class="w-full search-input rounded-xl py-3.5 pl-40 pr-16 transition-all text-[15px]">
@@ -612,6 +651,7 @@
             google: { label: 'Google', url: 'https://www.google.com/search?q=' },
             bing: { label: 'Bing', url: 'https://www.bing.com/search?q=' },
             github: { label: 'GitHub', url: 'https://github.com/search?q=' },
+            myfiles: { label: 'My Files', url: '/myfiles/' },
         };
         const engineBtn = document.getElementById('engineBtn');
         const engineLabel = document.getElementById('engineLabel');
@@ -623,9 +663,10 @@
         engineLabel.textContent = ENGINES[activeEngine].label;
 
         function positionEngineMenu() {
-            const rect = engineBtn.getBoundingClientRect();
+            const rect = document.getElementById('searchInput').getBoundingClientRect();
             engineMenu.style.left = rect.left + 'px';
-            engineMenu.style.top = (rect.bottom + 6) + 'px';
+            engineMenu.style.top = (rect.bottom + 8) + 'px';
+            engineMenu.style.width = rect.width + 'px';
         }
 
         engineBtn.addEventListener('click', (event) => {
@@ -669,12 +710,21 @@
 
         // Slash commands: /light /dark /github /bing /google
         const searchInput = document.getElementById('searchInput');
+        const ICONS = {
+            sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+            moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+            files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+            github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
+            search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+            google: '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>',
+        };
         const COMMANDS = [
-            { match: 'light', label: 'Light mode · 浅色模式', desc: '切换到浅色主题', theme: 'gradient' },
-            { match: 'dark', label: 'Dark mode · 深色模式', desc: '切换到深色主题', theme: 'space' },
-            { match: 'github', label: 'GitHub', desc: '前往 GitHub 官网', url: 'https://github.com' },
-            { match: 'bing', label: 'Bing', desc: '前往 Bing 搜索', url: 'https://www.bing.com' },
-            { match: 'google', label: 'Google', desc: '前往 Google 搜索', url: 'https://www.google.com' },
+            { match: 'light', label: 'Light mode · 浅色模式', desc: '切换到浅色主题', theme: 'gradient', icon: ICONS.sun },
+            { match: 'dark', label: 'Dark mode · 深色模式', desc: '切换到深色主题', theme: 'space', icon: ICONS.moon },
+            { match: 'myfiles', label: 'My Files', desc: '打开文件共享页面', url: '/myfiles/', icon: ICONS.files },
+            { match: 'github', label: 'GitHub', desc: '前往 GitHub 官网', url: 'https://github.com', icon: ICONS.github },
+            { match: 'bing', label: 'Bing', desc: '前往 Bing 搜索', url: 'https://www.bing.com', icon: ICONS.search },
+            { match: 'google', label: 'Google', desc: '前往 Google 搜索', url: 'https://www.google.com', icon: ICONS.google },
         ];
         const commandMenu = document.getElementById('commandMenu');
         const commandList = document.getElementById('commandList');
@@ -695,8 +745,8 @@
         function positionCommandMenu() {
             const rect = searchInput.getBoundingClientRect();
             commandMenu.style.left = rect.left + 'px';
-            commandMenu.style.top = (rect.bottom + 6) + 'px';
-            commandMenu.style.width = Math.min(rect.width, 420) + 'px';
+            commandMenu.style.top = (rect.bottom + 8) + 'px';
+            commandMenu.style.width = rect.width + 'px';
         }
 
         function renderCommands() {
@@ -706,9 +756,12 @@
                 : COMMANDS.slice();
             if (commandIndex >= filteredCommands.length) commandIndex = 0;
             commandList.innerHTML = filteredCommands.map((c, i) => `
-                <button type="button" data-command="${i}" class="command-option w-full text-left px-3.5 py-2 ${i === commandIndex ? 'active' : ''}">
-                    <div class="command-name">${c.label}</div>
-                    <div class="command-desc">${c.desc}</div>
+                <button type="button" data-command="${i}" class="menu-item command-option ${i === commandIndex ? 'active' : ''}">
+                    <span class="menu-icon">${c.icon}</span>
+                    <span class="command-text">
+                        <span class="command-name">${c.label}</span>
+                        <span class="command-desc">${c.desc}</span>
+                    </span>
                 </button>
             `).join('');
             commandMenu.classList.toggle('hidden', filteredCommands.length === 0);
@@ -764,6 +817,10 @@
                 return;
             }
             if (event.key === 'Enter') {
+                if (activeEngine === 'myfiles') {
+                    window.location.href = '/myfiles/';
+                    return;
+                }
                 const q = event.target.value.trim();
                 if (q) {
                     window.open(ENGINES[activeEngine].url + encodeURIComponent(q), '_blank');
