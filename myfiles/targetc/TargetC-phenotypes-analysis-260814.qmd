@@ -9,6 +9,8 @@ format:
     theme: cosmo
     code-fold: true
     lightbox: true
+    include-after-body:
+      - file: source-download.html
     embed-resources: false
 execute:
   warning: false
@@ -69,6 +71,7 @@ visualisation framework is reused.
   when installed, with Kruskal-Wallis + BH fallback.
 - **Targeted mucin modules**: curated CAZyme families collapsed into four
   biologically-motivated modules.
+
 # 2. Traitar
 
 ## 2.1 Overview
@@ -81,6 +84,7 @@ groups and the 4-group adenoma follow-up subset.
 padj = 0.652); largest effect is Trehalose utilization (0.088); PERMANOVA
 shows no separation (4-group R2 = 0.012, P = 0.523; 6-group R2 = 0.013,
 P = 0.448).
+
 ## 2.2 Script
 
 **Script:** targetc_traitar_plot_02.R
@@ -1043,6 +1047,7 @@ y = −log10 adjusted p). No trait crosses the FDR < 0.05 threshold.
 2. Effect sizes are small (0.08-0.09) and directionally inconsistent.
 3. The only marginal signal is 6-group betadisper (P = 0.043), a dispersion
    effect driven by CRC, not a location shift.
+
 # 3. microTrait
 
 ## 3.1 Overview
@@ -1055,6 +1060,7 @@ proportions are used for multivariate analysis.
 best raw p = 0.0115 for polysaccharide transport); largest effect size
 (protein degradation, 5939.6) is coverage-driven; PERMANOVA shows no
 separation (4-group R2 = 0.014, P = 0.266; 6-group R2 = 0.015, P = 0.201).
+
 ## 3.2 Script
 
 **Script:** targetc_micotrait_plot.R
@@ -2035,6 +2041,7 @@ Kruskal-Wallis labels. None are significant.
    correction.
 3. Large effect sizes are coverage-driven and not supported by statistical
    tests.
+
 # 4. dbCAN3
 
 ## 4.1 Overview
@@ -2046,6 +2053,7 @@ clinical groups and the 4-group adenoma subset (n = 236).
 **Key results (4-group subset):** no family survives BH-FDR (all FDR = 0.955;
 best raw p = 0.0040 for CBM27); PERMANOVA shows no separation (R2 = 0.0124,
 P = 0.545).
+
 ## 4.2 Script
 
 **Script:** targetc_dbcan3_plot_02.R
@@ -3535,6 +3543,7 @@ The four groups track each other closely across all families.
    cellulose degradation, but none survive correction.
 3. Including Normal and CRC gives the same null multivariate result
    (R2 = 0.0127, P = 0.597).
+
 # 5. dbCAN3 mucin modules
 
 ## 5.1 Overview
@@ -3553,6 +3562,7 @@ mucin / glycan modules:
 chitin p = 0.396, mucin_ext p = 0.671, mucin_core p = 0.676); PERMANOVA
 R2 = 0.0124, P = 0.503; strongest family hit is GH26 (p = 0.0104,
 FDR = 0.418).
+
 ## 5.2 Script
 
 **Script:** targetc_dbcan3_mucin_modules.R
@@ -4903,6 +4913,7 @@ strongest raw-p hit but does not survive FDR correction.
    mainly by GH26 and consistent with the dbCAN3 per-family result.
 3. Module-level testing reduces the burden from ~300 families to 4 tests, but
    effect sizes are too small to reach significance at n = 236.
+
 # 6. Overall interpretation
 
 1. **All three phenotype-prediction tools agree: no predicted phenotype differs

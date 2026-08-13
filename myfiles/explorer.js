@@ -130,7 +130,7 @@
               ? `<a href="${href}" class="row-main" download>`
               : `<a href="${href}" class="row-main">`;
             const sourceButton = source
-              ? `<button type="button" class="source-btn" data-source-menu="${escapeHtml(menuId)}" aria-expanded="false" aria-controls="${escapeHtml(menuId)}">Source</button>`
+              ? `<button type="button" class="source-btn" data-source-menu="${escapeHtml(menuId)}" aria-expanded="false" aria-controls="${escapeHtml(menuId)}">Download</button>`
               : '';
             const sourceMenu = source
               ? `<div class="source-menu" id="${escapeHtml(menuId)}" hidden>

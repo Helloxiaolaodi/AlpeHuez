@@ -94,23 +94,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#study-design" id="toc-study-design" class="nav-link" data-scroll-target="#study-design">1.1 Study design</a></li>
   <li><a href="#phenotype-prediction-tools" id="toc-phenotype-prediction-tools" class="nav-link" data-scroll-target="#phenotype-prediction-tools">1.2 Phenotype-prediction tools</a></li>
   <li><a href="#statistical-methods" id="toc-statistical-methods" class="nav-link" data-scroll-target="#statistical-methods">1.3 Statistical methods</a></li>
+  </ul></li>
+  <li><a href="#traitar" id="toc-traitar" class="nav-link" data-scroll-target="#traitar">2. Traitar</a>
+  <ul class="collapse">
   <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">2.1 Overview</a></li>
+  <li><a href="#script" id="toc-script" class="nav-link" data-scroll-target="#script">2.2 Script</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">2.3 Results</a></li>
   <li><a href="#figures" id="toc-figures" class="nav-link" data-scroll-target="#figures">2.4 Figures</a></li>
   <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">2.5 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#microtrait" id="toc-microtrait" class="nav-link" data-scroll-target="#microtrait">3. microTrait</a>
+  <ul class="collapse">
   <li><a href="#overview-1" id="toc-overview-1" class="nav-link" data-scroll-target="#overview-1">3.1 Overview</a></li>
+  <li><a href="#script-1" id="toc-script-1" class="nav-link" data-scroll-target="#script-1">3.2 Script</a></li>
   <li><a href="#results-1" id="toc-results-1" class="nav-link" data-scroll-target="#results-1">3.3 Results</a></li>
   <li><a href="#figures-1" id="toc-figures-1" class="nav-link" data-scroll-target="#figures-1">3.4 Figures</a></li>
   <li><a href="#interpretation-1" id="toc-interpretation-1" class="nav-link" data-scroll-target="#interpretation-1">3.5 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#dbcan3" id="toc-dbcan3" class="nav-link" data-scroll-target="#dbcan3">4. dbCAN3</a>
+  <ul class="collapse">
   <li><a href="#overview-2" id="toc-overview-2" class="nav-link" data-scroll-target="#overview-2">4.1 Overview</a></li>
+  <li><a href="#script-2" id="toc-script-2" class="nav-link" data-scroll-target="#script-2">4.2 Script</a></li>
   <li><a href="#results-2" id="toc-results-2" class="nav-link" data-scroll-target="#results-2">4.3 Results</a></li>
   <li><a href="#figures-2" id="toc-figures-2" class="nav-link" data-scroll-target="#figures-2">4.4 Figures</a></li>
   <li><a href="#interpretation-2" id="toc-interpretation-2" class="nav-link" data-scroll-target="#interpretation-2">4.5 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#dbcan3-mucin-modules" id="toc-dbcan3-mucin-modules" class="nav-link" data-scroll-target="#dbcan3-mucin-modules">5. dbCAN3 mucin modules</a>
+  <ul class="collapse">
   <li><a href="#overview-3" id="toc-overview-3" class="nav-link" data-scroll-target="#overview-3">5.1 Overview</a></li>
+  <li><a href="#script-3" id="toc-script-3" class="nav-link" data-scroll-target="#script-3">5.2 Script</a></li>
   <li><a href="#results-3" id="toc-results-3" class="nav-link" data-scroll-target="#results-3">5.3 Results</a></li>
   <li><a href="#figures-3" id="toc-figures-3" class="nav-link" data-scroll-target="#figures-3">5.4 Figures</a></li>
   <li><a href="#interpretation-3" id="toc-interpretation-3" class="nav-link" data-scroll-target="#interpretation-3">5.5 Interpretation</a></li>
   </ul></li>
+  <li><a href="#overall-interpretation" id="toc-overall-interpretation" class="nav-link" data-scroll-target="#overall-interpretation">6. Overall interpretation</a></li>
   </ul>
 </nav>
 </div>
@@ -237,13 +254,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Kruskal-Wallis global test</strong> (not pairwise Wilcoxon) for 6-group and 4-group comparisons, with BH-FDR correction.</li>
 <li><strong>Effect sizes</strong>: max - min group median (or mean) per trait.</li>
 <li><strong>dbCAN3</strong>: ALDEx2 Monte Carlo CLR (128 Dirichlet samples, Kruskal-Wallis) when installed, with Kruskal-Wallis + BH fallback.</li>
-<li><strong>Targeted mucin modules</strong>: curated CAZyme families collapsed into four biologically-motivated modules. # 2. Traitar</li>
+<li><strong>Targeted mucin modules</strong>: curated CAZyme families collapsed into four biologically-motivated modules.</li>
 </ul>
 </section>
+</section>
+<section id="traitar" class="level1">
+<h1>2. Traitar</h1>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">2.1 Overview</h2>
 <p>Traitar predicts 67 classical microbial phenotypes from MAGs. Per-sample trait proportion and coverage-weighted prevalence are compared across the 6 clinical groups and the 4-group adenoma follow-up subset.</p>
-<p><strong>Key results (4-group subset):</strong> no trait survives BH-FDR (best p = 0.0099, padj = 0.652); largest effect is Trehalose utilization (0.088); PERMANOVA shows no separation (4-group R2 = 0.012, P = 0.523; 6-group R2 = 0.013, P = 0.448). ## 2.2 Script</p>
+<p><strong>Key results (4-group subset):</strong> no trait survives BH-FDR (best p = 0.0099, padj = 0.652); largest effect is Trehalose utilization (0.088); PERMANOVA shows no separation (4-group R2 = 0.012, P = 0.523; 6-group R2 = 0.013, P = 0.448).</p>
+</section>
+<section id="script" class="level2">
+<h2 class="anchored" data-anchor-id="script">2.2 Script</h2>
 <p><strong>Script:</strong> targetc_traitar_plot_02.R</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env Rscript</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
@@ -1281,13 +1304,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li><strong>No Traitar phenotype is significant</strong> after BH-FDR; the predicted classical phenotypes are stable across recurrence status and sampling time.</li>
 <li>Effect sizes are small (0.08-0.09) and directionally inconsistent.</li>
-<li>The only marginal signal is 6-group betadisper (P = 0.043), a dispersion effect driven by CRC, not a location shift. # 3. microTrait</li>
+<li>The only marginal signal is 6-group betadisper (P = 0.043), a dispersion effect driven by CRC, not a location shift.</li>
 </ol>
 </section>
+</section>
+<section id="microtrait" class="level1">
+<h1>3. microTrait</h1>
 <section id="overview-1" class="level2">
 <h2 class="anchored" data-anchor-id="overview-1">3.1 Overview</h2>
 <p>microTrait predicts hierarchical life-history traits from MAGs. Coverage-weighted scores are used for per-trait tests; compositional proportions are used for multivariate analysis.</p>
-<p><strong>Key results (4-group subset):</strong> no trait survives BH-FDR (all padj = 0.357; best raw p = 0.0115 for polysaccharide transport); largest effect size (protein degradation, 5939.6) is coverage-driven; PERMANOVA shows no separation (4-group R2 = 0.014, P = 0.266; 6-group R2 = 0.015, P = 0.201). ## 3.2 Script</p>
+<p><strong>Key results (4-group subset):</strong> no trait survives BH-FDR (all padj = 0.357; best raw p = 0.0115 for polysaccharide transport); largest effect size (protein degradation, 5939.6) is coverage-driven; PERMANOVA shows no separation (4-group R2 = 0.014, P = 0.266; 6-group R2 = 0.015, P = 0.201).</p>
+</section>
+<section id="script-1" class="level2">
+<h2 class="anchored" data-anchor-id="script-1">3.2 Script</h2>
 <p><strong>Script:</strong> targetc_micotrait_plot.R</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env Rscript</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
@@ -2379,13 +2408,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li><strong>No microTrait trait is significant</strong> after BH-FDR; predicted life-history traits are stable across recurrence status and sampling time.</li>
 <li>Top raw-p traits are substrate-uptake and energy traits, but none survive correction.</li>
-<li>Large effect sizes are coverage-driven and not supported by statistical tests. # 4. dbCAN3</li>
+<li>Large effect sizes are coverage-driven and not supported by statistical tests.</li>
 </ol>
 </section>
+</section>
+<section id="dbcan3" class="level1">
+<h1>4. dbCAN3</h1>
 <section id="overview-2" class="level2">
 <h2 class="anchored" data-anchor-id="overview-2">4.1 Overview</h2>
 <p>dbCAN3 annotates CAZyme families from MAGs (GH, GT, PL, CE, AA, CBM). Per-sample proportions and coverage-weighted scores are compared across the 6 clinical groups and the 4-group adenoma subset (n = 236).</p>
-<p><strong>Key results (4-group subset):</strong> no family survives BH-FDR (all FDR = 0.955; best raw p = 0.0040 for CBM27); PERMANOVA shows no separation (R2 = 0.0124, P = 0.545). ## 4.2 Script</p>
+<p><strong>Key results (4-group subset):</strong> no family survives BH-FDR (all FDR = 0.955; best raw p = 0.0040 for CBM27); PERMANOVA shows no separation (R2 = 0.0124, P = 0.545).</p>
+</section>
+<section id="script-2" class="level2">
+<h2 class="anchored" data-anchor-id="script-2">4.2 Script</h2>
 <p><strong>Script:</strong> targetc_dbcan3_plot_02.R</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env Rscript</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
@@ -3887,9 +3922,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li><strong>No CAZyme family is significant</strong> after FDR; the carbohydrate-active repertoire is stable across recurrence status and sampling time.</li>
 <li>Top raw-p hits are CBM and GH families involved in hemicellulose, xylan and cellulose degradation, but none survive correction.</li>
-<li>Including Normal and CRC gives the same null multivariate result (R2 = 0.0127, P = 0.597). # 5. dbCAN3 mucin modules</li>
+<li>Including Normal and CRC gives the same null multivariate result (R2 = 0.0127, P = 0.597).</li>
 </ol>
 </section>
+</section>
+<section id="dbcan3-mucin-modules" class="level1">
+<h1>5. dbCAN3 mucin modules</h1>
 <section id="overview-3" class="level2">
 <h2 class="anchored" data-anchor-id="overview-3">5.1 Overview</h2>
 <p>To reduce multiple testing, curated CAZyme families are collapsed into four mucin / glycan modules:</p>
@@ -3929,7 +3967,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p><strong>Key results (4-group subset):</strong> no module is significant (plant p = 0.178, chitin p = 0.396, mucin_ext p = 0.671, mucin_core p = 0.676); PERMANOVA R2 = 0.0124, P = 0.503; strongest family hit is GH26 (p = 0.0104, FDR = 0.418). ## 5.2 Script</p>
+<p><strong>Key results (4-group subset):</strong> no module is significant (plant p = 0.178, chitin p = 0.396, mucin_ext p = 0.671, mucin_core p = 0.676); PERMANOVA R2 = 0.0124, P = 0.503; strongest family hit is GH26 (p = 0.0104, FDR = 0.418).</p>
+</section>
+<section id="script-3" class="level2">
+<h2 class="anchored" data-anchor-id="script-3">5.2 Script</h2>
 <p><strong>Script:</strong> targetc_dbcan3_mucin_modules.R</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env Rscript</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
@@ -5272,15 +5313,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="interpretation-3" class="level2">
 <h2 class="anchored" data-anchor-id="interpretation-3">5.5 Interpretation</h2>
 <ol type="1">
-<li><p><strong>No mucin / glycan module is significant</strong>; mucin-degradation capacity is stable across recurrence status and sampling time.</p></li>
-<li><p>The strongest trend is plant polysaccharide degradation (p = 0.178), driven mainly by GH26 and consistent with the dbCAN3 per-family result.</p></li>
-<li><p>Module-level testing reduces the burden from ~300 families to 4 tests, but effect sizes are too small to reach significance at n = 236. # 6. Overall interpretation</p></li>
-<li><p><strong>All three phenotype-prediction tools agree: no predicted phenotype differs significantly between the four adenoma follow-up groups</strong> in per-feature or multivariate tests.</p></li>
-<li><p><strong>Top raw-p candidates are biologically coherent but not significant.</strong> They point to carbohydrate metabolism, polysaccharide transport, and plant/mucin glycan degradation, but remain hypothesis-generating leads.</p></li>
-<li><p><strong>Multivariate separation is absent.</strong> PERMANOVA R2 is about 0.012-0.015 with P = 0.20-0.55; betadisper is non-significant except for 6-group Traitar (P = 0.043, a dispersion rather than location effect).</p></li>
-<li><p><strong>Implications.</strong> At n = 236 (4-group) the cohort is underpowered after correction for 60-300 tests. The targeted module approach is the right scale and shows the expected direction without reaching significance. Next steps: increase sample size, focus on pre-specified modules, and integrate with the paired delta analysis.</p></li>
+<li><strong>No mucin / glycan module is significant</strong>; mucin-degradation capacity is stable across recurrence status and sampling time.</li>
+<li>The strongest trend is plant polysaccharide degradation (p = 0.178), driven mainly by GH26 and consistent with the dbCAN3 per-family result.</li>
+<li>Module-level testing reduces the burden from ~300 families to 4 tests, but effect sizes are too small to reach significance at n = 236.</li>
 </ol>
 </section>
+</section>
+<section id="overall-interpretation" class="level1">
+<h1>6. Overall interpretation</h1>
+<ol type="1">
+<li><strong>All three phenotype-prediction tools agree: no predicted phenotype differs significantly between the four adenoma follow-up groups</strong> in per-feature or multivariate tests.</li>
+<li><strong>Top raw-p candidates are biologically coherent but not significant.</strong> They point to carbohydrate metabolism, polysaccharide transport, and plant/mucin glycan degradation, but remain hypothesis-generating leads.</li>
+<li><strong>Multivariate separation is absent.</strong> PERMANOVA R2 is about 0.012-0.015 with P = 0.20-0.55; betadisper is non-significant except for 6-group Traitar (P = 0.043, a dispersion rather than location effect).</li>
+<li><strong>Implications.</strong> At n = 236 (4-group) the cohort is underpowered after correction for 60-300 tests. The targeted module approach is the right scale and shows the expected direction without reaching significance. Next steps: increase sample size, focus on pre-specified modules, and integrate with the paired delta analysis.</li>
+</ol>
 </section>
 
 </main>
@@ -5686,6 +5732,130 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   });
   </script>
 </div> <!-- /content -->
+<style>
+  .tc-download-wrap {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .tc-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    background: #fff;
+    color: #4338ca;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  }
+  .tc-download-btn:hover,
+  .tc-download-btn[aria-expanded="true"] {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+  }
+  .tc-download-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .tc-download-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    min-width: 224px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+  }
+  .tc-download-menu[hidden] {
+    display: none;
+  }
+  .tc-download-menu a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    color: #334155;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .tc-download-menu a:hover {
+    background: #f1f5f9;
+    color: #4338ca;
+  }
+  @media (max-width: 640px) {
+    .tc-download-wrap {
+      right: 12px;
+      bottom: 12px;
+    }
+    .tc-download-menu {
+      min-width: 200px;
+    }
+  }
+</style>
+<div class="tc-download-wrap">
+  <button type="button" class="tc-download-btn" aria-expanded="false" aria-controls="tc-download-menu">
+    <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    Download
+  </button>
+  <div class="tc-download-menu" id="tc-download-menu" hidden="">
+    <a href="#" id="tc-download-qmd" download="">Download QMD</a>
+    <a href="#" id="tc-download-figures" download="">Download Figures ZIP</a>
+  </div>
+</div>
+<script>
+  (function () {
+    var qmdLink = document.getElementById('tc-download-qmd');
+    var figuresLink = document.getElementById('tc-download-figures');
+    if (qmdLink && figuresLink) {
+      var path = location.pathname.replace(/\.html?$/i, '').replace(/\/+$/, '');
+      qmdLink.href = path + '.qmd';
+      figuresLink.href = path + '-figures.zip';
+    }
+    var button = document.querySelector('.tc-download-btn');
+    var menu = document.getElementById('tc-download-menu');
+    function closeMenu() {
+      if (!menu) return;
+      menu.hidden = true;
+      if (button) button.setAttribute('aria-expanded', 'false');
+    }
+    if (button && menu) {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var open = button.getAttribute('aria-expanded') === 'true';
+        closeMenu();
+        if (!open) {
+          menu.hidden = false;
+          button.setAttribute('aria-expanded', 'true');
+        }
+      });
+      document.addEventListener('click', function (event) {
+        if (!event.target.closest('.tc-download-wrap')) closeMenu();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeMenu();
+      });
+    }
+  })();
+</script>
 
 
 

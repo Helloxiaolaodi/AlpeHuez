@@ -9,6 +9,8 @@ format:
     theme: cosmo
     code-fold: true
     lightbox: true
+    include-after-body:
+      - file: source-download.html
     embed-resources: false
 execute:
   warning: false
@@ -60,11 +62,13 @@ and the analysis compares **Recurrence-delta vs Non_recurrence-delta**
 - **Transition analysis** (pathcoverage): per pathway, gain (0->1) or loss
   (1->0) between T1 and T2 is compared between groups (Wilcoxon + Fisher's
   exact test).
+
 # 2. Script
 
 The pipeline is run by `run-targetc-delta.sh`, which calls
 `targetc_delta_analysis.R` for statistics and `targetc_delta_plot.R` for
 figures.
+
 ## 2.1 run-targetc-delta.sh
 
 **Script:** run-targetc-delta.sh
