@@ -235,6 +235,13 @@
         html[data-theme="gradient"] .engine-option:hover { background: rgba(0, 135, 235, 0.08); color: #0087EB; }
         html[data-theme="space"] .engine-option { color: #e2e8f0; }
         html[data-theme="space"] .engine-option:hover { background: rgba(255, 255, 255, 0.1); color: #a5b4fc; }
+        .command-option { display: block; cursor: pointer; transition: background-color 0.12s ease; }
+        .command-option .command-name { font-size: 13px; font-weight: 600; }
+        .command-option .command-desc { font-size: 11px; opacity: 0.7; margin-top: 1px; }
+        html[data-theme="gradient"] .command-option { color: #374151; }
+        html[data-theme="gradient"] .command-option:hover, html[data-theme="gradient"] .command-option.active { background: rgba(0, 135, 235, 0.08); color: #0087EB; }
+        html[data-theme="space"] .command-option { color: #e2e8f0; }
+        html[data-theme="space"] .command-option:hover, html[data-theme="space"] .command-option.active { background: rgba(255, 255, 255, 0.1); color: #a5b4fc; }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -335,7 +342,10 @@
                     <button type="button" data-engine="bing" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">Bing</button>
                     <button type="button" data-engine="github" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">GitHub</button>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-40 pr-16 transition-all text-[15px]">
+                <div id="commandMenu" class="hidden fixed glass-card rounded-xl shadow-xl z-50 overflow-hidden py-1" style="min-width:280px">
+                    <div id="commandList"></div>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search or type / for commands..." class="w-full search-input rounded-xl py-3.5 pl-40 pr-16 transition-all text-[15px]">
                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     <span class="kbd-badge text-[10px] px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1 font-bold">
                         <span class="text-xs">⌘</span> K
@@ -585,8 +595,16 @@
         });
 
         document.getElementById('searchInput').addEventListener('input', (event) => {
-            searchTerm = event.target.value;
-            renderContent();
+            const val = event.target.value;
+            if (val.trim().startsWith('/')) {
+                searchTerm = '';
+                renderContent();
+                showCommandMenu();
+            } else {
+                searchTerm = val;
+                renderContent();
+                hideCommandMenu();
+            }
         });
 
         // Search engine dropdown: switch Google / Bing / GitHub, Enter to search
@@ -628,18 +646,120 @@
             });
         });
 
-        document.addEventListener('click', () => engineMenu.classList.add('hidden'));
+        document.addEventListener('click', () => {
+            engineMenu.classList.add('hidden');
+            commandMenu.classList.add('hidden');
+        });
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') engineMenu.classList.add('hidden');
+            if (event.key === 'Escape') {
+                engineMenu.classList.add('hidden');
+                commandMenu.classList.add('hidden');
+            }
         });
         window.addEventListener('scroll', () => {
             if (!engineMenu.classList.contains('hidden')) positionEngineMenu();
+            if (!commandMenu.classList.contains('hidden')) positionCommandMenu();
         }, true);
         window.addEventListener('resize', () => {
             if (!engineMenu.classList.contains('hidden')) positionEngineMenu();
+            if (!commandMenu.classList.contains('hidden')) positionCommandMenu();
         });
 
-        document.getElementById('searchInput').addEventListener('keydown', (event) => {
+        // Slash commands: /light /dark /github /bing /google
+        const searchInput = document.getElementById('searchInput');
+        const COMMANDS = [
+            { match: 'light', label: 'Light mode · 浅色模式', desc: '切换到浅色主题', theme: 'gradient' },
+            { match: 'dark', label: 'Dark mode · 深色模式', desc: '切换到深色主题', theme: 'space' },
+            { match: 'github', label: 'GitHub', desc: '前往 GitHub 官网', url: 'https://github.com' },
+            { match: 'bing', label: 'Bing', desc: '前往 Bing 搜索', url: 'https://www.bing.com' },
+            { match: 'google', label: 'Google', desc: '前往 Google 搜索', url: 'https://www.google.com' },
+        ];
+        const commandMenu = document.getElementById('commandMenu');
+        const commandList = document.getElementById('commandList');
+        let commandIndex = 0;
+        let filteredCommands = [];
+
+        function setTheme(theme) {
+            document.documentElement.dataset.theme = theme;
+            localStorage.setItem(THEME_KEY, theme);
+            updateThemeUI(theme);
+        }
+
+        function isCommandMode() {
+            return searchInput.value.trim().startsWith('/');
+        }
+
+        function positionCommandMenu() {
+            const rect = searchInput.getBoundingClientRect();
+            commandMenu.style.left = rect.left + 'px';
+            commandMenu.style.top = (rect.bottom + 6) + 'px';
+            commandMenu.style.width = Math.min(rect.width, 420) + 'px';
+        }
+
+        function renderCommands() {
+            const query = searchInput.value.trim().slice(1).toLowerCase();
+            filteredCommands = query
+                ? COMMANDS.filter((c) => c.match.startsWith(query) || c.label.toLowerCase().includes(query))
+                : COMMANDS.slice();
+            if (commandIndex >= filteredCommands.length) commandIndex = 0;
+            commandList.innerHTML = filteredCommands.map((c, i) => `
+                <button type="button" data-command="${i}" class="command-option w-full text-left px-3.5 py-2 ${i === commandIndex ? 'active' : ''}">
+                    <div class="command-name">${c.label}</div>
+                    <div class="command-desc">${c.desc}</div>
+                </button>
+            `).join('');
+            commandMenu.classList.toggle('hidden', filteredCommands.length === 0);
+        }
+
+        function showCommandMenu() {
+            commandIndex = 0;
+            positionCommandMenu();
+            renderCommands();
+            commandMenu.classList.remove('hidden');
+        }
+
+        function hideCommandMenu() {
+            commandMenu.classList.add('hidden');
+        }
+
+        function runCommand(cmd) {
+            if (cmd.theme) setTheme(cmd.theme);
+            else if (cmd.url) window.open(cmd.url, '_blank');
+            hideCommandMenu();
+            searchInput.value = '';
+            searchTerm = '';
+            renderContent();
+            searchInput.focus();
+        }
+
+        commandList.addEventListener('click', (event) => {
+            const btn = event.target.closest('[data-command]');
+            if (!btn) return;
+            event.stopPropagation();
+            const cmd = filteredCommands[Number(btn.dataset.command)];
+            if (cmd) runCommand(cmd);
+        });
+
+        searchInput.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (isCommandMode() && commandMenu.classList.contains('hidden')) showCommandMenu();
+        });
+
+        searchInput.addEventListener('keydown', (event) => {
+            if (isCommandMode()) {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    if (filteredCommands.length) { commandIndex = (commandIndex + 1) % filteredCommands.length; renderCommands(); }
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    if (filteredCommands.length) { commandIndex = (commandIndex - 1 + filteredCommands.length) % filteredCommands.length; renderCommands(); }
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const cmd = filteredCommands[commandIndex];
+                    if (cmd) runCommand(cmd);
+                }
+                return;
+            }
             if (event.key === 'Enter') {
                 const q = event.target.value.trim();
                 if (q) {
