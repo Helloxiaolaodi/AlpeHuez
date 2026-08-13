@@ -8,9 +8,7 @@
       "folders": [],
       "files": [
         { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "13 MB" },
-        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "11 MB" },
-        { "name": "TargetC-phenotypes-analysis-260814.qmd", "kind": "source", "size": "37 KB" },
-        { "name": "TargetC-phenotypes-analysis-delta-260814.qmd", "kind": "source", "size": "34 KB" }
+        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "11 MB" }
       ]
     }
   ]
