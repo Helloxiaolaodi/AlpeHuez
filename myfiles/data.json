@@ -36,9 +36,7 @@
       "folders": [],
       "files": [
         { "name": "global_sampling_world_map_plot.html", "kind": "report", "size": "5.7 MB" },
-        { "name": "global_sampling_world_map_plot.qmd", "kind": "source", "size": "13 KB" },
-        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "2.6 MB" },
-        { "name": "data_qc_funnel_chart_plot.qmd", "kind": "source", "size": "7 KB" }
+        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "2.6 MB" }
       ]
     }
   ]
