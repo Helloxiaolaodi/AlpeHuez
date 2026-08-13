@@ -29,7 +29,7 @@ export async function onRequestPost(context) {
     status: 302,
     headers: {
       Location: next,
-      'Set-Cookie': `${COOKIE_NAME}=${COOKIE_VALUE}; Path=/; Max-Age=604800; SameSite=Lax; Secure`,
+      'Set-Cookie': `${COOKIE_NAME}=${COOKIE_VALUE}; Path=/; SameSite=Lax; Secure`,
     },
   });
 }
