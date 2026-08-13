@@ -1,0 +1,15 @@
+# Large HTML reports — cache 24h in browser, 7 days on CDN
+/myfiles/targetc/*.html
+  Cache-Control: public, max-age=86400
+  CDN-Cache-Control: public, max-age=604800
+
+/myfiles/global-oral/*.html
+  Cache-Control: public, max-age=86400
+  CDN-Cache-Control: public, max-age=604800
+
+# Static assets — cache 7 days
+/myfiles/explorer.css
+  Cache-Control: public, max-age=604800
+
+/myfiles/explorer.js
+  Cache-Control: public, max-age=604800
