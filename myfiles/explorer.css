@@ -63,9 +63,7 @@ body {
 
 .container { max-width: 900px; margin: 0 auto; padding: 24px 24px 80px; }
 .hero { text-align: center; padding: 28px 0 8px; }
-.hero h1 { font-size: 34px; margin: 0 0 6px; font-weight: 800; letter-spacing: -0.02em; color: #111827; }
-.hero .en { color: #0369a1; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-.hero .desc { color: #4b5563; font-size: 14px; margin: 0 auto; max-width: 560px; }
+.hero h1 { font-size: 34px; margin: 0 0 14px; font-weight: 800; letter-spacing: -0.02em; color: #111827; }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -103,9 +101,7 @@ body {
 .icon.folder { background: linear-gradient(135deg, #38bdf8, #6366f1); }
 .icon.report { background: linear-gradient(135deg, #34d399, #0891b2); }
 .icon.source { background: linear-gradient(135deg, #f59e0b, #ef4444); }
-.card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: #1f2937; }
-.card .en { font-size: 12.5px; color: #6b7280; margin-bottom: 10px; }
-.card .desc { font-size: 13px; color: #4b5563; margin: 0 0 14px; line-height: 1.5; }
+.card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: #1f2937; line-height: 1.4; overflow-wrap: anywhere; }
 .card .meta {
   display: flex;
   align-items: center;

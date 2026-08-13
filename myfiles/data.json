@@ -1,45 +1,16 @@
 {
-  "name": { "zh": "我的文件", "en": "My Files" },
+  "name": "My Files",
   "folders": [
     {
       "slug": "targetc",
-      "name": { "zh": "TargetC 表型分析", "en": "TargetC Phenotype Analysis" },
-      "crumb": { "zh": "TargetC", "en": "TargetC" },
-      "description": {
-        "zh": "TargetC 菌群表型与功能分析结果与报告",
-        "en": "TargetC microbial phenotype & functional analysis reports"
-      },
+      "name": "TargetC",
       "protected": true,
       "folders": [],
       "files": [
-        {
-          "name": "TargetC-phenotypes-analysis-260814.html",
-          "title": { "zh": "表型分析报告", "en": "Phenotypes Analysis" },
-          "subtitle": { "zh": "260814", "en": "260814" },
-          "kind": "report",
-          "size": "13 MB"
-        },
-        {
-          "name": "TargetC-phenotypes-analysis-delta-260814.html",
-          "title": { "zh": "Delta 对比分析", "en": "Delta Comparison" },
-          "subtitle": { "zh": "260814", "en": "260814" },
-          "kind": "report",
-          "size": "11 MB"
-        },
-        {
-          "name": "TargetC-phenotypes-analysis-260814.qmd",
-          "title": { "zh": "分析源文件", "en": "Analysis Source" },
-          "subtitle": { "zh": "260814", "en": "260814" },
-          "kind": "source",
-          "size": "37 KB"
-        },
-        {
-          "name": "TargetC-phenotypes-analysis-delta-260814.qmd",
-          "title": { "zh": "Delta 源文件", "en": "Delta Source" },
-          "subtitle": { "zh": "260814", "en": "260814" },
-          "kind": "source",
-          "size": "34 KB"
-        }
+        { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "13 MB" },
+        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "11 MB" },
+        { "name": "TargetC-phenotypes-analysis-260814.qmd", "kind": "source", "size": "37 KB" },
+        { "name": "TargetC-phenotypes-analysis-delta-260814.qmd", "kind": "source", "size": "34 KB" }
       ]
     }
   ]

@@ -7,13 +7,6 @@
     code: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
   };
 
-  function text(obj) {
-    if (obj && typeof obj === 'object') {
-      return { primary: obj.zh || obj.en || '', secondary: obj.en && obj.zh ? obj.en : '' };
-    }
-    return { primary: String(obj || ''), secondary: '' };
-  }
-
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
@@ -40,7 +33,7 @@
       const child = (node.folders || []).find((f) => f.slug === slug);
       if (!child) { ok = false; break; }
       nodePath += '/' + slug;
-      crumbs.push({ name: (child.crumb && (child.crumb.zh || child.crumb.en)) || (child.name && (child.name.zh || child.name.en)) || slug, path: nodePath });
+      crumbs.push({ name: child.name || slug, path: nodePath });
       node = child;
     }
     if (!ok) {
@@ -63,12 +56,8 @@
     ].join('');
 
     // hero
-    const name = text(node.name);
-    const desc = text(node.description);
     document.getElementById('hero').innerHTML = [
-      `<h1>${escapeHtml(name.primary)}</h1>`,
-      name.secondary ? `<div class="en">${escapeHtml(name.secondary)}</div>` : '',
-      desc.primary ? `<p class="desc">${escapeHtml(desc.primary)}${desc.secondary ? ' · ' + escapeHtml(desc.secondary) : ''}</p>` : '',
+      `<h1>${escapeHtml(node.name)}</h1>`,
       node.protected ? '<span class="badge lock"><span class="lock-dot"></span>Password protected · 密码保护</span>' : '',
     ].join('');
 
@@ -77,14 +66,10 @@
     const foldersEl = document.getElementById('folders');
     foldersEl.innerHTML = subFolders.length
       ? `<div class="section-title">Folders · 文件夹</div><div class="grid">` + subFolders.map((f) => {
-          const fname = text(f.name);
-          const fdesc = text(f.description);
           const count = (f.files ? f.files.length : 0) + (f.folders ? f.folders.length : 0);
           return `<a href="${nodePath}/${encodeURIComponent(f.slug)}/" class="glass card">
             <div class="icon folder">${SVG.folder}</div>
-            <h3>${escapeHtml(fname.primary)}</h3>
-            ${fname.secondary ? `<div class="en">${escapeHtml(fname.secondary)}</div>` : ''}
-            ${fdesc.primary ? `<p class="desc">${escapeHtml(fdesc.primary)}</p>` : ''}
+            <h3>${escapeHtml(f.name || f.slug)}</h3>
             <div class="meta">
               <span class="size-badge">${count} items</span>
               ${f.protected ? '<span class="size-badge locked">locked</span>' : ''}
@@ -100,13 +85,10 @@
     filesEl.innerHTML = files.length
       ? `<div class="section-title">Files · 文件</div><div class="grid">` + files.map((f) => {
           const isSource = f.kind === 'source';
-          const ftitle = text(f.title);
-          const fsub = text(f.subtitle);
           const href = `${nodePath}/${encodeURIComponent(f.name)}`;
           return `<a href="${href}" class="glass card"${isSource ? ' download' : ''}>
             <div class="icon ${isSource ? 'source' : 'report'}">${isSource ? SVG.code : SVG.report}</div>
-            <h3>${escapeHtml(ftitle.primary)}${fsub.primary ? ` <span class="size-badge">${escapeHtml(fsub.primary)}</span>` : ''}</h3>
-            ${ftitle.secondary ? `<div class="en">${escapeHtml(ftitle.secondary)}${fsub.secondary ? ' · ' + escapeHtml(fsub.secondary) : ''}</div>` : ''}
+            <h3>${escapeHtml(f.name)}</h3>
             <div class="meta">
               <span class="size-badge">${escapeHtml(f.size || '')}</span>
               <span class="action">${isSource ? 'Download ↓' : 'Open ›'}</span>
