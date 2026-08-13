@@ -256,9 +256,9 @@
             transition: background-color 0.12s ease;
         }
         html[data-theme="gradient"] .menu-item { color: #111827; }
-        html[data-theme="gradient"] .menu-item:hover, html[data-theme="gradient"] .menu-item.active { background: rgba(0, 135, 235, 0.1); }
+        html[data-theme="gradient"] .menu-item.active { background: rgba(0, 135, 235, 0.1); }
         html[data-theme="space"] .menu-item { color: #f1f5f9; }
-        html[data-theme="space"] .menu-item:hover, html[data-theme="space"] .menu-item.active { background: rgba(255, 255, 255, 0.1); }
+        html[data-theme="space"] .menu-item.active { background: rgba(255, 255, 255, 0.1); }
 
         .menu-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .menu-icon svg { width: 18px; height: 18px; }
@@ -692,6 +692,9 @@
             if (event.key === 'Escape') {
                 engineMenu.classList.add('hidden');
                 commandMenu.classList.add('hidden');
+                document.getElementById('searchInput').value = '';
+                searchTerm = '';
+                renderContent();
             }
         });
         window.addEventListener('scroll', () => {
@@ -777,11 +780,18 @@
             if (cmd.theme) setTheme(cmd.theme);
             else if (cmd.url) window.open(cmd.url, '_blank');
             hideCommandMenu();
-            searchInput.value = '';
+            document.getElementById('searchInput').value = '';
             searchTerm = '';
             renderContent();
             searchInput.focus();
         }
+
+        commandList.addEventListener('mouseover', (event) => {
+            const btn = event.target.closest('[data-command]');
+            if (!btn) return;
+            commandIndex = Number(btn.dataset.command);
+            renderCommands();
+        });
 
         commandList.addEventListener('click', (event) => {
             const btn = event.target.closest('[data-command]');
@@ -819,7 +829,8 @@
             }
         });
 
-        const startTime = Date.now();
+        dismissLoadingScreen();
+        setTimeout(dismissLoadingScreen, 3000);
         fetch('links.json')
             .then(res => res.json())
             .then(data => {
@@ -827,7 +838,7 @@
                 allTree = buildTree(data.icons || []);
                 renderTags();
                 renderContent();
-                setTimeout(dismissLoadingScreen, Math.max(0, 700 - (Date.now() - startTime)));
+                dismissLoadingScreen();
             })
             .catch(err => {
                 console.error('Failed to load links.json:', err);

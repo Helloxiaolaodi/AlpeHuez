@@ -59,7 +59,7 @@
     const heroEl = document.getElementById('hero');
     heroEl.innerHTML = [
       `<h1>${escapeHtml(node.name)}</h1>`,
-      node.protected ? '<span class="badge lock"><span class="lock-dot"></span>Password protected</span>' : '',
+      node.protected ? '<span class="badge lock"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Password protected</span></span>' : '',
       `<div class="toolbar">
         <input type="text" id="filterInput" class="toolbar-search" placeholder="Search folders and files...">
         <select id="sortSelect" class="toolbar-sort">
@@ -107,7 +107,7 @@
               <div class="name">${escapeHtml(f.name || f.slug)}</div>
               <div class="meta">
                 <span class="size-badge">${count} items</span>
-                ${f.protected ? '<span class="size-badge locked">locked</span>' : ''}
+                ${f.protected ? '<span class="lock-icon" title="Protected"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>' : ''}
                 <span class="action">Open ›</span>
               </div>
             </a>`;
@@ -139,20 +139,6 @@
     if (filterInput) filterInput.addEventListener('input', render);
     if (sortSelect) sortSelect.addEventListener('change', render);
     render();
-
-    // Open in Explorer button handler
-    const openExplorerBtn = document.getElementById('openExplorerBtn');
-    if (openExplorerBtn) {
-      openExplorerBtn.addEventListener('click', () => {
-        const localPath = 'file:///D:/YL2026/sun-panel/my-nav/my-nav/myfiles/';
-        try {
-          window.open(localPath, '_blank');
-        } catch (e) {
-          console.error('Failed to open Explorer:', e);
-          alert('Local path: D:\\YL2026\\sun-panel\\my-nav\\my-nav\\myfiles\\');
-        }
-      });
-    }
   }
 
   if (document.readyState === 'loading') {
