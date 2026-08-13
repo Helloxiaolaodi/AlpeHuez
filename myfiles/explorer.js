@@ -55,47 +55,90 @@
       }).join(''),
     ].join('');
 
-    // hero
-    document.getElementById('hero').innerHTML = [
+    // hero with sort/filter toolbar
+    const heroEl = document.getElementById('hero');
+    heroEl.innerHTML = [
       `<h1>${escapeHtml(node.name)}</h1>`,
       node.protected ? '<span class="badge lock"><span class="lock-dot"></span>Password protected · 密码保护</span>' : '',
+      `<div class="toolbar">
+        <input type="text" id="filterInput" class="toolbar-search" placeholder="Search folders and files...">
+        <select id="sortSelect" class="toolbar-sort">
+          <option value="name-asc">Name A-Z</option>
+          <option value="name-desc">Name Z-A</option>
+          <option value="date-desc">Date Added (Newest)</option>
+          <option value="date-asc">Date Added (Oldest)</option>
+        </select>
+      </div>`
     ].join('');
 
-    // subfolders as a list
-    const subFolders = node.folders || [];
-    const foldersEl = document.getElementById('folders');
-    foldersEl.innerHTML = subFolders.length
-      ? `<div class="section-title">Folders · 文件夹</div><div class="list">` + subFolders.map((f) => {
-          const count = (f.files ? f.files.length : 0) + (f.folders ? f.folders.length : 0);
-          return `<a href="${nodePath}/${encodeURIComponent(f.slug)}/" class="glass row">
-            <div class="icon folder">${SVG.folder}</div>
-            <div class="name">${escapeHtml(f.name || f.slug)}</div>
-            <div class="meta">
-              <span class="size-badge">${count} items</span>
-              ${f.protected ? '<span class="size-badge locked">locked</span>' : ''}
-              <span class="action">Open ›</span>
-            </div>
-          </a>`;
-        }).join('') + `</div>`
-      : '';
+    const filterInput = document.getElementById('filterInput');
+    const sortSelect = document.getElementById('sortSelect');
 
-    // files as a list
-    const files = node.files || [];
-    const filesEl = document.getElementById('files');
-    filesEl.innerHTML = files.length
-      ? `<div class="section-title">Files · 文件</div><div class="list">` + files.map((f) => {
-          const isSource = f.kind === 'source';
-          const href = `${nodePath}/${encodeURIComponent(f.name)}`;
-          return `<a href="${href}" class="glass row"${isSource ? ' download' : ''}>
-            <div class="icon ${isSource ? 'source' : 'report'}">${isSource ? SVG.code : SVG.report}</div>
-            <div class="name">${escapeHtml(f.name)}</div>
-            <div class="meta">
-              <span class="size-badge">${escapeHtml(f.size || '')}</span>
-              <span class="action">${isSource ? 'Download ↓' : 'Open ›'}</span>
-            </div>
-          </a>`;
-        }).join('') + `</div>`
-      : '';
+    function getSortFn() {
+      const mode = sortSelect ? sortSelect.value : 'name-asc';
+      switch (mode) {
+        case 'name-asc': return (a, b) => (a.name || a.slug || '').localeCompare(b.name || b.slug || '');
+        case 'name-desc': return (a, b) => (b.name || b.slug || '').localeCompare(a.name || a.slug || '');
+        case 'date-desc': return (a, b) => ((b.dateAdded || '1970-01-01') > (a.dateAdded || '1970-01-01') ? 1 : -1);
+        case 'date-asc': return (a, b) => ((a.dateAdded || '1970-01-01') > (b.dateAdded || '1970-01-01') ? 1 : -1);
+        default: return (a, b) => (a.name || a.slug || '').localeCompare(b.name || b.slug || '');
+      }
+    }
+
+    function getFilterTerm() {
+      return filterInput ? filterInput.value.trim().toLowerCase() : '';
+    }
+
+    function render() {
+      const term = getFilterTerm();
+      const sortFn = getSortFn();
+
+      // subfolders as a list
+      const subFolders = (node.folders || []).slice().sort(sortFn).filter((f) => {
+        if (!term) return true;
+        return (f.name || f.slug || '').toLowerCase().includes(term);
+      });
+      const foldersEl = document.getElementById('folders');
+      foldersEl.innerHTML = subFolders.length
+        ? `<div class="section-title">Folders · 文件夹</div><div class="list">` + subFolders.map((f) => {
+            const count = (f.files ? f.files.length : 0) + (f.folders ? f.folders.length : 0);
+            return `<a href="${nodePath}/${encodeURIComponent(f.slug)}/" class="glass row">
+              <div class="icon folder">${SVG.folder}</div>
+              <div class="name">${escapeHtml(f.name || f.slug)}</div>
+              <div class="meta">
+                <span class="size-badge">${count} items</span>
+                ${f.protected ? '<span class="size-badge locked">locked</span>' : ''}
+                <span class="action">Open ›</span>
+              </div>
+            </a>`;
+          }).join('') + `</div>`
+        : '';
+
+      // files as a list
+      const files = (node.files || []).slice().sort(sortFn).filter((f) => {
+        if (!term) return true;
+        return (f.name || '').toLowerCase().includes(term);
+      });
+      const filesEl = document.getElementById('files');
+      filesEl.innerHTML = files.length
+        ? `<div class="section-title">Files · 文件</div><div class="list">` + files.map((f) => {
+            const isSource = f.kind === 'source';
+            const href = `${nodePath}/${encodeURIComponent(f.name)}`;
+            return `<a href="${href}" class="glass row"${isSource ? ' download' : ''}>
+              <div class="icon ${isSource ? 'source' : 'report'}">${isSource ? SVG.code : SVG.report}</div>
+              <div class="name">${escapeHtml(f.name)}</div>
+              <div class="meta">
+                <span class="size-badge">${escapeHtml(f.size || '')}</span>
+                <span class="action">${isSource ? 'Download ↓' : 'Open ›'}</span>
+              </div>
+            </a>`;
+          }).join('') + `</div>`
+        : '';
+    }
+
+    if (filterInput) filterInput.addEventListener('input', render);
+    if (sortSelect) sortSelect.addEventListener('change', render);
+    render();
 
     // Open in Explorer button handler
     const openExplorerBtn = document.getElementById('openExplorerBtn');

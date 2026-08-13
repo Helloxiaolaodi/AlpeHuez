@@ -5,11 +5,28 @@
       "slug": "targetc",
       "name": "TargetC",
       "protected": true,
+      "dateAdded": "2024-08-10",
       "folders": [],
       "files": [
         { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "13 MB" },
         { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "11 MB" }
       ]
+    },
+    {
+      "slug": "lucuro",
+      "name": "Lucuro",
+      "protected": false,
+      "dateAdded": "2024-08-12",
+      "folders": [],
+      "files": []
+    },
+    {
+      "slug": "galibierhub",
+      "name": "GalibierHub",
+      "protected": false,
+      "dateAdded": "2024-08-11",
+      "folders": [],
+      "files": []
     }
   ]
 }
