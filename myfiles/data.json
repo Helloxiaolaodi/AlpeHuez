@@ -15,7 +15,7 @@
     {
       "slug": "lucuro",
       "name": "Lucuro",
-      "protected": false,
+      "protected": true,
       "dateAdded": "2024-08-12",
       "folders": [],
       "files": []
@@ -23,7 +23,7 @@
     {
       "slug": "galibierhub",
       "name": "GalibierHub",
-      "protected": false,
+      "protected": true,
       "dateAdded": "2024-08-11",
       "folders": [],
       "files": []
