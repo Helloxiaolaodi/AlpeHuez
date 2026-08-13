@@ -651,7 +651,7 @@
         const engineBtn = document.getElementById('engineBtn');
         const engineLabel = document.getElementById('engineLabel');
         const engineMenu = document.getElementById('engineMenu');
-        // 移出 .search-container：其 backdrop-filter 会劫持 fixed 定位、mask-image 会裁剪菜单
+        // Move the menu out of .search-container: its backdrop-filter breaks fixed positioning and mask-image clips the dropdown.
         document.body.appendChild(engineMenu);
         let activeEngine = localStorage.getItem('nav_engine') || 'google';
         if (!ENGINES[activeEngine]) activeEngine = 'google';
@@ -714,12 +714,12 @@
             google: '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>',
         };
         const COMMANDS = [
-            { match: 'light', label: 'Light mode · 浅色模式', desc: '切换到浅色主题', theme: 'gradient', icon: ICONS.sun },
-            { match: 'dark', label: 'Dark mode · 深色模式', desc: '切换到深色主题', theme: 'space', icon: ICONS.moon },
-            { match: 'myfiles', label: 'My Files', desc: '打开文件共享页面', url: '/myfiles/', icon: ICONS.files },
-            { match: 'github', label: 'GitHub', desc: '前往 GitHub 官网', url: 'https://github.com', icon: ICONS.github },
-            { match: 'bing', label: 'Bing', desc: '前往 Bing 搜索', url: 'https://www.bing.com', icon: ICONS.search },
-            { match: 'google', label: 'Google', desc: '前往 Google 搜索', url: 'https://www.google.com', icon: ICONS.google },
+            { match: 'light', label: 'Light mode', desc: 'Switch to light theme', theme: 'gradient', icon: ICONS.sun },
+            { match: 'dark', label: 'Dark mode', desc: 'Switch to dark theme', theme: 'space', icon: ICONS.moon },
+            { match: 'myfiles', label: 'My Files', desc: 'Open file sharing page', url: '/myfiles/', icon: ICONS.files },
+            { match: 'github', label: 'GitHub', desc: 'Open GitHub', url: 'https://github.com', icon: ICONS.github },
+            { match: 'bing', label: 'Bing', desc: 'Search Bing', url: 'https://www.bing.com', icon: ICONS.search },
+            { match: 'google', label: 'Google', desc: 'Search Google', url: 'https://www.google.com', icon: ICONS.google },
         ];
         const commandMenu = document.getElementById('commandMenu');
         const commandList = document.getElementById('commandList');

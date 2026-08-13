@@ -7,25 +7,25 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const linksPath = path.join(here, 'links.json');
 
 const groupTags = {
-  'Programming Learning - Programmer Forum': ['论坛', '编程'],
-  'Programming Learning - Programming Language Tutorial': ['教程', '编程'],
-  'Programming Learning - Website Deployment and Maintenance': ['部署', '工具'],
-  'Academic Research - Microbiology Field': ['科研', '微生物'],
-  'Academic Research - Database Website': ['科研', '数据库'],
-  'Academic Research - Tool Tutorial(EN)': ['教程', '工具'],
-  'Academic Research - Tool Tutorial(CN)': ['教程', '中文'],
-  'Academic Research - Common Websites': ['常用', '工具'],
-  'Academic Research - Literature search': ['文献', '科研'],
-  'Academic Research - Journal classification': ['期刊', '科研'],
-  'Personal Section - Helloxiaolaodi': ['个人', 'GitHub'],
-  'Online Translation - Translation Website': ['翻译', '工具'],
-  'Tools - Cloud Storage Miscellaneous': ['工具', '云存储'],
-  'Tools - Cycling': ['骑行', '运动'],
-  'Tools - References': ['文献', '工具'],
-  'Tools - Online Conversion': ['转换', '工具'],
-  'Tools - Ladder Proxy': ['代理', '工具'],
-  'Tools - AI model': ['AI', '工具'],
-  'NCU - Daily affairs': ['校园', 'NCU'],
+  'Programming Learning - Programmer Forum': ['forum', 'programming'],
+  'Programming Learning - Programming Language Tutorial': ['tutorial', 'programming'],
+  'Programming Learning - Website Deployment and Maintenance': ['deployment', 'tools'],
+  'Academic Research - Microbiology Field': ['research', 'microbiology'],
+  'Academic Research - Database Website': ['research', 'database'],
+  'Academic Research - Tool Tutorial(EN)': ['tutorial', 'tools'],
+  'Academic Research - Tool Tutorial(CN)': ['tutorial', 'Chinese'],
+  'Academic Research - Common Websites': ['common', 'tools'],
+  'Academic Research - Literature search': ['literature', 'research'],
+  'Academic Research - Journal classification': ['journal', 'research'],
+  'Personal Section - Helloxiaolaodi': ['personal', 'GitHub'],
+  'Online Translation - Translation Website': ['translation', 'tools'],
+  'Tools - Cloud Storage Miscellaneous': ['tools', 'cloud storage'],
+  'Tools - Cycling': ['cycling', 'sports'],
+  'Tools - References': ['literature', 'tools'],
+  'Tools - Online Conversion': ['conversion', 'tools'],
+  'Tools - Ladder Proxy': ['proxy', 'tools'],
+  'Tools - AI model': ['AI', 'tools'],
+  'NCU - Daily affairs': ['campus', 'NCU'],
 };
 
 const keywordTags = [
@@ -34,24 +34,24 @@ const keywordTags = [
   [/nodejs/i, 'Node'],
   [/git|github|gist/i, 'Git'],
   [/qiime/i, 'QIIME2'],
-  [/biocyc|greengenes|homd|gtdb|qiita|ena|ddbj|cncb|metacyc|rrndb|jbrowse|blast|ncbi/i, '生信'],
-  [/blast|ncbi|scopus|elsevier|pubmed|medcite/i, '数据库'],
-  [/google|scholar|bing|baidu|gfsoso|stork|sc\.panda|so\.673|lanfanshu|sci-hub|gupiao|ablesci|9312/i, '搜索'],
+  [/biocyc|greengenes|homd|gtdb|qiita|ena|ddbj|cncb|metacyc|rrndb|jbrowse|blast|ncbi/i, 'bioinformatics'],
+  [/blast|ncbi|scopus|elsevier|pubmed|medcite/i, 'database'],
+  [/google|scholar|bing|baidu|gfsoso|stork|sc\.panda|so\.673|lanfanshu|sci-hub|gupiao|ablesci|9312/i, 'search'],
   [/latex|overleaf/i, 'LaTeX'],
-  [/ref-extractor|anystyle|doi2bib|citationstyles|zotero/i, '引文'],
-  [/grammarly|quillbot|paperbert/i, '写作'],
-  [/translate|fanyi|cnki/i, '翻译'],
-  [/clash|guatizi|sakura|mojie|proxy|vpn/i, '代理'],
+  [/ref-extractor|anystyle|doi2bib|citationstyles|zotero/i, 'citation'],
+  [/grammarly|quillbot|paperbert/i, 'writing'],
+  [/translate|fanyi|cnki/i, 'translation'],
+  [/clash|guatizi|sakura|mojie|proxy|vpn/i, 'proxy'],
   [/deepseek|gemini|opencode|hugging/i, 'AI'],
-  [/spotify|music/i, '音乐'],
-  [/tour|uci|cycling|procycling|vuelta|giro|paris|letour/i, '赛事'],
+  [/spotify|music/i, 'music'],
+  [/tour|uci|cycling|procycling|vuelta|giro|paris|letour/i, 'racing'],
   [/pdf|convert|smallpdf|alltoall|online-convert/i, 'PDF'],
   [/ncu/i, 'NCU'],
-  [/mail/i, '邮件'],
-  [/paypal/i, '支付'],
-  [/anki/i, '记忆'],
-  [/iconfont/i, '设计'],
-  [/base64|toolhelper/i, '编码'],
+  [/mail/i, 'email'],
+  [/paypal/i, 'payment'],
+  [/anki/i, 'memory'],
+  [/iconfont/i, 'design'],
+  [/base64|toolhelper/i, 'encoding'],
 ];
 
 const vpnRequired = new Set([
@@ -82,7 +82,7 @@ const vpnRequired = new Set([
 const links = JSON.parse(await readFile(linksPath, 'utf8'));
 
 for (const group of links.icons || []) {
-  const baseTags = groupTags[group.title] || ['导航'];
+  const baseTags = groupTags[group.title] || ['navigation'];
   for (const item of group.children || []) {
     const tags = new Set(baseTags);
     const searchText = `${item.title} ${item.url} ${item.description || ''}`;
@@ -103,5 +103,5 @@ const allItems = links.icons.flatMap((group) => group.children || []);
 const tagSet = new Set(allItems.flatMap((item) => item.tags || []));
 console.log(`items=${allItems.length}`);
 console.log(`vpn_required=${allItems.filter((item) => item.isVpnRequired).length}`);
-console.log(`tags=${[...tagSet].sort((a, b) => a.localeCompare(b, 'zh-CN')).join(', ')}`);
+console.log(`tags=${[...tagSet].sort((a, b) => a.localeCompare(b, 'en')).join(', ')}`);
 console.log(`md5=${links.md5}`);

@@ -8,8 +8,8 @@
       "dateAdded": "2024-08-10",
       "folders": [],
       "files": [
-        { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "13 MB" },
-        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "11 MB" }
+        { "name": "TargetC-phenotypes-analysis-260814.html", "kind": "report", "size": "126 KB" },
+        { "name": "TargetC-phenotypes-analysis-delta-260814.html", "kind": "report", "size": "131 KB" }
       ]
     },
     {
@@ -35,8 +35,8 @@
       "dateAdded": "2024-08-13",
       "folders": [],
       "files": [
-        { "name": "global_sampling_world_map_plot.html", "kind": "report", "size": "5.7 MB" },
-        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "2.6 MB" }
+        { "name": "global_sampling_world_map_plot.html", "kind": "report", "size": "82 KB" },
+        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "51 KB" }
       ]
     }
   ]

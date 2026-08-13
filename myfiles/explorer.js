@@ -59,7 +59,7 @@
     const heroEl = document.getElementById('hero');
     heroEl.innerHTML = [
       `<h1>${escapeHtml(node.name)}</h1>`,
-      node.protected ? '<span class="badge lock"><span class="lock-dot"></span>Password protected · 密码保护</span>' : '',
+      node.protected ? '<span class="badge lock"><span class="lock-dot"></span>Password protected</span>' : '',
       `<div class="toolbar">
         <input type="text" id="filterInput" class="toolbar-search" placeholder="Search folders and files...">
         <select id="sortSelect" class="toolbar-sort">
@@ -100,7 +100,7 @@
       });
       const foldersEl = document.getElementById('folders');
       foldersEl.innerHTML = subFolders.length
-        ? `<div class="section-title">Folders · 文件夹</div><div class="list">` + subFolders.map((f) => {
+        ? `<div class="section-title">Folders</div><div class="list">` + subFolders.map((f) => {
             const count = (f.files ? f.files.length : 0) + (f.folders ? f.folders.length : 0);
             return `<a href="${nodePath}/${encodeURIComponent(f.slug)}/" class="glass row">
               <div class="icon folder">${SVG.folder}</div>
@@ -121,7 +121,7 @@
       });
       const filesEl = document.getElementById('files');
       filesEl.innerHTML = files.length
-        ? `<div class="section-title">Files · 文件</div><div class="list">` + files.map((f) => {
+        ? `<div class="section-title">Files</div><div class="list">` + files.map((f) => {
             const isSource = f.kind === 'source';
             const href = `${nodePath}/${encodeURIComponent(f.name)}`;
             return `<a href="${href}" class="glass row"${isSource ? ' download' : ''}>

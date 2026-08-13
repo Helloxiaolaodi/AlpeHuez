@@ -4,7 +4,7 @@ export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
 
-  // 登录页与登录接口本身不需要校验，否则会死循环
+  // The login page and login endpoint must bypass auth or they would redirect forever.
   const path = url.pathname;
   if (path.endsWith('/login.html') || path.endsWith('/login')) {
     return next();
