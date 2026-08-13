@@ -38,7 +38,11 @@
         { "name": "global_sampling_world_map_plot.html", "kind": "report", "size": "5.7 MB" },
         { "name": "global_sampling_world_map_260811.png", "kind": "image", "size": "2.9 MB" },
         { "name": "global_sampling_world_map_plot.qmd", "kind": "source", "size": "13 KB" },
-        { "name": "global_sampling_world_map_plot.R", "kind": "source", "size": "12 KB" }
+        { "name": "global_sampling_world_map_plot.R", "kind": "source", "size": "12 KB" },
+        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "2.6 MB" },
+        { "name": "data_qc_funnel_chart_260811.png", "kind": "image", "size": "651 KB" },
+        { "name": "data_qc_funnel_chart_plot.qmd", "kind": "source", "size": "7 KB" },
+        { "name": "data_qc_funnel_chart_plot.R", "kind": "source", "size": "6 KB" }
       ]
     }
   ]
