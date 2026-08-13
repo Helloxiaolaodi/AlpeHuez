@@ -225,6 +225,17 @@
             box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
         }
 
+        .engine-trigger { transition: background-color 0.15s ease; }
+        html[data-theme="gradient"] .engine-trigger { color: #0366d6; background: rgba(0, 135, 235, 0.08); }
+        html[data-theme="gradient"] .engine-trigger:hover { background: rgba(0, 135, 235, 0.16); }
+        html[data-theme="space"] .engine-trigger { color: #a5b4fc; background: rgba(255, 255, 255, 0.08); }
+        html[data-theme="space"] .engine-trigger:hover { background: rgba(255, 255, 255, 0.16); }
+        .engine-option { transition: background-color 0.12s ease; }
+        html[data-theme="gradient"] .engine-option { color: #374151; }
+        html[data-theme="gradient"] .engine-option:hover { background: rgba(0, 135, 235, 0.08); color: #0087EB; }
+        html[data-theme="space"] .engine-option { color: #e2e8f0; }
+        html[data-theme="space"] .engine-option:hover { background: rgba(255, 255, 255, 0.1); color: #a5b4fc; }
+
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 10px; }
@@ -314,8 +325,17 @@
 
         <div class="pt-8 pb-4 px-8 z-10 sticky top-0 search-container h-32 flex-shrink-0 relative flex items-center justify-center gap-4">
             <div class="max-w-5xl w-full relative group">
-                <svg class="absolute inset-y-0 my-auto left-4 w-5 h-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-12 pr-16 transition-all text-[15px]">
+                <svg class="absolute inset-y-0 my-auto left-3 w-5 h-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <button id="engineBtn" type="button" class="engine-trigger absolute left-9 inset-y-0 my-auto h-9 px-2.5 flex items-center gap-1.5 rounded-lg text-[13px] font-semibold z-20 cursor-pointer" title="Search engine">
+                    <span id="engineLabel">Google</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="engineMenu" class="hidden fixed glass-card rounded-xl shadow-xl z-50 overflow-hidden py-1" style="width:150px">
+                    <button type="button" data-engine="google" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">Google</button>
+                    <button type="button" data-engine="bing" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">Bing</button>
+                    <button type="button" data-engine="github" class="engine-option w-full text-left px-3.5 py-2 text-[13px] font-medium">GitHub</button>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search for websites or tools..." class="w-full search-input rounded-xl py-3.5 pl-40 pr-16 transition-all text-[15px]">
                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     <span class="kbd-badge text-[10px] px-2 py-1 rounded shadow-sm font-mono flex items-center gap-1 font-bold">
                         <span class="text-xs">⌘</span> K
@@ -567,6 +587,65 @@
         document.getElementById('searchInput').addEventListener('input', (event) => {
             searchTerm = event.target.value;
             renderContent();
+        });
+
+        // Search engine dropdown: switch Google / Bing / GitHub, Enter to search
+        const ENGINES = {
+            google: { label: 'Google', url: 'https://www.google.com/search?q=' },
+            bing: { label: 'Bing', url: 'https://www.bing.com/search?q=' },
+            github: { label: 'GitHub', url: 'https://github.com/search?q=' },
+        };
+        const engineBtn = document.getElementById('engineBtn');
+        const engineLabel = document.getElementById('engineLabel');
+        const engineMenu = document.getElementById('engineMenu');
+        let activeEngine = localStorage.getItem('nav_engine') || 'google';
+        if (!ENGINES[activeEngine]) activeEngine = 'google';
+        engineLabel.textContent = ENGINES[activeEngine].label;
+
+        function positionEngineMenu() {
+            const rect = engineBtn.getBoundingClientRect();
+            engineMenu.style.left = rect.left + 'px';
+            engineMenu.style.top = (rect.bottom + 6) + 'px';
+        }
+
+        engineBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (engineMenu.classList.contains('hidden')) {
+                positionEngineMenu();
+                engineMenu.classList.remove('hidden');
+            } else {
+                engineMenu.classList.add('hidden');
+            }
+        });
+
+        engineMenu.querySelectorAll('.engine-option').forEach((opt) => {
+            opt.addEventListener('click', (event) => {
+                event.stopPropagation();
+                activeEngine = opt.dataset.engine;
+                localStorage.setItem('nav_engine', activeEngine);
+                engineLabel.textContent = ENGINES[activeEngine].label;
+                engineMenu.classList.add('hidden');
+            });
+        });
+
+        document.addEventListener('click', () => engineMenu.classList.add('hidden'));
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') engineMenu.classList.add('hidden');
+        });
+        window.addEventListener('scroll', () => {
+            if (!engineMenu.classList.contains('hidden')) positionEngineMenu();
+        }, true);
+        window.addEventListener('resize', () => {
+            if (!engineMenu.classList.contains('hidden')) positionEngineMenu();
+        });
+
+        document.getElementById('searchInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const q = event.target.value.trim();
+                if (q) {
+                    window.open(ENGINES[activeEngine].url + encodeURIComponent(q), '_blank');
+                }
+            }
         });
 
         const startTime = Date.now();
