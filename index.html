@@ -497,7 +497,7 @@
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <span class="workspace-muted flex items-center gap-2">AlpeHub</span>
+                        <span class="workspace-muted flex items-center gap-2">Alpe d'Huez</span>
                         <span class="text-emerald-500 font-medium text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">Online</span>
                     </div>
 
@@ -560,7 +560,7 @@
                             <div class="sync-header">
                                 <div class="sync-title-group">
                                     <span id="syncDot" class="status-dot dot-neutral"></span>
-                                <span id="syncText">AlpeHub  KOM Secured</span>
+                                <span id="syncText">Alpe d'Huez  KOM Secured</span>
                                 </div>
                                 <span class="sync-stage-tag">STAGE 15</span>
                             </div>
@@ -1078,23 +1078,23 @@
 
                     if (data.status === "success") {
                         dot.classList.add('dot-success');
-                        text.innerText = "AlpeHub  KOM Secured";
+                        text.innerText = "Alpe d'Huez  KOM Secured";
                         komPill.title = `${lastSync}Status: Summit Reached (HC Category)`;
                         komPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
                     } else if (data.status === "error") {
                         dot.classList.add('dot-error');
-                        text.innerText = "AlpeHub  KOM Lost";
+                        text.innerText = "Alpe d'Huez  KOM Lost";
                         komPill.title = `${lastSync}Status: Missing the Time Cut`;
                         komPill.style.borderColor = "rgba(239, 68, 68, 0.4)";
                     } else {
                         dot.classList.add('dot-neutral');
-                        text.innerText = "AlpeHub  Awaiting Start";
+                        text.innerText = "Alpe d'Huez  Awaiting Start";
                         komPill.title = "Awaiting the next climb...";
                     }
                 } catch (error) {
                     dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
                     dot.classList.add('dot-error');
-                    text.innerText = "AlpeHub  Signal Lost";
+                    text.innerText = "Alpe d'Huez  Signal Lost";
                     komPill.title = "Check your Cloudflare Worker or Network.";
                     renderHourlyGrid({ grid: {} });
                 }
