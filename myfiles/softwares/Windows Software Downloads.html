@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows Software Downloads</title>
+<link rel="stylesheet" href="/myfiles/explorer.css">
+<style>
+  :root {
+    --sw-bg: #f6f8fb;
+    --sw-surface: #ffffff;
+    --sw-border: #e5e7eb;
+    --sw-border-strong: #d1d5db;
+    --sw-text: #111827;
+    --sw-text-secondary: #6b7280;
+    --sw-text-muted: #9ca3af;
+    --sw-accent: #2563eb;
+    --sw-accent-soft: #eff6ff;
+    --sw-green: #059669;
+    --sw-green-soft: #ecfdf5;
+    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  body {
+    background: linear-gradient(180deg, #ffffff 0%, var(--sw-bg) 100%);
+    background-attachment: fixed;
+  }
+
+  .sw-page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 30px 24px 90px;
+  }
+
+  .sw-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 8px 0 22px;
+  }
+
+  .sw-header h1 {
+    margin: 0 0 8px;
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--sw-text);
+  }
+
+  .sw-header p {
+    margin: 0;
+    color: var(--sw-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 720px;
+  }
+
+  .sw-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #eef2f7;
+    border: 1px solid var(--sw-border);
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .sw-lang button {
+    min-width: 76px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--sw-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .sw-lang button[aria-pressed="true"] {
+    background: var(--sw-surface);
+    color: var(--sw-text);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  }
+
+  .sw-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 4px 0 18px;
+  }
+
+  .sw-search {
+    flex: 1 1 260px;
+    min-width: 200px;
+    padding: 11px 13px;
+    border: 1px solid var(--sw-border-strong);
+    border-radius: 9px;
+    background: var(--sw-surface);
+    box-shadow: var(--sw-shadow);
+    font-size: 13px;
+    color: var(--sw-text);
+    outline: none;
+  }
+
+  .sw-search:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+
+  .sw-cats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .sw-cat {
+    padding: 8px 12px;
+    border: 1px solid var(--sw-border);
+    border-radius: 999px;
+    background: var(--sw-surface);
+    color: var(--sw-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .sw-cat:hover {
+    border-color: #c7d2fe;
+    color: var(--sw-accent);
+  }
+
+  .sw-cat[aria-pressed="true"] {
+    background: var(--sw-accent-soft);
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  .sw-section {
+    margin: 30px 0 0;
+    scroll-margin-top: 90px;
+  }
+
+  .sw-section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+  }
+
+  .sw-section-head .sw-count {
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .sw-section-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--sw-text);
+  }
+
+  .sw-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .sw-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 168px;
+    padding: 16px;
+    background: var(--sw-surface);
+    border: 1px solid var(--sw-border);
+    border-radius: 8px;
+    box-shadow: var(--sw-shadow);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .sw-card:hover {
+    transform: translateY(-1px);
+    border-color: #cbd5e1;
+    box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.12);
+  }
+
+  .sw-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .sw-logo {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #e0f2fe, #e0e7ff);
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .sw-card h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--sw-text);
+    overflow-wrap: anywhere;
+  }
+
+  .sw-card .sw-desc {
+    margin: 0;
+    color: var(--sw-text-secondary);
+    font-size: 13px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  .sw-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+
+  .sw-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .sw-btn-download {
+    background: var(--sw-green);
+    border: 1px solid var(--sw-green);
+    color: #ffffff;
+  }
+
+  .sw-btn-download:hover {
+    background: #047857;
+    border-color: #047857;
+  }
+
+  .sw-btn-site {
+    background: var(--sw-surface);
+    border: 1px solid var(--sw-border-strong);
+    color: var(--sw-text-secondary);
+  }
+
+  .sw-btn-site:hover {
+    border-color: #93c5fd;
+    color: var(--sw-accent);
+  }
+
+  .sw-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--sw-text-secondary);
+    font-size: 14px;
+    background: var(--sw-surface);
+    border: 1px dashed var(--sw-border-strong);
+    border-radius: 8px;
+  }
+
+  .sw-note {
+    margin: 26px 0 0;
+    padding: 12px 14px;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 640px) {
+    .sw-page { padding: 22px 16px 70px; }
+    .sw-header { flex-direction: column; }
+    .sw-lang { align-self: flex-start; }
+    .sw-grid { grid-template-columns: 1fr; }
+    .sw-card { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a href="/" class="home-link">&#8592; Home</a>
+  <nav id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span class="sep">&#8250;</span>
+    <a href="/myfiles/">My Files</a>
+    <span class="sep">&#8250;</span>
+    <a href="/myfiles/softwares/">Softwares</a>
+    <span class="sep">&#8250;</span>
+    <span class="current" data-i18n="pageTitle">Windows Software Downloads</span>
+  </nav>
+</header>
+
+<main class="sw-page">
+  <section class="sw-header">
+    <div>
+      <h1 data-i18n="heroTitle">Windows Software Downloads</h1>
+      <p data-i18n="heroDesc">Official download links for the Windows software I use, organized by category.</p>
+    </div>
+    <div class="sw-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
+  </section>
+
+  <section class="sw-toolbar">
+    <input type="search" id="swSearch" class="sw-search" data-i18n-placeholder="searchPlaceholder" placeholder="Search software...">
+    <div class="sw-cats" id="swCats"></div>
+  </section>
+
+  <div id="swContent"></div>
+
+  <p class="sw-note" data-i18n="note">Links point to official websites or official download pages. If a direct download link is unavailable, open the official site and choose the version that matches your system.</p>
+</main>
+
+<footer class="footer">Helloxiaolaodi &#183; My Files</footer>
+
+<script>
+(function () {
+  const CATEGORIES = [
+    { id: 'notes', en: 'Notes, Knowledge & Mind Maps', zh: '笔记、知识管理与思维导图' },
+    { id: 'dev', en: 'Development, IDE & Programming', zh: '代码开发、IDE 与编程环境' },
+    { id: 'git', en: 'Git Version Control', zh: 'Git 版本控制工具' },
+    { id: 'terminal', en: 'Terminal, Remote & Containers', zh: '终端模拟、远程连接与容器' },
+    { id: 'files', en: 'Files, Search & Cloud Sync', zh: '文件管理、搜索与云同步' },
+    { id: 'utility', en: 'Launchers, System & Desktop Tools', zh: '效率启动、系统工具与桌面辅助' },
+    { id: 'browser', en: 'Browsers & Email', zh: '网络浏览与邮件通讯' },
+    { id: 'media', en: 'Download & Media Tools', zh: '下载与音视频处理' },
+    { id: 'security', en: 'Security & Network Proxy', zh: '安全防护与网络代理' }
+  ];
+
+  const SOFTWARE = [
+    { cat: 'notes', name: 'Obsidian', en: 'Local-first Markdown knowledge base with bidirectional links for notes and research.', zh: '基于本地 Markdown 的双链知识库与笔记工具，适合个人知识管理。', url: 'https://obsidian.md/' },
+    { cat: 'notes', name: 'Logseq', en: 'Privacy-focused, local-first outliner with bidirectional linking.', zh: '本地优先、注重隐私的大纲型双链笔记工具。', url: 'https://logseq.com/' },
+    { cat: 'notes', name: 'AppFlowy', en: 'Open-source Notion alternative with boards, tables, and local storage.', zh: '开源的 Notion 替代品，支持看板、表格与本地存储。', url: 'https://appflowy.io/' },
+    { cat: 'notes', name: 'Yuque', en: 'Cloud-based structured knowledge base and collaborative documents by Ant Group.', zh: '蚂蚁集团推出的云端结构化知识库与协作文档。', url: 'https://www.yuque.com/' },
+    { cat: 'notes', name: 'MarkText', en: 'Minimal open-source Markdown editor with a clean WYSIWYG experience.', zh: '极简、所见即所得的开源 Markdown 编辑器。', url: 'https://marktext.cc/', extra: { en: 'GitHub', zh: 'GitHub', url: 'https://github.com/marktext/marktext' } },
+    { cat: 'notes', name: 'Zotero', en: 'Powerful open-source reference manager for literature and academic research.', zh: '强大的开源文献检索、管理与学术知识库工具。', url: 'https://www.zotero.org/' },
+    { cat: 'notes', name: 'Xmind', en: 'Classic full-featured mind mapping and brainstorming software.', zh: '经典全功能思维导图与头脑风暴软件。', url: 'https://xmind.cn/' },
+    { cat: 'notes', name: 'Okular', en: 'KDE multi-format document and PDF reader.', zh: 'KDE 旗下强大的多格式通用文档与 PDF 阅读器。', url: 'https://okular.kde.org/' },
+    { cat: 'notes', name: 'Sticky Notes', en: 'Microsoft official sticky notes app for quick reminders.', zh: '微软官方便签工具，适合快速记录临时事项。', url: 'https://apps.microsoft.com/detail/9nblggh4qghw' },
+
+    { cat: 'dev', name: 'Visual Studio Code', en: 'Microsoft cross-platform lightweight code editor with a rich extension ecosystem.', zh: '微软跨平台轻量级全能代码编辑器，插件生态丰富。', url: 'https://code.visualstudio.com/' },
+    { cat: 'dev', name: 'Sublime Text', en: 'Classic fast text and code editor with a responsive interface.', zh: '启动极速、响应流畅的经典文本与代码编辑器。', url: 'https://www.sublimetext.com/' },
+    { cat: 'dev', name: 'Python', en: 'Official Python interpreter and runtime environment.', zh: '官方 Python 解释器与运行环境。', url: 'https://www.python.org/' },
+    { cat: 'dev', name: 'R', en: 'Open-source programming language and environment for statistical computing and graphics.', zh: '用于统计计算和图形展示的开源编程语言与环境。', url: 'https://www.r-project.org/' },
+    { cat: 'dev', name: 'RStudio', en: 'Posit official integrated development environment for R.', zh: 'Posit 官方出品的 R 语言集成开发环境。', url: 'https://posit.co/download/rstudio-desktop/' },
+    { cat: 'dev', name: 'Anaconda / Miniconda', en: 'Python data science environment with conda package and virtual environment management.', zh: 'Anaconda / Miniconda 附带的 Python 数据科学环境与包管理工具。', url: 'https://www.anaconda.com/download', extra: { en: 'Miniconda', zh: 'Miniconda', url: 'https://docs.anaconda.com/miniconda/' } },
+    { cat: 'dev', name: 'Ubuntu 24.04', en: 'Linux distribution commonly used with WSL 2 or standalone virtual machines.', zh: 'Linux 发行版，常用于 WSL 2 或独立虚拟机。', url: 'https://ubuntu.com/download', extra: { en: 'Microsoft Store', zh: 'Microsoft Store', url: 'https://apps.microsoft.com/detail/9nz3klhxdjp5' } },
+
+    { cat: 'git', name: 'Git for Windows', en: 'Official Git command-line tools with a Bash simulation environment.', zh: 'Git 官方命令行工具与 Bash 模拟环境。', url: 'https://git-scm.com/' },
+    { cat: 'git', name: 'Fork', en: 'Fast, intuitive, and interactive graphical Git client.', zh: '快速直观、交互友好的 Git 图形化客户端。', url: 'https://git-fork.com/' },
+    { cat: 'git', name: 'Rebased', en: 'Standalone graphical Git client rebuilt on the IntelliJ platform.', zh: '基于 IntelliJ 平台核心改造的独立 Git 图形客户端。', url: 'https://github.com/detachhead/rebased' },
+
+    { cat: 'terminal', name: 'Alacritty', en: 'GPU-accelerated cross-platform lightweight terminal emulator.', zh: 'GPU 硬件加速的跨平台轻量终端模拟器。', url: 'https://alacritty.org/', extra: { en: 'GitHub', zh: 'GitHub', url: 'https://github.com/alacritty/alacritty' } },
+    { cat: 'terminal', name: 'MobaXterm', en: 'All-in-one Windows terminal toolbox with Xserver, SSH, VNC, and RDP.', zh: '集成 Xserver、SSH、VNC、RDP 的 Windows 全能终端工具箱。', url: 'https://mobaxterm.mobatek.net/' },
+    { cat: 'terminal', name: 'WinSCP', en: 'Open-source Windows SFTP, FTP, and SCP client.', zh: '开源 Windows SFTP / FTP / SCP 客户端。', url: 'https://winscp.net/' },
+    { cat: 'terminal', name: 'FileZilla', en: 'Cross-platform FTP, FTPS, and SFTP client.', zh: '跨平台的 FTP、FTPS 和 SFTP 客户端。', url: 'https://filezilla-project.org/' },
+    { cat: 'terminal', name: 'Docker Desktop', en: 'Desktop tool for building, running, and managing containerized applications.', zh: '容器化应用的本地构建、运行与管理桌面工具。', url: 'https://www.docker.com/products/docker-desktop/' },
+
+    { cat: 'files', name: 'Everything', en: 'Ultra-fast filename search tool for Windows.', zh: 'Windows 上极速的文件名搜索利器。', url: 'https://www.voidtools.com/' },
+    { cat: 'files', name: 'AnyTXT Searcher', en: 'Powerful full-text search engine for local documents.', zh: '强大的本地文档全文内容搜索引擎。', url: 'https://anytxt.net/' },
+    { cat: 'files', name: 'Files', en: 'Modern third-party Windows file manager with Fluent design.', zh: '采用 Fluent 现代设计的 Windows 第三方文件资源管理器。', url: 'https://files.community/' },
+    { cat: 'files', name: 'WizTree', en: 'Fast disk space scanner with visual usage analysis.', zh: '快速扫描并可视化分析磁盘空间占用的工具。', url: 'https://diskanalyzer.com/' },
+    { cat: 'files', name: 'AList Desktop', en: 'Desktop client for aggregating and mounting multiple cloud drives.', zh: 'AList 聚合多网盘挂载工具的桌面图形版。', url: 'https://alist.nn.ci/', extra: { en: 'GitHub', zh: 'GitHub', url: 'https://github.com/alist-org/alist-desktop' } },
+    { cat: 'files', name: 'Jianguoyun', en: 'Secure cloud drive with incremental sync across platforms.', zh: '支持增量同步与多平台的安全网盘。', url: 'https://www.jianguoyun.com/' },
+    { cat: 'files', name: 'Bandizip', en: 'Clean and efficient classic archive and compression tool.', zh: '纯净高效的经典解压缩软件。', url: 'https://www.bandisoft.com/bandizip/' },
+
+    { cat: 'utility', name: 'Quicker', en: 'Global action launcher for mouse and keyboard workflows on Windows.', zh: '针对 Windows 鼠标/键盘操作的全局动作效率工具。', url: 'https://getquicker.net/' },
+    { cat: 'utility', name: 'Listary', en: 'File search, action triggering, and app launching assistant.', zh: '专注于文件快速定位、动作触发与启动的辅助工具。', url: 'https://www.listary.com/' },
+    { cat: 'utility', name: 'Flow Launcher', en: 'Open-source quick launcher with plugins for apps, bookmarks, and more.', zh: '快速启动程序、书签与插件扩展的开源快捷启动器。', url: 'https://www.flowlauncher.com/' },
+    { cat: 'utility', name: 'Maye Nano', en: 'Minimal low-resource desktop launcher and category tool.', zh: '极简、低资源占用的桌面快速启动与分类工具。', url: 'https://github.com/25H/MayeNano' },
+    { cat: 'utility', name: 'PixPin', en: 'Full-featured screenshot, pin-on-screen, and offline OCR tool.', zh: '功能全面的长截图、贴图与离线 OCR 工具。', url: 'https://pixpinapp.com/' },
+    { cat: 'utility', name: 'UniGetUI', en: 'Graphical package manager interface for WinGet, Scoop, and Chocolatey.', zh: '整合 WinGet、Scoop、Chocolatey 的包管理图形化界面。', url: 'https://www.marticliment.com/unigetui/' },
+    { cat: 'utility', name: 'Geek Uninstaller', en: 'Lightweight uninstaller that removes programs and leftover files.', zh: '快速、彻底清理残留的轻量级软件卸载工具。', url: 'https://geekuninstaller.com/' },
+    { cat: 'utility', name: 'Watt Toolkit', en: 'Game network acceleration, account switching, and script toolbox.', zh: '游戏平台网络加速、账号切换与脚本工具箱。', url: 'https://steampp.net/' },
+    { cat: 'utility', name: 'CC Switch', en: 'Configuration and switching tool for AI coding assistants like Claude Code and Codex.', zh: '面向 Claude Code / Codex 等 AI 编程助手的配置与切换工具。', url: 'https://ccswitch.io/', extra: { en: 'GitHub', zh: 'GitHub', url: 'https://github.com/farion1231/cc-switch' } },
+    { cat: 'utility', name: 'Catrace', en: 'Health helper that tracks typing and work status and reminds you to rest.', zh: '监控打字及工作状态并提醒久坐休息的健康辅助工具。', url: 'https://github.com/lanxiuyun/Catrace' },
+
+    { cat: 'browser', name: 'Firefox', en: 'Open-source mainstream browser from Mozilla focused on privacy.', zh: 'Mozilla 出品的开源、注重隐私保护的主流浏览器。', url: 'https://www.mozilla.org/firefox/' },
+    { cat: 'browser', name: 'Zen Browser', en: 'Beautiful vertical-tab browser deeply customized from Firefox.', zh: '基于 Firefox 深度定制的美观垂直标签页浏览器。', url: 'https://zen-browser.app/' },
+    { cat: 'browser', name: 'Thorium', en: 'High-performance optimized Chromium-based browser.', zh: '基于 Chromium 构建的高性能优化分支浏览器。', url: 'https://thorium.rocks/' },
+    { cat: 'browser', name: 'Thunderbird', en: 'Cross-platform open-source email, calendar, and contacts client from Mozilla.', zh: 'Mozilla 旗下的跨平台开源邮件、日历与通讯录客户端。', url: 'https://www.thunderbird.net/' },
+
+    { cat: 'media', name: 'Free Download Manager', en: 'Cross-platform multi-threaded download manager with torrent support.', zh: '跨平台的多线程下载与种子/磁力下载工具。', url: 'https://www.freedownloadmanager.org/' },
+    { cat: 'media', name: 'Stacher', en: 'Cross-platform graphical media and video downloader powered by yt-dlp.', zh: '基于 yt-dlp 的跨平台流媒体与视频图形下载器。', url: 'https://stacher.io/' },
+    { cat: 'media', name: 'Auto Caption', en: 'Automated video speech transcription and subtitle generation tool.', zh: '自动化视频语音转录与字幕生成工具。', url: 'https://apps.microsoft.com/detail/9ngfb7jd9p33' },
+    { cat: 'media', name: 'N-Studio', en: 'Screen recording and multi-track video editing tool.', zh: '屏幕录制与多轨道后期剪辑制作工具。', url: 'https://apps.microsoft.com/detail/9p1fktts8ztd' },
+
+    { cat: 'security', name: 'Huorong', en: 'Clean, lightweight Chinese endpoint security and antivirus software.', zh: '纯净、轻巧、无弹窗骚扰的国产终端安全杀毒软件。', url: 'https://www.huorong.cn/' },
+    { cat: 'security', name: 'Clash Verge Rev', en: 'Cross-platform Clash proxy graphical client built with Tauri.', zh: '基于 Tauri 框架的跨平台 Clash 代理图形客户端。', url: 'https://github.com/clash-verge-rev/clash-verge-rev' }
+  ];
+
+  const I18N = {
+    en: {
+      pageTitle: 'Windows Software Downloads',
+      heroTitle: 'Windows Software Downloads',
+      heroDesc: 'Official download links for the Windows software I use, organized by category.',
+      searchPlaceholder: 'Search software...',
+      all: 'All',
+      download: 'Download',
+      site: 'Official Site',
+      note: 'Links point to official websites or official download pages. If a direct download link is unavailable, open the official site and choose the version that matches your system.',
+      empty: 'No software matches your search.'
+    },
+    zh: {
+      pageTitle: 'Windows 软件下载',
+      heroTitle: 'Windows 软件下载',
+      heroDesc: '我常用的 Windows 软件官方下载地址，按功能分类整理。',
+      searchPlaceholder: '搜索软件...',
+      all: '全部',
+      download: '下载',
+      site: '官网',
+      note: '链接均指向官方网站或官方下载页面。如果没有直接下载链接，请打开官网后选择适合自己系统的版本。',
+      empty: '没有找到匹配的软件。'
+    }
+  };
+
+  const state = {
+    lang: 'en',
+    category: 'all',
+    term: ''
+  };
+
+  const contentEl = document.getElementById('swContent');
+  const catsEl = document.getElementById('swCats');
+  const searchEl = document.getElementById('swSearch');
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function initials(name) {
+    const parts = name.replace(/[()]/g, '').split(/[\s/]+/).filter(Boolean);
+    return parts.slice(0, 2).map((p) => p[0]).join('').toUpperCase();
+  }
+
+  function renderCats() {
+    catsEl.innerHTML = [
+      `<button type="button" class="sw-cat" data-cat="all" aria-pressed="${state.category === 'all'}">${I18N[state.lang].all}</button>`,
+      ...CATEGORIES.map((c) => `<button type="button" class="sw-cat" data-cat="${c.id}" aria-pressed="${state.category === c.id}">${escapeHtml(c[state.lang])}</button>`)
+    ].join('');
+  }
+
+  function render() {
+    const t = I18N[state.lang];
+    const term = state.term.toLowerCase();
+    const visible = SOFTWARE.filter((s) => {
+      if (state.category !== 'all' && s.cat !== state.category) return false;
+      if (!term) return true;
+      return (s.name + ' ' + s.en + ' ' + s.zh).toLowerCase().includes(term);
+    });
+
+    const sections = CATEGORIES.map((cat) => {
+      const items = visible.filter((s) => s.cat === cat.id);
+      if (!items.length) return '';
+      return `<section class="sw-section" id="cat-${cat.id}">
+        <div class="sw-section-head">
+          <h2>${escapeHtml(cat[state.lang])}</h2>
+          <span class="sw-count">${items.length}</span>
+        </div>
+        <div class="sw-grid">
+          ${items.map((s) => {
+            const extra = s.extra ? `<a class="sw-btn sw-btn-site" href="${escapeHtml(s.extra.url)}" target="_blank" rel="noopener">${escapeHtml(s.extra[state.lang])}</a>` : '';
+            return `<article class="sw-card">
+              <div class="sw-card-top">
+                <div class="sw-logo" aria-hidden="true">${escapeHtml(initials(s.name))}</div>
+                <div>
+                  <h3>${escapeHtml(s.name)}</h3>
+                  <p class="sw-desc">${escapeHtml(s[state.lang])}</p>
+                </div>
+              </div>
+              <div class="sw-card-actions">
+                <a class="sw-btn sw-btn-download" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${t.download}</a>
+                <a class="sw-btn sw-btn-site" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${t.site}</a>
+                ${extra}
+              </div>
+            </article>`;
+          }).join('')}
+        </div>
+      </section>`;
+    }).join('');
+
+    contentEl.innerHTML = sections || `<div class="sw-empty">${escapeHtml(t.empty)}</div>`;
+  }
+
+  function applyLang() {
+    const t = I18N[state.lang];
+    document.documentElement.lang = state.lang === 'zh' ? 'zh-CN' : 'en';
+    document.title = t.pageTitle;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      el.textContent = t[el.getAttribute('data-i18n')];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+      el.placeholder = t[el.getAttribute('data-i18n-placeholder')];
+    });
+    document.querySelectorAll('.sw-lang button').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.lang === state.lang));
+    });
+    renderCats();
+    render();
+  }
+
+  document.querySelectorAll('.sw-lang button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.lang = btn.dataset.lang;
+      applyLang();
+    });
+  });
+
+  catsEl.addEventListener('click', (event) => {
+    const btn = event.target.closest('.sw-cat');
+    if (!btn) return;
+    state.category = btn.dataset.cat;
+    renderCats();
+    render();
+  });
+
+  searchEl.addEventListener('input', () => {
+    state.term = searchEl.value;
+    render();
+  });
+
+  applyLang();
+})();
+</script>
+</body>
+</html>

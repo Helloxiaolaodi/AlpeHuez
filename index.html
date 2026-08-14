@@ -225,6 +225,43 @@
             box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
         }
 
+        .glass-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 12px;
+            font-family: system-ui, -apple-system, sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        .glass-pill:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #appflowy-kom-pill .status-dot {
+            position: static;
+            width: 6px;
+            height: 6px;
+            border: 0;
+            border-radius: 50%;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .dot-success { color: #10B981; background-color: #10B981; }
+        .dot-error { color: #EF4444; background-color: #EF4444; }
+        .dot-neutral { color: #9CA3AF; background-color: #9CA3AF; }
+
         .engine-trigger { transition: background-color 0.15s ease; }
         html[data-theme="gradient"] .engine-trigger { color: #0366d6; background: rgba(0, 135, 235, 0.08); }
         html[data-theme="gradient"] .engine-trigger:hover { background: rgba(0, 135, 235, 0.16); }
@@ -403,9 +440,9 @@
         <div class="flex-1 overflow-y-auto px-8 relative scroll-smooth -mt-8 pt-8" id="scrollContainer">
             <div class="max-w-5xl mx-auto pb-32 space-y-16">
                 <div class="text-center space-y-3">
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Research Workspace · All systems operational
+                    <div id="appflowy-kom-pill" class="glass-pill" title="Initializing...">
+                        <span id="kom-dot" class="status-dot dot-neutral"></span>
+                        <span id="kom-text">Riding in the Peloton  Standby</span>
                     </div>
                     <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight card-title">Stay lucky, stay curious</h2>
                 </div>
@@ -844,6 +881,49 @@
                 console.error('Failed to load links.json:', err);
                 dismissLoadingScreen();
             });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const komPill = document.getElementById('appflowy-kom-pill');
+            const dot = document.getElementById('kom-dot');
+            const text = document.getElementById('kom-text');
+
+            const API_URL = "https://appflowy-notifier.20211003.xyz/api/status";
+
+            async function checkAppFlowyKOM() {
+                try {
+                    const response = await fetch(API_URL);
+                    const data = await response.json();
+
+                    dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
+
+                    if (data.status === "success") {
+                        dot.classList.add('dot-success');
+                        text.innerText = "KOM Points Secured  AppFlowy Synced";
+                        komPill.title = `Last Sync: ${data.time}\nStatus: Summit Reached (HC Category)`;
+                        komPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
+                    } else if (data.status === "error") {
+                        dot.classList.add('dot-error');
+                        text.innerText = "Dropped on HC Climb  Sync Failed";
+                        komPill.title = `Failed Attempt: ${data.time}\nStatus: Missing the Time Cut`;
+                        komPill.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                    } else {
+                        dot.classList.add('dot-neutral');
+                        text.innerText = "Riding in the Peloton  Standby";
+                        komPill.title = "Awaiting the next climb...";
+                    }
+                } catch (error) {
+                    dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
+                    dot.classList.add('dot-error');
+                    text.innerText = "Mechanical Failure  API Offline";
+                    komPill.title = "Check your Cloudflare Worker or Network.";
+                }
+            }
+
+            checkAppFlowyKOM();
+            setInterval(checkAppFlowyKOM, 300000);
+        });
     </script>
 </body>
 </html>

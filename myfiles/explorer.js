@@ -123,7 +123,7 @@
       filesEl.innerHTML = files.length
         ? `<div class="section-title">Files</div><div class="list">` + files.map((f, index) => {
             const isSource = f.kind === 'source';
-            const href = `${nodePath}/${encodeURIComponent(f.name)}`;
+            const href = `${nodePath}/${encodeURIComponent(f.url || f.name)}`;
             const source = f.source || null;
             const menuId = `source-menu-${index}`;
             const rowMain = isSource
