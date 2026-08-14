@@ -7,9 +7,11 @@
   Cache-Control: public, max-age=86400
   CDN-Cache-Control: public, max-age=604800
 
-# Static assets — cache 7 days
+# My Files assets — revalidate so style changes appear immediately
 /myfiles/explorer.css
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
 
 /myfiles/explorer.js
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
