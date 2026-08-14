@@ -902,22 +902,24 @@
                 try {
                     const response = await fetch(API_URL);
                     const data = await response.json();
+                    const message = data.msg || data.message || '';
+                    const lastSync = data.time ? `Last Sync: ${data.time}\n` : '';
 
                     dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
 
                     if (data.status === "success") {
                         dot.classList.add('dot-success');
-                        text.innerText = "KOM Points Secured  AppFlowy Synced";
-                        komPill.title = `Last Sync: ${data.time}\nStatus: Summit Reached (HC Category)`;
+                        text.innerText = message || "KOM Points Secured  AppFlowy Synced";
+                        komPill.title = `${lastSync}Status: Summit Reached (HC Category)`;
                         komPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
                     } else if (data.status === "error") {
                         dot.classList.add('dot-error');
-                        text.innerText = "Dropped on HC Climb  Sync Failed";
-                        komPill.title = `Failed Attempt: ${data.time}\nStatus: Missing the Time Cut`;
+                        text.innerText = message || "Dropped on HC Climb  Sync Failed";
+                        komPill.title = `${lastSync}Status: Missing the Time Cut`;
                         komPill.style.borderColor = "rgba(239, 68, 68, 0.4)";
                     } else {
                         dot.classList.add('dot-neutral');
-                        text.innerText = "Riding in the Peloton  Standby";
+                        text.innerText = message || "Riding in the Peloton  Standby";
                         komPill.title = "Awaiting the next climb...";
                     }
                 } catch (error) {
