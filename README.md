@@ -114,13 +114,17 @@ The repository follows a layered background strategy. The rule is driven by **pa
 | --- | --- | --- |
 | Navigation dashboard | `index.html` | Light gradient **or** dark space — user switchable in the UI |
 | My Files root explorer | `myfiles/index.html` | Light gradient (`#B1E3FF` -> `#F8FAFC` -> `#FFE0AE`) |
-| My Files folder explorer | `myfiles/<folder>/index.html` | Light gradient (same as above) |
-| Login pages | `myfiles/<area>/login.html` | Light gradient (same as above) |
-| Report / detail HTML | `myfiles/<area>/*.html` | Pure white (`#ffffff`) |
+| My Files folder explorer | `myfiles/global-oral/index.html`<br>`myfiles/targetc/index.html`<br>`myfiles/lucuro/index.html`<br>`myfiles/galibierhub/index.html`<br>`myfiles/softwares/index.html` | Light gradient (same as above) |
+| Login pages | `myfiles/global-oral/login.html`<br>`myfiles/targetc/login.html`<br>`myfiles/lucuro/login.html`<br>`myfiles/galibierhub/login.html` | Light gradient (same as above) |
+| Report / detail HTML | `myfiles/global-oral/*.html`<br>`myfiles/targetc/*.html`<br>`myfiles/lucuro/*.html`<br>`myfiles/galibierhub/*.html` | Pure white (`#ffffff`) |
 | Software download page | `myfiles/softwares/Windows Software Downloads.html` | Pure white (`#ffffff`) |
 
-**How to apply when adding new pages:**
+**Why some pages still look wrong online**
 
+- If a folder index page still shows a white background after deployment, it is almost certainly **CDN cache** on `explorer.css` or the HTML itself. The `_headers` file is configured to prevent this for explorer assets and folder index pages, but you may need to wait a few minutes for the CDN edge to expire, or purge the Cloudflare cache manually.
+- Re-generated Quarto reports may also keep the old background until the browser or CDN cache expires. The `index.html` files in each folder are set to `max-age=0, must-revalidate` so they refresh immediately.
+
+**How to apply when adding new pages:**
 - Folder-level index pages or login forms -> use the light gradient.
 - Leaf HTML documents (reports, charts, downloads, generated pages) -> keep the background pure white so content is easy to read without competing with the surrounding page chrome.
 - When a generated HTML already includes its own `body { background: ... }` rule, override it inline if it must match the white rule.

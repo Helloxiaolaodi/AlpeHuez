@@ -12,6 +12,14 @@
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=0, must-revalidate
 
+/myfiles/galibierhub/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
+
+/myfiles/lucuro/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=0, must-revalidate
+
 /myfiles/explorer.js
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=0, must-revalidate
