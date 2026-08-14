@@ -1,6 +1,6 @@
 # my-nav
 
-Personal navigation dashboard and password-protected report workspace for **Helloxiaolaodi**.
+Personal navigation dashboard and password-protected report workspace for **Helloxiaolaodi**. 
 
 This repository contains a static homepage that renders links from `links.json`, a local Tailwind runtime, and a `myfiles` explorer for shared Quarto reports. Cloudflare Pages Functions protect selected report folders.
 
