@@ -18,7 +18,7 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  background: linear-gradient(135deg, #B1E3FF 0%, #F8FAFC 40%, #FFE0AE 100%);
   background-attachment: fixed;
 }
 a { color: inherit; }
