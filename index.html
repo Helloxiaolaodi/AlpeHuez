@@ -258,8 +258,8 @@
 
         #syncDot.status-dot {
             position: static;
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             border: 0;
             border-radius: 50%;
             background-color: #10b981;
@@ -272,37 +272,39 @@
             align-items: center;
             width: min(100%, 560px);
             margin: 0 auto;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sync-status-container:hover {
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
         }
         html[data-theme="space"] .sync-status-container {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 10px 32px -18px rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 24px -12px rgba(0, 0, 0, 0.5);
         }
         html[data-theme="space"] .sync-status-container:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .sync-header {
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 10px;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 13px;
+            margin-bottom: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 12px;
             font-weight: 500;
             color: #4b5563;
+            letter-spacing: 0.2px;
         }
         html[data-theme="space"] .sync-header {
             color: #cbd5e1;
@@ -310,23 +312,26 @@
 
         .sync-grid {
             display: flex;
-            gap: 5px;
+            gap: 6px;
             align-items: center;
+            width: 100%;
         }
 
         .sync-cell {
-            width: 8px;
-            height: 20px;
-            background-color: rgba(0, 0, 0, 0.06);
-            border-radius: 4px;
+            flex: 1 1 0;
+            max-width: 10px;
+            height: 16px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sync-cell:hover {
-            transform: scaleY(1.15);
+            transform: scaleY(1.2);
+            background-color: rgba(0, 0, 0, 0.1);
         }
         .sync-cell.success {
             background-color: #10b981;
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.45);
         }
         .sync-cell.error {
             background-color: #ef4444;
@@ -532,9 +537,9 @@
                         <div id="appflowy-kom-pill" class="sync-status-container" title="Initializing...">
                             <div class="sync-header">
                                 <span id="syncDot" class="status-dot dot-neutral"></span>
-                                <span id="syncText">AppFlowy Synced</span>
+                                <span id="syncText">Col du Galibier  爬坡积分已拿下</span>
                             </div>
-                            <div id="syncGrid" class="sync-grid" title="24-hour backup timeline"></div>
+                            <div id="syncGrid" class="sync-grid" title="环法 24 小时爬坡积分榜"></div>
                         </div>
                     <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight card-title">Stay lucky, stay curious</h2>
                 </div>
@@ -788,10 +793,12 @@
 
         function positionEngineMenu() {
             const engineRect = engineBtn.getBoundingClientRect();
-            const inputRect = document.getElementById('searchInput').getBoundingClientRect();
-            engineMenu.style.left = engineRect.left + 'px';
-            engineMenu.style.top = (inputRect.bottom + 8) + 'px';
+            const offsetParent = engineBtn.offsetParent || engineBtn.parentElement;
+            const parentRect = offsetParent.getBoundingClientRect();
+            engineMenu.style.left = (parentRect.left + engineBtn.offsetLeft) + 'px';
+            engineMenu.style.top = (engineRect.bottom + 8) + 'px';
             engineMenu.style.width = engineRect.width + 'px';
+            engineMenu.style.minWidth = engineRect.width + 'px';
         }
 
         engineBtn.addEventListener('click', (event) => {
@@ -998,16 +1005,29 @@
                 const day = String(beijingTime.getUTCDate()).padStart(2, '0');
                 const datePrefix = `${year}-${month}-${day}`;
                 const grid = data && data.grid ? data.grid : {};
+                const beijingGrid = {};
+
+                Object.entries(grid).forEach(([key, record]) => {
+                    let beijingKey = key;
+                    if (record && record.timestamp) {
+                        const local = new Date(Number(record.timestamp) + 8 * 60 * 60 * 1000);
+                        beijingKey = `${local.getUTCFullYear()}-${String(local.getUTCMonth() + 1).padStart(2, '0')}-${String(local.getUTCDate()).padStart(2, '0')}-${String(local.getUTCHours()).padStart(2, '0')}`;
+                    } else if (record && record.time) {
+                        const match = String(record.time).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2})/);
+                        if (match) beijingKey = `${match[1]}-${match[2]}-${match[3]}-${match[4]}`;
+                    }
+                    beijingGrid[beijingKey] = record;
+                });
 
                 for (let i = 0; i < 24; i++) {
                     const hourStr = String(i).padStart(2, '0');
                     const hourKey = `${datePrefix}-${hourStr}`;
-                    const record = grid[hourKey];
+                    const record = beijingGrid[hourKey];
 
                     const cell = document.createElement('div');
                     cell.className = 'sync-cell';
                     const label = `${hourStr}:00 - ${hourStr}:59`;
-                    cell.title = `${label}${record ? ` (${record.status || 'unknown'})` : ' (no backup)'}`;
+                    cell.title = `${label}${record ? ' (已同步)' : ' (无同步)'}`;
 
                     if (record && record.status === 'success') {
                         cell.classList.add('success');
@@ -1026,30 +1046,32 @@
                     const response = await fetch(API_URL);
                     const data = await response.json();
                     const message = data.msg || data.message || '';
-                    const lastSync = data.time ? `Last Sync: ${data.time}\n` : '';
+                    const lastSync = data.lastTime
+                        ? `Last Sync: ${new Date(Number(data.lastTime) + 8 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19)} (UTC+8)\n`
+                        : (data.time ? `Last Sync: ${data.time}\n` : '');
 
                     dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
                     renderHourlyGrid(data);
 
                     if (data.status === "success") {
                         dot.classList.add('dot-success');
-                        text.innerText = message || "KOM Points Secured  AppFlowy Synced";
+                        text.innerText = "Col du Galibier  爬坡积分已拿下";
                         komPill.title = `${lastSync}Status: Summit Reached (HC Category)`;
                         komPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
                     } else if (data.status === "error") {
                         dot.classList.add('dot-error');
-                        text.innerText = message || "Dropped on HC Climb  Sync Failed";
+                        text.innerText = "Col du Galibier  爬坡积分失守";
                         komPill.title = `${lastSync}Status: Missing the Time Cut`;
                         komPill.style.borderColor = "rgba(239, 68, 68, 0.4)";
                     } else {
                         dot.classList.add('dot-neutral');
-                        text.innerText = message || "Riding in the Peloton  Standby";
+                        text.innerText = "Col du Galibier  等待发车";
                         komPill.title = "Awaiting the next climb...";
                     }
                 } catch (error) {
                     dot.classList.remove('dot-success', 'dot-error', 'dot-neutral');
                     dot.classList.add('dot-error');
-                    text.innerText = "Mechanical Failure  API Offline";
+                    text.innerText = "Col du Galibier  信号中断";
                     komPill.title = "Check your Cloudflare Worker or Network.";
                     renderHourlyGrid({ grid: {} });
                 }
