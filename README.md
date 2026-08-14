@@ -106,6 +106,26 @@ For the full `myfiles` experience with login redirects, deploy the repository to
 
 ## Security Notes
 
+## Page Background Color Rules
+
+The repository follows a layered background strategy. The rule is driven by **page depth**, not by content type.
+
+| Page type | File(s) | Background |
+| --- | --- | --- |
+| Navigation dashboard | `index.html` | Light gradient **or** dark space — user switchable in the UI |
+| My Files root explorer | `myfiles/index.html` | Light gradient (`#B1E3FF` -> `#F8FAFC` -> `#FFE0AE`) |
+| My Files folder explorer | `myfiles/<folder>/index.html` | Light gradient (same as above) |
+| Login pages | `myfiles/<area>/login.html` | Light gradient (same as above) |
+| Report / detail HTML | `myfiles/<area>/*.html` | Pure white (`#ffffff`) |
+| Software download page | `myfiles/softwares/Windows Software Downloads.html` | Pure white (`#ffffff`) |
+
+**How to apply when adding new pages:**
+
+- Folder-level index pages or login forms -> use the light gradient.
+- Leaf HTML documents (reports, charts, downloads, generated pages) -> keep the background pure white so content is easy to read without competing with the surrounding page chrome.
+- When a generated HTML already includes its own `body { background: ... }` rule, override it inline if it must match the white rule.
+
+
 - The login cookie is scoped with `Path=/`, `SameSite=Lax`, and `Secure`.
 - Passwords are stored in the source `_auth.js` files; rotate them if the repository is public.
 - Do not place private data inside `/myfiles/` unless it is password protected or removed from the public deployment.
