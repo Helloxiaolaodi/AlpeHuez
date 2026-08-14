@@ -129,3 +129,8 @@ The repository follows a layered background strategy. The rule is driven by **pa
 - The login cookie is scoped with `Path=/`, `SameSite=Lax`, and `Secure`.
 - Passwords are stored in the source `_auth.js` files; rotate them if the repository is public.
 - Do not place private data inside `/myfiles/` unless it is password protected or removed from the public deployment.
+| My Files folder explorer | `myfiles/<folder>/index.html` | Light gradient (same as above) |
+| Login pages | `myfiles/<area>/login.html` | Light gradient (same as above) |
+| Report / detail HTML | `myfiles/<area>/*.html` | Pure white (`#ffffff`) |
+| Software download page | `myfiles/softwares/Windows Software Downloads.html` | Pure white (`#ffffff`) |
+| Protected folder index | `myfiles/global-oral/index.html`<br>`myfiles/targetc/index.html`<br>`myfiles/lucuro/index.html`<br>`myfiles/galibierhub/index.html` | Light gradient (same as above) |
