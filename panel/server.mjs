@@ -154,6 +154,21 @@ async function handleApi(req, res, url) {
     return sendJson(res, 200, { ok: true });
   }
 
+  if (route === '/api/software' && req.method === 'GET') {
+    const data = JSON.parse(await readFile(path.join(repoRoot, 'myfiles', 'softwares', 'software-data.json'), 'utf8'));
+    return sendJson(res, 200, { ok: true, data });
+  }
+
+  if (route === '/api/software' && req.method === 'POST') {
+    const body = JSON.parse(await readBody(req));
+    const data = body.data;
+    if (!data || !Array.isArray(data.categories) || !Array.isArray(data.software)) {
+      return sendJson(res, 400, { ok: false, error: '数据格式不正确：缺少 categories/software 数组' });
+    }
+    await writeFile(path.join(repoRoot, 'myfiles', 'softwares', 'software-data.json'), JSON.stringify(data, null, 4) + '\n', 'utf8');
+    return sendJson(res, 200, { ok: true });
+  }
+
   if (route === '/api/run-script' && req.method === 'POST') {
     const body = JSON.parse(await readBody(req));
     const file = SCRIPTS[body.script];

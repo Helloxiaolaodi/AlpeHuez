@@ -1,0 +1,438 @@
+{
+    "categories": [
+        {
+            "id": "notes",
+            "en": "Notes, Knowledge & Mind Maps",
+            "zh": "????????????"
+        },
+        {
+            "id": "dev",
+            "en": "Development, IDE & Programming",
+            "zh": "?????IDE ?????"
+        },
+        {
+            "id": "git",
+            "en": "Git Version Control",
+            "zh": "Git ??????"
+        },
+        {
+            "id": "terminal",
+            "en": "Terminal, Remote & Containers",
+            "zh": "????????????"
+        },
+        {
+            "id": "files",
+            "en": "Files, Search & Cloud Sync",
+            "zh": "???????????"
+        },
+        {
+            "id": "utility",
+            "en": "Launchers, System & Desktop Tools",
+            "zh": "??????????????"
+        },
+        {
+            "id": "browser",
+            "en": "Browsers & Email",
+            "zh": "?????????"
+        },
+        {
+            "id": "media",
+            "en": "Download & Media Tools",
+            "zh": "????????"
+        },
+        {
+            "id": "security",
+            "en": "Security & Network Proxy",
+            "zh": "?????????"
+        }
+    ],
+    "software": [
+        {
+            "cat": "notes",
+            "name": "Obsidian",
+            "en": "Local-first Markdown knowledge base with bidirectional links for notes and research.",
+            "zh": "???? Markdown ???????????,?????????",
+            "url": "https://obsidian.md/"
+        },
+        {
+            "cat": "notes",
+            "name": "Logseq",
+            "en": "Privacy-focused, local-first outliner with bidirectional linking.",
+            "zh": "????????????????????",
+            "url": "https://logseq.com/"
+        },
+        {
+            "cat": "notes",
+            "name": "AppFlowy",
+            "en": "Open-source Notion alternative with boards, tables, and local storage.",
+            "zh": "??? Notion ???,?????????????",
+            "url": "https://appflowy.io/"
+        },
+        {
+            "cat": "notes",
+            "name": "Yuque",
+            "en": "Cloud-based structured knowledge base and collaborative documents by Ant Group.",
+            "zh": "?????????????????????",
+            "url": "https://www.yuque.com/"
+        },
+        {
+            "cat": "notes",
+            "name": "MarkText",
+            "en": "Minimal open-source Markdown editor with a clean WYSIWYG experience.",
+            "zh": "??????????? Markdown ????",
+            "url": "https://marktext.cc/",
+            "extra": {
+                "en": "GitHub",
+                "zh": "GitHub",
+                "url": "https://github.com/marktext/marktext"
+            }
+        },
+        {
+            "cat": "notes",
+            "name": "Zotero",
+            "en": "Powerful open-source reference manager for literature and academic research.",
+            "zh": "?????????????????????",
+            "url": "https://www.zotero.org/"
+        },
+        {
+            "cat": "notes",
+            "name": "Xmind",
+            "en": "Classic full-featured mind mapping and brainstorming software.",
+            "zh": "?????????????????",
+            "url": "https://xmind.cn/"
+        },
+        {
+            "cat": "notes",
+            "name": "Okular",
+            "en": "KDE multi-format document and PDF reader.",
+            "zh": "KDE ????????????? PDF ????",
+            "url": "https://okular.kde.org/"
+        },
+        {
+            "cat": "notes",
+            "name": "Sticky Notes",
+            "en": "Microsoft official sticky notes app for quick reminders.",
+            "zh": "????????,???????????",
+            "url": "https://apps.microsoft.com/detail/9nblggh4qghw"
+        },
+        {
+            "cat": "dev",
+            "name": "Visual Studio Code",
+            "en": "Microsoft cross-platform lightweight code editor with a rich extension ecosystem.",
+            "zh": "???????????????,???????",
+            "url": "https://code.visualstudio.com/"
+        },
+        {
+            "cat": "dev",
+            "name": "Sublime Text",
+            "en": "Classic fast text and code editor with a responsive interface.",
+            "zh": "?????????????????????",
+            "url": "https://www.sublimetext.com/"
+        },
+        {
+            "cat": "dev",
+            "name": "Python",
+            "en": "Official Python interpreter and runtime environment.",
+            "zh": "?? Python ?????????",
+            "url": "https://www.python.org/"
+        },
+        {
+            "cat": "dev",
+            "name": "R",
+            "en": "Open-source programming language and environment for statistical computing and graphics.",
+            "zh": "??????????????????????",
+            "url": "https://www.r-project.org/"
+        },
+        {
+            "cat": "dev",
+            "name": "RStudio",
+            "en": "Posit official integrated development environment for R.",
+            "zh": "Posit ????? R ?????????",
+            "url": "https://posit.co/download/rstudio-desktop/"
+        },
+        {
+            "cat": "dev",
+            "name": "Anaconda / Miniconda",
+            "en": "Python data science environment with conda package and virtual environment management.",
+            "zh": "Anaconda / Miniconda ??? Python ?????????????",
+            "url": "https://www.anaconda.com/download",
+            "extra": {
+                "en": "Miniconda",
+                "zh": "Miniconda",
+                "url": "https://docs.anaconda.com/miniconda/"
+            }
+        },
+        {
+            "cat": "dev",
+            "name": "Ubuntu 24.04",
+            "en": "Linux distribution commonly used with WSL 2 or standalone virtual machines.",
+            "zh": "Linux ???,??? WSL 2 ???????",
+            "url": "https://ubuntu.com/download",
+            "extra": {
+                "en": "Microsoft Store",
+                "zh": "Microsoft Store",
+                "url": "https://apps.microsoft.com/detail/9nz3klhxdjp5"
+            }
+        },
+        {
+            "cat": "git",
+            "name": "Git for Windows",
+            "en": "Official Git command-line tools with a Bash simulation environment.",
+            "zh": "Git ???????? Bash ?????",
+            "url": "https://git-scm.com/"
+        },
+        {
+            "cat": "git",
+            "name": "Fork",
+            "en": "Fast, intuitive, and interactive graphical Git client.",
+            "zh": "?????????? Git ???????",
+            "url": "https://git-fork.com/"
+        },
+        {
+            "cat": "git",
+            "name": "Rebased",
+            "en": "Standalone graphical Git client rebuilt on the IntelliJ platform.",
+            "zh": "?? IntelliJ ????????? Git ??????",
+            "url": "https://github.com/detachhead/rebased"
+        },
+        {
+            "cat": "terminal",
+            "name": "Alacritty",
+            "en": "GPU-accelerated cross-platform lightweight terminal emulator.",
+            "zh": "GPU ????????????????",
+            "url": "https://alacritty.org/",
+            "extra": {
+                "en": "GitHub",
+                "zh": "GitHub",
+                "url": "https://github.com/alacritty/alacritty"
+            }
+        },
+        {
+            "cat": "terminal",
+            "name": "MobaXterm",
+            "en": "All-in-one Windows terminal toolbox with Xserver, SSH, VNC, and RDP.",
+            "zh": "?? Xserver?SSH?VNC?RDP ? Windows ????????",
+            "url": "https://mobaxterm.mobatek.net/"
+        },
+        {
+            "cat": "terminal",
+            "name": "WinSCP",
+            "en": "Open-source Windows SFTP, FTP, and SCP client.",
+            "zh": "?? Windows SFTP / FTP / SCP ????",
+            "url": "https://winscp.net/"
+        },
+        {
+            "cat": "terminal",
+            "name": "FileZilla",
+            "en": "Cross-platform FTP, FTPS, and SFTP client.",
+            "zh": "???? FTP?FTPS ? SFTP ????",
+            "url": "https://filezilla-project.org/"
+        },
+        {
+            "cat": "terminal",
+            "name": "Docker Desktop",
+            "en": "Desktop tool for building, running, and managing containerized applications.",
+            "zh": "?????????????????????",
+            "url": "https://www.docker.com/products/docker-desktop/"
+        },
+        {
+            "cat": "files",
+            "name": "Everything",
+            "en": "Ultra-fast filename search tool for Windows.",
+            "zh": "Windows ????????????",
+            "url": "https://www.voidtools.com/"
+        },
+        {
+            "cat": "files",
+            "name": "AnyTXT Searcher",
+            "en": "Powerful full-text search engine for local documents.",
+            "zh": "????????????????",
+            "url": "https://anytxt.net/"
+        },
+        {
+            "cat": "files",
+            "name": "Files",
+            "en": "Modern third-party Windows file manager with Fluent design.",
+            "zh": "?? Fluent ????? Windows ???????????",
+            "url": "https://files.community/"
+        },
+        {
+            "cat": "files",
+            "name": "WizTree",
+            "en": "Fast disk space scanner with visual usage analysis.",
+            "zh": "????????????????????",
+            "url": "https://diskanalyzer.com/"
+        },
+        {
+            "cat": "files",
+            "name": "AList Desktop",
+            "en": "Desktop client for aggregating and mounting multiple cloud drives.",
+            "zh": "AList ????????????????",
+            "url": "https://alist.nn.ci/",
+            "extra": {
+                "en": "GitHub",
+                "zh": "GitHub",
+                "url": "https://github.com/alist-org/alist-desktop"
+            }
+        },
+        {
+            "cat": "files",
+            "name": "Jianguoyun",
+            "en": "Secure cloud drive with incremental sync across platforms.",
+            "zh": "????????????????",
+            "url": "https://www.jianguoyun.com/"
+        },
+        {
+            "cat": "files",
+            "name": "Bandizip",
+            "en": "Clean and efficient classic archive and compression tool.",
+            "zh": "?????????????",
+            "url": "https://www.bandisoft.com/bandizip/"
+        },
+        {
+            "cat": "utility",
+            "name": "Quicker",
+            "en": "Global action launcher for mouse and keyboard workflows on Windows.",
+            "zh": "?? Windows ??/??????????????",
+            "url": "https://getquicker.net/"
+        },
+        {
+            "cat": "utility",
+            "name": "Listary",
+            "en": "File search, action triggering, and app launching assistant.",
+            "zh": "???????????????????????",
+            "url": "https://www.listary.com/"
+        },
+        {
+            "cat": "utility",
+            "name": "Flow Launcher",
+            "en": "Open-source quick launcher with plugins for apps, bookmarks, and more.",
+            "zh": "???????????????????????",
+            "url": "https://www.flowlauncher.com/"
+        },
+        {
+            "cat": "utility",
+            "name": "Maye Nano",
+            "en": "Minimal low-resource desktop launcher and category tool.",
+            "zh": "?????????????????????",
+            "url": "https://github.com/25H/MayeNano"
+        },
+        {
+            "cat": "utility",
+            "name": "PixPin",
+            "en": "Full-featured screenshot, pin-on-screen, and offline OCR tool.",
+            "zh": "?????????????? OCR ???",
+            "url": "https://pixpinapp.com/"
+        },
+        {
+            "cat": "utility",
+            "name": "UniGetUI",
+            "en": "Graphical package manager interface for WinGet, Scoop, and Chocolatey.",
+            "zh": "?? WinGet?Scoop?Chocolatey ??????????",
+            "url": "https://www.marticliment.com/unigetui/"
+        },
+        {
+            "cat": "utility",
+            "name": "Geek Uninstaller",
+            "en": "Lightweight uninstaller that removes programs and leftover files.",
+            "zh": "????????????????????",
+            "url": "https://geekuninstaller.com/"
+        },
+        {
+            "cat": "utility",
+            "name": "Watt Toolkit",
+            "en": "Game network acceleration, account switching, and script toolbox.",
+            "zh": "????????????????????",
+            "url": "https://steampp.net/"
+        },
+        {
+            "cat": "utility",
+            "name": "CC Switch",
+            "en": "Configuration and switching tool for AI coding assistants like Claude Code and Codex.",
+            "zh": "?? Claude Code / Codex ? AI ?????????????",
+            "url": "https://ccswitch.io/",
+            "extra": {
+                "en": "GitHub",
+                "zh": "GitHub",
+                "url": "https://github.com/farion1231/cc-switch"
+            }
+        },
+        {
+            "cat": "utility",
+            "name": "Catrace",
+            "en": "Health helper that tracks typing and work status and reminds you to rest.",
+            "zh": "????????????????????????",
+            "url": "https://github.com/lanxiuyun/Catrace"
+        },
+        {
+            "cat": "browser",
+            "name": "Firefox",
+            "en": "Open-source mainstream browser from Mozilla focused on privacy.",
+            "zh": "Mozilla ???????????????????",
+            "url": "https://www.mozilla.org/firefox/"
+        },
+        {
+            "cat": "browser",
+            "name": "Zen Browser",
+            "en": "Beautiful vertical-tab browser deeply customized from Firefox.",
+            "zh": "?? Firefox ????????????????",
+            "url": "https://zen-browser.app/"
+        },
+        {
+            "cat": "browser",
+            "name": "Thorium",
+            "en": "High-performance optimized Chromium-based browser.",
+            "zh": "?? Chromium ??????????????",
+            "url": "https://thorium.rocks/"
+        },
+        {
+            "cat": "browser",
+            "name": "Thunderbird",
+            "en": "Cross-platform open-source email, calendar, and contacts client from Mozilla.",
+            "zh": "Mozilla ?????????????????????",
+            "url": "https://www.thunderbird.net/"
+        },
+        {
+            "cat": "media",
+            "name": "Free Download Manager",
+            "en": "Cross-platform multi-threaded download manager with torrent support.",
+            "zh": "????????????/???????",
+            "url": "https://www.freedownloadmanager.org/"
+        },
+        {
+            "cat": "media",
+            "name": "Stacher",
+            "en": "Cross-platform graphical media and video downloader powered by yt-dlp.",
+            "zh": "?? yt-dlp ????????????????",
+            "url": "https://stacher.io/"
+        },
+        {
+            "cat": "media",
+            "name": "Auto Caption",
+            "en": "Automated video speech transcription and subtitle generation tool.",
+            "zh": "?????????????????",
+            "url": "https://apps.microsoft.com/detail/9ngfb7jd9p33"
+        },
+        {
+            "cat": "media",
+            "name": "N-Studio",
+            "en": "Screen recording and multi-track video editing tool.",
+            "zh": "?????????????????",
+            "url": "https://apps.microsoft.com/detail/9p1fktts8ztd"
+        },
+        {
+            "cat": "security",
+            "name": "Huorong",
+            "en": "Clean, lightweight Chinese endpoint security and antivirus software.",
+            "zh": "???????????????????????",
+            "url": "https://www.huorong.cn/"
+        },
+        {
+            "cat": "security",
+            "name": "Clash Verge Rev",
+            "en": "Cross-platform Clash proxy graphical client built with Tauri.",
+            "zh": "?? Tauri ?????? Clash ????????",
+            "url": "https://github.com/clash-verge-rev/clash-verge-rev"
+        }
+    ]
+}

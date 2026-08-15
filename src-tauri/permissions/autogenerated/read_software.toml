@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-read-software"
+description = "Enables the read_software command without any pre-configured scope."
+commands.allow = ["read_software"]
+
+[[permission]]
+identifier = "deny-read-software"
+description = "Denies the read_software command without any pre-configured scope."
+commands.deny = ["read_software"]

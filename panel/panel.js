@@ -21,6 +21,7 @@ window.addEventListener('error', (e) => {
 const ICON_EDIT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
 const ICON_DEL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 const ICON_GRIP = '<svg class="drag-handle" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>';
+const ICON_APPS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
 
 /* ---------- 语言包 ---------- */
 const LOCALES = {
@@ -77,6 +78,12 @@ const LOCALES = {
     loginHint: '请输入密码进入开发者面板', passwordPlaceholder: '密码', wrongPassword: '密码错误', enter: '进入',
     changePwd: '修改密码', changePwdTitle: '修改密码', oldPassword: '旧密码', newPassword: '新密码', confirmPassword: '确认新密码',
     pwdChanged: '密码已修改', pwdMismatch: '两次输入的新密码不一致', pwdTooShort: '新密码至少 4 位', oldPwdWrong: '旧密码错误',
+    manageSoftware: '管理软件', softwareManager: '软件下载管理', addSoftware: '新增软件', editSoftware: '编辑软件',
+    softwareSearch: '搜索软件…', softwareEmpty: '没有匹配的软件。', done: '完成', all: '全部',
+    softwareName: '软件名称', softwareCat: '分类', softwareEn: '英文描述', softwareZh: '中文描述',
+    softwareUrl: '下载链接', softwareExtraLabelEn: '附加按钮文字（EN）', softwareExtraLabelZh: '附加按钮文字（ZH）',
+    softwareExtraUrl: '附加按钮链接', softwareSaved: '软件数据已保存', softwareLoadFailed: '加载软件数据失败：',
+    confirmDeleteSoftware: (n) => `确定删除软件「${n}」？`,
   },
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
@@ -131,6 +138,12 @@ const LOCALES = {
     loginHint: 'Enter password to open the developer panel', passwordPlaceholder: 'Password', wrongPassword: 'Wrong password', enter: 'Enter',
     changePwd: 'Change Password', changePwdTitle: 'Change Password', oldPassword: 'Old Password', newPassword: 'New Password', confirmPassword: 'Confirm New Password',
     pwdChanged: 'Password updated', pwdMismatch: 'New passwords do not match', pwdTooShort: 'New password must be at least 4 characters', oldPwdWrong: 'Old password is wrong',
+    manageSoftware: 'Manage Software', softwareManager: 'Software Manager', addSoftware: 'Add Software', editSoftware: 'Edit Software',
+    softwareSearch: 'Search software…', softwareEmpty: 'No matching software.', done: 'Done', all: 'All',
+    softwareName: 'Name', softwareCat: 'Category', softwareEn: 'English description', softwareZh: 'Chinese description',
+    softwareUrl: 'Download URL', softwareExtraLabelEn: 'Extra button label (EN)', softwareExtraLabelZh: 'Extra button label (ZH)',
+    softwareExtraUrl: 'Extra button URL', softwareSaved: 'Software data saved', softwareLoadFailed: 'Failed to load software data: ',
+    confirmDeleteSoftware: (n) => `Delete software "${n}"?`,
   },
 };
 
@@ -200,6 +213,11 @@ async function api(path, opts = {}) {
     if (path === '/api/myfiles') {
       if (method === 'GET') return { ok: true, data: await invoke('read_json', { path: 'myfiles/data.json' }) };
       await invoke('write_json', { path: 'myfiles/data.json', data: body.data });
+      return { ok: true };
+    }
+    if (path === '/api/software') {
+      if (method === 'GET') return { ok: true, data: await invoke('read_software') };
+      await invoke('write_software', { data: body.data });
       return { ok: true };
     }
     if (path === '/api/run-script') return await invoke('run_script', { script: body.script });
@@ -449,10 +467,12 @@ function renderFiles() {
   empty.hidden = true;
   list.innerHTML = folder.files.map((f, i) => {
     const kindLabel = f.kind === 'source' ? t('source') : t('report');
+    const isSoftware = currentFolder === 'softwares' && (f.url || f.name).includes('Windows Software Downloads');
     return `<div class="file-item">
       <span class="fname">${escapeHtml(f.name)}</span>
       <span class="fmeta">${kindLabel}${f.size ? ' · ' + escapeHtml(f.size) : ''}</span>
       <div class="factions">
+        ${isSoftware ? `<button class="icon-btn" data-swag="${i}" title="${t('manageSoftware')}">${ICON_APPS}</button>` : ''}
         <button class="icon-btn" data-fedit="${i}" title="${t('edit')}">${ICON_EDIT}</button>
         <button class="icon-btn danger" data-fdel="${i}" title="${t('delete')}">${ICON_DEL}</button>
       </div>
@@ -485,6 +505,119 @@ function openFileModal(file, index) {
     renderFolders();
     toast(t('modified'));
   });
+}
+
+/* ---------- 软件管理（Windows Software Downloads） ---------- */
+let softwareData = null;
+
+function closeSoftwareManager() {
+  $('#modalBackdrop').hidden = true;
+  $('#modal').classList.remove('modal-wide');
+  $('#modalOk').hidden = false;
+  $('#modalCancel').textContent = t('cancel');
+  $('#modalOk').onclick = null;
+  $('#modalCancel').onclick = null;
+  $('#modalClose').onclick = null;
+  $('#modalBackdrop').onclick = null;
+}
+
+function renderSoftwareList() {
+  const term = ($('#swSearch').value || '').toLowerCase();
+  const cat = $('#swCat').value;
+  const catName = (id) => {
+    const c = (softwareData.categories || []).find((c) => c.id === id);
+    return c ? (c[lang] || c.en || c.zh || id) : id;
+  };
+  const visible = softwareData.software.map((s, idx) => ({ s, idx })).filter(({ s }) => {
+    if (cat !== 'all' && s.cat !== cat) return false;
+    if (!term) return true;
+    return (s.name + ' ' + (s.en || '') + ' ' + (s.zh || '')).toLowerCase().includes(term);
+  });
+  $('#swList').innerHTML = visible.length ? visible.map(({ s, idx }) => `
+    <div class="sw-item">
+      <div class="sw-item-main">
+        <div class="sw-item-name">${escapeHtml(s.name)}<span class="sw-item-cat">${escapeHtml(catName(s.cat))}</span></div>
+        <div class="sw-item-desc">${escapeHtml(s[lang] || s.zh || s.en || '')}</div>
+      </div>
+      <button class="icon-btn" data-swedit="${idx}" title="${t('edit')}">${ICON_EDIT}</button>
+      <button class="icon-btn danger" data-swdel="${idx}" title="${t('delete')}">${ICON_DEL}</button>
+    </div>`).join('') : `<div class="sw-empty">${escapeHtml(t('softwareEmpty'))}</div>`;
+}
+
+async function saveSoftware() {
+  try {
+    await api('/api/software', { method: 'POST', body: JSON.stringify({ data: softwareData }) });
+    toast(t('softwareSaved'), 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function openSoftwareForm(item, index) {
+  openModal(item ? t('editSoftware') : t('addSoftware'), [
+    { key: 'name', label: t('softwareName'), value: item ? item.name : '', required: true },
+    { key: 'cat', label: t('softwareCat'), type: 'select', options: (softwareData.categories || []).map((c) => ({ value: c.id, label: c[lang] || c.en || c.id })), value: item ? item.cat : (((softwareData.categories || [])[0] || {}).id || '') },
+    { key: 'en', label: t('softwareEn'), value: item ? item.en : '' },
+    { key: 'zh', label: t('softwareZh'), value: item ? item.zh : '' },
+    { key: 'url', label: t('softwareUrl'), value: item ? item.url : '', required: true },
+    { key: 'extraLabelEn', label: t('softwareExtraLabelEn'), value: item && item.extra ? (item.extra.en || item.extra.label || '') : '', half: true },
+    { key: 'extraLabelZh', label: t('softwareExtraLabelZh'), value: item && item.extra ? (item.extra.zh || item.extra.en || '') : '', half: true },
+    { key: 'extraUrl', label: t('softwareExtraUrl'), value: item && item.extra ? (item.extra.url || '') : '' },
+  ], async (values) => {
+    const s = { cat: values.cat, name: values.name, en: values.en, zh: values.zh, url: values.url };
+    if (values.extraUrl) s.extra = { en: values.extraLabelEn || 'GitHub', zh: values.extraLabelZh || values.extraLabelEn || 'GitHub', url: values.extraUrl };
+    if (index === null) softwareData.software.push(s);
+    else softwareData.software[index] = s;
+    await saveSoftware();
+    openSoftwareManager();
+  });
+}
+
+async function openSoftwareManager() {
+  if (!softwareData) {
+    try {
+      const res = await api('/api/software', { method: 'GET' });
+      softwareData = res.data || { categories: [], software: [] };
+    } catch (e) {
+      toast(e.message, 'error');
+      return;
+    }
+  }
+  $('#modal').classList.add('modal-wide');
+  $('#modalTitle').textContent = t('softwareManager');
+  $('#modalOk').hidden = true;
+  $('#modalCancel').textContent = t('done');
+  $('#modalBody').innerHTML = `
+    <div class="sw-toolbar">
+      <input id="swSearch" class="input sw-search" placeholder="${escapeAttr(t('softwareSearch'))}">
+      <select id="swCat" class="select"><option value="all">${escapeHtml(t('all'))}</option>${(softwareData.categories || []).map((c) => `<option value="${escapeAttr(c.id)}">${escapeHtml(c[lang] || c.en || c.id)}</option>`).join('')}</select>
+      <button id="swAdd" class="btn btn-primary">+ ${escapeHtml(t('addSoftware'))}</button>
+    </div>
+    <div id="swList" class="sw-list"></div>`;
+  $('#modalBackdrop').hidden = false;
+  renderSoftwareList();
+  $('#swSearch').addEventListener('input', renderSoftwareList);
+  $('#swCat').addEventListener('change', renderSoftwareList);
+  $('#swAdd').onclick = () => openSoftwareForm(null, null);
+  $('#swList').addEventListener('click', (e) => {
+    const editBtn = e.target.closest('[data-swedit]');
+    const delBtn = e.target.closest('[data-swdel]');
+    if (editBtn) {
+      openSoftwareForm(softwareData.software[Number(editBtn.dataset.swedit)], Number(editBtn.dataset.swedit));
+    }
+    if (delBtn) {
+      const idx = Number(delBtn.dataset.swdel);
+      const s = softwareData.software[idx];
+      if (confirm(t('confirmDeleteSoftware', s.name))) {
+        softwareData.software.splice(idx, 1);
+        saveSoftware();
+        renderSoftwareList();
+      }
+    }
+  });
+  $('#modalCancel').onclick = closeSoftwareManager;
+  $('#modalClose').onclick = closeSoftwareManager;
+  $('#modalBackdrop').onclick = (e) => { if (e.target === $('#modalBackdrop')) closeSoftwareManager(); };
 }
 
 /* ---------- 部署 ---------- */
@@ -969,8 +1102,10 @@ $('#btnNewFolder').onclick = () => {
 $('#fileList').addEventListener('click', (e) => {
   const editBtn = e.target.closest('[data-fedit]');
   const delBtn = e.target.closest('[data-fdel]');
+  const swBtn = e.target.closest('[data-swag]');
   const folder = (myfiles.folders || []).find((f) => f.slug === currentFolder);
   if (!folder) return;
+  if (swBtn) { openSoftwareManager(); return; }
   if (editBtn) {
     const i = Number(editBtn.dataset.fedit);
     openFileModal(folder.files[i], i);

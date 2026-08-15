@@ -8,6 +8,8 @@
     "core:webview:allow-create-webview-window",
     "allow-read-json",
     "allow-write-json",
+    "allow-read-software",
+    "allow-write-software",
     "allow-create-folder",
     "allow-git-status",
     "allow-git-log",

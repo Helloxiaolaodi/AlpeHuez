@@ -20,6 +20,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::read_json,
             commands::write_json,
+            commands::read_software,
+            commands::write_software,
             commands::create_folder,
             commands::git_status,
             commands::git_log,

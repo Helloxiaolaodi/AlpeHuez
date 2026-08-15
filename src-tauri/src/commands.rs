@@ -4,9 +4,11 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 use std::process::{Command, ExitStatus, Stdio};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{webview::PageLoadEvent, Manager, WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(windows)]
 use std::os::windows::process::ExitStatusExt;
@@ -208,6 +210,27 @@ pub async fn write_json(path: String, data: Value) -> Result<Value, String> {
         fs::write(&full, json).map_err(|e| e.to_string())?;
         Ok(serde_json::json!({}))
     }
+}
+
+/// 读取 Windows 软件下载列表（myfiles/softwares/software-data.json）。
+#[tauri::command]
+pub async fn read_software() -> Result<Value, String> {
+    let full = repo_root().join("myfiles/softwares/software-data.json");
+    let content = fs::read_to_string(&full).map_err(|e| e.to_string())?;
+    serde_json::from_str(&content).map_err(|e| e.to_string())
+}
+
+/// 保存 Windows 软件下载列表（仅软件页面使用的 categories/software 结构）。
+#[tauri::command]
+pub async fn write_software(data: Value) -> Result<(), String> {
+    if !data.get("categories").and_then(|v| v.as_array()).is_some() {
+        return Err("数据格式不正确：缺少 categories 数组".into());
+    }
+    if !data.get("software").and_then(|v| v.as_array()).is_some() {
+        return Err("数据格式不正确：缺少 software 数组".into());
+    }
+    let full = repo_root().join("myfiles/softwares/software-data.json");
+    fs::write(&full, to_pretty_4(&data) + "\n").map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -645,6 +668,8 @@ pub async fn set_browser_config(app: tauri::AppHandle, config: Value) -> Result<
 /// 打开开发者面板窗口（单例，已存在则聚焦）。
 /// 用 WebviewUrl::App 加载打包进 frontendDist 的 panel/index.html，
 /// 保证 __TAURI__ 注入与 IPC 可用（External 加载 nav:// 页面时面板从未成功加载）。
+/// 窗口先隐藏创建，等面板页面真正加载完成（tauri.localhost 主框架 Finished）再显示，
+/// 避免 WebView2 初始 about:blank 阶段在屏幕上闪出白色窗口。
 #[tauri::command]
 pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(win) = app.get_webview_window("panel") {
@@ -652,14 +677,38 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
         win.set_focus().map_err(|e| e.to_string())?;
         return Ok(());
     }
+    let loaded = Arc::new(AtomicBool::new(false));
+    let shown = loaded.clone();
     WebviewWindowBuilder::new(&app, "panel", WebviewUrl::App("index.html".into()))
         .title("AlpeHuez 开发者面板")
         .inner_size(1280.0, 800.0)
         .min_inner_size(960.0, 640.0)
         .center()
+        .visible(false)
+        .on_page_load(move |window, payload| {
+            if payload.event() == PageLoadEvent::Finished
+                && payload.url().as_str().contains("tauri.localhost")
+                && !shown.swap(true, Ordering::SeqCst)
+            {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        })
         .build()
-        .map(|_| ())
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+
+    // 兜底：若页面始终未触发 tauri.localhost 的 Finished（例如加载异常），3 秒后仍显示窗口，避免面板永远不可见。
+    let fallback = loaded.clone();
+    let app2 = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_secs(3));
+        if !fallback.load(Ordering::SeqCst) {
+            if let Some(w) = app2.get_webview_window("panel") {
+                let _ = w.show();
+            }
+        }
+    });
+    Ok(())
 }
 
 #[cfg(test)]

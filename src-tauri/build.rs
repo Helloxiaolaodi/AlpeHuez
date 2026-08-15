@@ -4,6 +4,8 @@ fn main() {
             tauri_build::AppManifest::new().commands(&[
                 "read_json",
                 "write_json",
+                "read_software",
+                "write_software",
                 "create_folder",
                 "git_status",
                 "git_log",
