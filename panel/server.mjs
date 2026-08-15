@@ -255,6 +255,18 @@ const server = createServer(async (req, res) => {
   }
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error('');
+    console.error(`端口 ${PORT} 已被占用。`);
+    console.error('可能面板已经在运行，或另一个程序占用了该端口。');
+    console.error(`如需换端口：PORT=${PORT + 1} node panel/server.mjs`);
+    console.error('');
+    process.exit(1);
+  }
+  throw err;
+});
+
 server.listen(PORT, HOST, () => {
   console.log('');
   console.log('  my-nav 开发者面板已启动');

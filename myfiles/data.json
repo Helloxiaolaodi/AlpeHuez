@@ -1,74 +1,82 @@
 {
-  "name": "My Files",
-  "folders": [
-    {
-      "slug": "softwares",
-      "name": "Softwares",
-      "protected": false,
-      "dateAdded": "2026-08-14",
-      "folders": [],
-      "files": [
+    "name": "My Files",
+    "folders": [
         {
-          "name": "Windows Software Downloads",
-          "kind": "report",
-          "size": "25 KB",
-          "url": "Windows Software Downloads.html"
-        }
-      ]
-    },
-    {
-      "slug": "targetc",
-      "name": "TargetC",
-      "protected": true,
-      "dateAdded": "2024-08-10",
-      "folders": [],
-      "files": [
-        {
-          "name": "TargetC-phenotypes-analysis-260814.html",
-          "kind": "report",
-          "size": "846 KB",
-          "source": {
-            "qmd": "TargetC-phenotypes-analysis-260814.qmd",
-            "figures": "TargetC-phenotypes-analysis-260814-figures.zip"
-          }
+            "slug": "softwares",
+            "name": "Softwares",
+            "protected": false,
+            "dateAdded": "2026-08-14",
+            "folders": [],
+            "files": [
+                {
+                    "name": "Windows Software Downloads（Helloxiaolaodi）",
+                    "kind": "report",
+                    "size": "25 KB",
+                    "url": "Windows Software Downloads.html"
+                }
+            ]
         },
         {
-          "name": "TargetC-phenotypes-analysis-delta-260814.html",
-          "kind": "report",
-          "size": "312 KB",
-          "source": {
-            "qmd": "TargetC-phenotypes-analysis-delta-260814.qmd",
-            "figures": "TargetC-phenotypes-analysis-delta-260814-figures.zip"
-          }
+            "slug": "targetc",
+            "name": "TargetC",
+            "protected": true,
+            "dateAdded": "2024-08-10",
+            "folders": [],
+            "files": [
+                {
+                    "name": "TargetC-phenotypes-analysis-260814.html",
+                    "kind": "report",
+                    "size": "846 KB",
+                    "source": {
+                        "qmd": "TargetC-phenotypes-analysis-260814.qmd",
+                        "figures": "TargetC-phenotypes-analysis-260814-figures.zip"
+                    }
+                },
+                {
+                    "name": "TargetC-phenotypes-analysis-delta-260814.html",
+                    "kind": "report",
+                    "size": "312 KB",
+                    "source": {
+                        "qmd": "TargetC-phenotypes-analysis-delta-260814.qmd",
+                        "figures": "TargetC-phenotypes-analysis-delta-260814-figures.zip"
+                    }
+                }
+            ]
+        },
+        {
+            "slug": "lucuro",
+            "name": "Lucuro",
+            "protected": true,
+            "dateAdded": "2024-08-12",
+            "folders": [],
+            "files": []
+        },
+        {
+            "slug": "galibierhub",
+            "name": "GalibierHub",
+            "protected": true,
+            "dateAdded": "2024-08-11",
+            "folders": [],
+            "files": []
+        },
+        {
+            "slug": "global-oral",
+            "name": "Global Oral",
+            "protected": true,
+            "dateAdded": "2024-08-13",
+            "folders": [],
+            "files": [
+                {
+                    "name": "global_sampling_world_map_plot.html",
+                    "kind": "report",
+                    "size": "82 KB"
+                },
+                {
+                    "name": "data_qc_funnel_chart_plot.html",
+                    "kind": "report",
+                    "size": "51 KB"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "slug": "lucuro",
-      "name": "Lucuro",
-      "protected": true,
-      "dateAdded": "2024-08-12",
-      "folders": [],
-      "files": []
-    },
-    {
-      "slug": "galibierhub",
-      "name": "GalibierHub",
-      "protected": true,
-      "dateAdded": "2024-08-11",
-      "folders": [],
-      "files": []
-    },
-    {
-      "slug": "global-oral",
-      "name": "Global Oral",
-      "protected": true,
-      "dateAdded": "2024-08-13",
-      "folders": [],
-      "files": [
-        { "name": "global_sampling_world_map_plot.html", "kind": "report", "size": "82 KB" },
-        { "name": "data_qc_funnel_chart_plot.html", "kind": "report", "size": "51 KB" }
-      ]
-    }
-  ]
+    ]
 }
