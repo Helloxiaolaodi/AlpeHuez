@@ -1,0 +1,25 @@
+[package]
+name = "my-nav-panel"
+version = "0.1.0"
+description = "my-nav 开发者面板桌面应用"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+md5 = "0.7"
+sysinfo = "0.30"
+base64 = "0.22"
+percent-encoding = "2"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+
+[lib]
+name = "my_nav_panel_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]

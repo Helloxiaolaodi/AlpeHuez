@@ -1,0 +1,28 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "面板窗口（Local origin）的全部能力",
+  "windows": ["panel", "main"],
+  "permissions": [
+    "core:default",
+    "core:webview:allow-create-webview-window",
+    "allow-read-json",
+    "allow-write-json",
+    "allow-create-folder",
+    "allow-git-status",
+    "allow-git-log",
+    "allow-git-push",
+    "allow-sys-stats",
+    "allow-run-script",
+    "allow-verify-password",
+    "allow-change-password",
+    "allow-save-bg-image",
+    "allow-get-bg-config",
+    "allow-set-bg-config",
+    "allow-list-browsers",
+    "allow-get-browser-config",
+    "allow-set-browser-config",
+    "allow-open-url",
+    "allow-open-dev-panel"
+  ]
+}

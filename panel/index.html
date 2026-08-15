@@ -3,44 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>开发者面板 · my-nav</title>
-<link rel="stylesheet" href="/panel/panel.css">
+<title>AlpeHuez 开发者面板</title>
+<link rel="stylesheet" href="panel.css">
 </head>
 <body>
 <div class="app">
+  <div class="bg-layer" id="bgLayer"></div>
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark">M</div>
+      <div class="brand-mark">A</div>
       <div>
-        <div class="brand-name" data-i18n="appName">开发者面板</div>
-        <div class="brand-sub" data-i18n="appSub">my-nav · 本地内容管理</div>
+        <div class="brand-name" data-i18n="appName">AlpeHuez 开发者面板</div>
+        <div class="brand-sub" data-i18n="appSub">AlpeHuez · 本地内容管理</div>
       </div>
     </div>
     <div class="topbar-actions">
       <span class="server-status" id="serverStatus"><span class="dot"></span><span data-i18n="connected">已连接</span></span>
+      <button class="btn btn-ghost btn-sm" id="btnChangePwd" data-i18n="changePwd" hidden>修改密码</button>
       <button class="icon-btn" id="btnTheme" title="切换主题" aria-label="切换主题">
         <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
         <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
       <button class="btn btn-ghost btn-sm" id="btnLang" title="切换语言">EN</button>
-      <a class="btn btn-ghost" href="/" target="_blank" rel="noopener" data-i18n="preview">预览网站 ↗</a>
+      <a class="btn btn-ghost" id="btnPreview" href="/" target="_blank" rel="noopener" data-i18n="preview">预览网站 ↗</a>
     </div>
   </header>
 
   <div class="layout">
     <nav class="sidebar">
-      <button class="tab-btn active" data-tab="nav">
+      <div class="sidebar-logo" title="AlpeHuez">A</div>
+      <button class="tab-btn active" data-tab="nav" data-i18n-title="navCards">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span data-i18n="navCards">导航卡片</span>
       </button>
-      <button class="tab-btn" data-tab="myfiles">
+      <button class="tab-btn" data-tab="myfiles" data-i18n-title="myFiles">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
         <span data-i18n="myFiles">My Files</span>
       </button>
-      <button class="tab-btn" data-tab="deploy">
+      <button class="tab-btn" data-tab="deploy" data-i18n-title="deploy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
         <span data-i18n="deploy">部署</span>
+        <span class="badge-dot" id="deployBadge"></span>
       </button>
+      <div class="sidebar-foot">
+        <button class="tab-btn" data-tab="appearance" id="appearanceBtn" data-i18n-title="appearance" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="M4.22 4.22l2.83 2.83"/><path d="M16.95 16.95l2.83 2.83"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="M4.22 19.78l2.83-2.83"/><path d="M16.95 7.05l2.83-2.83"/></svg>
+          <span data-i18n="appearance">外观</span>
+        </button>
+      </div>
     </nav>
 
     <main class="content">
@@ -145,12 +155,130 @@
           </div>
         </div>
 
+        <div class="card sys-card">
+          <div class="card-title" data-i18n="sysTitle">系统资源</div>
+          <div class="sys-grid">
+            <div class="sys-item">
+              <div class="sys-head"><span data-i18n="cpu">CPU</span><span class="sys-val" id="cpuVal">—</span></div>
+              <div class="progress"><div class="progress-bar" id="cpuBar"></div></div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-head"><span data-i18n="mem">内存</span><span class="sys-val" id="memVal">—</span></div>
+              <div class="progress"><div class="progress-bar" id="memBar"></div></div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-head"><span data-i18n="disk">磁盘</span><span class="sys-val" id="diskVal">—</span></div>
+              <div class="progress"><div class="progress-bar" id="diskBar"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card timeline-card">
+          <div class="card-title" data-i18n="devTimeline">开发时间轴</div>
+          <div class="timeline" id="gitTimeline">
+            <div class="muted" data-i18n="loading">加载中…</div>
+          </div>
+        </div>
+
         <div class="card log-card">
           <div class="card-title" data-i18n="log">运行日志</div>
           <pre class="log" id="logArea">—</pre>
         </div>
       </section>
+
+      <!-- ============ 外观 ============ -->
+      <section class="tab-panel" id="tab-appearance">
+        <div class="panel-head">
+          <div>
+            <h1 data-i18n="appearance">外观</h1>
+            <p class="muted" data-i18n="appearanceDesc">自定义面板背景与主题外观</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="bgPreset">背景预设</div>
+          <div class="preset-grid" id="presetGrid">
+            <button class="preset-btn" data-preset="default"><span class="preset-thumb preset-thumb-default"></span><span data-i18n="presetDefault">默认</span></button>
+            <button class="preset-btn" data-preset="mountain"><span class="preset-thumb preset-thumb-mountain"></span><span data-i18n="presetMountain">高山</span></button>
+            <button class="preset-btn" data-preset="grid"><span class="preset-thumb preset-thumb-grid"></span><span data-i18n="presetGrid">网格</span></button>
+            <button class="preset-btn" data-preset="custom"><span class="preset-thumb preset-thumb-custom"></span><span data-i18n="presetCustom">自定义</span></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="bgUpload">上传背景图</div>
+          <div class="upload-row">
+            <input type="file" id="bgFile" accept="image/png,image/jpeg,image/webp" class="file-input">
+            <button class="btn btn-primary" id="btnUploadBg" data-i18n="upload">上传</button>
+          </div>
+          <p class="hint" data-i18n="bgUploadHint">上传后自动切换到「自定义」预设，图片保存在本地（%APPDATA%），不会进入 git 仓库。</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="bgAdjust">调整</div>
+          <div class="slider-row">
+            <label data-i18n="blur">模糊</label>
+            <input type="range" id="bgBlur" min="0" max="30" value="0">
+            <span class="slider-val" id="bgBlurVal">0px</span>
+          </div>
+          <div class="slider-row">
+            <label data-i18n="overlay">暗色遮罩</label>
+            <input type="range" id="bgOverlay" min="0" max="90" value="55">
+            <span class="slider-val" id="bgOverlayVal">55%</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="sidebarBg">侧边栏独立背景</div>
+          <div class="upload-row">
+            <input type="file" id="sidebarFile" accept="image/png,image/jpeg,image/webp" class="file-input">
+            <button class="btn btn-primary" id="btnUploadSidebar" data-i18n="upload">上传</button>
+            <button class="btn btn-ghost" id="btnClearSidebar" data-i18n="clear">清除</button>
+          </div>
+          <p class="hint" data-i18n="sidebarBgHint">为左侧导航栏单独设置竖版背景图（骑行、高山剪影等），自动加深色遮罩保证图标清晰。</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="defaultBrowser">默认浏览器</div>
+          <p class="hint" data-i18n="browserHint">选择打开网址时使用的浏览器，留空则使用系统默认。</p>
+          <div class="browser-row">
+            <select id="browserSelect" class="select">
+              <option value="" data-i18n="systemDefault">系统默认</option>
+            </select>
+            <button class="btn btn-ghost" id="btnRefreshBrowsers" data-i18n="refresh">刷新</button>
+          </div>
+        </div>
+      </section>
     </main>
+  </div>
+
+  <!-- ============ 右侧抽屉（日历 / 待办） ============ -->
+  <div class="drawer-sensor" id="drawerSensor"></div>
+  <aside class="right-drawer" id="rightDrawer">
+    <div class="drawer-head">
+      <span class="drawer-title" data-i18n="drawerTitle">日历 / 待办</span>
+    </div>
+    <div class="drawer-cal" id="drawerCal"></div>
+    <div class="drawer-todo">
+      <div class="drawer-subtitle" data-i18n="todayTodo">今日待办</div>
+      <div class="todo-list" id="todoList"></div>
+      <div class="todo-add">
+        <input type="text" id="todoInput" class="input" data-i18n-placeholder="todoPlaceholder" placeholder="添加待办…">
+        <button class="icon-btn" id="btnAddTodo" title="+">+</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ 登录门禁（仅桌面应用） ============ -->
+<div class="login-backdrop" id="loginBackdrop" hidden>
+  <div class="login-card">
+    <div class="login-logo">A</div>
+    <h2 data-i18n="appName">AlpeHuez 开发者面板</h2>
+    <p class="muted" data-i18n="loginHint">请输入密码进入开发者面板</p>
+    <input type="password" id="loginPassword" class="input" data-i18n-placeholder="passwordPlaceholder" placeholder="密码" autocomplete="current-password">
+    <p class="login-error" id="loginError" hidden data-i18n="wrongPassword">密码错误</p>
+    <button class="btn btn-primary btn-block" id="btnLogin" data-i18n="enter">进入</button>
   </div>
 </div>
 
@@ -171,6 +299,6 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="/panel/panel.js"></script>
+<script src="panel.js"></script>
 </body>
 </html>

@@ -1,6 +1,23 @@
 /* my-nav 开发者面板 */
 const $ = (sel) => document.querySelector(sel);
 
+// Tauri 注入脚本定义 window.isTauri（不可配置），顶层不能声明同名 const，否则整脚本 SyntaxError 白屏
+const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
+
+/* 全局错误捕获：任何 JS 错误显示在页面顶部，避免无声白屏 */
+window.addEventListener('error', (e) => {
+  try {
+    const msg = 'JS 错误: ' + (e.message || 'unknown') + ' @ ' + (e.filename || '').split('/').pop() + ':' + (e.lineno || '?');
+    const existing = document.getElementById('js-error');
+    if (existing) { existing.textContent = msg; existing.hidden = false; return; }
+    const div = document.createElement('div');
+    div.id = 'js-error';
+    div.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#ef4444;color:#fff;font:12px/1.5 sans-serif;padding:6px 16px;white-space:pre-wrap;';
+    div.textContent = msg;
+    document.body.appendChild(div);
+  } catch (_) { /* 忽略 */ }
+});
+
 const ICON_EDIT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
 const ICON_DEL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 const ICON_GRIP = '<svg class="drag-handle" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>';
@@ -8,8 +25,8 @@ const ICON_GRIP = '<svg class="drag-handle" viewBox="0 0 24 24" fill="currentCol
 /* ---------- 语言包 ---------- */
 const LOCALES = {
   zh: {
-    appName: '开发者面板', appSub: 'my-nav · 本地内容管理', connected: '已连接', uncommitted: '待推送',
-    preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
+    appName: 'AlpeHuez 开发者面板', appSub: 'AlpeHuez · 本地内容管理', connected: '已连接', uncommitted: '待推送',
+    preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署', appearance: '外观',
     navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
     recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
@@ -18,6 +35,17 @@ const LOCALES = {
     folders: '文件夹', new: '新建', files: '文件', newFile: '新建文件', noFiles: '该文件夹还没有文件',
     deployDesc: '提交并推送到 GitHub，Cloudflare Pages 会自动发布',
     repoStatus: '仓库状态', branch: '分支', lastCommit: '最近提交',
+    devTimeline: '开发时间轴', timelineEmpty: '暂无提交记录', timelineError: '无法读取提交历史：',
+    sysTitle: '系统资源', cpu: 'CPU', mem: '内存', disk: '磁盘',
+    appearanceDesc: '自定义面板背景与主题外观',
+    bgPreset: '背景预设', presetDefault: '默认', presetMountain: '高山', presetGrid: '网格', presetCustom: '自定义',
+    bgUpload: '上传背景图', upload: '上传', bgUploadHint: '上传后自动切换到「自定义」预设，图片保存在本地（%APPDATA%），不会进入 git 仓库。',
+    bgAdjust: '调整', blur: '模糊', overlay: '暗色遮罩',
+    sidebarBg: '侧边栏独立背景', sidebarBgHint: '为左侧导航栏单独设置竖版背景图（骑行、高山剪影等），自动加深色遮罩保证图标清晰。',
+    clear: '清除', bgSaved: '背景已保存',
+    defaultBrowser: '默认浏览器', browserHint: '选择打开网址时使用的浏览器，留空则使用系统默认。', systemDefault: '系统默认', refresh: '刷新', browserSaved: '浏览器设置已保存',
+    drawerTitle: '日历 / 待办', todayTodo: '今日待办', todoPlaceholder: '添加待办…', noTodo: '暂无待办',
+    calWeekdays: ['日', '一', '二', '三', '四', '五', '六'],
     commitPush: '提交并推送', commitMsg: '提交信息', commitPlaceholder: '例如：新增 3 个导航卡片',
     savePush: '保存并推送', commitHint: '将当前所有改动（links.json、data.json、图标、新文件夹）一起提交并推送到 GitHub。',
     log: '运行日志', edit: '编辑', cancel: '取消', ok: '确定', close: '关闭',
@@ -46,10 +74,13 @@ const LOCALES = {
     enterCommitMsg: '请填写提交信息', pushed: '已推送到 GitHub', pushIncomplete: '推送未完全成功，请查看日志',
     clean: '工作区干净，无未提交改动', gitError: '无法读取 git 状态：',
     report: '报告', source: '源码', protected: '保护', direct: '直连', vpn: 'VPN',
+    loginHint: '请输入密码进入开发者面板', passwordPlaceholder: '密码', wrongPassword: '密码错误', enter: '进入',
+    changePwd: '修改密码', changePwdTitle: '修改密码', oldPassword: '旧密码', newPassword: '新密码', confirmPassword: '确认新密码',
+    pwdChanged: '密码已修改', pwdMismatch: '两次输入的新密码不一致', pwdTooShort: '新密码至少 4 位', oldPwdWrong: '旧密码错误',
   },
   en: {
-    appName: 'Developer Panel', appSub: 'my-nav · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
-    preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
+    appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
+    preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy', appearance: 'Appearance',
     navDesc: 'Manage nav cards & groups. Saved to links.json',
     recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
@@ -58,6 +89,17 @@ const LOCALES = {
     folders: 'Folders', new: 'New', files: 'Files', newFile: 'New File', noFiles: 'No files in this folder yet',
     deployDesc: 'Commit & push to GitHub. Cloudflare Pages auto-deploys',
     repoStatus: 'Repo Status', branch: 'Branch', lastCommit: 'Last Commit',
+    devTimeline: 'Dev Timeline', timelineEmpty: 'No commits yet', timelineError: 'Failed to read commit history: ',
+    sysTitle: 'System Resources', cpu: 'CPU', mem: 'Memory', disk: 'Disk',
+    appearanceDesc: 'Customize panel background & theme',
+    bgPreset: 'Background Preset', presetDefault: 'Default', presetMountain: 'Mountain', presetGrid: 'Grid', presetCustom: 'Custom',
+    bgUpload: 'Upload Background', upload: 'Upload', bgUploadHint: 'Switches to "Custom" preset automatically. Image is stored locally (%APPDATA%), never in the git repo.',
+    bgAdjust: 'Adjust', blur: 'Blur', overlay: 'Dark Overlay',
+    sidebarBg: 'Sidebar Background', sidebarBgHint: 'Set a separate portrait background for the left nav (cycling, mountain silhouettes…). A dark overlay keeps icons legible.',
+    clear: 'Clear', bgSaved: 'Background saved',
+    defaultBrowser: 'Default Browser', browserHint: 'Choose which browser opens links. Leave empty to use the system default.', systemDefault: 'System Default', refresh: 'Refresh', browserSaved: 'Browser setting saved',
+    drawerTitle: 'Calendar / Todos', todayTodo: 'Today Todos', todoPlaceholder: 'Add todo…', noTodo: 'No todos',
+    calWeekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
     commitPush: 'Commit & Push', commitMsg: 'Commit Message', commitPlaceholder: 'e.g. Add 3 nav cards',
     savePush: 'Save & Push', commitHint: 'Commits all current changes (links.json, data.json, icons, new folders) and pushes to GitHub.',
     log: 'Log', edit: 'Edit', cancel: 'Cancel', ok: 'OK', close: 'Close',
@@ -86,11 +128,16 @@ const LOCALES = {
     enterCommitMsg: 'Please enter a commit message', pushed: 'Pushed to GitHub', pushIncomplete: 'Push incomplete — check the log',
     clean: 'Working tree clean', gitError: 'Failed to read git status: ',
     report: 'Report', source: 'Source', protected: 'Protected', direct: 'Direct', vpn: 'VPN',
+    loginHint: 'Enter password to open the developer panel', passwordPlaceholder: 'Password', wrongPassword: 'Wrong password', enter: 'Enter',
+    changePwd: 'Change Password', changePwdTitle: 'Change Password', oldPassword: 'Old Password', newPassword: 'New Password', confirmPassword: 'Confirm New Password',
+    pwdChanged: 'Password updated', pwdMismatch: 'New passwords do not match', pwdTooShort: 'New password must be at least 4 characters', oldPwdWrong: 'Old password is wrong',
   },
 };
 
-let lang = localStorage.getItem('panel-lang') || 'zh';
-let theme = localStorage.getItem('panel-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+let lang = 'zh';
+try { lang = localStorage.getItem('panel-lang') || 'zh'; } catch (e) {}
+let theme = 'dark';
+try { theme = localStorage.getItem('panel-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
 let statusDirty = false;
 
 function t(key, ...args) {
@@ -103,10 +150,12 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.setAttribute('title', t(el.dataset.i18nTitle)); });
   $('#btnLang').textContent = lang === 'zh' ? 'EN' : '中';
   setStatusLabel();
   renderGroups();
   renderFolders();
+  renderCalendar();
   loadGitStatus();
 }
 
@@ -139,6 +188,44 @@ function today() {
 }
 
 async function api(path, opts = {}) {
+  if (isDesktop) {
+    const { invoke } = window.__TAURI__.core;
+    const body = opts.body ? JSON.parse(opts.body) : {};
+    const method = opts.method || 'GET';
+    if (path === '/api/links') {
+      if (method === 'GET') return { ok: true, data: await invoke('read_json', { path: 'links.json' }) };
+      const res = await invoke('write_json', { path: 'links.json', data: body.data });
+      return { ok: true, md5: res.md5 };
+    }
+    if (path === '/api/myfiles') {
+      if (method === 'GET') return { ok: true, data: await invoke('read_json', { path: 'myfiles/data.json' }) };
+      await invoke('write_json', { path: 'myfiles/data.json', data: body.data });
+      return { ok: true };
+    }
+    if (path === '/api/run-script') return await invoke('run_script', { script: body.script });
+    if (path === '/api/create-folder') {
+      await invoke('create_folder', { slug: body.slug, name: body.name, protected: body.protected });
+      return { ok: true };
+    }
+    if (path === '/api/git-status') return await invoke('git_status');
+    if (path === '/api/git-log') return await invoke('git_log');
+    if (path === '/api/sys-stats') return await invoke('sys_stats');
+    if (path === '/api/bg-config') {
+      if (method === 'GET') return await invoke('get_bg_config');
+      await invoke('set_bg_config', { config: body.config });
+      return { ok: true };
+    }
+    if (path === '/api/save-bg-image') return await invoke('save_bg_image', { data: body.data, ext: body.ext });
+    if (path === '/api/list-browsers') return await invoke('list_browsers');
+    if (path === '/api/browser-config') {
+      if (method === 'GET') return await invoke('get_browser_config');
+      await invoke('set_browser_config', { config: body.config });
+      return { ok: true };
+    }
+    if (path === '/api/git-push') return await invoke('git_push', { message: body.message });
+    throw new Error('未知接口: ' + path);
+  }
+  if (path === '/api/git-log' || path === '/api/sys-stats' || path === '/api/bg-config' || path === '/api/save-bg-image' || path === '/api/list-browsers' || path === '/api/browser-config') return null; // 浏览器模式无此接口
   const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
   const data = await res.json().catch(() => ({ ok: false, error: t('loadFailed') }));
   if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
@@ -165,14 +252,14 @@ function appendLog(text) {
 /* ---------- 模态框 ---------- */
 function fieldHtml(f) {
   if (f.type === 'checkbox') {
-    return `<div class="checkbox-row"><input type="checkbox" id="f_${f.key}" ${f.value ? 'checked' : ''}><label for="f_${f.key}">${f.label}</label></div>`;
+    return `<div class="checkbox-row"><label class="toggle"><input type="checkbox" id="f_${f.key}" ${f.value ? 'checked' : ''}><span class="toggle-slider"></span></label><label for="f_${f.key}">${f.label}</label></div>`;
   }
   if (f.type === 'select') {
     const opts = (f.options || []).map((o) => `<option value="${escapeAttr(o.value)}" ${o.value === f.value ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
     return `<div class="form-row"><label>${f.label}</label><select id="f_${f.key}" class="select">${opts}</select></div>`;
   }
   const tag = f.type === 'textarea' ? 'textarea' : 'input';
-  const typeAttr = f.type === 'number' ? 'number' : 'text';
+  const typeAttr = f.type === 'number' ? 'number' : (f.type === 'password' ? 'password' : 'text');
   const extra = f.type === 'textarea' ? 'rows="3"' : `type="${typeAttr}"`;
   const hint = f.hint ? `<p class="hint">${f.hint}</p>` : '';
   return `<div class="form-row"><label>${f.label}</label><${tag} id="f_${f.key}" class="input" ${extra} value="${escapeAttr(f.value ?? '')}" placeholder="${escapeAttr(f.placeholder || '')}" ${f.required ? 'required' : ''}></${tag}>${hint}</div>`;
@@ -401,6 +488,50 @@ function openFileModal(file, index) {
 }
 
 /* ---------- 部署 ---------- */
+function setBar(sel, pct) {
+  const bar = $(sel);
+  bar.style.width = pct + '%';
+  bar.classList.toggle('warn', pct >= 60);
+  bar.classList.toggle('danger', pct >= 85);
+}
+
+async function loadSysStats() {
+  try {
+    const s = await api('/api/sys-stats');
+    if (!s) return;
+    const cpu = Math.round(s.cpu);
+    const memPct = s.memTotal ? Math.round((s.memUsed / s.memTotal) * 100) : 0;
+    const diskPct = s.diskTotal ? Math.round((s.diskUsed / s.diskTotal) * 100) : 0;
+    $('#cpuVal').textContent = cpu + '%';
+    $('#memVal').textContent = memPct + '%';
+    $('#diskVal').textContent = diskPct + '%';
+    setBar('#cpuBar', cpu);
+    setBar('#memBar', memPct);
+    setBar('#diskBar', diskPct);
+  } catch (e) { /* 静默：桌面模式才可用 */ }
+}
+
+async function loadGitTimeline() {
+  const el = $('#gitTimeline');
+  try {
+    const res = await api('/api/git-log');
+    if (!res || !res.length) {
+      el.innerHTML = `<div class="muted">${t('timelineEmpty')}</div>`;
+      return;
+    }
+    el.innerHTML = res.map((c, i) => `
+      <div class="tl-item ${i === 0 ? 'latest' : ''}">
+        <div class="tl-node"></div>
+        <div class="tl-body">
+          <div class="tl-msg">${escapeHtml(c.message)}</div>
+          <div class="tl-meta"><code>${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
+        </div>
+      </div>`).join('');
+  } catch (e) {
+    el.innerHTML = `<div class="muted">${t('timelineError')}${escapeHtml(e.message)}</div>`;
+  }
+}
+
 async function loadGitStatus() {
   try {
     const res = await api('/api/git-status');
@@ -410,6 +541,7 @@ async function loadGitStatus() {
     statusDirty = changes.length > 0;
     setStatusLabel();
     $('#serverStatus').classList.toggle('dirty', statusDirty);
+    $('#deployBadge').classList.toggle('show', statusDirty);
     const el = $('#gitChanges');
     if (!changes.length) {
       el.innerHTML = `<div class="muted">${t('clean')}</div>`;
@@ -425,6 +557,108 @@ async function loadGitStatus() {
   }
 }
 
+/* ---------- 外观 / 自定义背景 ---------- */
+let bgConfig = null;
+
+function convertFileSrc(path) {
+  try {
+    return window.__TAURI__.core.convertFileSrc(path);
+  } catch (e) {
+    return path;
+  }
+}
+
+function applyBg() {
+  try {
+    const bg = bgConfig || {};
+    const layer = $('#bgLayer');
+    const preset = bg.preset || 'default';
+    const blur = bg.blur ?? 0;
+    const overlay = bg.overlay ?? 55;
+    if (preset === 'custom' && bg.imagePath) {
+      const url = isDesktop ? convertFileSrc(bg.imagePath) : bg.imagePath;
+      layer.style.backgroundImage = `url("${url}")`;
+    } else {
+      layer.style.backgroundImage = `var(--preset-${preset})`;
+    }
+    layer.style.filter = `blur(${blur}px)`;
+    document.documentElement.style.setProperty('--bg-overlay', (overlay / 100).toFixed(2));
+    const sidebar = $('.sidebar');
+    if (bg.sidebarImage) {
+      const url = isDesktop ? convertFileSrc(bg.sidebarImage) : bg.sidebarImage;
+      sidebar.style.backgroundImage = `url("${url}")`;
+    } else {
+      sidebar.style.backgroundImage = 'none';
+    }
+    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.toggle('active', b.dataset.preset === preset));
+    $('#bgBlur').value = blur;
+    $('#bgBlurVal').textContent = blur + 'px';
+    $('#bgOverlay').value = overlay;
+    $('#bgOverlayVal').textContent = overlay + '%';
+  } catch (e) { /* 静默：背景样式失败不应阻断面板 */ }
+}
+
+async function loadBgConfig() {
+  try {
+    const res = await api('/api/bg-config');
+    bgConfig = res || {};
+  } catch (e) {
+    bgConfig = {};
+  }
+  applyBg();
+}
+
+async function saveBgConfig() {
+  try {
+    await api('/api/bg-config', { method: 'POST', body: JSON.stringify({ config: bgConfig }) });
+  } catch (e) { /* 浏览器模式忽略 */ }
+}
+
+function uploadBgFile(input, key) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const data = String(reader.result).split(',')[1];
+    try {
+      const path = await api('/api/save-bg-image', { method: 'POST', body: JSON.stringify({ data, ext }) });
+      bgConfig[key] = path;
+      if (key === 'imagePath') bgConfig.preset = 'custom';
+      applyBg();
+      saveBgConfig();
+      toast(t('bgSaved'), 'success');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ---------- 默认浏览器 ---------- */
+let browserConfig = null;
+
+async function loadBrowsers() {
+  try {
+    const list = await api('/api/list-browsers');
+    if (!list) return;
+    const sel = $('#browserSelect');
+    const current = (browserConfig && browserConfig.path) || '';
+    sel.innerHTML = `<option value="">${t('systemDefault')}</option>` + list.map((b) =>
+      `<option value="${escapeAttr(b.path)}" ${b.path === current ? 'selected' : ''}>${escapeHtml(b.name)}</option>`).join('');
+  } catch (e) { /* 静默 */ }
+}
+
+async function loadBrowserConfig() {
+  try {
+    const res = await api('/api/browser-config');
+    browserConfig = res || {};
+  } catch (e) {
+    browserConfig = {};
+  }
+  await loadBrowsers();
+}
+
 /* ---------- 事件绑定 ---------- */
 document.querySelectorAll('.tab-btn').forEach((btn) => {
   btn.onclick = () => {
@@ -432,7 +666,7 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
     document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'deploy') loadGitStatus();
+    if (btn.dataset.tab === 'deploy') { loadGitStatus(); loadGitTimeline(); loadSysStats(); }
   };
 });
 
@@ -447,6 +681,128 @@ $('#btnTheme').onclick = () => {
   localStorage.setItem('panel-theme', theme);
   applyTheme();
 };
+
+$('#btnPreview').addEventListener('click', (e) => {
+  if (isDesktop) {
+    e.preventDefault();
+    const { WebviewWindow } = window.__TAURI__.webviewWindow;
+    new WebviewWindow('preview', {
+      url: 'http://nav.localhost/index.html',
+      title: 'my-nav 网站预览',
+      width: 1280,
+      height: 800,
+    });
+  }
+});
+
+/* ---------- 外观事件 ---------- */
+$('#presetGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.preset-btn');
+  if (!btn) return;
+  bgConfig.preset = btn.dataset.preset;
+  applyBg();
+  saveBgConfig();
+});
+
+$('#btnUploadBg').onclick = () => uploadBgFile($('#bgFile'), 'imagePath');
+$('#btnUploadSidebar').onclick = () => uploadBgFile($('#sidebarFile'), 'sidebarImage');
+$('#btnClearSidebar').onclick = () => {
+  delete bgConfig.sidebarImage;
+  applyBg();
+  saveBgConfig();
+};
+
+$('#bgBlur').addEventListener('input', () => {
+  bgConfig.blur = Number($('#bgBlur').value);
+  $('#bgBlurVal').textContent = bgConfig.blur + 'px';
+  applyBg();
+});
+$('#bgBlur').addEventListener('change', saveBgConfig);
+
+$('#bgOverlay').addEventListener('input', () => {
+  bgConfig.overlay = Number($('#bgOverlay').value);
+  $('#bgOverlayVal').textContent = bgConfig.overlay + '%';
+  applyBg();
+});
+$('#bgOverlay').addEventListener('change', saveBgConfig);
+
+/* ---------- 浏览器事件 ---------- */
+$('#browserSelect').addEventListener('change', async () => {
+  browserConfig.path = $('#browserSelect').value;
+  try {
+    await api('/api/browser-config', { method: 'POST', body: JSON.stringify({ config: browserConfig }) });
+    toast(t('browserSaved'), 'success');
+  } catch (e) { /* 浏览器模式忽略 */ }
+});
+$('#btnRefreshBrowsers').onclick = loadBrowsers;
+
+/* ---------- 右侧抽屉（日历 / 待办） ---------- */
+let todos = [];
+try { todos = JSON.parse(localStorage.getItem('panel-todos') || '[]'); } catch (e) { todos = []; }
+
+const ICON_RADIO = '<svg class="radio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>';
+
+function renderCalendar() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = now.getDate();
+  const wd = t('calWeekdays');
+  let html = `<div class="cal-head">${lang === 'zh' ? year + '年' + (month + 1) + '月' : (month + 1) + '/' + year}</div><div class="cal-grid">`;
+  wd.forEach((w) => { html += `<div class="cal-dow">${w}</div>`; });
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    html += `<div class="cal-cell ${d === today ? 'today' : ''}">${d}</div>`;
+  }
+  html += '</div>';
+  $('#drawerCal').innerHTML = html;
+}
+
+function renderTodos() {
+  const list = $('#todoList');
+  if (!todos.length) {
+    list.innerHTML = `<div class="muted">${t('noTodo')}</div>`;
+    return;
+  }
+  list.innerHTML = todos.map((td, i) => `
+    <div class="todo-item ${td.done ? 'done' : ''}" data-todo="${i}">
+      ${ICON_RADIO}
+      <span class="todo-text">${escapeHtml(td.text)}</span>
+      <button class="todo-del" data-todel="${i}">✕</button>
+    </div>`).join('');
+}
+
+function saveTodos() {
+  localStorage.setItem('panel-todos', JSON.stringify(todos));
+}
+
+$('#btnAddTodo').onclick = () => {
+  const text = $('#todoInput').value.trim();
+  if (!text) return;
+  todos.push({ text, done: false });
+  $('#todoInput').value = '';
+  saveTodos();
+  renderTodos();
+};
+$('#todoInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btnAddTodo').click(); });
+$('#todoList').addEventListener('click', (e) => {
+  const del = e.target.closest('[data-todel]');
+  if (del) {
+    todos.splice(Number(del.dataset.todel), 1);
+    saveTodos();
+    renderTodos();
+    return;
+  }
+  const item = e.target.closest('.todo-item');
+  if (item) {
+    const i = Number(item.dataset.todo);
+    todos[i].done = !todos[i].done;
+    saveTodos();
+    renderTodos();
+  }
+});
 
 $('#groupSelect').onchange = () => {
   currentGroup = Number($('#groupSelect').value);
@@ -692,15 +1048,79 @@ async function loadMyfiles() {
 }
 
 async function init() {
-  applyTheme();
-  applyLang();
+  try { applyTheme(); } catch (e) { /* 忽略 */ }
+  try { applyLang(); } catch (e) { /* 忽略 */ }
+  if (isDesktop) $('#appearanceBtn').hidden = false;
+  await loadBgConfig();
+  await loadBrowserConfig();
+  renderCalendar();
+  renderTodos();
   try {
     await Promise.all([loadLinks(), loadMyfiles()]);
   } catch (e) {
     toast(t('loadFailed') + e.message, 'error');
   }
   loadGitStatus();
-  setInterval(loadGitStatus, 10000);
+  setInterval(() => {
+    if (document.getElementById('tab-deploy').classList.contains('active')) loadGitStatus();
+  }, 10000);
 }
 
-init();
+/* ---------- 登录门禁（仅桌面应用） ---------- */
+async function initAuth() {
+  try { applyTheme(); } catch (e) { /* 忽略 */ }
+  try { applyLang(); } catch (e) { /* 语言渲染失败也要显示登录框，避免白屏 */ }
+  const backdrop = $('#loginBackdrop');
+  const errorEl = $('#loginError');
+  const pwdInput = $('#loginPassword');
+  backdrop.hidden = false;
+  pwdInput.focus();
+  async function tryLogin() {
+    const input = pwdInput.value;
+    if (!input) return;
+    try {
+      const ok = await window.__TAURI__.core.invoke('verify_password', { input });
+      if (ok) {
+        backdrop.hidden = true;
+        $('#btnChangePwd').hidden = false;
+        init();
+      } else {
+        errorEl.hidden = false;
+        pwdInput.value = '';
+        pwdInput.focus();
+      }
+    } catch (e) {
+      errorEl.hidden = false;
+      pwdInput.value = '';
+      pwdInput.focus();
+    }
+  }
+  $('#btnLogin').onclick = tryLogin;
+  pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+}
+
+/* ---------- 修改密码（仅桌面应用） ---------- */
+$('#btnChangePwd').addEventListener('click', () => {
+  openModal(t('changePwdTitle'), [
+    { key: 'old', label: t('oldPassword'), type: 'password', required: true },
+    { key: 'new', label: t('newPassword'), type: 'password', required: true },
+    { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
+  ], async (values) => {
+    if (values.new !== values.confirm) {
+      toast(t('pwdMismatch'), 'error');
+      return;
+    }
+    try {
+      await window.__TAURI__.core.invoke('change_password', { old: values.old, new: values.new });
+      toast(t('pwdChanged'), 'success');
+    } catch (e) {
+      toast(e.message || t('oldPwdWrong'), 'error');
+    }
+  });
+});
+
+if (isDesktop) {
+  initAuth();
+} else {
+  init();
+}

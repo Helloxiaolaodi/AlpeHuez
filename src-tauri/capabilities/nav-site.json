@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "nav-site",
+  "description": "nav:// 网站窗口（Remote origin）的能力：打开开发者面板、用系统浏览器打开外链",
+  "windows": ["main", "preview"],
+  "remote": {
+    "urls": ["http://nav.localhost/*"]
+  },
+  "permissions": [
+    "allow-open-dev-panel",
+    "allow-open-url"
+  ]
+}

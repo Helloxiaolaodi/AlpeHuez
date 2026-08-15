@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-open-dev-panel"
+description = "Enables the open_dev_panel command without any pre-configured scope."
+commands.allow = ["open_dev_panel"]
+
+[[permission]]
+identifier = "deny-open-dev-panel"
+description = "Denies the open_dev_panel command without any pre-configured scope."
+commands.deny = ["open_dev_panel"]

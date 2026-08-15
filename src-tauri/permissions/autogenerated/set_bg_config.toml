@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-set-bg-config"
+description = "Enables the set_bg_config command without any pre-configured scope."
+commands.allow = ["set_bg_config"]
+
+[[permission]]
+identifier = "deny-set-bg-config"
+description = "Denies the set_bg_config command without any pre-configured scope."
+commands.deny = ["set_bg_config"]

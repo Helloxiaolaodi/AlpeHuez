@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>AlpeHuez</title>
     <link rel="preload" as="image" href="1109770.jpg">
     <script src="./tailwind.min.js"></script>
     <style>
@@ -428,6 +428,24 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 10px; }
+
+        /* ---------- Dev Panel 按钮（仅桌面应用显示） ---------- */
+        .dev-panel-btn { border-color: rgba(16, 185, 129, 0.35); }
+        .dev-panel-btn .dev-panel-icon { color: #10b981; }
+        html[data-theme="space"] .dev-panel-btn { border-color: rgba(16, 185, 129, 0.4); }
+        @media (max-width: 900px) {
+            .dev-panel-btn .dev-panel-text { display: none; }
+        }
+        @media (max-width: 600px) {
+            .dev-panel-btn { display: none; }
+        }
+
+        /* ---------- 窄屏压缩搜索区，避免右上按钮与输入框重叠 ---------- */
+        @media (max-width: 768px) {
+            .search-container { padding-left: 12px; padding-right: 12px; }
+            #searchInput { padding-left: 2.75rem; padding-right: 2.5rem; }
+            .kbd-badge { display: none; }
+        }
     </style>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
@@ -462,7 +480,7 @@
             <div class="p-7 pb-5">
                 <h1 class="text-2xl font-bold tracking-tight card-title flex items-center gap-2">
                     <span class="w-6 h-6 bg-[#0087EB] text-white rounded-lg flex items-center justify-center shadow-md shadow-blue-500/30 text-xs">✦</span>
-                    Homepage
+                    AlpeHuez
                 </h1>
             </div>
 
@@ -542,6 +560,10 @@
             </div>
 
             <div class="absolute right-8 flex items-center gap-2">
+                <button id="devPanelBtn" type="button" class="dev-panel-btn glass-card px-3 md:px-4 py-3.5 flex items-center gap-2 text-sm font-medium shadow-sm cursor-pointer hover:scale-105 transition-all shrink-0" title="开发者面板 (Ctrl+Shift+D)" hidden>
+                    <span class="dev-panel-icon font-mono font-bold text-[13px] leading-none">>_</span>
+                    <span class="dev-panel-text hidden md:inline">Dev Panel</span>
+                </button>
                 <a href="/myfiles/" class="glass-card px-3 md:px-4 py-3.5 flex items-center gap-2 text-sm font-medium shadow-sm cursor-pointer hover:scale-105 transition-all shrink-0" title="My Files">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"></path></svg>
                     <span class="hidden md:inline">My Files</span>
@@ -781,6 +803,21 @@
         document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
         updateThemeUI(document.documentElement.dataset.theme);
 
+        // Dev Panel（仅桌面应用）：按钮 + Ctrl+Shift+D 快捷键
+        const devPanelBtn = document.getElementById('devPanelBtn');
+        if (window.__TAURI__) {
+            devPanelBtn.hidden = false;
+            devPanelBtn.addEventListener('click', () => {
+                window.__TAURI__.core.invoke('open_dev_panel');
+            });
+            document.addEventListener('keydown', (event) => {
+                if ((event.ctrlKey || event.metaKey) && event.shiftKey && (event.key === 'D' || event.key === 'd')) {
+                    event.preventDefault();
+                    window.__TAURI__.core.invoke('open_dev_panel');
+                }
+            });
+        }
+
         document.addEventListener('keydown', (event) => {
             if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
                 event.preventDefault();
@@ -824,10 +861,15 @@
             engineMenu.style.minWidth = engineRect.width + 'px';
         }
 
+        // 引擎菜单键盘导航：上下切换，Enter 确认
+        let engineIndex = 0;
+        function engineOptions() { return Array.from(engineMenu.querySelectorAll('.engine-option')); }
+
         engineBtn.addEventListener('click', (event) => {
             event.stopPropagation();
             if (engineMenu.classList.contains('hidden')) {
                 commandMenu.classList.add('hidden');
+                engineIndex = 0;
                 positionEngineMenu();
                 engineMenu.classList.remove('hidden');
             } else {
@@ -843,6 +885,20 @@
                 engineLabel.textContent = ENGINES[activeEngine].label;
                 engineMenu.classList.add('hidden');
             });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (engineMenu.classList.contains('hidden')) return;
+            const opts = engineOptions();
+            if (!opts.length) return;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                engineIndex = (engineIndex + (event.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+                opts.forEach((o, i) => o.classList.toggle('active', i === engineIndex));
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                opts[engineIndex].click();
+            }
         });
 
         document.addEventListener('click', () => {
@@ -939,8 +995,10 @@
         }
 
         function runCommand(cmd) {
-            if (cmd.theme) setTheme(cmd.theme);
-            else if (cmd.url) window.open(cmd.url, '_blank');
+            try {
+                if (cmd.theme) setTheme(cmd.theme);
+                else if (cmd.url) window.open(cmd.url, '_blank');
+            } catch (e) { console.error(e); }
             hideCommandMenu();
             document.getElementById('searchInput').value = '';
             searchTerm = '';
@@ -1016,6 +1074,10 @@
 
             const API_URL = "https://appflowy-notifier.20211003.xyz/api/status";
 
+            function fetchStatus() {
+                return fetch(API_URL + "?t=" + Date.now()).then(r => r.json());
+            }
+
             function renderHourlyGrid(data) {
                 const container = document.getElementById('syncGrid');
                 if (!container) return;
@@ -1066,8 +1128,7 @@
 
             async function checkAppFlowyKOM() {
                 try {
-                    const response = await fetch(API_URL);
-                    const data = await response.json();
+                    const data = await fetchStatus();
                     const message = data.msg || data.message || '';
                     const lastSync = data.lastTime
                         ? `Last Sync: ${new Date(Number(data.lastTime) + 8 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19)} (UTC+8)\n`
