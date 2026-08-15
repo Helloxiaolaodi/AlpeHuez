@@ -30,6 +30,9 @@ This repository contains a static homepage that renders links from `links.json`,
 | `myfiles/explorer.css` | Explorer styles |
 | `functions/myfiles/<area>/` | Cloudflare Pages Functions for login and protected paths |
 | `_headers` | Cloudflare Pages cache headers for reports and explorer assets |
+| `panel/` | Local developer panel (Node zero-dependency server + browser UI) |
+| `src-tauri/` | Tauri v2 desktop app (AlpeHuez) backend |
+| `myfiles/softwares/software-data.json` | Software download list data (categories + entries) |
 
 ## Protected Report Areas
 
@@ -88,6 +91,59 @@ start index.html
 
 For the full `myfiles` experience with login redirects, deploy the repository to Cloudflare Pages. The site needs no build step; publish the repository root and let Cloudflare use the `functions/` directory automatically.
 
+## Developer Panel
+
+The panel (`panel/`) manages the site from a local UI — link cards, My Files, software downloads, git push, maintenance scripts, and system stats.
+
+**Browser mode** (unchanged):
+
+```bash
+node panel/server.mjs
+# open http://localhost:5173/panel/
+```
+
+**Desktop mode**: bundled inside the AlpeHuez desktop app (see below). The panel runs in its own window; open it from the homepage via the **Dev Panel** button.
+
+Panel features:
+
+- Login + change password (password stored in `panel/server.mjs` config / Rust command)
+- Card groups, My Files folders, software downloads editing with instant save to disk
+- Git status / log / push
+- Maintenance script runner (`download_icons` / `enhance_links` / `repair_icons`)
+- System stats and background/sidebar image management
+
+## Desktop App (AlpeHuez)
+
+`src-tauri/` is a Tauri v2 (Rust) desktop app that bundles the developer panel and a local preview of the website.
+
+- Main window loads the site via the custom `nav://` protocol (`http://nav.localhost/index.html`), serving repository files locally.
+- The **Dev Panel** button on the homepage opens the panel window (single instance; focus existing window if already open). The panel window is created hidden and shown only after the page finishes loading, avoiding the WebView2 `about:blank` white flash.
+- Requires Rust toolchain + VS Build Tools (C++ desktop workload) on Windows.
+
+Build:
+
+```bash
+export PATH="/d/Rust/.cargo/bin:$PATH"
+RUSTUP_HOME=/d/Rust/.rustup CARGO_HOME=/d/Rust/.cargo
+node /c/Users/Lenovo/AppData/Roaming/npm/node_modules/@tauri-apps/cli/tauri.js build
+# release exe: src-tauri/target/release/my-nav-panel.exe
+# NSIS installer: src-tauri/target/release/bundle/nsis/AlpeHuez_<version>_x64-setup.exe
+```
+
+`src-tauri/` is only static content for Cloudflare Pages and does not affect the deployed site.
+
+## Software Download List
+
+`myfiles/softwares/Windows Software Downloads.html` is data-driven: it fetches `myfiles/softwares/software-data.json` (9 categories, 51 entries) and renders the list — no HTML edits needed when adding software.
+
+To edit entries:
+
+- **From the desktop app**: open the panel → My Files → `softwares` folder → the manage (grid) button next to `Windows Software Downloads.html`.
+- **From the browser panel**: same flow via `http://localhost:5173/panel/`.
+- **Directly**: edit `myfiles/softwares/software-data.json` and redeploy.
+
+Each entry: `cat`, `name`, `en`, `zh`, `url`, and optional `extra` `{en, zh, url}` (e.g. a GitHub link).
+
 ## Deployment
 
 1. Push this repository to GitHub.
@@ -103,8 +159,6 @@ For the full `myfiles` experience with login redirects, deploy the repository to
 - Click counts update locally and are used to move frequent links to the front.
 - `myfiles/explorer.js` fetches `myfiles/data.json` and renders breadcrumbs, folders, files, and badges.
 - Protected folder requests hit Cloudflare Pages Functions before the static HTML is served.
-
-## Security Notes
 
 ## Page Background Color Rules
 
@@ -129,12 +183,8 @@ The repository follows a layered background strategy. The rule is driven by **pa
 - Leaf HTML documents (reports, charts, downloads, generated pages) -> keep the background pure white so content is easy to read without competing with the surrounding page chrome.
 - When a generated HTML already includes its own `body { background: ... }` rule, override it inline if it must match the white rule.
 
+## Security Notes
 
 - The login cookie is scoped with `Path=/`, `SameSite=Lax`, and `Secure`.
 - Passwords are stored in the source `_auth.js` files; rotate them if the repository is public.
 - Do not place private data inside `/myfiles/` unless it is password protected or removed from the public deployment.
-| My Files folder explorer | `myfiles/<folder>/index.html` | Light gradient (same as above) |
-| Login pages | `myfiles/<area>/login.html` | Light gradient (same as above) |
-| Report / detail HTML | `myfiles/<area>/*.html` | Pure white (`#ffffff`) |
-| Software download page | `myfiles/softwares/Windows Software Downloads.html` | Pure white (`#ffffff`) |
-| Protected folder index | `myfiles/global-oral/index.html`<br>`myfiles/targetc/index.html`<br>`myfiles/lucuro/index.html`<br>`myfiles/galibierhub/index.html` | Light gradient (same as above) |
