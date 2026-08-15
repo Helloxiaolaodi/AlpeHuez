@@ -113,7 +113,9 @@ body {
 
 /* 背景层 + 暗色遮罩 */
 .bg-layer {
-  position: fixed; inset: -24px; z-index: 0;
+  position: fixed; inset: -24px; z-index: -1;
+  /* z-index 必须为负：z-index:0 时 WebView2 合成器把全屏背景层错误抬到内容之上，
+     导致主内容区（按钮/卡片）整块不渲染（高山等含实色像素的背景触发） */
   background-image: var(--preset-default);
   background-size: cover; background-position: center;
   filter: blur(0px);
