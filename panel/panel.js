@@ -57,7 +57,7 @@ const LOCALES = {
     modified: '已修改，记得点「保存」', groupCreated: '已新建分组，记得点「保存」',
     groupRenamed: '已重命名，记得点「保存」', groupDeleted: '已删除分组，记得点「保存」',
     cardDeleted: '已删除，记得点「保存」', folderRemoved: '已移除，记得点「保存」',
-    folderCreated: '文件夹已创建（含页面样板文件）', loadFailed: '加载数据失败：',
+    folderCreated: '文件夹已创建（含页面样板文件）', loadFailed: '加载数据失败：', retry: '重试',
     editCard: '编辑卡片', renameGroup: '重命名分组', newFolder: '新建文件夹', editFile: '编辑文件',
     title: '标题', url: 'URL', iconUrl: '图标 URL',
     iconHint: '留空则显示字母图标；保存后点「下载图标」可自动抓取 favicon',
@@ -111,7 +111,7 @@ const LOCALES = {
     modified: 'Modified — remember to Save', groupCreated: 'Group created — remember to Save',
     groupRenamed: 'Renamed — remember to Save', groupDeleted: 'Group deleted — remember to Save',
     cardDeleted: 'Deleted — remember to Save', folderRemoved: 'Removed — remember to Save',
-    folderCreated: 'Folder created (with page templates)', loadFailed: 'Failed to load data: ',
+    folderCreated: 'Folder created (with page templates)', loadFailed: 'Failed to load data: ', retry: 'Retry',
     editCard: 'Edit Card', renameGroup: 'Rename Group', newFolder: 'New Folder', editFile: 'Edit File',
     title: 'Title', url: 'URL', iconUrl: 'Icon URL',
     iconHint: 'Leave empty for a letter avatar; click "Download Icons" after saving to auto-fetch the favicon',
@@ -1034,33 +1034,55 @@ $('#btnPush').onclick = async () => {
 
 /* ---------- 初始化 ---------- */
 async function loadLinks() {
-  const res = await api('/api/links');
-  links = res.data;
-  currentGroup = Math.min(currentGroup, Math.max(0, (links.icons || []).length - 1));
-  renderGroups();
+  try {
+    const res = await api('/api/links');
+    links = res.data;
+    if (!links || !Array.isArray(links.icons)) {
+      throw new Error('links.json 结构异常（缺少 icons）');
+    }
+    currentGroup = Math.min(currentGroup, Math.max(0, (links.icons || []).length - 1));
+    renderGroups();
+  } catch (e) {
+    $('#groupSelect').innerHTML = `<option>${escapeHtml(t('loadFailed'))}</option>`;
+    $('#cardList').innerHTML = `<div class="empty-state"><p class="muted">${escapeHtml(t('loadFailed'))}${escapeHtml(e.message || '')}</p><button class="btn btn-primary" onclick="loadLinks()">${escapeHtml(t('retry'))}</button></div>`;
+    $('#cardEmpty').hidden = true;
+  }
 }
 
 async function loadMyfiles() {
-  const res = await api('/api/myfiles');
-  myfiles = res.data;
-  if (!currentFolder && (myfiles.folders || []).length) currentFolder = myfiles.folders[0].slug;
-  renderFolders();
+  try {
+    const res = await api('/api/myfiles');
+    myfiles = res.data;
+    if (!myfiles || !Array.isArray(myfiles.folders)) {
+      throw new Error('myfiles/data.json 结构异常（缺少 folders）');
+    }
+    if (!currentFolder && (myfiles.folders || []).length) currentFolder = myfiles.folders[0].slug;
+    renderFolders();
+  } catch (e) {
+    $('#fileList').innerHTML = `<div class="empty-state"><p class="muted">${escapeHtml(t('loadFailed'))}${escapeHtml(e.message || '')}</p><button class="btn btn-primary" onclick="loadMyfiles()">${escapeHtml(t('retry'))}</button></div>`;
+    $('#fileEmpty').hidden = true;
+  }
 }
 
 async function init() {
   try { applyTheme(); } catch (e) { /* 忽略 */ }
   try { applyLang(); } catch (e) { /* 忽略 */ }
   if (isDesktop) $('#appearanceBtn').hidden = false;
-  await loadBgConfig();
-  await loadBrowserConfig();
-  renderCalendar();
-  renderTodos();
-  try {
-    await Promise.all([loadLinks(), loadMyfiles()]);
-  } catch (e) {
-    toast(t('loadFailed') + e.message, 'error');
-  }
-  loadGitStatus();
+  // 每个初始化步骤独立容错：单点失败不得拖垮整个面板（否则会出现按钮/列表大面积缺失）
+  const safe = async (fn) => {
+    try {
+      return await fn();
+    } catch (e) {
+      console.error('[panel] init step failed:', e);
+      return undefined;
+    }
+  };
+  await safe(loadBgConfig);
+  await safe(loadBrowserConfig);
+  await safe(renderCalendar);
+  await safe(renderTodos);
+  await safe(() => Promise.all([loadLinks(), loadMyfiles()]));
+  await safe(loadGitStatus);
   setInterval(() => {
     if (document.getElementById('tab-deploy').classList.contains('active')) loadGitStatus();
   }, 10000);

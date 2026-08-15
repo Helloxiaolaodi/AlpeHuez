@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1A1B26"/>
+      <stop offset="1" stop-color="#0F0F14"/>
+    </linearGradient>
+    <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34D399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="blur24" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+  </defs>
+
+  <!-- 底板：超平滑圆角矩形 + 深色材质渐变 -->
+  <rect x="0" y="0" width="1024" height="1024" rx="225" fill="url(#bgGrad)"/>
+  <!-- 1px 内描边（亚克力高光） -->
+  <rect x="1" y="1" width="1022" height="1022" rx="225" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+
+  <!-- 光晕层 -->
+  <g opacity="0.45" filter="url(#blur24)">
+    <path d="M512 195 L265 765 M512 195 L595 335 L648 322 L760 765 M400 460 L575 460"
+          stroke="#34D399" stroke-width="52" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- A 主体：左侧直线 + 右侧发卡弯攀升 + 左横杠断点 -->
+  <path d="M512 195 L265 765 M512 195 L595 335 L648 322 L760 765 M400 460 L575 460"
+        stroke="url(#aGrad)" stroke-width="52" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
