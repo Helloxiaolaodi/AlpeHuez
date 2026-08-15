@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开发者面板 · my-nav</title>
+<link rel="stylesheet" href="/panel/panel.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-name">开发者面板</div>
+        <div class="brand-sub">my-nav · 本地内容管理</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="server-status" id="serverStatus"><span class="dot"></span>已连接</span>
+      <a class="btn btn-ghost" href="/" target="_blank" rel="noopener">预览网站 ↗</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <button class="tab-btn active" data-tab="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>导航卡片</span>
+      </button>
+      <button class="tab-btn" data-tab="myfiles">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+        <span>My Files</span>
+      </button>
+      <button class="tab-btn" data-tab="deploy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
+        <span>部署</span>
+      </button>
+    </nav>
+
+    <main class="content">
+      <!-- ============ 导航卡片 ============ -->
+      <section class="tab-panel active" id="tab-nav">
+        <div class="panel-head">
+          <div>
+            <h1>导航卡片</h1>
+            <p class="muted">管理首页的网址卡片与分组，保存后自动写入 links.json</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="btnEnhance">重新计算标签 / VPN</button>
+            <button class="btn btn-ghost" id="btnDownloadIcons">下载图标</button>
+            <button class="btn btn-primary" id="btnSaveLinks">保存</button>
+          </div>
+        </div>
+
+        <div class="group-bar">
+          <label class="field-label" for="groupSelect">当前分组</label>
+          <div class="group-row">
+            <select id="groupSelect" class="select"></select>
+            <button class="btn btn-ghost btn-sm" id="btnNewGroup">新建分组</button>
+            <button class="btn btn-ghost btn-sm" id="btnRenameGroup">重命名</button>
+            <button class="btn btn-danger btn-sm" id="btnDeleteGroup">删除</button>
+          </div>
+        </div>
+
+        <div class="card-list" id="cardList"></div>
+
+        <div class="empty-state" id="cardEmpty" hidden>
+          <p>该分组还没有卡片</p>
+          <button class="btn btn-primary" id="btnNewCardEmpty">新建卡片</button>
+        </div>
+      </section>
+
+      <!-- ============ My Files ============ -->
+      <section class="tab-panel" id="tab-myfiles">
+        <div class="panel-head">
+          <div>
+            <h1>My Files</h1>
+            <p class="muted">管理文件浏览器中的文件夹与文件，保存后自动写入 data.json</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-primary" id="btnSaveMyfiles">保存</button>
+          </div>
+        </div>
+
+        <div class="myfiles-layout">
+          <div class="folder-col">
+            <div class="col-head">
+              <span class="col-title">文件夹</span>
+              <button class="btn btn-ghost btn-sm" id="btnNewFolder">新建</button>
+            </div>
+            <div class="folder-list" id="folderList"></div>
+          </div>
+          <div class="file-col">
+            <div class="col-head">
+              <span class="col-title" id="fileColTitle">文件</span>
+              <button class="btn btn-ghost btn-sm" id="btnNewFile">新建文件</button>
+            </div>
+            <div class="file-list" id="fileList"></div>
+            <div class="empty-state" id="fileEmpty" hidden>
+              <p>该文件夹还没有文件</p>
+              <button class="btn btn-primary" id="btnNewFileEmpty">新建文件</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 部署 ============ -->
+      <section class="tab-panel" id="tab-deploy">
+        <div class="panel-head">
+          <div>
+            <h1>部署</h1>
+            <p class="muted">提交并推送到 GitHub，Cloudflare Pages 会自动发布</p>
+          </div>
+        </div>
+
+        <div class="deploy-grid">
+          <div class="card">
+            <div class="card-title">仓库状态</div>
+            <div class="git-meta">
+              <div class="git-meta-row"><span class="muted">分支</span><code id="gitBranch">—</code></div>
+              <div class="git-meta-row"><span class="muted">最近提交</span><code id="gitLast">—</code></div>
+            </div>
+            <div class="git-changes" id="gitChanges">
+              <div class="muted">加载中…</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">提交并推送</div>
+            <label class="field-label" for="commitMsg">提交信息</label>
+            <input type="text" id="commitMsg" class="input" placeholder="例如：新增 3 个导航卡片">
+            <button class="btn btn-primary btn-block" id="btnPush">保存并推送</button>
+            <p class="hint">将当前所有改动（links.json、data.json、图标、新文件夹）一起提交并推送到 GitHub。</p>
+          </div>
+        </div>
+
+        <div class="card log-card">
+          <div class="card-title">运行日志</div>
+          <pre class="log" id="logArea">—</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============ 模态框 ============ -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">编辑</h2>
+      <button class="modal-close" id="modalClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="modalCancel">取消</button>
+      <button class="btn btn-primary" id="modalOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/panel/panel.js"></script>
+</body>
+</html>
