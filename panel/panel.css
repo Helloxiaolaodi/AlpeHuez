@@ -169,8 +169,6 @@ body::before {
   width: 72px;
   border-radius: var(--radius-lg);
   background-color: transparent;
-  background-image: var(--sidebar-image, none);
-  background-size: cover; background-position: center;
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-lg);
   padding: 14px 8px;
@@ -529,6 +527,34 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
   display: flex; align-items: center; justify-content: center; z-index: 100;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+.confirm-backdrop {
+  position: fixed; inset: 0; z-index: 250;
+  background: rgba(5, 8, 13, 0.46);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.confirm-card {
+  width: 100%; max-width: 420px;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+}
+.confirm-text {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-line;
+  color: var(--text);
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .modal {
   width: 100%; max-width: 520px; max-height: 86vh;

@@ -56,6 +56,24 @@ const ADBLOCK_JS: &str = r#"(function () {
   }
 })();"#;
 
+const CHILD_KEY_JS: &str = r#"(function () {
+  function routeKey(event) {
+    if (event.repeat) return;
+    var tauriEvent = window.__TAURI__ && window.__TAURI__.event;
+    if (!tauriEvent || typeof tauriEvent.emitTo !== 'function') return;
+    if (event.key === 'F11') {
+      event.preventDefault();
+      event.stopPropagation();
+      tauriEvent.emitTo('main', 'alpehuez-fullscreen-toggle', {});
+    } else if (event.altKey && event.key === 'ArrowLeft') {
+      tauriEvent.emitTo('main', 'alpehuez-back', {});
+    } else if (event.key === 'Escape') {
+      tauriEvent.emitTo('main', 'alpehuez-fullscreen-exit', {});
+    }
+  }
+  document.addEventListener('keydown', routeKey, true);
+})();"#;
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScriptResult {
@@ -943,19 +961,40 @@ fn open_internal_page_impl(
     let title_label = label.clone();
     let title_url = url.clone();
     let open_app = app.clone();
+    let child_script = format!("{}\n{}", ADBLOCK_JS, CHILD_KEY_JS);
 
     let builder = WebviewBuilder::new(label.clone(), WebviewUrl::External(parsed))
         .data_directory(session_dir)
-        .initialization_script(ADBLOCK_JS)
+        .initialization_script(child_script.as_str())
         .on_page_load(move |_webview, payload| {
-            if payload.event() == PageLoadEvent::Finished
-                && payload.url().as_str() != "about:blank"
-            {
+            if payload.url().as_str() == "about:blank" {
+                return;
+            }
+            let current_url = payload.url().to_string();
+            let current_label = page_label.clone();
+            if payload.event() == PageLoadEvent::Started {
+                let _ = page_app.emit(
+                    "browser-load-started",
+                    InternalPageInfo {
+                        label: current_label,
+                        url: current_url,
+                        title: page_title_clone.clone(),
+                    },
+                );
+            } else if payload.event() == PageLoadEvent::Finished {
                 let _ = page_app.emit(
                     "browser-tab-updated",
                     InternalPageInfo {
-                        label: page_label.clone(),
-                        url: payload.url().to_string(),
+                        label: current_label.clone(),
+                        url: current_url.clone(),
+                        title: page_title_clone.clone(),
+                    },
+                );
+                let _ = page_app.emit(
+                    "browser-load-finished",
+                    InternalPageInfo {
+                        label: current_label,
+                        url: current_url,
                         title: page_title_clone.clone(),
                     },
                 );

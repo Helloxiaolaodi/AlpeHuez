@@ -1179,10 +1179,30 @@
             z-index: 50;
             flex-basis: auto;
             min-height: 44px;
-            padding: 0 14px;
+            padding: 10px 14px 0;
+            justify-content: flex-end;
+            background: transparent;
+            border-bottom-color: transparent;
+            backdrop-filter: none;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.16s ease, transform 0.16s ease;
+        }
+
+        body.browsing .topbar-left,
+        body.browsing #themeToggleBtn {
+            display: none;
+        }
+
+        body.browsing .topbar-actions {
+            gap: 6px;
+            padding: 5px;
+            border-radius: 14px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-float);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
         }
 
         body.browsing .topbar:hover,
@@ -1221,7 +1241,7 @@
             z-index: 50;
             flex-basis: auto;
             min-height: 40px;
-            padding: 0 10px;
+            padding: 10px 10px 0;
         }
 
         html:not([data-theme="space"]) .workspace-body {
@@ -1276,6 +1296,59 @@
             background: #FFFFFF;
             overflow: hidden;
             pointer-events: none;
+        }
+
+        .page-load-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            z-index: 80;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+        }
+
+        .page-load-center {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate3d(-50%, 0, 0) scaleX(0);
+            transform-origin: center;
+            background: linear-gradient(90deg, transparent, var(--brand-primary) 50%, transparent);
+            opacity: 0;
+            transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.2s ease;
+        }
+
+        body.browsing .page-load-bar.loading,
+        body.is-fullscreen .page-load-bar.loading {
+            opacity: 1;
+        }
+
+        body.browsing .page-load-bar.loading .page-load-center,
+        body.is-fullscreen .page-load-bar.loading .page-load-center,
+        body.browsing .page-load-bar.done .page-load-center,
+        body.is-fullscreen .page-load-bar.done .page-load-center {
+            transform: translate3d(-50%, 0, 0) scaleX(1);
+        }
+
+        body.browsing .page-load-bar.loading .page-load-center,
+        body.is-fullscreen .page-load-bar.loading .page-load-center {
+            opacity: 1;
+        }
+
+        body.browsing .page-load-bar.done,
+        body.is-fullscreen .page-load-bar.done {
+            opacity: 1;
+        }
+
+        body.browsing .page-load-bar.done .page-load-center,
+        body.is-fullscreen .page-load-bar.done .page-load-center {
+            opacity: 0;
         }
 
 
@@ -2233,15 +2306,17 @@
         }
 
         .settings-panel {
-            width: min(760px, 100%);
+            display: flex;
+            flex-direction: column;
+            width: min(880px, 100%);
             max-height: min(780px, calc(100vh - 40px));
-            overflow: auto;
+            overflow: hidden;
             color: var(--text-main);
             background: var(--panel-solid);
             border: 1px solid var(--line-strong);
             border-radius: 16px;
             box-shadow: var(--shadow-float);
-            padding: 22px;
+            padding: 18px 18px 22px;
         }
 
         .settings-header {
@@ -2249,7 +2324,67 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+        }
+
+        .settings-layout {
+            display: flex;
+            gap: 18px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .settings-sidebar {
+            display: flex;
+            flex: 0 0 172px;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 0;
+            overflow: auto;
+            padding: 6px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .settings-tab {
+            display: flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 0 12px;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+        }
+
+        .settings-tab:hover {
+            color: var(--text-main);
+            background: rgba(177, 227, 255, 0.12);
+        }
+
+        .settings-tab.active {
+            color: var(--brand-primary);
+            background: rgba(177, 227, 255, 0.2);
+            border-color: rgba(0, 135, 235, 0.16);
+        }
+
+        html[data-theme="space"] .settings-tab.active {
+            color: #A5B4FC;
+            background: rgba(129, 140, 248, 0.16);
+            border-color: rgba(129, 140, 248, 0.18);
+        }
+
+        .settings-content {
+            flex: 1;
+            min-width: 0;
+            overflow-y: auto;
+            padding-right: 2px;
         }
 
         .settings-header h2 {
@@ -2279,9 +2414,12 @@
         }
 
         .settings-section {
-            padding-top: 16px;
-            margin-top: 16px;
-            border-top: 1px solid var(--line);
+            display: none;
+            padding: 2px 6px 0;
+        }
+
+        .settings-section.active {
+            display: block;
         }
 
         .settings-section h3 {
@@ -2697,7 +2835,7 @@
                                 <ul>
                                     <li>Unified AlpeHuez workspace shell: Portal, My Files, Dev Panel, Achievements, and About sit in the Activity Bar with contextual sidebar panels.</li>
                                     <li>Zen-style vertical tabs replace the crowded top tab strip; link cards, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews.</li>
-                                    <li>Internal WebViews add fullscreen and exit-fullscreen controls, back navigation, a hover-revealed top toolbar, persistent sessions, and ad blocking injection.</li>
+                                    <li>Internal WebViews add an auto-hiding command bar with back navigation and fullscreen/exit-fullscreen controls, plus persistent sessions and ad blocking injection.</li>
                                     <li>The Portal sidebar is auto-hidden with an edge handle and keeps its page tabs in the sidebar instead of the content area.</li>
                                     <li>My Files uses an auto-hidden sidebar with collapsible main folders, and the report pages are password-gated without committed secrets.</li>
                                     <li>Dev Panel requires a password on every entry with no remembered access, and its Deploy/default screens no longer trigger transient popups.</li>
@@ -2727,6 +2865,9 @@
                 </section>
 
                 <div id="webviewStage" class="webview-stage"></div>
+                <div id="pageLoadBar" class="page-load-bar" aria-hidden="true">
+                    <span class="page-load-center"></span>
+                </div>
             </div>
         </main>
     </div>
@@ -2849,7 +2990,7 @@
         let myfilesFolderCollapsed = new Set();
         let activeBrowserLabel = null;
         let layoutRafId = null;
-        let fullscreenBusy = false;
+        let pageLoadTimer = null;
         let sidebarHoverTimer = null;
         const browserTabs = new Map();
 
@@ -2948,6 +3089,62 @@
         function settingsText(key, fallback) {
             const table = SETTINGS_STRINGS[settingsLang] || SETTINGS_STRINGS.en;
             return table[key] || fallback || key;
+        }
+
+        function switchSettingsTab(tab) {
+            document.querySelectorAll('[data-settings-tab]').forEach((button) => {
+                button.classList.toggle('active', button.dataset.settingsTab === tab);
+            });
+            document.querySelectorAll('[data-settings-panel]').forEach((panel) => {
+                panel.classList.toggle('active', panel.dataset.settingsPanel === tab);
+            });
+        }
+
+        function ensureSettingsLayout() {
+            if (document.querySelector('.settings-layout')) return;
+            const panel = document.querySelector('.settings-panel');
+            if (!panel) return;
+            const sections = Array.from(panel.querySelectorAll('.settings-section'));
+            if (!sections.length) return;
+
+            const tabs = [
+                ['background', 'background'],
+                ['shortcuts', 'shortcuts'],
+                ['feedback', 'feedback'],
+                ['supportAuthor', 'supportAuthor'],
+                ['language', 'language']
+            ];
+            const layout = document.createElement('div');
+            layout.className = 'settings-layout';
+
+            const sidebar = document.createElement('div');
+            sidebar.className = 'settings-sidebar';
+            sidebar.setAttribute('aria-label', 'Settings sections');
+            tabs.forEach(([id, key], index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'settings-tab' + (index === 0 ? ' active' : '');
+                button.dataset.settingsTab = id;
+                button.dataset.i18nSettings = key;
+                button.textContent = settingsText(key, key);
+                sidebar.appendChild(button);
+            });
+
+            const content = document.createElement('div');
+            content.className = 'settings-content';
+            sections.forEach((section) => {
+                const heading = section.querySelector('h3');
+                const key = heading && heading.dataset.i18nSettings ? heading.dataset.i18nSettings : 'background';
+                section.classList.remove('active');
+                section.dataset.settingsPanel = key;
+                content.appendChild(section);
+            });
+
+            layout.appendChild(sidebar);
+            layout.appendChild(content);
+            const header = panel.querySelector('.settings-header');
+            panel.insertBefore(layout, header ? header.nextSibling : panel.firstChild);
+            switchSettingsTab('background');
         }
 
         function applySettingsLanguage() {
@@ -3192,6 +3389,8 @@
         function openSettingsModal() {
             const modal = $('settingsModal');
             if (!modal) return;
+            ensureSettingsLayout();
+            switchSettingsTab('background');
             loadShortcutSettings();
             loadBackgroundSettings();
             loadFeedbackSettings();
@@ -3204,6 +3403,7 @@
         }
 
         async function initSettings() {
+            ensureSettingsLayout();
             applySettingsLanguage();
             loadShortcutSettings();
             await Promise.all([loadBackgroundSettings(), loadFeedbackSettings()]);
@@ -3411,6 +3611,25 @@
             }
         }
 
+        function pageLoadStarted() {
+            const bar = $('pageLoadBar');
+            if (!bar) return;
+            clearTimeout(pageLoadTimer);
+            bar.classList.add('loading');
+            bar.classList.remove('done');
+        }
+
+        function pageLoadFinished() {
+            const bar = $('pageLoadBar');
+            if (!bar) return;
+            bar.classList.remove('loading');
+            bar.classList.add('done');
+            clearTimeout(pageLoadTimer);
+            pageLoadTimer = setTimeout(() => {
+                bar.classList.remove('done');
+            }, 650);
+        }
+
         function isFullscreen() {
             return document.body.classList.contains('is-fullscreen');
         }
@@ -3441,28 +3660,29 @@
         }
 
         async function enterFullscreen() {
-            if (fullscreenBusy || !document.body.classList.contains('browsing') || isFullscreen()) return;
-            fullscreenBusy = true;
+            if (!activeBrowserLabel || isFullscreen()) return;
             document.body.classList.add('is-fullscreen');
             updateFullscreenIcon();
             await Promise.all([requestLayoutInternalPages(), setNativeFullscreen(true)]);
             await requestLayoutInternalPages();
-            setTimeout(() => { fullscreenBusy = false; }, 260);
         }
 
         async function exitFullscreen() {
             if (!isFullscreen()) return;
-            fullscreenBusy = true;
             document.body.classList.remove('is-fullscreen');
             updateFullscreenIcon();
             await Promise.all([requestLayoutInternalPages(), setNativeFullscreen(false)]);
             await requestLayoutInternalPages();
-            setTimeout(() => { fullscreenBusy = false; }, 260);
         }
 
-        function toggleFullscreen() {
-            if (isFullscreen()) exitFullscreen();
-            else enterFullscreen();
+        let lastFullscreenToggleAt = 0;
+
+        async function toggleFullscreen() {
+            const now = Date.now();
+            if (now - lastFullscreenToggleAt < 180) return;
+            lastFullscreenToggleAt = now;
+            if (isFullscreen()) await exitFullscreen();
+            else await enterFullscreen();
         }
 
         function resetPortalSidebarState() {
@@ -4177,6 +4397,11 @@
             $('btnSettings').addEventListener('click', openSettingsModal);
             $('settingsClose').addEventListener('click', closeSettingsModal);
             $('settingsModal').addEventListener('click', (event) => {
+                const tabButton = event.target.closest('[data-settings-tab]');
+                if (tabButton) {
+                    switchSettingsTab(tabButton.dataset.settingsTab);
+                    return;
+                }
                 if (event.target === $('settingsModal')) closeSettingsModal();
             });
             $('bgFile').addEventListener('change', handleBackgroundFile);
@@ -4296,7 +4521,13 @@
 
             $('devFrame').addEventListener('load', syncDevTabToFrame);
             window.addEventListener('message', (event) => {
-                if (event.source === $('devFrame').contentWindow && event.data && event.data.type === 'alpehuez-dev-tab') {
+                if (event.source !== $('devFrame').contentWindow || !event.data) return;
+                const messageType = event.data.type;
+                if (messageType === 'alpehuez-fullscreen-toggle') {
+                    toggleFullscreen();
+                } else if (messageType === 'alpehuez-back') {
+                    backBrowserTab();
+                } else if (messageType === 'alpehuez-dev-tab') {
                     activateDevTab(event.data.tab);
                 }
             });
@@ -4432,6 +4663,7 @@
             document.addEventListener('click', hideMenus);
             document.addEventListener('keydown', (event) => {
                 if (shortcutMatches(event, settingsShortcuts.fullscreen)) {
+                    if (event.repeat) return;
                     event.preventDefault();
                     toggleFullscreen();
                     return;
@@ -4489,6 +4721,13 @@
                         browserTabs.delete(label);
                         renderBrowserTabs();
                     }
+                });
+                listen('browser-load-started', pageLoadStarted);
+                listen('browser-load-finished', pageLoadFinished);
+                listen('alpehuez-fullscreen-toggle', toggleFullscreen);
+                listen('alpehuez-back', backBrowserTab);
+                listen('alpehuez-fullscreen-exit', () => {
+                    if (isFullscreen()) exitFullscreen();
                 });
             }
         }

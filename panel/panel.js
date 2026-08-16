@@ -8,6 +8,15 @@ if (embedded) {
   document.body.classList.add('dev-embedded');
   const oldSidebar = document.querySelector('.sidebar');
   if (oldSidebar) oldSidebar.remove();
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'F11') {
+      if (event.repeat) return;
+      event.preventDefault();
+      window.parent.postMessage({ type: 'alpehuez-fullscreen-toggle' }, '*');
+    } else if (event.altKey && event.key === 'ArrowLeft') {
+      window.parent.postMessage({ type: 'alpehuez-back' }, '*');
+    }
+  }, true);
 }
 
 /* 全局错误捕获：任何 JS 错误显示在页面顶部，避免无声白屏 */
@@ -33,7 +42,7 @@ const ICON_APPS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" s
 const LOCALES = {
   zh: {
     appName: 'AlpeHuez 开发者面板', appSub: 'AlpeHuez · 本地内容管理', connected: '已连接', uncommitted: '待推送',
-    preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署', appearance: '外观',
+    preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
     launchMode: '启动方式', launchDesc: '选择网址卡片在 AlpeHuez 内部打开，还是交给外部浏览器打开。',
     launchInternal: 'AlpeHuez 内部启动', launchInternalHint: '在侧边栏中保留垂直标签页和网页会话',
     launchExternal: '外部浏览器启动', launchExternalHint: '交给已安装的外部浏览器打开网址',
@@ -48,13 +57,7 @@ const LOCALES = {
     repoStatus: '仓库状态', branch: '分支', lastCommit: '最近提交',
     devTimeline: '开发时间轴', timelineEmpty: '暂无提交记录', timelineError: '无法读取提交历史：',
     sysTitle: '系统资源', cpu: 'CPU', mem: '内存', disk: '磁盘',
-    appearanceDesc: '自定义面板背景与主题外观',
-    bgPreset: '背景预设', presetDefault: '默认', presetMountain: '高山', presetGrid: '网格', presetCustom: '自定义',
-    bgUpload: '上传背景图', upload: '上传', bgUploadHint: '上传后自动切换到「自定义」预设，图片保存在本地（%APPDATA%），不会进入 git 仓库。',
-    bgAdjust: '调整', blur: '模糊', overlay: '暗色遮罩',
-    sidebarBg: '侧边栏独立背景', sidebarBgHint: '为左侧导航栏单独设置竖版背景图（骑行、高山剪影等），自动加深色遮罩保证图标清晰。',
-    clear: '清除', bgSaved: '背景已保存',
-    defaultBrowser: '默认浏览器', browserHint: '选择打开网址时使用的浏览器，留空则使用系统默认。', systemDefault: '系统默认', refresh: '刷新', browserSaved: '浏览器设置已保存',
+    systemDefault: '系统默认', refresh: '刷新',
     drawerTitle: '日历 / 待办', todayTodo: '今日待办', todoPlaceholder: '添加待办…', noTodo: '暂无待办',
     calWeekdays: ['日', '一', '二', '三', '四', '五', '六'],
     commitPush: '提交并推送', commitMsg: '提交信息', commitPlaceholder: '例如：新增 3 个导航卡片',
@@ -97,7 +100,7 @@ const LOCALES = {
   },
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
-    preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy', appearance: 'Appearance',
+    preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
     launchMode: 'Launch Mode', launchDesc: 'Open website cards inside AlpeHuez or hand them to an external browser.',
     launchInternal: 'Launch inside AlpeHuez', launchInternalHint: 'Keep vertical tabs and website sessions in the sidebar',
     launchExternal: 'Launch in external browser', launchExternalHint: 'Open URLs with an installed external browser',
@@ -112,13 +115,7 @@ const LOCALES = {
     repoStatus: 'Repo Status', branch: 'Branch', lastCommit: 'Last Commit',
     devTimeline: 'Dev Timeline', timelineEmpty: 'No commits yet', timelineError: 'Failed to read commit history: ',
     sysTitle: 'System Resources', cpu: 'CPU', mem: 'Memory', disk: 'Disk',
-    appearanceDesc: 'Customize panel background & theme',
-    bgPreset: 'Background Preset', presetDefault: 'Default', presetMountain: 'Mountain', presetGrid: 'Grid', presetCustom: 'Custom',
-    bgUpload: 'Upload Background', upload: 'Upload', bgUploadHint: 'Switches to "Custom" preset automatically. Image is stored locally (%APPDATA%), never in the git repo.',
-    bgAdjust: 'Adjust', blur: 'Blur', overlay: 'Dark Overlay',
-    sidebarBg: 'Sidebar Background', sidebarBgHint: 'Set a separate portrait background for the left nav (cycling, mountain silhouettes…). A dark overlay keeps icons legible.',
-    clear: 'Clear', bgSaved: 'Background saved',
-    defaultBrowser: 'Default Browser', browserHint: 'Choose which browser opens links. Leave empty to use the system default.', systemDefault: 'System Default', refresh: 'Refresh', browserSaved: 'Browser setting saved',
+    systemDefault: 'System Default', refresh: 'Refresh',
     drawerTitle: 'Calendar / Todos', todayTodo: 'Today Todos', todoPlaceholder: 'Add todo…', noTodo: 'No todos',
     calWeekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
     commitPush: 'Commit & Push', commitMsg: 'Commit Message', commitPlaceholder: 'e.g. Add 3 nav cards',
@@ -244,12 +241,6 @@ async function api(path, opts = {}) {
     if (path === '/api/git-status') return await invoke('git_status');
     if (path === '/api/git-log') return await invoke('git_log');
     if (path === '/api/sys-stats') return await invoke('sys_stats');
-    if (path === '/api/bg-config') {
-      if (method === 'GET') return await invoke('get_bg_config');
-      await invoke('set_bg_config', { config: body.config });
-      return { ok: true };
-    }
-    if (path === '/api/save-bg-image') return await invoke('save_bg_image', { data: body.data, ext: body.ext });
     if (path === '/api/list-browsers') return await invoke('list_browsers');
     if (path === '/api/browser-config') {
       if (method === 'GET') return await invoke('get_browser_config');
@@ -259,7 +250,7 @@ async function api(path, opts = {}) {
     if (path === '/api/git-push') return await invoke('git_push', { message: body.message });
     throw new Error('未知接口: ' + path);
   }
-  if (path === '/api/git-log' || path === '/api/sys-stats' || path === '/api/bg-config' || path === '/api/save-bg-image' || path === '/api/list-browsers' || path === '/api/browser-config') return null; // 浏览器模式无此接口
+  if (path === '/api/git-log' || path === '/api/sys-stats' || path === '/api/list-browsers' || path === '/api/browser-config') return null; // 浏览器模式无此接口
   const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
   const data = await res.json().catch(() => ({ ok: false, error: t('loadFailed') }));
   if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
@@ -345,6 +336,34 @@ function openModal(title, fields, onOk) {
   $('#modalCancel').onclick = cleanup;
   $('#modalClose').onclick = cleanup;
   $('#modalBackdrop').onclick = (e) => { if (e.target === $('#modalBackdrop')) cleanup(); };
+}
+
+function confirmDialog(message) {
+  const old = document.getElementById('appConfirm');
+  if (old) old.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-backdrop';
+  overlay.id = 'appConfirm';
+  overlay.innerHTML = `
+    <div class="confirm-card" role="alertdialog" aria-modal="true">
+      <p class="confirm-text">${escapeHtml(message)}</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-ghost" data-role="cancel">${escapeHtml(t('cancel'))}</button>
+        <button type="button" class="btn btn-primary" data-role="ok">${escapeHtml(t('ok'))}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  return new Promise((resolve) => {
+    const close = (result) => {
+      overlay.remove();
+      resolve(result);
+    };
+    overlay.querySelector('[data-role="ok"]').onclick = () => close(true);
+    overlay.querySelector('[data-role="cancel"]').onclick = () => close(false);
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) close(false);
+    });
+  });
 }
 
 /* ---------- 导航卡片 ---------- */
@@ -615,7 +634,7 @@ async function openSoftwareManager() {
   $('#swSearch').addEventListener('input', renderSoftwareList);
   $('#swCat').addEventListener('change', renderSoftwareList);
   $('#swAdd').onclick = () => openSoftwareForm(null, null);
-  $('#swList').addEventListener('click', (e) => {
+  $('#swList').addEventListener('click', async (e) => {
     const editBtn = e.target.closest('[data-swedit]');
     const delBtn = e.target.closest('[data-swdel]');
     if (editBtn) {
@@ -624,7 +643,7 @@ async function openSoftwareManager() {
     if (delBtn) {
       const idx = Number(delBtn.dataset.swdel);
       const s = softwareData.software[idx];
-      if (confirm(t('confirmDeleteSoftware', s.name))) {
+      if (await confirmDialog(t('confirmDeleteSoftware', s.name))) {
         softwareData.software.splice(idx, 1);
         saveSoftware();
         renderSoftwareList();
@@ -790,12 +809,8 @@ $('#btnTheme').onclick = () => {
 $('#btnPreview').addEventListener('click', (e) => {
   if (isDesktop) {
     e.preventDefault();
-    const { WebviewWindow } = window.__TAURI__.webviewWindow;
-    new WebviewWindow('preview', {
-      url: 'http://nav.localhost/index.html',
-      title: 'AlpeHuez 网站预览',
-      width: 1280,
-      height: 800,
+    window.__TAURI__.core.invoke('open_url', { url: 'http://nav.localhost/index.html' }).catch(() => {
+      window.open('http://nav.localhost/index.html', '_blank');
     });
   }
 });
@@ -807,7 +822,7 @@ $('#browserSelect').addEventListener('change', async () => {
   browserConfig.path = $('#browserSelect').value;
   try {
     await api('/api/browser-config', { method: 'POST', body: JSON.stringify({ config: browserConfig }) });
-    toast(t('browserSaved'), 'success');
+    toast(t('launchSaved'), 'success');
   } catch (e) { /* 浏览器模式忽略 */ }
 });
 $('#btnRefreshBrowsers').onclick = loadBrowsers;
@@ -916,9 +931,9 @@ $('#btnRenameGroup').onclick = () => {
   });
 };
 
-$('#btnDeleteGroup').onclick = () => {
+$('#btnDeleteGroup').onclick = async () => {
   const g = links.icons[currentGroup];
-  if (!confirm(t('confirmDeleteGroup', g.title))) return;
+  if (!await confirmDialog(t('confirmDeleteGroup', g.title))) return;
   links.icons.splice(currentGroup, 1);
   currentGroup = Math.max(0, currentGroup - 1);
   renderGroups();
@@ -927,7 +942,7 @@ $('#btnDeleteGroup').onclick = () => {
 
 $('#btnNewCardEmpty').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
 
-$('#cardList').addEventListener('click', (e) => {
+$('#cardList').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit]');
   const delBtn = e.target.closest('[data-del]');
   if (editBtn) {
@@ -937,7 +952,7 @@ $('#cardList').addEventListener('click', (e) => {
   if (delBtn) {
     const i = Number(delBtn.dataset.del);
     const item = links.icons[currentGroup].children[i];
-    if (confirm(t('confirmDeleteCard', item.title))) {
+    if (await confirmDialog(t('confirmDeleteCard', item.title))) {
       links.icons[currentGroup].children.splice(i, 1);
       renderCards();
       renderGroups();
@@ -1003,13 +1018,13 @@ $('#btnSaveLinks').onclick = async () => {
 $('#btnDownloadIcons').onclick = () => runScript('download_icons', $('#btnDownloadIcons'), t('iconsDone'));
 $('#btnEnhance').onclick = () => runScript('enhance_links', $('#btnEnhance'), t('enhanceDone'));
 
-$('#folderList').addEventListener('click', (e) => {
+$('#folderList').addEventListener('click', async (e) => {
   const delBtn = e.target.closest('[data-fdel]');
   if (delBtn) {
     e.stopPropagation();
     const i = Number(delBtn.dataset.fdel);
     const f = myfiles.folders[i];
-    if (confirm(t('confirmRemoveFolder', f.name))) {
+    if (await confirmDialog(t('confirmRemoveFolder', f.name))) {
       myfiles.folders.splice(i, 1);
       if (currentFolder === f.slug) currentFolder = (myfiles.folders[0] && myfiles.folders[0].slug) || null;
       renderFolders();
@@ -1042,7 +1057,7 @@ $('#btnNewFolder').onclick = () => {
   });
 };
 
-$('#fileList').addEventListener('click', (e) => {
+$('#fileList').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-fedit]');
   const delBtn = e.target.closest('[data-fdel]');
   const swBtn = e.target.closest('[data-swag]');
@@ -1056,7 +1071,7 @@ $('#fileList').addEventListener('click', (e) => {
   if (delBtn) {
     const i = Number(delBtn.dataset.fdel);
     const f = folder.files[i];
-    if (confirm(t('confirmDeleteFile', f.name))) {
+    if (await confirmDialog(t('confirmDeleteFile', f.name))) {
       folder.files.splice(i, 1);
       renderFiles();
       renderFolders();
@@ -1145,7 +1160,7 @@ async function loadMyfiles() {
 async function init() {
   try { applyTheme(); } catch (e) { /* 忽略 */ }
   try { applyLang(); } catch (e) { /* 忽略 */ }
-  if (isDesktop) $('#appearanceBtn').hidden = false;
+  if (isDesktop) $('#launchBtn').hidden = false;
   // 每个初始化步骤独立容错：单点失败不得拖垮整个面板（否则会出现按钮/列表大面积缺失）
   const safe = async (fn) => {
     try {

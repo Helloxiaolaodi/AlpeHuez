@@ -100,7 +100,7 @@ node panel/server.mjs
 # open http://localhost:5173/panel/
 ```
 
-**Desktop mode**: bundled inside the AlpeHuez desktop app (see below). The panel runs in its own window; open it from the homepage via the **Dev Panel** button.
+**Desktop mode**: bundled inside the AlpeHuez desktop app (see below). The panel is embedded in the main window; click **Dev Panel** to switch to it.
 
 Panel features:
 
@@ -108,14 +108,14 @@ Panel features:
 - Card groups, My Files folders, software downloads editing with instant save to disk
 - Git status / log / push
 - Maintenance script runner (`download_icons` / `enhance_links` / `repair_icons`)
-- System stats and background/sidebar image management
+- System stats and launch mode configuration (internal WebView or external browser)
 
 ## Desktop App (AlpeHuez)
 
 `src-tauri/` is a Tauri v2 (Rust) desktop app that bundles the developer panel and a local preview of the website.
 
 - Main window loads the site via the custom `nav://` protocol (`http://nav.localhost/index.html`), serving repository files locally.
-- The **Dev Panel** button on the homepage opens the panel window (single instance; focus existing window if already open). The panel window is created hidden and shown only after the page finishes loading, avoiding the WebView2 `about:blank` white flash.
+- The **Dev Panel** button on the homepage opens the embedded panel view inside the main window; authentication is required on every entry.
 - Requires Rust toolchain + VS Build Tools (C++ desktop workload) on Windows.
 - Website links, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews by default; the configured external browser is used when launch mode is set to external.
 - Internal WebViews include fullscreen, exit-fullscreen, back navigation, session persistence, and ad blocking injection.
