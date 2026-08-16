@@ -284,7 +284,7 @@ server.on('error', (err) => {
 
 server.listen(PORT, HOST, () => {
   console.log('');
-  console.log('  my-nav 开发者面板已启动');
+  console.log('  AlpeHuez 开发者面板已启动');
   console.log(`  编辑面板:  http://${HOST}:${PORT}/panel/`);
   console.log(`  网站预览:  http://${HOST}:${PORT}/`);
   console.log('');

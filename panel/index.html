@@ -46,9 +46,9 @@
         <span class="badge-dot" id="deployBadge"></span>
       </button>
       <div class="sidebar-foot">
-        <button class="tab-btn" data-tab="appearance" id="appearanceBtn" data-i18n-title="appearance" hidden>
+        <button class="tab-btn" data-tab="appearance" id="appearanceBtn" data-i18n-title="launchMode" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="M4.22 4.22l2.83 2.83"/><path d="M16.95 16.95l2.83 2.83"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="M4.22 19.78l2.83-2.83"/><path d="M16.95 7.05l2.83-2.83"/></svg>
-          <span data-i18n="appearance">外观</span>
+          <span data-i18n="launchMode">启动方式</span>
         </button>
       </div>
     </nav>
@@ -186,62 +186,30 @@
         </div>
       </section>
 
-      <!-- ============ 外观 ============ -->
+      <!-- ============ 启动方式 ============ -->
       <section class="tab-panel" id="tab-appearance">
         <div class="panel-head">
           <div>
-            <h1 data-i18n="appearance">外观</h1>
-            <p class="muted" data-i18n="appearanceDesc">自定义面板背景与主题外观</p>
+            <h1 data-i18n="launchMode">启动方式</h1>
+            <p class="muted" data-i18n="launchDesc">选择网址卡片在 AlpeHuez 内部打开，还是交给外部浏览器打开。</p>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-title" data-i18n="bgPreset">背景预设</div>
-          <div class="preset-grid" id="presetGrid">
-            <button class="preset-btn" data-preset="default"><span class="preset-thumb preset-thumb-default"></span><span data-i18n="presetDefault">默认</span></button>
-            <button class="preset-btn" data-preset="mountain"><span class="preset-thumb preset-thumb-mountain"></span><span data-i18n="presetMountain">高山</span></button>
-            <button class="preset-btn" data-preset="grid"><span class="preset-thumb preset-thumb-grid"></span><span data-i18n="presetGrid">网格</span></button>
-            <button class="preset-btn" data-preset="custom"><span class="preset-thumb preset-thumb-custom"></span><span data-i18n="presetCustom">自定义</span></button>
+          <div class="card-title" data-i18n="launchMode">启动方式</div>
+          <div class="launch-row" id="launchModeRow">
+            <button type="button" class="launch-btn active" id="launchInternal" data-mode="internal">
+              <strong data-i18n="launchInternal">AlpeHuez 内部启动</strong>
+              <span data-i18n="launchInternalHint">在侧边栏中保留垂直标签页和网页会话</span>
+            </button>
+            <button type="button" class="launch-btn" id="launchExternal" data-mode="external">
+              <strong data-i18n="launchExternal">外部浏览器启动</strong>
+              <span data-i18n="launchExternalHint">交给已安装的外部浏览器打开网址</span>
+            </button>
           </div>
-        </div>
 
-        <div class="card">
-          <div class="card-title" data-i18n="bgUpload">上传背景图</div>
-          <div class="upload-row">
-            <input type="file" id="bgFile" accept="image/png,image/jpeg,image/webp" class="file-input">
-            <button class="btn btn-primary" id="btnUploadBg" data-i18n="upload">上传</button>
-          </div>
-          <p class="hint" data-i18n="bgUploadHint">上传后自动切换到「自定义」预设，图片保存在本地（%APPDATA%），不会进入 git 仓库。</p>
-        </div>
-
-        <div class="card">
-          <div class="card-title" data-i18n="bgAdjust">调整</div>
-          <div class="slider-row">
-            <label data-i18n="blur">模糊</label>
-            <input type="range" id="bgBlur" min="0" max="30" value="0">
-            <span class="slider-val" id="bgBlurVal">0px</span>
-          </div>
-          <div class="slider-row">
-            <label data-i18n="overlay">暗色遮罩</label>
-            <input type="range" id="bgOverlay" min="0" max="90" value="55">
-            <span class="slider-val" id="bgOverlayVal">55%</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title" data-i18n="sidebarBg">侧边栏独立背景</div>
-          <div class="upload-row">
-            <input type="file" id="sidebarFile" accept="image/png,image/jpeg,image/webp" class="file-input">
-            <button class="btn btn-primary" id="btnUploadSidebar" data-i18n="upload">上传</button>
-            <button class="btn btn-ghost" id="btnClearSidebar" data-i18n="clear">清除</button>
-          </div>
-          <p class="hint" data-i18n="sidebarBgHint">为左侧导航栏单独设置竖版背景图（骑行、高山剪影等），自动加深色遮罩保证图标清晰。</p>
-        </div>
-
-        <div class="card">
-          <div class="card-title" data-i18n="defaultBrowser">默认浏览器</div>
-          <p class="hint" data-i18n="browserHint">选择打开网址时使用的浏览器，留空则使用系统默认。</p>
-          <div class="browser-row">
+          <div class="browser-row" id="externalBrowserGroup" hidden>
+            <label class="field-label" for="browserSelect" data-i18n="launchBrowser">外部浏览器</label>
             <select id="browserSelect" class="select">
               <option value="" data-i18n="systemDefault">系统默认</option>
             </select>

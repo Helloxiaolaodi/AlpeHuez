@@ -1,4 +1,4 @@
-import { COOKIE_NAME, COOKIE_VALUE } from './_auth.js';
+import { COOKIE_NAME, getCookieValue } from './_auth.js';
 
 export async function onRequest(context) {
   const { request, next } = context;
@@ -13,7 +13,7 @@ export async function onRequest(context) {
   const authed = cookieHeader
     .split(';')
     .map((c) => c.trim())
-    .includes(`${COOKIE_NAME}=${COOKIE_VALUE}`);
+    .includes(`${COOKIE_NAME}=${getCookieValue(context)}`);
 
   if (authed) {
     return next();

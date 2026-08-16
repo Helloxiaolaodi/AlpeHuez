@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-close-internal-page"
+description = "Enables the close_internal_page command without any pre-configured scope."
+commands.allow = ["close_internal_page"]
+
+[[permission]]
+identifier = "deny-close-internal-page"
+description = "Denies the close_internal_page command without any pre-configured scope."
+commands.deny = ["close_internal_page"]

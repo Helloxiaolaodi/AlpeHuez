@@ -7,7 +7,36 @@
     "urls": ["http://nav.localhost/*"]
   },
   "permissions": [
+    "core:default",
     "allow-open-dev-panel",
-    "allow-open-url"
+    "allow-open-url",
+    "allow-open-internal-page",
+    "allow-activate-internal-page",
+    "allow-layout-internal-pages",
+    "allow-focus-internal-page",
+    "allow-close-internal-page",
+    "allow-get-app-version",
+    "allow-list-internal-pages",
+    "allow-read-json",
+    "allow-write-json",
+    "allow-read-software",
+    "allow-write-software",
+    "allow-create-folder",
+    "allow-git-status",
+    "allow-git-log",
+    "allow-git-push",
+    "allow-sys-stats",
+    "allow-run-script",
+    "allow-verify-password",
+    "allow-change-password",
+    "allow-save-bg-image",
+    "allow-get-bg-config",
+    "allow-set-bg-config",
+    "allow-save-feedback",
+    "allow-get-feedback",
+    "allow-get-wechat-qr",
+    "allow-list-browsers",
+    "allow-get-browser-config",
+    "allow-set-browser-config"
   ]
 }

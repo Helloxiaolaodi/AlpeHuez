@@ -3,47 +3,47 @@
         {
             "id": "notes",
             "en": "Notes, Knowledge & Mind Maps",
-            "zh": "????????????"
+            "zh": "笔记、知识管理与思维导图"
         },
         {
             "id": "dev",
             "en": "Development, IDE & Programming",
-            "zh": "?????IDE ?????"
+            "zh": "代码开发、IDE 与编程环境"
         },
         {
             "id": "git",
             "en": "Git Version Control",
-            "zh": "Git ??????"
+            "zh": "Git 版本控制工具"
         },
         {
             "id": "terminal",
             "en": "Terminal, Remote & Containers",
-            "zh": "????????????"
+            "zh": "终端模拟、远程连接与容器"
         },
         {
             "id": "files",
             "en": "Files, Search & Cloud Sync",
-            "zh": "???????????"
+            "zh": "文件管理、搜索与云同步"
         },
         {
             "id": "utility",
             "en": "Launchers, System & Desktop Tools",
-            "zh": "??????????????"
+            "zh": "效率启动、系统工具与桌面辅助"
         },
         {
             "id": "browser",
             "en": "Browsers & Email",
-            "zh": "?????????"
+            "zh": "网络浏览与邮件通讯"
         },
         {
             "id": "media",
             "en": "Download & Media Tools",
-            "zh": "????????"
+            "zh": "下载与音视频处理"
         },
         {
             "id": "security",
             "en": "Security & Network Proxy",
-            "zh": "?????????"
+            "zh": "安全防护与网络代理"
         }
     ],
     "software": [
@@ -51,35 +51,35 @@
             "cat": "notes",
             "name": "Obsidian",
             "en": "Local-first Markdown knowledge base with bidirectional links for notes and research.",
-            "zh": "???? Markdown ???????????,?????????",
+            "zh": "基于本地 Markdown 的双链知识库与笔记工具，适合个人知识管理。",
             "url": "https://obsidian.md/"
         },
         {
             "cat": "notes",
             "name": "Logseq",
             "en": "Privacy-focused, local-first outliner with bidirectional linking.",
-            "zh": "????????????????????",
+            "zh": "本地优先、注重隐私的大纲型双链笔记工具。",
             "url": "https://logseq.com/"
         },
         {
             "cat": "notes",
             "name": "AppFlowy",
             "en": "Open-source Notion alternative with boards, tables, and local storage.",
-            "zh": "??? Notion ???,?????????????",
+            "zh": "开源的 Notion 替代品，支持看板、表格与本地存储。",
             "url": "https://appflowy.io/"
         },
         {
             "cat": "notes",
             "name": "Yuque",
             "en": "Cloud-based structured knowledge base and collaborative documents by Ant Group.",
-            "zh": "?????????????????????",
+            "zh": "蚂蚁集团推出的云端结构化知识库与协作文档。",
             "url": "https://www.yuque.com/"
         },
         {
             "cat": "notes",
             "name": "MarkText",
             "en": "Minimal open-source Markdown editor with a clean WYSIWYG experience.",
-            "zh": "??????????? Markdown ????",
+            "zh": "极简、所见即所得的开源 Markdown 编辑器。",
             "url": "https://marktext.cc/",
             "extra": {
                 "en": "GitHub",
@@ -91,70 +91,70 @@
             "cat": "notes",
             "name": "Zotero",
             "en": "Powerful open-source reference manager for literature and academic research.",
-            "zh": "?????????????????????",
+            "zh": "强大的开源文献检索、管理与学术知识库工具。",
             "url": "https://www.zotero.org/"
         },
         {
             "cat": "notes",
             "name": "Xmind",
             "en": "Classic full-featured mind mapping and brainstorming software.",
-            "zh": "?????????????????",
+            "zh": "经典全功能思维导图与头脑风暴软件。",
             "url": "https://xmind.cn/"
         },
         {
             "cat": "notes",
             "name": "Okular",
             "en": "KDE multi-format document and PDF reader.",
-            "zh": "KDE ????????????? PDF ????",
+            "zh": "KDE 旗下强大的多格式通用文档与 PDF 阅读器。",
             "url": "https://okular.kde.org/"
         },
         {
             "cat": "notes",
             "name": "Sticky Notes",
             "en": "Microsoft official sticky notes app for quick reminders.",
-            "zh": "????????,???????????",
+            "zh": "微软官方便签工具，适合快速记录临时事项。",
             "url": "https://apps.microsoft.com/detail/9nblggh4qghw"
         },
         {
             "cat": "dev",
             "name": "Visual Studio Code",
             "en": "Microsoft cross-platform lightweight code editor with a rich extension ecosystem.",
-            "zh": "???????????????,???????",
+            "zh": "微软跨平台轻量级全能代码编辑器，插件生态丰富。",
             "url": "https://code.visualstudio.com/"
         },
         {
             "cat": "dev",
             "name": "Sublime Text",
             "en": "Classic fast text and code editor with a responsive interface.",
-            "zh": "?????????????????????",
+            "zh": "启动极速、响应流畅的经典文本与代码编辑器。",
             "url": "https://www.sublimetext.com/"
         },
         {
             "cat": "dev",
             "name": "Python",
             "en": "Official Python interpreter and runtime environment.",
-            "zh": "?? Python ?????????",
+            "zh": "官方 Python 解释器与运行环境。",
             "url": "https://www.python.org/"
         },
         {
             "cat": "dev",
             "name": "R",
             "en": "Open-source programming language and environment for statistical computing and graphics.",
-            "zh": "??????????????????????",
+            "zh": "用于统计计算和图形展示的开源编程语言与环境。",
             "url": "https://www.r-project.org/"
         },
         {
             "cat": "dev",
             "name": "RStudio",
             "en": "Posit official integrated development environment for R.",
-            "zh": "Posit ????? R ?????????",
+            "zh": "Posit 官方出品的 R 语言集成开发环境。",
             "url": "https://posit.co/download/rstudio-desktop/"
         },
         {
             "cat": "dev",
             "name": "Anaconda / Miniconda",
             "en": "Python data science environment with conda package and virtual environment management.",
-            "zh": "Anaconda / Miniconda ??? Python ?????????????",
+            "zh": "Anaconda / Miniconda 附带的 Python 数据科学环境与包管理工具。",
             "url": "https://www.anaconda.com/download",
             "extra": {
                 "en": "Miniconda",
@@ -166,7 +166,7 @@
             "cat": "dev",
             "name": "Ubuntu 24.04",
             "en": "Linux distribution commonly used with WSL 2 or standalone virtual machines.",
-            "zh": "Linux ???,??? WSL 2 ???????",
+            "zh": "Linux 发行版，常用于 WSL 2 或独立虚拟机。",
             "url": "https://ubuntu.com/download",
             "extra": {
                 "en": "Microsoft Store",
@@ -178,28 +178,28 @@
             "cat": "git",
             "name": "Git for Windows",
             "en": "Official Git command-line tools with a Bash simulation environment.",
-            "zh": "Git ???????? Bash ?????",
+            "zh": "Git 官方命令行工具与 Bash 模拟环境。",
             "url": "https://git-scm.com/"
         },
         {
             "cat": "git",
             "name": "Fork",
             "en": "Fast, intuitive, and interactive graphical Git client.",
-            "zh": "?????????? Git ???????",
+            "zh": "快速直观、交互友好的 Git 图形化客户端。",
             "url": "https://git-fork.com/"
         },
         {
             "cat": "git",
             "name": "Rebased",
             "en": "Standalone graphical Git client rebuilt on the IntelliJ platform.",
-            "zh": "?? IntelliJ ????????? Git ??????",
+            "zh": "基于 IntelliJ 平台核心改造的独立 Git 图形客户端。",
             "url": "https://github.com/detachhead/rebased"
         },
         {
             "cat": "terminal",
             "name": "Alacritty",
             "en": "GPU-accelerated cross-platform lightweight terminal emulator.",
-            "zh": "GPU ????????????????",
+            "zh": "GPU 硬件加速的跨平台轻量终端模拟器。",
             "url": "https://alacritty.org/",
             "extra": {
                 "en": "GitHub",
@@ -211,63 +211,63 @@
             "cat": "terminal",
             "name": "MobaXterm",
             "en": "All-in-one Windows terminal toolbox with Xserver, SSH, VNC, and RDP.",
-            "zh": "?? Xserver?SSH?VNC?RDP ? Windows ????????",
+            "zh": "集成 Xserver、SSH、VNC、RDP 的 Windows 全能终端工具箱。",
             "url": "https://mobaxterm.mobatek.net/"
         },
         {
             "cat": "terminal",
             "name": "WinSCP",
             "en": "Open-source Windows SFTP, FTP, and SCP client.",
-            "zh": "?? Windows SFTP / FTP / SCP ????",
+            "zh": "开源 Windows SFTP / FTP / SCP 客户端。",
             "url": "https://winscp.net/"
         },
         {
             "cat": "terminal",
             "name": "FileZilla",
             "en": "Cross-platform FTP, FTPS, and SFTP client.",
-            "zh": "???? FTP?FTPS ? SFTP ????",
+            "zh": "跨平台的 FTP、FTPS 和 SFTP 客户端。",
             "url": "https://filezilla-project.org/"
         },
         {
             "cat": "terminal",
             "name": "Docker Desktop",
             "en": "Desktop tool for building, running, and managing containerized applications.",
-            "zh": "?????????????????????",
+            "zh": "容器化应用的本地构建、运行与管理桌面工具。",
             "url": "https://www.docker.com/products/docker-desktop/"
         },
         {
             "cat": "files",
             "name": "Everything",
             "en": "Ultra-fast filename search tool for Windows.",
-            "zh": "Windows ????????????",
+            "zh": "Windows 上极速的文件名搜索利器。",
             "url": "https://www.voidtools.com/"
         },
         {
             "cat": "files",
             "name": "AnyTXT Searcher",
             "en": "Powerful full-text search engine for local documents.",
-            "zh": "????????????????",
+            "zh": "强大的本地文档全文内容搜索引擎。",
             "url": "https://anytxt.net/"
         },
         {
             "cat": "files",
             "name": "Files",
             "en": "Modern third-party Windows file manager with Fluent design.",
-            "zh": "?? Fluent ????? Windows ???????????",
+            "zh": "采用 Fluent 现代设计的 Windows 第三方文件资源管理器。",
             "url": "https://files.community/"
         },
         {
             "cat": "files",
             "name": "WizTree",
             "en": "Fast disk space scanner with visual usage analysis.",
-            "zh": "????????????????????",
+            "zh": "快速扫描并可视化分析磁盘空间占用的工具。",
             "url": "https://diskanalyzer.com/"
         },
         {
             "cat": "files",
             "name": "AList Desktop",
             "en": "Desktop client for aggregating and mounting multiple cloud drives.",
-            "zh": "AList ????????????????",
+            "zh": "AList 聚合多网盘挂载工具的桌面图形版。",
             "url": "https://alist.nn.ci/",
             "extra": {
                 "en": "GitHub",
@@ -279,77 +279,77 @@
             "cat": "files",
             "name": "Jianguoyun",
             "en": "Secure cloud drive with incremental sync across platforms.",
-            "zh": "????????????????",
+            "zh": "支持增量同步与多平台的安全网盘。",
             "url": "https://www.jianguoyun.com/"
         },
         {
             "cat": "files",
             "name": "Bandizip",
             "en": "Clean and efficient classic archive and compression tool.",
-            "zh": "?????????????",
+            "zh": "纯净高效的经典解压缩软件。",
             "url": "https://www.bandisoft.com/bandizip/"
         },
         {
             "cat": "utility",
             "name": "Quicker",
             "en": "Global action launcher for mouse and keyboard workflows on Windows.",
-            "zh": "?? Windows ??/??????????????",
+            "zh": "针对 Windows 鼠标/键盘操作的全局动作效率工具。",
             "url": "https://getquicker.net/"
         },
         {
             "cat": "utility",
             "name": "Listary",
             "en": "File search, action triggering, and app launching assistant.",
-            "zh": "???????????????????????",
+            "zh": "专注于文件快速定位、动作触发与启动的辅助工具。",
             "url": "https://www.listary.com/"
         },
         {
             "cat": "utility",
             "name": "Flow Launcher",
             "en": "Open-source quick launcher with plugins for apps, bookmarks, and more.",
-            "zh": "???????????????????????",
+            "zh": "快速启动程序、书签与插件扩展的开源快捷启动器。",
             "url": "https://www.flowlauncher.com/"
         },
         {
             "cat": "utility",
             "name": "Maye Nano",
             "en": "Minimal low-resource desktop launcher and category tool.",
-            "zh": "?????????????????????",
+            "zh": "极简、低资源占用的桌面快速启动与分类工具。",
             "url": "https://github.com/25H/MayeNano"
         },
         {
             "cat": "utility",
             "name": "PixPin",
             "en": "Full-featured screenshot, pin-on-screen, and offline OCR tool.",
-            "zh": "?????????????? OCR ???",
+            "zh": "功能全面的长截图、贴图与离线 OCR 工具。",
             "url": "https://pixpinapp.com/"
         },
         {
             "cat": "utility",
             "name": "UniGetUI",
             "en": "Graphical package manager interface for WinGet, Scoop, and Chocolatey.",
-            "zh": "?? WinGet?Scoop?Chocolatey ??????????",
+            "zh": "整合 WinGet、Scoop、Chocolatey 的包管理图形化界面。",
             "url": "https://www.marticliment.com/unigetui/"
         },
         {
             "cat": "utility",
             "name": "Geek Uninstaller",
             "en": "Lightweight uninstaller that removes programs and leftover files.",
-            "zh": "????????????????????",
+            "zh": "快速、彻底清理残留的轻量级软件卸载工具。",
             "url": "https://geekuninstaller.com/"
         },
         {
             "cat": "utility",
             "name": "Watt Toolkit",
             "en": "Game network acceleration, account switching, and script toolbox.",
-            "zh": "????????????????????",
+            "zh": "游戏平台网络加速、账号切换与脚本工具箱。",
             "url": "https://steampp.net/"
         },
         {
             "cat": "utility",
             "name": "CC Switch",
             "en": "Configuration and switching tool for AI coding assistants like Claude Code and Codex.",
-            "zh": "?? Claude Code / Codex ? AI ?????????????",
+            "zh": "面向 Claude Code / Codex 等 AI 编程助手的配置与切换工具。",
             "url": "https://ccswitch.io/",
             "extra": {
                 "en": "GitHub",
@@ -361,77 +361,77 @@
             "cat": "utility",
             "name": "Catrace",
             "en": "Health helper that tracks typing and work status and reminds you to rest.",
-            "zh": "????????????????????????",
+            "zh": "监控打字及工作状态并提醒久坐休息的健康辅助工具。",
             "url": "https://github.com/lanxiuyun/Catrace"
         },
         {
             "cat": "browser",
             "name": "Firefox",
             "en": "Open-source mainstream browser from Mozilla focused on privacy.",
-            "zh": "Mozilla ???????????????????",
+            "zh": "Mozilla 出品的开源、注重隐私保护的主流浏览器。",
             "url": "https://www.mozilla.org/firefox/"
         },
         {
             "cat": "browser",
             "name": "Zen Browser",
             "en": "Beautiful vertical-tab browser deeply customized from Firefox.",
-            "zh": "?? Firefox ????????????????",
+            "zh": "基于 Firefox 深度定制的美观垂直标签页浏览器。",
             "url": "https://zen-browser.app/"
         },
         {
             "cat": "browser",
             "name": "Thorium",
             "en": "High-performance optimized Chromium-based browser.",
-            "zh": "?? Chromium ??????????????",
+            "zh": "基于 Chromium 构建的高性能优化分支浏览器。",
             "url": "https://thorium.rocks/"
         },
         {
             "cat": "browser",
             "name": "Thunderbird",
             "en": "Cross-platform open-source email, calendar, and contacts client from Mozilla.",
-            "zh": "Mozilla ?????????????????????",
+            "zh": "Mozilla 旗下的跨平台开源邮件、日历与通讯录客户端。",
             "url": "https://www.thunderbird.net/"
         },
         {
             "cat": "media",
             "name": "Free Download Manager",
             "en": "Cross-platform multi-threaded download manager with torrent support.",
-            "zh": "????????????/???????",
+            "zh": "跨平台的多线程下载与种子/磁力下载工具。",
             "url": "https://www.freedownloadmanager.org/"
         },
         {
             "cat": "media",
             "name": "Stacher",
             "en": "Cross-platform graphical media and video downloader powered by yt-dlp.",
-            "zh": "?? yt-dlp ????????????????",
+            "zh": "基于 yt-dlp 的跨平台流媒体与视频图形下载器。",
             "url": "https://stacher.io/"
         },
         {
             "cat": "media",
             "name": "Auto Caption",
             "en": "Automated video speech transcription and subtitle generation tool.",
-            "zh": "?????????????????",
+            "zh": "自动化视频语音转录与字幕生成工具。",
             "url": "https://apps.microsoft.com/detail/9ngfb7jd9p33"
         },
         {
             "cat": "media",
             "name": "N-Studio",
             "en": "Screen recording and multi-track video editing tool.",
-            "zh": "?????????????????",
+            "zh": "屏幕录制与多轨道后期剪辑制作工具。",
             "url": "https://apps.microsoft.com/detail/9p1fktts8ztd"
         },
         {
             "cat": "security",
             "name": "Huorong",
             "en": "Clean, lightweight Chinese endpoint security and antivirus software.",
-            "zh": "???????????????????????",
+            "zh": "纯净、轻巧、无弹窗骚扰的国产终端安全杀毒软件。",
             "url": "https://www.huorong.cn/"
         },
         {
             "cat": "security",
             "name": "Clash Verge Rev",
             "en": "Cross-platform Clash proxy graphical client built with Tauri.",
-            "zh": "?? Tauri ?????? Clash ????????",
+            "zh": "基于 Tauri 框架的跨平台 Clash 代理图形客户端。",
             "url": "https://github.com/clash-verge-rev/clash-verge-rev"
         }
     ]

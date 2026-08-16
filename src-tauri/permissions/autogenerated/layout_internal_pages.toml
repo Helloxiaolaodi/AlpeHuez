@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-layout-internal-pages"
+description = "Enables the layout_internal_pages command without any pre-configured scope."
+commands.allow = ["layout_internal_pages"]
+
+[[permission]]
+identifier = "deny-layout-internal-pages"
+description = "Denies the layout_internal_pages command without any pre-configured scope."
+commands.deny = ["layout_internal_pages"]

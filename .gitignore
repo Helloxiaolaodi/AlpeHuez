@@ -4,3 +4,7 @@ src-tauri/gen/
 
 # Node
 node_modules/
+
+# Local verification/build artifacts
+.tmp-shots/
+.webview2-check/

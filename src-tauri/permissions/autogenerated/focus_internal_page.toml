@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-focus-internal-page"
+description = "Enables the focus_internal_page command without any pre-configured scope."
+commands.allow = ["focus_internal_page"]
+
+[[permission]]
+identifier = "deny-focus-internal-page"
+description = "Denies the focus_internal_page command without any pre-configured scope."
+commands.deny = ["focus_internal_page"]

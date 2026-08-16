@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-save-feedback"
+description = "Enables the save_feedback command without any pre-configured scope."
+commands.allow = ["save_feedback"]
+
+[[permission]]
+identifier = "deny-save-feedback"
+description = "Denies the save_feedback command without any pre-configured scope."
+commands.deny = ["save_feedback"]

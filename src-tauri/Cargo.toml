@@ -1,14 +1,14 @@
 [package]
 name = "my-nav-panel"
-version = "0.1.0"
-description = "my-nav 开发者面板桌面应用"
+version = "0.2.0"
+description = "AlpeHuez developer panel desktop app"
 edition = "2021"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["protocol-asset"] }
+tauri = { version = "2", features = ["protocol-asset", "unstable"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 md5 = "0.7"

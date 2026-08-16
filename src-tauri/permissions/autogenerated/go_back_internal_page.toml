@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-go-back-internal-page"
+description = "Enables the go_back_internal_page command without any pre-configured scope."
+commands.allow = ["go_back_internal_page"]
+
+[[permission]]
+identifier = "deny-go-back-internal-page"
+description = "Denies the go_back_internal_page command without any pre-configured scope."
+commands.deny = ["go_back_internal_page"]

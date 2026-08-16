@@ -1,0 +1,165 @@
+#requires -Version 5.1
+[CmdletBinding()]
+param(
+    [string]$Version = "",
+    [switch]$NoBuild
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+$root = Split-Path -Parent $PSScriptRoot
+$releasesDir = Join-Path $root 'releases'
+$tauriConfigPath = Join-Path $root 'src-tauri\tauri.conf.json'
+$cargoTomlPath = Join-Path $root 'src-tauri\Cargo.toml'
+$cargoLockPath = Join-Path $root 'src-tauri\Cargo.lock'
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
+function Get-AppVersion {
+    $config = Get-Content -Raw -LiteralPath $tauriConfigPath | ConvertFrom-Json
+    return $config.version
+}
+
+function Get-CargoVersion {
+    $text = Get-Content -Raw -LiteralPath $cargoTomlPath
+    if ($text -match '(?m)^version\s*=\s*"([^"]+)"') {
+        return $Matches[1]
+    }
+    throw 'Cannot find version in Cargo.toml.'
+}
+
+function Get-CargoLockVersion {
+    $text = Get-Content -Raw -LiteralPath $cargoLockPath
+    $match = [regex]::Match(
+        $text,
+        '(?m)\[\[package\]\]\r?\nname = "my-nav-panel"\r?\nversion = "([^"]+)"'
+    )
+    if (-not $match.Success) {
+        throw 'Cannot find the my-nav-panel package in Cargo.lock.'
+    }
+    return $match.Groups[1].Value
+}
+
+function Set-AppVersion {
+    param([string]$NextVersion)
+
+    $configText = Get-Content -Raw -LiteralPath $tauriConfigPath
+    $configUpdated = $configText -replace
+        '(?m)"version"\s*:\s*"[^"]+"',
+        ('"version": "' + $NextVersion + '"')
+    if ($configUpdated -eq $configText) {
+        throw 'Could not update version in tauri.conf.json.'
+    }
+    [System.IO.File]::WriteAllText($tauriConfigPath, $configUpdated, $utf8NoBom)
+
+    $cargoText = Get-Content -Raw -LiteralPath $cargoTomlPath
+    $cargoUpdated = $cargoText -replace
+        '(?m)^(version\s*=\s*")[^"]+(")',
+        ('$1' + $NextVersion + '$2')
+    if ($cargoUpdated -eq $cargoText) {
+        throw 'Could not update version in Cargo.toml.'
+    }
+    [System.IO.File]::WriteAllText($cargoTomlPath, $cargoUpdated, $utf8NoBom)
+
+    $lockText = Get-Content -Raw -LiteralPath $cargoLockPath
+    $lockUpdated = $lockText -replace
+        '(?m)(\[\[package\]\]\r?\nname = "my-nav-panel"\r?\nversion = ")[^"]+(")',
+        ('$1' + $NextVersion + '$2')
+    if ($lockUpdated -eq $lockText) {
+        throw 'Could not update the my-nav-panel version in Cargo.lock.'
+    }
+    [System.IO.File]::WriteAllText($cargoLockPath, $lockUpdated, $utf8NoBom)
+
+    Write-Host "Bumped AlpeHuez to v$NextVersion."
+}
+
+$versionToRelease = $Version.Trim()
+if ($versionToRelease -match '^v(\d+\.\d+\.\d+)$') {
+    $versionToRelease = $Matches[1]
+}
+if ([string]::IsNullOrWhiteSpace($versionToRelease)) {
+    $versionToRelease = Get-AppVersion
+}
+if ($versionToRelease -notmatch '^\d+\.\d+\.\d+$') {
+    throw 'Version must be in x.y.z or vx.y.z format.'
+}
+
+if ($PSBoundParameters.ContainsKey('Version')) {
+    Set-AppVersion -NextVersion $versionToRelease
+}
+
+$configuredVersion = Get-AppVersion
+if ($configuredVersion -ne $versionToRelease) {
+    throw "tauri.conf.json is v$configuredVersion, expected v$versionToRelease."
+}
+$cargoVersion = Get-CargoVersion
+if ($cargoVersion -ne $versionToRelease) {
+    throw "Cargo.toml is v$cargoVersion, expected v$versionToRelease."
+}
+$lockVersion = Get-CargoLockVersion
+if ($lockVersion -ne $versionToRelease) {
+    throw "Cargo.lock is v$lockVersion, expected v$versionToRelease."
+}
+
+if (-not $NoBuild) {
+    Push-Location $root
+    try {
+        & tauri build --bundles nsis
+        if ($LASTEXITCODE -ne 0) {
+            throw "tauri build failed with exit code $LASTEXITCODE."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
+$releaseDir = Join-Path $releasesDir ("v" + $versionToRelease)
+New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
+
+$releaseExe = Join-Path $root 'src-tauri\target\release\my-nav-panel.exe'
+if (Test-Path -LiteralPath $releaseExe) {
+    Copy-Item -LiteralPath $releaseExe -Destination $releaseDir -Force
+}
+
+$nsisDir = Join-Path $root 'src-tauri\target\release\bundle\nsis'
+$setupName = "AlpeHuez_${versionToRelease}_x64-setup.exe"
+$setupPath = Join-Path $nsisDir $setupName
+if (Test-Path -LiteralPath $setupPath) {
+    Copy-Item -LiteralPath $setupPath -Destination $releaseDir -Force
+}
+
+$msiDir = Join-Path $root 'src-tauri\target\release\bundle\msi'
+if (Test-Path -LiteralPath $msiDir) {
+    Get-ChildItem -LiteralPath $msiDir -Filter ("*_" + $versionToRelease + "_x64_*.msi") |
+        ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $releaseDir -Force
+        }
+}
+
+$hashLines = Get-ChildItem -LiteralPath $releaseDir -File |
+    Where-Object { $_.Name -ne 'SHA256SUMS.txt' } |
+    Sort-Object Name |
+    ForEach-Object {
+        $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        "$hash *$($_.Name)"
+    }
+$hashPath = Join-Path $releaseDir 'SHA256SUMS.txt'
+[System.IO.File]::WriteAllLines($hashPath, $hashLines, [System.Text.Encoding]::ASCII)
+
+$artifactNames = Get-ChildItem -LiteralPath $releaseDir -File |
+    Where-Object { $_.Name -ne 'SHA256SUMS.txt' } |
+    Select-Object -ExpandProperty Name
+$manifest = [ordered]@{
+    latest    = $versionToRelease
+    updatedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    artifacts = @($artifactNames)
+}
+$manifestText = $manifest | ConvertTo-Json
+[System.IO.File]::WriteAllText(
+    (Join-Path $releasesDir 'latest.json'),
+    $manifestText,
+    $utf8NoBom
+)
+
+Write-Host "Release v$versionToRelease archived at: $releaseDir"

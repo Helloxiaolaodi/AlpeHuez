@@ -21,10 +21,21 @@
     "allow-save-bg-image",
     "allow-get-bg-config",
     "allow-set-bg-config",
+    "allow-save-feedback",
+    "allow-get-feedback",
+    "allow-get-wechat-qr",
     "allow-list-browsers",
     "allow-get-browser-config",
     "allow-set-browser-config",
     "allow-open-url",
-    "allow-open-dev-panel"
+    "allow-open-dev-panel",
+    "allow-open-internal-page",
+    "allow-activate-internal-page",
+    "allow-layout-internal-pages",
+    "allow-focus-internal-page",
+    "allow-close-internal-page",
+    "allow-go-back-internal-page",
+    "allow-get-app-version",
+    "allow-list-internal-pages"
   ]
 }

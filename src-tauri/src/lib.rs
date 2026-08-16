@@ -33,11 +33,22 @@ pub fn run() {
             commands::save_bg_image,
             commands::get_bg_config,
             commands::set_bg_config,
+            commands::save_feedback,
+            commands::get_feedback,
+            commands::get_wechat_qr,
             commands::list_browsers,
             commands::get_browser_config,
             commands::set_browser_config,
             commands::open_url,
             commands::open_dev_panel,
+            commands::open_internal_page,
+            commands::activate_internal_page,
+            commands::layout_internal_pages,
+            commands::focus_internal_page,
+            commands::close_internal_page,
+            commands::go_back_internal_page,
+            commands::get_app_version,
+            commands::list_internal_pages,
         ])
         .register_uri_scheme_protocol("nav", preview::handler)
         .run(tauri::generate_context!())

@@ -1,4 +1,4 @@
-import { PASSWORD, COOKIE_NAME, COOKIE_VALUE } from './_auth.js';
+import { COOKIE_NAME, getAccessPassword, getCookieValue } from './_auth.js';
 
 export async function onRequestPost(context) {
   const { request } = context;
@@ -16,7 +16,7 @@ export async function onRequestPost(context) {
     next = '/myfiles/targetc/TargetC-phenotypes-analysis-260814.html';
   }
 
-  if (password !== PASSWORD) {
+  if (password !== getAccessPassword(context)) {
     return new Response(null, {
       status: 302,
       headers: {
@@ -29,7 +29,7 @@ export async function onRequestPost(context) {
     status: 302,
     headers: {
       Location: next,
-      'Set-Cookie': `${COOKIE_NAME}=${COOKIE_VALUE}; Path=/; SameSite=Lax; Secure`,
+      'Set-Cookie': `${COOKIE_NAME}=${getCookieValue(context)}; Path=/; SameSite=Lax; Secure`,
     },
   });
 }

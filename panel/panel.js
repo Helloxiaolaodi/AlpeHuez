@@ -1,8 +1,14 @@
-/* my-nav 开发者面板 */
+/* AlpeHuez 开发者面板 */
 const $ = (sel) => document.querySelector(sel);
 
 // Tauri 注入脚本定义 window.isTauri（不可配置），顶层不能声明同名 const，否则整脚本 SyntaxError 白屏
 const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
+const embedded = isDesktop && new URLSearchParams(location.search).get('embedded') === '1';
+if (embedded) {
+  document.body.classList.add('dev-embedded');
+  const oldSidebar = document.querySelector('.sidebar');
+  if (oldSidebar) oldSidebar.remove();
+}
 
 /* 全局错误捕获：任何 JS 错误显示在页面顶部，避免无声白屏 */
 window.addEventListener('error', (e) => {
@@ -28,6 +34,10 @@ const LOCALES = {
   zh: {
     appName: 'AlpeHuez 开发者面板', appSub: 'AlpeHuez · 本地内容管理', connected: '已连接', uncommitted: '待推送',
     preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署', appearance: '外观',
+    launchMode: '启动方式', launchDesc: '选择网址卡片在 AlpeHuez 内部打开，还是交给外部浏览器打开。',
+    launchInternal: 'AlpeHuez 内部启动', launchInternalHint: '在侧边栏中保留垂直标签页和网页会话',
+    launchExternal: '外部浏览器启动', launchExternalHint: '交给已安装的外部浏览器打开网址',
+    launchBrowser: '外部浏览器', launchSaved: '启动方式已保存',
     navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
     recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
@@ -88,6 +98,10 @@ const LOCALES = {
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
     preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy', appearance: 'Appearance',
+    launchMode: 'Launch Mode', launchDesc: 'Open website cards inside AlpeHuez or hand them to an external browser.',
+    launchInternal: 'Launch inside AlpeHuez', launchInternalHint: 'Keep vertical tabs and website sessions in the sidebar',
+    launchExternal: 'Launch in external browser', launchExternalHint: 'Open URLs with an installed external browser',
+    launchBrowser: 'External browser', launchSaved: 'Launch setting saved',
     navDesc: 'Manage nav cards & groups. Saved to links.json',
     recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
@@ -151,6 +165,7 @@ let lang = 'zh';
 try { lang = localStorage.getItem('panel-lang') || 'zh'; } catch (e) {}
 let theme = 'dark';
 try { theme = localStorage.getItem('panel-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+if (embedded) theme = 'light';
 let statusDirty = false;
 
 function t(key, ...args) {
@@ -174,6 +189,7 @@ function applyLang() {
 
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', theme);
+  document.body.classList.toggle('dev-embedded', embedded);
   $('#iconSun').hidden = theme === 'dark';
   $('#iconMoon').hidden = theme === 'light';
 }
@@ -690,85 +706,7 @@ async function loadGitStatus() {
   }
 }
 
-/* ---------- 外观 / 自定义背景 ---------- */
-let bgConfig = null;
-
-function convertFileSrc(path) {
-  try {
-    return window.__TAURI__.core.convertFileSrc(path);
-  } catch (e) {
-    return path;
-  }
-}
-
-function applyBg() {
-  try {
-    const bg = bgConfig || {};
-    const layer = $('#bgLayer');
-    const preset = bg.preset || 'default';
-    const blur = bg.blur ?? 0;
-    const overlay = bg.overlay ?? 55;
-    if (preset === 'custom' && bg.imagePath) {
-      const url = isDesktop ? convertFileSrc(bg.imagePath) : bg.imagePath;
-      layer.style.backgroundImage = `url("${url}")`;
-    } else {
-      layer.style.backgroundImage = `var(--preset-${preset})`;
-    }
-    layer.style.filter = `blur(${blur}px)`;
-    document.documentElement.style.setProperty('--bg-overlay', (overlay / 100).toFixed(2));
-    const sidebar = $('.sidebar');
-    if (bg.sidebarImage) {
-      const url = isDesktop ? convertFileSrc(bg.sidebarImage) : bg.sidebarImage;
-      sidebar.style.backgroundImage = `url("${url}")`;
-    } else {
-      sidebar.style.backgroundImage = 'none';
-    }
-    document.querySelectorAll('.preset-btn').forEach((b) => b.classList.toggle('active', b.dataset.preset === preset));
-    $('#bgBlur').value = blur;
-    $('#bgBlurVal').textContent = blur + 'px';
-    $('#bgOverlay').value = overlay;
-    $('#bgOverlayVal').textContent = overlay + '%';
-  } catch (e) { /* 静默：背景样式失败不应阻断面板 */ }
-}
-
-async function loadBgConfig() {
-  try {
-    const res = await api('/api/bg-config');
-    bgConfig = res || {};
-  } catch (e) {
-    bgConfig = {};
-  }
-  applyBg();
-}
-
-async function saveBgConfig() {
-  try {
-    await api('/api/bg-config', { method: 'POST', body: JSON.stringify({ config: bgConfig }) });
-  } catch (e) { /* 浏览器模式忽略 */ }
-}
-
-function uploadBgFile(input, key) {
-  const file = input.files[0];
-  if (!file) return;
-  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const data = String(reader.result).split(',')[1];
-    try {
-      const path = await api('/api/save-bg-image', { method: 'POST', body: JSON.stringify({ data, ext }) });
-      bgConfig[key] = path;
-      if (key === 'imagePath') bgConfig.preset = 'custom';
-      applyBg();
-      saveBgConfig();
-      toast(t('bgSaved'), 'success');
-    } catch (e) {
-      toast(e.message, 'error');
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-/* ---------- 默认浏览器 ---------- */
+/* ---------- 启动方式 ---------- */
 let browserConfig = null;
 
 async function loadBrowsers() {
@@ -785,22 +723,56 @@ async function loadBrowsers() {
 async function loadBrowserConfig() {
   try {
     const res = await api('/api/browser-config');
-    browserConfig = res || {};
+    browserConfig = res || { mode: 'internal', path: '' };
   } catch (e) {
-    browserConfig = {};
+    browserConfig = { mode: 'internal', path: '' };
   }
+  applyLaunchModeUI();
   await loadBrowsers();
 }
 
+function applyLaunchModeUI() {
+  const mode = (browserConfig && browserConfig.mode) || 'internal';
+  $('#launchInternal').classList.toggle('active', mode === 'internal');
+  $('#launchExternal').classList.toggle('active', mode === 'external');
+  $('#externalBrowserGroup').hidden = mode !== 'external';
+}
+
+async function applyLaunchMode(mode) {
+  browserConfig.mode = mode;
+  if (mode === 'internal') browserConfig.path = '';
+  applyLaunchModeUI();
+  try {
+    await api('/api/browser-config', { method: 'POST', body: JSON.stringify({ config: browserConfig }) });
+    toast(t('launchSaved'), 'success');
+  } catch (e) { /* 浏览器模式忽略 */ }
+}
+
 /* ---------- 事件绑定 ---------- */
-document.querySelectorAll('.tab-btn').forEach((btn) => {
-  btn.onclick = () => {
-    document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'deploy') { loadGitStatus(); loadGitTimeline(); loadSysStats(); }
-  };
+function activatePanelTab(tab, notifyParent = false) {
+  const btn = Array.from(document.querySelectorAll('.tab-btn')).find((b) => b.dataset.tab === tab);
+  const panel = document.getElementById('tab-' + tab);
+  if (!panel) return;
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  panel.classList.add('active');
+  if (tab === 'deploy') { loadGitStatus(); loadGitTimeline(); loadSysStats(); }
+  if (notifyParent && embedded && window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'alpehuez-dev-tab', tab }, '*');
+  }
+}
+
+if (!embedded) {
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.onclick = () => activatePanelTab(btn.dataset.tab, true);
+  });
+}
+
+window.addEventListener('message', (event) => {
+  const message = event.data;
+  if (!message || message.type !== 'alpehuez-dev-tab') return;
+  activatePanelTab(message.tab, false);
 });
 
 $('#btnLang').onclick = () => {
@@ -821,45 +793,16 @@ $('#btnPreview').addEventListener('click', (e) => {
     const { WebviewWindow } = window.__TAURI__.webviewWindow;
     new WebviewWindow('preview', {
       url: 'http://nav.localhost/index.html',
-      title: 'my-nav 网站预览',
+      title: 'AlpeHuez 网站预览',
       width: 1280,
       height: 800,
     });
   }
 });
 
-/* ---------- 外观事件 ---------- */
-$('#presetGrid').addEventListener('click', (e) => {
-  const btn = e.target.closest('.preset-btn');
-  if (!btn) return;
-  bgConfig.preset = btn.dataset.preset;
-  applyBg();
-  saveBgConfig();
-});
-
-$('#btnUploadBg').onclick = () => uploadBgFile($('#bgFile'), 'imagePath');
-$('#btnUploadSidebar').onclick = () => uploadBgFile($('#sidebarFile'), 'sidebarImage');
-$('#btnClearSidebar').onclick = () => {
-  delete bgConfig.sidebarImage;
-  applyBg();
-  saveBgConfig();
-};
-
-$('#bgBlur').addEventListener('input', () => {
-  bgConfig.blur = Number($('#bgBlur').value);
-  $('#bgBlurVal').textContent = bgConfig.blur + 'px';
-  applyBg();
-});
-$('#bgBlur').addEventListener('change', saveBgConfig);
-
-$('#bgOverlay').addEventListener('input', () => {
-  bgConfig.overlay = Number($('#bgOverlay').value);
-  $('#bgOverlayVal').textContent = bgConfig.overlay + '%';
-  applyBg();
-});
-$('#bgOverlay').addEventListener('change', saveBgConfig);
-
-/* ---------- 浏览器事件 ---------- */
+/* ---------- 启动方式事件 ---------- */
+$('#launchInternal').addEventListener('click', () => applyLaunchMode('internal'));
+$('#launchExternal').addEventListener('click', () => applyLaunchMode('external'));
 $('#browserSelect').addEventListener('change', async () => {
   browserConfig.path = $('#browserSelect').value;
   try {
@@ -1212,7 +1155,6 @@ async function init() {
       return undefined;
     }
   };
-  await safe(loadBgConfig);
   await safe(loadBrowserConfig);
   await safe(renderCalendar);
   await safe(renderTodos);
@@ -1226,11 +1168,16 @@ async function init() {
 /* ---------- 登录门禁（仅桌面应用） ---------- */
 async function initAuth() {
   try { applyTheme(); } catch (e) { /* 忽略 */ }
-  try { applyLang(); } catch (e) { /* 语言渲染失败也要显示登录框，避免白屏 */ }
   const backdrop = $('#loginBackdrop');
   const errorEl = $('#loginError');
   const pwdInput = $('#loginPassword');
   backdrop.hidden = false;
+  // 登录前只刷新登录框文案，不触发后台数据加载，避免进入面板时出现一闪而过的内容/弹层。
+  try {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    backdrop.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+    backdrop.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  } catch (e) { /* 忽略 */ }
   pwdInput.focus();
   async function tryLogin() {
     const input = pwdInput.value;

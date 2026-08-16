@@ -1,6 +1,6 @@
-# my-nav
+# AlpeHuez
 
-Personal navigation dashboard and password-protected report workspace for **Helloxiaolaodi**. 
+Personal navigation dashboard and password-protected report workspace for **Helloxiaolaodi**. AlpeHuez is the desktop workspace shell around this dashboard, with internal WebViews, vertical tabs, a My Files explorer, the developer panel, achievements, and About in one unified sidebar layout.
 
 This repository contains a static homepage that renders links from `links.json`, a local Tailwind runtime, and a `myfiles` explorer for shared Quarto reports. Cloudflare Pages Functions protect selected report folders.
 
@@ -13,7 +13,7 @@ This repository contains a static homepage that renders links from `links.json`,
 - Light gradient and dark space themes with a background image
 - Local click-frequency tracking with most-used-first sorting
 - My Files explorer with folder and file metadata from `myfiles/data.json`
-- Password-protected report folders backed by Cloudflare Pages Functions
+- Password-protected report folders backed by Cloudflare Pages Functions and `ALPEHUZ_ACCESS_PASSWORD`
 - Local favicon cache under `icons/`
 
 ## Repository Layout
@@ -45,11 +45,9 @@ The following folders are exposed through `/myfiles/` and protected by the corre
 
 Each area uses the same pattern:
 
-- `_auth.js`: password and cookie constants
+- `_auth.js`: cookie constants; the shared access password is read from the Cloudflare Pages `ALPEHUZ_ACCESS_PASSWORD` environment value
 - `login.js`: form POST handler
 - `_middleware.js`: redirects unauthenticated requests to the login page
-
-Update `PASSWORD` in each `_auth.js` before deploying if the shared access password should change.
 
 ## Quarto Reports
 
@@ -106,7 +104,7 @@ node panel/server.mjs
 
 Panel features:
 
-- Login + change password (password stored in `panel/server.mjs` config / Rust command)
+- Login + change password (developer panel password is kept local, not committed to this repository)
 - Card groups, My Files folders, software downloads editing with instant save to disk
 - Git status / log / push
 - Maintenance script runner (`download_icons` / `enhance_links` / `repair_icons`)
@@ -119,6 +117,8 @@ Panel features:
 - Main window loads the site via the custom `nav://` protocol (`http://nav.localhost/index.html`), serving repository files locally.
 - The **Dev Panel** button on the homepage opens the panel window (single instance; focus existing window if already open). The panel window is created hidden and shown only after the page finishes loading, avoiding the WebView2 `about:blank` white flash.
 - Requires Rust toolchain + VS Build Tools (C++ desktop workload) on Windows.
+- Website links, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews by default; the configured external browser is used when launch mode is set to external.
+- Internal WebViews include fullscreen, exit-fullscreen, back navigation, session persistence, and ad blocking injection.
 
 Build:
 
@@ -126,9 +126,18 @@ Build:
 export PATH="/d/Rust/.cargo/bin:$PATH"
 RUSTUP_HOME=/d/Rust/.rustup CARGO_HOME=/d/Rust/.cargo
 node /c/Users/Lenovo/AppData/Roaming/npm/node_modules/@tauri-apps/cli/tauri.js build
-# release exe: src-tauri/target/release/my-nav-panel.exe
+# release binary: src-tauri/target/release/my-nav-panel.exe
 # NSIS installer: src-tauri/target/release/bundle/nsis/AlpeHuez_<version>_x64-setup.exe
 ```
+
+To automate a version bump, build, and archive:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.2.0
+```
+
+Each release is archived under `releases/v<version>/`; `releases/latest.json`
+points to the newest archived version.
 
 `src-tauri/` is only static content for Cloudflare Pages and does not affect the deployed site.
 
@@ -147,7 +156,7 @@ Each entry: `cat`, `name`, `en`, `zh`, `url`, and optional `extra` `{en, zh, url
 ## Deployment
 
 1. Push this repository to GitHub.
-2. Create a Cloudflare Pages project connected to `https://github.com/Helloxiaolaodi/my-nav.git`.
+2. Create a Cloudflare Pages project connected to `https://github.com/Helloxiaolaodi/AlpeHuez.git`.
 3. Leave the build command empty and set the output directory to `.`.
 4. Deploy the branch.
 5. Confirm `/_headers`, `/functions/`, `/myfiles/data.json`, and `/myfiles/explorer.js` are available in the production preview.
@@ -186,5 +195,7 @@ The repository follows a layered background strategy. The rule is driven by **pa
 ## Security Notes
 
 - The login cookie is scoped with `Path=/`, `SameSite=Lax`, and `Secure`.
-- Passwords are stored in the source `_auth.js` files; rotate them if the repository is public.
+- No report access password is committed to this public repository.
+- Shared report access in Cloudflare Pages is configured through the `ALPEHUZ_ACCESS_PASSWORD` environment variable.
+- The developer panel password is stored in the local desktop app config and is not committed.
 - Do not place private data inside `/myfiles/` unless it is password protected or removed from the public deployment.

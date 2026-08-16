@@ -7,18 +7,18 @@
 <link rel="stylesheet" href="/myfiles/explorer.css">
 <style>
   :root {
-    --sw-bg: #f6f8fb;
+    --sw-bg: #F8FAFC;
     --sw-surface: #ffffff;
-    --sw-border: #e5e7eb;
-    --sw-border-strong: #d1d5db;
+    --sw-border: #E5EAF0;
+    --sw-border-strong: #D2DAE4;
     --sw-text: #111827;
-    --sw-text-secondary: #6b7280;
-    --sw-text-muted: #9ca3af;
-    --sw-accent: #2563eb;
-    --sw-accent-soft: #eff6ff;
-    --sw-green: #059669;
-    --sw-green-soft: #ecfdf5;
-    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.05);
+    --sw-text-secondary: #64748B;
+    --sw-text-muted: #94A3B8;
+    --sw-accent: #0087EB;
+    --sw-accent-soft: #EAF5FF;
+    --sw-green: #0087EB;
+    --sw-green-soft: #EAF5FF;
+    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 135, 235, 0.05);
   }
 
   body {
@@ -108,8 +108,8 @@
   }
 
   .sw-search:focus {
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    border-color: #B1E3FF;
+    box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12);
   }
 
   .sw-cats {
@@ -121,9 +121,9 @@
 
   .sw-cat {
     padding: 8px 12px;
-    border: 1px solid var(--sw-border);
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--sw-surface);
+    background: transparent;
     color: var(--sw-text-secondary);
     font-size: 12px;
     font-weight: 600;
@@ -132,14 +132,15 @@
   }
 
   .sw-cat:hover {
-    border-color: #c7d2fe;
+    border-color: transparent;
+    background: rgba(177, 227, 255, 0.45);
     color: var(--sw-accent);
   }
 
   .sw-cat[aria-pressed="true"] {
-    background: var(--sw-accent-soft);
-    border-color: #bfdbfe;
-    color: #1d4ed8;
+    background: #B1E3FF;
+    border-color: rgba(0, 135, 235, 0.18);
+    color: #0087EB;
   }
 
   .sw-section {
@@ -162,8 +163,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: #eef2ff;
-    color: #4f46e5;
+    background: #EAF5FF;
+    color: #0087EB;
     font-size: 12px;
     font-weight: 700;
   }
@@ -215,8 +216,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 9px;
-    background: linear-gradient(135deg, #e0f2fe, #e0e7ff);
-    color: #2563eb;
+    background: linear-gradient(135deg, #B1E3FF, #EAF5FF);
+    color: #0087EB;
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 0;
@@ -269,8 +270,8 @@
   }
 
   .sw-btn-download:hover {
-    background: #047857;
-    border-color: #047857;
+    background: #006FD0;
+    border-color: #006FD0;
   }
 
   .sw-btn-site {
@@ -280,7 +281,7 @@
   }
 
   .sw-btn-site:hover {
-    border-color: #93c5fd;
+    border-color: #B1E3FF;
     color: var(--sw-accent);
   }
 
@@ -316,10 +317,7 @@
 </head>
 <body>
 <header class="topbar">
-  <a href="/" class="home-link">&#8592; Home</a>
   <nav id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/">Home</a>
-    <span class="sep">&#8250;</span>
     <a href="/myfiles/">My Files</a>
     <span class="sep">&#8250;</span>
     <a href="/myfiles/softwares/">Softwares</a>

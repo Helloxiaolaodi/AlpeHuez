@@ -49,12 +49,13 @@ fn response(status: StatusCode, mime: &str, body: Vec<u8>) -> Response<Vec<u8>> 
 
 /// 注入到所有 HTML 页面的链接拦截脚本：
 /// 在 Tauri 环境（有 __TAURI__）下，把 target=_blank 链接和 window.open 转发到
-/// open_url 命令，用系统默认浏览器打开；普通浏览器（Cloudflare 部署）下不生效。
+/// open_url 命令，由启动方式配置决定内部打开还是外部浏览器打开；
+/// 普通浏览器（Cloudflare 部署）下不生效。
 const LINK_HANDLER: &str = r#"<script>
 (function () {
   if (!window.__TAURI__) return;
   var invoke = window.__TAURI__.core.invoke;
-  function openExternal(url) {
+  function routeLink(url) {
     if (url && /^https?:/i.test(url)) invoke('open_url', { url: url });
   }
   document.addEventListener('click', function (e) {
@@ -65,14 +66,14 @@ const LINK_HANDLER: &str = r#"<script>
     if (a.getAttribute('target') === '_blank' || a.hasAttribute('download')) {
       if (/^https?:/i.test(href)) {
         e.preventDefault();
-        openExternal(href);
+        routeLink(href);
       }
     }
   }, true);
   var origOpen = window.open;
   window.open = function (url) {
     if (url && typeof url === 'string') {
-      if (/^https?:/i.test(url)) { openExternal(url); return null; }
+      if (/^https?:/i.test(url)) { routeLink(url); return null; }
       if (url.charAt(0) === '/' || url.charAt(0) === '.' || url.charAt(0) === '#') {
         window.location.href = url;
         return null;
