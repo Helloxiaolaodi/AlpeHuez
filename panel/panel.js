@@ -935,6 +935,14 @@ function logTodoDone(date, completed) {
   localStorage.setItem('panel-todo-done-dates', JSON.stringify(log));
 }
 
+function trackPanelAction(action) {
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (e) { log = []; }
+  log.push({ t: Date.now(), a: String(action) });
+  if (log.length > 60) log = log.slice(log.length - 60);
+  localStorage.setItem('alpehuez_timeline', JSON.stringify(log));
+}
+
 $('#btnAddTodo').onclick = () => {
   const text = $('#todoInput').value.trim();
   if (!text) return;
@@ -957,6 +965,7 @@ $('#todoList').addEventListener('click', (e) => {
     const i = Number(item.dataset.todo);
     todos[i].done = !todos[i].done;
     logTodoDone(new Date().toISOString().slice(0, 10), todos[i].done);
+    if (todos[i].done) trackPanelAction(`Completed todo: ${String(todos[i].text).slice(0, 30)}`);
     saveTodos();
     renderTodos();
   }

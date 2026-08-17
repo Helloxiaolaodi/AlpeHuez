@@ -2271,6 +2271,96 @@
             display: inline-block;
         }
 
+        .activity-timeline {
+            max-width: 1240px;
+            margin: 0 auto 30px;
+            padding: 16px 18px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+
+        .activity-timeline[hidden] {
+            display: none;
+        }
+
+        .activity-timeline-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .activity-timeline-head h3 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 13px;
+            letter-spacing: -0.01em;
+        }
+
+        .activity-timeline-head button {
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .activity-timeline-head button:hover {
+            color: var(--text-main);
+        }
+
+        .tl-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .tl-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            color: var(--text-main);
+            font-size: 12.5px;
+        }
+
+        .tl-item::before {
+            content: "";
+            position: absolute;
+            left: -18px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line);
+        }
+
+        .tl-item:last-child::before {
+            bottom: auto;
+            height: 50%;
+        }
+
+        .tl-dot {
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            box-shadow: 0 0 6px rgba(0, 135, 235, 0.6);
+        }
+
+        .tl-item .tl-when {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
         .sub-heading {
             display: flex;
             align-items: center;
@@ -3482,6 +3572,8 @@
                         <div id="content"></div>
 
                         <div id="usageHeatmap" class="usage-heatmap" hidden></div>
+
+                        <div id="activityTimeline" class="activity-timeline" hidden></div>
                     </div>
                 </section>
 
@@ -4233,6 +4325,55 @@
             el.hidden = false;
         }
 
+        function trackAction(action) {
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
+            log.push({ t: Date.now(), a: String(action) });
+            if (log.length > 60) log = log.slice(log.length - 60);
+            localStorage.setItem('alpehuez_timeline', JSON.stringify(log));
+        }
+
+        function relativeTime(ts) {
+            const diff = Date.now() - ts;
+            if (diff < 60 * 1000) return 'just now';
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 60) return `${minutes} min ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
+
+        function renderActivityTimeline() {
+            const el = $('activityTimeline');
+            if (!el) return;
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
+            if (!log.length) {
+                el.hidden = true;
+                return;
+            }
+            const rows = log.slice().reverse().map((entry) => `
+                <div class="tl-item">
+                    <span class="tl-dot"></span>
+                    <span class="tl-text">${escapeHtml(entry.a)}</span>
+                    <span class="tl-when">${relativeTime(entry.t)}</span>
+                </div>
+            `).join('');
+            el.innerHTML = `
+                <div class="activity-timeline-head">
+                    <h3>Activity Timeline</h3>
+                    <button type="button" id="tlClearBtn">Clear</button>
+                </div>
+                <div class="tl-list">${rows}</div>
+            `;
+            el.hidden = false;
+            const clearBtn = $('tlClearBtn');
+            if (clearBtn) clearBtn.addEventListener('click', () => {
+                localStorage.removeItem('alpehuez_timeline');
+                renderActivityTimeline();
+            });
+        }
+
         function totalClicks(stats) {
             const source = stats || getStats();
             return Object.keys(source)
@@ -4264,6 +4405,7 @@
             stats._interactions = (stats._interactions || 0) + 1;
             saveStats(stats);
             recordUsage();
+            trackAction(`Opened ${item.title || item.url}`);
         }
 
         function generateLetterAvatar(imgElement, title) {
@@ -4515,8 +4657,13 @@
             const now = Date.now();
             if (now - lastFullscreenToggleAt < 180) return;
             lastFullscreenToggleAt = now;
-            if (isFullscreen()) await exitFullscreen();
-            else await enterFullscreen();
+            if (isFullscreen()) {
+                await exitFullscreen();
+                trackAction('Exited fullscreen');
+            } else {
+                await enterFullscreen();
+                trackAction('Entered fullscreen');
+            }
         }
 
         function resetPortalSidebarState() {
@@ -4686,6 +4833,7 @@
             content.innerHTML = renderedSections || '<div class="empty-state">No matching links</div>';
             syncPortalCategory();
             renderUsageHeatmap();
+            renderActivityTimeline();
         }
 
         function renderBadges() {
@@ -5112,6 +5260,7 @@
             document.documentElement.dataset.theme = next;
             localStorage.setItem(THEME_KEY, next);
             updateThemeUI(next);
+            trackAction(next === 'space' ? 'Switched to dark mode' : 'Switched to light mode');
         }
 
         function toggleTheme() {
@@ -5184,10 +5333,12 @@
         async function switchWorkspace(id) {
             if (id === currentWorkspaceId || !isDesktop) return;
             saveWorkspaceState();
+            const ws = workspaces.find((w) => w.id === id);
             const core = window.__TAURI__.core;
             await core.invoke('set_active_workspace', { id });
             currentWorkspaceId = id;
             renderWorkspaceTabs();
+            trackAction(`Switched workspace to ${ws ? ws.name : id}`);
             const content = document.querySelector('.workspace');
             if (content) {
                 content.classList.remove('switching');
@@ -5797,6 +5948,7 @@
                 if (event.key === 'Enter') {
                     const query = event.target.value.trim();
                     if (query) {
+                        trackAction(`Searched ${ENGINES[activeEngine].label} for "${query.slice(0, 40)}"`);
                         openUrl(ENGINES[activeEngine].url + encodeURIComponent(query), ENGINES[activeEngine].label);
                     }
                 }
