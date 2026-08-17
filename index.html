@@ -331,8 +331,15 @@
             position: relative;
             z-index: 1;
             display: flex;
+            flex-direction: column;
             width: 100vw;
             height: 100vh;
+        }
+
+        .app-body {
+            display: flex;
+            flex: 1;
+            min-height: 0;
         }
 
         .action-rail {
@@ -2800,6 +2807,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             </button>
         </div>
+        <div class="app-body">
         <aside class="action-rail" aria-label="Global actions">
             <div class="rail-group">
                 <button id="btnHome" class="rail-btn rail-brand active" data-context="portal" title="Portal home" aria-label="Portal home">
@@ -3107,6 +3115,7 @@
                 <div class="vm-procs-label">Top 5 进程</div>
                 <div id="vmProcList" class="vm-proc-list"></div>
             </div>
+        </div>
         </div>
     </div>
 
