@@ -49,12 +49,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
         <span data-i18n="workspaces">工作台</span>
       </button>
-      <div class="sidebar-foot">
-        <button class="tab-btn" data-tab="launch" id="launchBtn" data-i18n-title="launchMode" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="M4.22 4.22l2.83 2.83"/><path d="M16.95 16.95l2.83 2.83"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="M4.22 19.78l2.83-2.83"/><path d="M16.95 7.05l2.83-2.83"/></svg>
-          <span data-i18n="launchMode">启动方式</span>
-        </button>
-      </div>
     </nav>
 
     <main class="content">
@@ -187,38 +181,6 @@
         <div class="card log-card">
           <div class="card-title" data-i18n="log">运行日志</div>
           <pre class="log" id="logArea">—</pre>
-        </div>
-      </section>
-
-      <!-- ============ 启动方式 ============ -->
-      <section class="tab-panel" id="tab-launch">
-        <div class="panel-head">
-          <div>
-            <h1 data-i18n="launchMode">启动方式</h1>
-            <p class="muted" data-i18n="launchDesc">选择网址卡片在 AlpeHuez 内部打开，还是交给外部浏览器打开。</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title" data-i18n="launchMode">启动方式</div>
-          <div class="launch-row" id="launchModeRow">
-            <button type="button" class="launch-btn active" id="launchInternal" data-mode="internal">
-              <strong data-i18n="launchInternal">AlpeHuez 内部启动</strong>
-              <span data-i18n="launchInternalHint">在侧边栏中保留垂直标签页和网页会话</span>
-            </button>
-            <button type="button" class="launch-btn" id="launchExternal" data-mode="external">
-              <strong data-i18n="launchExternal">外部浏览器启动</strong>
-              <span data-i18n="launchExternalHint">交给已安装的外部浏览器打开网址</span>
-            </button>
-          </div>
-
-          <div class="browser-row" id="externalBrowserGroup" hidden>
-            <label class="field-label" for="browserSelect" data-i18n="launchBrowser">外部浏览器</label>
-            <select id="browserSelect" class="select">
-              <option value="" data-i18n="systemDefault">系统默认</option>
-            </select>
-            <button class="btn btn-ghost" id="btnRefreshBrowsers" data-i18n="refresh">刷新</button>
-          </div>
         </div>
       </section>
 

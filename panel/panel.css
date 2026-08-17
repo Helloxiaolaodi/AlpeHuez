@@ -609,28 +609,6 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .toast.error { border-color: rgba(248, 113, 113, 0.4); color: var(--red); }
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
-/* ---------- 启动方式 ---------- */
-.launch-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.launch-btn {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 7px;
-  padding: 16px; border-radius: var(--radius); cursor: pointer; text-align: left;
-  background: var(--hover); border: 1px solid var(--border);
-  color: var(--text-2); font-size: 12px; font-family: var(--font);
-  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s, background 0.15s;
-}
-.launch-btn strong { color: var(--text); font-size: 13px; }
-.launch-btn span { color: var(--text-2); line-height: 1.45; }
-.launch-btn:hover { color: var(--text); border-color: var(--border-strong); }
-.launch-btn.active {
-  border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft);
-  color: var(--accent); background: var(--accent-soft);
-}
-.launch-btn.active strong { color: var(--accent); }
-
-.browser-row { flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
-.browser-row .field-label { width: 100%; margin: 0; }
-.browser-row .select { flex: 1; min-width: 0; }
-
 /* ---------- 右侧抽屉（日历 / 待办） ---------- */
 .drawer-sensor {
   position: fixed; right: 0; top: 0; bottom: 0; width: 8px; z-index: 45;

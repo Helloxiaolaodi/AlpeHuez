@@ -43,10 +43,6 @@ const LOCALES = {
   zh: {
     appName: 'AlpeHuez 开发者面板', appSub: 'AlpeHuez · 本地内容管理', connected: '已连接', uncommitted: '待推送',
     preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
-    launchMode: '启动方式', launchDesc: '选择网址卡片在 AlpeHuez 内部打开，还是交给外部浏览器打开。',
-    launchInternal: 'AlpeHuez 内部启动', launchInternalHint: '在侧边栏中保留垂直标签页和网页会话',
-    launchExternal: '外部浏览器启动', launchExternalHint: '交给已安装的外部浏览器打开网址',
-    launchBrowser: '外部浏览器', launchSaved: '启动方式已保存',
     navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
     recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
@@ -58,7 +54,6 @@ const LOCALES = {
     repoStatus: '仓库状态', branch: '分支', lastCommit: '最近提交',
     devTimeline: '开发时间轴', timelineEmpty: '暂无提交记录', timelineError: '无法读取提交历史：',
     sysTitle: '系统资源', cpu: 'CPU', mem: '内存', disk: '磁盘',
-    systemDefault: '系统默认', refresh: '刷新',
     drawerTitle: '日历 / 待办', todayTodo: '今日待办', todoPlaceholder: '添加待办…', noTodo: '暂无待办',
     calWeekdays: ['日', '一', '二', '三', '四', '五', '六'],
     commitPush: '提交并推送', commitMsg: '提交信息', commitPlaceholder: '例如：新增 3 个导航卡片',
@@ -102,10 +97,6 @@ const LOCALES = {
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
     preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
-    launchMode: 'Launch Mode', launchDesc: 'Open website cards inside AlpeHuez or hand them to an external browser.',
-    launchInternal: 'Launch inside AlpeHuez', launchInternalHint: 'Keep vertical tabs and website sessions in the sidebar',
-    launchExternal: 'Launch in external browser', launchExternalHint: 'Open URLs with an installed external browser',
-    launchBrowser: 'External browser', launchSaved: 'Launch setting saved',
     navDesc: 'Manage nav cards & groups. Saved to links.json',
     recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
@@ -117,7 +108,6 @@ const LOCALES = {
     repoStatus: 'Repo Status', branch: 'Branch', lastCommit: 'Last Commit',
     devTimeline: 'Dev Timeline', timelineEmpty: 'No commits yet', timelineError: 'Failed to read commit history: ',
     sysTitle: 'System Resources', cpu: 'CPU', mem: 'Memory', disk: 'Disk',
-    systemDefault: 'System Default', refresh: 'Refresh',
     drawerTitle: 'Calendar / Todos', todayTodo: 'Today Todos', todoPlaceholder: 'Add todo…', noTodo: 'No todos',
     calWeekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
     commitPush: 'Commit & Push', commitMsg: 'Commit Message', commitPlaceholder: 'e.g. Add 3 nav cards',
@@ -243,16 +233,10 @@ async function api(path, opts = {}) {
     if (path === '/api/git-status') return await invoke('git_status');
     if (path === '/api/git-log') return await invoke('git_log');
     if (path === '/api/sys-stats') return await invoke('sys_stats');
-    if (path === '/api/list-browsers') return await invoke('list_browsers');
-    if (path === '/api/browser-config') {
-      if (method === 'GET') return await invoke('get_browser_config');
-      await invoke('set_browser_config', { config: body.config });
-      return { ok: true };
-    }
     if (path === '/api/git-push') return await invoke('git_push', { message: body.message });
     throw new Error('未知接口: ' + path);
   }
-  if (path === '/api/git-log' || path === '/api/sys-stats' || path === '/api/list-browsers' || path === '/api/browser-config') return null; // 浏览器模式无此接口
+  if (path === '/api/git-log' || path === '/api/sys-stats') return null; // 浏览器模式无此接口
   const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
   const data = await res.json().catch(() => ({ ok: false, error: t('loadFailed') }));
   if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
@@ -727,48 +711,6 @@ async function loadGitStatus() {
   }
 }
 
-/* ---------- 启动方式 ---------- */
-let browserConfig = null;
-
-async function loadBrowsers() {
-  try {
-    const list = await api('/api/list-browsers');
-    if (!list) return;
-    const sel = $('#browserSelect');
-    const current = (browserConfig && browserConfig.path) || '';
-    sel.innerHTML = `<option value="">${t('systemDefault')}</option>` + list.map((b) =>
-      `<option value="${escapeAttr(b.path)}" ${b.path === current ? 'selected' : ''}>${escapeHtml(b.name)}</option>`).join('');
-  } catch (e) { /* 静默 */ }
-}
-
-async function loadBrowserConfig() {
-  try {
-    const res = await api('/api/browser-config');
-    browserConfig = res || { mode: 'internal', path: '' };
-  } catch (e) {
-    browserConfig = { mode: 'internal', path: '' };
-  }
-  applyLaunchModeUI();
-  await loadBrowsers();
-}
-
-function applyLaunchModeUI() {
-  const mode = (browserConfig && browserConfig.mode) || 'internal';
-  $('#launchInternal').classList.toggle('active', mode === 'internal');
-  $('#launchExternal').classList.toggle('active', mode === 'external');
-  $('#externalBrowserGroup').hidden = mode !== 'external';
-}
-
-async function applyLaunchMode(mode) {
-  browserConfig.mode = mode;
-  if (mode === 'internal') browserConfig.path = '';
-  applyLaunchModeUI();
-  try {
-    await api('/api/browser-config', { method: 'POST', body: JSON.stringify({ config: browserConfig }) });
-    toast(t('launchSaved'), 'success');
-  } catch (e) { /* 浏览器模式忽略 */ }
-}
-
 /* ---------- 工作台管理 ---------- */
 async function renderWorkspaces() {
   const list = document.getElementById('wsList');
@@ -930,18 +872,6 @@ $('#btnPreview').addEventListener('click', (e) => {
     });
   }
 });
-
-/* ---------- 启动方式事件 ---------- */
-$('#launchInternal').addEventListener('click', () => applyLaunchMode('internal'));
-$('#launchExternal').addEventListener('click', () => applyLaunchMode('external'));
-$('#browserSelect').addEventListener('change', async () => {
-  browserConfig.path = $('#browserSelect').value;
-  try {
-    await api('/api/browser-config', { method: 'POST', body: JSON.stringify({ config: browserConfig }) });
-    toast(t('launchSaved'), 'success');
-  } catch (e) { /* 浏览器模式忽略 */ }
-});
-$('#btnRefreshBrowsers').onclick = loadBrowsers;
 
 /* ---------- 右侧抽屉（日历 / 待办） ---------- */
 let todos = [];
@@ -1276,7 +1206,6 @@ async function loadMyfiles() {
 async function init() {
   try { applyTheme(); } catch (e) { /* 忽略 */ }
   try { applyLang(); } catch (e) { /* 忽略 */ }
-  if (isDesktop) $('#launchBtn').hidden = false;
   // 每个初始化步骤独立容错：单点失败不得拖垮整个面板（否则会出现按钮/列表大面积缺失）
   const safe = async (fn) => {
     try {
@@ -1286,7 +1215,6 @@ async function init() {
       return undefined;
     }
   };
-  await safe(loadBrowserConfig);
   await safe(renderCalendar);
   await safe(renderTodos);
   await safe(() => Promise.all([loadLinks(), loadMyfiles()]));
