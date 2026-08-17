@@ -3403,6 +3403,147 @@
         .float-ball-menu button:hover {
             background: rgba(0, 135, 235, 0.14);
         }
+
+        .vertical-dashboard {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9500;
+            width: min(350px, calc(100vw - 20px));
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+            border-left: 1px solid var(--line);
+            box-shadow: var(--shadow-float);
+            backdrop-filter: blur(28px) saturate(150%);
+            -webkit-backdrop-filter: blur(28px) saturate(150%);
+            animation: vd-in 0.22s ease;
+        }
+
+        .vertical-dashboard[hidden] {
+            display: none;
+        }
+
+        @keyframes vd-in {
+            from { transform: translateX(28px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .vd-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 0 0 52px;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .vd-head strong {
+            font-size: 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .vd-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .vd-card {
+            padding: 14px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .vd-card h4 {
+            margin: 0 0 10px;
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .vd-progress-row {
+            display: grid;
+            grid-template-columns: 52px 1fr 42px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .vd-progress-row:last-of-type {
+            margin-bottom: 8px;
+        }
+
+        .vd-track {
+            height: 8px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        html[data-theme="space"] .vd-track {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .vd-bar {
+            height: 100%;
+            border-radius: inherit;
+            transition: width 0.6s ease;
+        }
+
+        .vd-bar.year { background: linear-gradient(90deg, #B1E3FF, #0087EB); }
+        .vd-bar.month { background: linear-gradient(90deg, #FFE0AE, #F59E0B); }
+        .vd-bar.week { background: linear-gradient(90deg, #86EFAC, #16A34A); }
+
+        .vd-progress-row strong {
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+
+        .vd-sub {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            line-height: 1.5;
+        }
+
+        .vd-quote {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 13px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .vd-quote::before {
+            content: "“";
+        }
+
+        .vd-quote::after {
+            content: "”";
+        }
+
+        .vd-clock {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .vd-clock-sub {
+            margin-top: 2px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
     </style>
 </head>
 <body data-context="portal">
@@ -6285,6 +6426,89 @@
             }
         }
 
+        const V_DASH_QUOTES = [
+            'It never gets easier, you just get faster.',
+            'Ride as much or as little, as long or as short as you feel. But ride.',
+            'The hills are where the real roads live.',
+            'Don’t buy upgrades, ride up grades.',
+            'Sufferfest: the gift that keeps on giving.',
+            'The bike is the most civilized machine in history.',
+            'Cyclists see considerably more of this beautiful world than any other class of citizens.',
+            'Pain is temporary. Quitting lasts forever.',
+            'A hill is a hill, but the way up is yours to choose.',
+            'Champions are made when no one is watching.'
+        ];
+
+        let vdClockTimer = null;
+
+        function renderVerticalDashboard() {
+            const dash = $('vDashboard');
+            if (!dash) return;
+            const now = new Date();
+            const yearStart = new Date(now.getFullYear(), 0, 1);
+            const daysInYear = ((now.getFullYear() % 4 === 0 && now.getFullYear() % 100 !== 0) || now.getFullYear() % 400 === 0) ? 366 : 365;
+            const dayOfYear = Math.floor((now - yearStart) / 86400000) + 1;
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+            const dayOfWeek = Math.floor((now - weekStart) / 86400000) + 1;
+            const setBar = (id, pctId, barId, pct) => {
+                const bar = $(barId);
+                const label = $(pctId);
+                if (bar) bar.style.width = pct + '%';
+                if (label) label.textContent = pct + '%';
+            };
+            setBar('vdYearBar', 'vdYearPct', 'vdYearBar', Math.round((dayOfYear / daysInYear) * 100));
+            setBar('vdMonthBar', 'vdMonthPct', 'vdMonthBar', Math.round((now.getDate() / daysInMonth) * 100));
+            setBar('vdWeekBar', 'vdWeekPct', 'vdWeekBar', Math.round((dayOfWeek / 7) * 100));
+            const sub = $('vdCountdownSub');
+            if (sub) sub.textContent = `Day ${dayOfYear} of ${daysInYear} · Day ${now.getDate()} of ${daysInMonth} · Day ${dayOfWeek} of 7`;
+            const quote = $('vdQuoteText');
+            if (quote) quote.textContent = V_DASH_QUOTES[dayOfYear % V_DASH_QUOTES.length];
+            if (!vdClockTimer) {
+                const tick = () => {
+                    const t = new Date();
+                    const clock = $('vdClock');
+                    const clockSub = $('vdClockSub');
+                    if (clock) {
+                        clock.textContent = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    }
+                    if (clockSub) {
+                        clockSub.textContent = t.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                };
+                tick();
+                vdClockTimer = setInterval(tick, 1000);
+            }
+        }
+
+        function openVerticalDashboard() {
+            const dash = $('vDashboard');
+            if (!dash) return;
+            dash.hidden = false;
+            renderVerticalDashboard();
+        }
+
+        function closeVerticalDashboard() {
+            const dash = $('vDashboard');
+            if (dash) dash.hidden = true;
+            if (vdClockTimer) {
+                clearInterval(vdClockTimer);
+                vdClockTimer = null;
+            }
+        }
+
+        function toggleVerticalDashboard() {
+            const dash = $('vDashboard');
+            if (!dash) return;
+            if (dash.hidden) {
+                openVerticalDashboard();
+                trackAction('Opened vertical dashboard');
+            } else {
+                closeVerticalDashboard();
+                trackAction('Closed vertical dashboard');
+            }
+        }
+
         async function applyWindowMode(mode) {
             try {
                 if (mode === 'fullscreen') {
@@ -6298,6 +6522,7 @@
                     await win.setFullscreen(false);
                     await win.setSize(new windowApi.LogicalSize(1280, 800));
                     await win.center();
+                    closeVerticalDashboard();
                 } else if (mode === 'vertical') {
                     await win.setFullscreen(false);
                     const monitor = await win.currentMonitor();
@@ -6309,6 +6534,7 @@
                             monitor.position.y
                         ));
                     }
+                    openVerticalDashboard();
                 }
                 trackAction(`Window mode: ${mode}`);
             } catch (error) {
@@ -6320,6 +6546,8 @@
             const ball = $('floatBall');
             const menu = $('floatBallMenu');
             if (!ball || !menu) return;
+            const vdClose = $('vdCloseBtn');
+            if (vdClose) vdClose.addEventListener('click', closeVerticalDashboard);
             let dragging = false;
             let moved = false;
             let ox = 0, oy = 0, sx = 0, sy = 0;
@@ -6384,5 +6612,34 @@
         <button type="button" data-fbmode="window">Window</button>
         <button type="button" data-fbmode="vertical">Vertical dashboard</button>
     </div>
+    <aside id="vDashboard" class="vertical-dashboard" hidden>
+        <div class="vd-head">
+            <strong>Vertical Dashboard</strong>
+            <button id="vdCloseBtn" class="icon-btn" type="button" title="Close" aria-label="Close">&times;</button>
+        </div>
+        <div class="vd-scroll">
+            <div class="vd-card">
+                <h4>Countdown</h4>
+                <div class="vd-progress-row"><span>Year</span><div class="vd-track"><div class="vd-bar year" id="vdYearBar"></div></div><strong id="vdYearPct">0%</strong></div>
+                <div class="vd-progress-row"><span>Month</span><div class="vd-track"><div class="vd-bar month" id="vdMonthBar"></div></div><strong id="vdMonthPct">0%</strong></div>
+                <div class="vd-progress-row"><span>Week</span><div class="vd-track"><div class="vd-bar week" id="vdWeekBar"></div></div><strong id="vdWeekPct">0%</strong></div>
+                <p class="vd-sub" id="vdCountdownSub"></p>
+            </div>
+            <div class="vd-card">
+                <h4>Quote of the day</h4>
+                <p class="vd-quote" id="vdQuoteText"></p>
+            </div>
+            <div class="vd-card">
+                <h4>Local time</h4>
+                <div class="vd-clock" id="vdClock"></div>
+                <div class="vd-clock-sub" id="vdClockSub"></div>
+                <p class="vd-sub">Weather widget placeholder — bring your own API key.</p>
+            </div>
+            <div class="vd-card">
+                <h4>Meeting</h4>
+                <div id="vdMeetingBody"><p class="vd-sub">No meeting detected.</p></div>
+            </div>
+        </div>
+    </aside>
 </body>
 </html>
