@@ -975,6 +975,7 @@ fn open_internal_page_impl(
 
     let builder = WebviewBuilder::new(label.clone(), WebviewUrl::External(parsed))
         .data_directory(session_dir)
+        .background_color(tauri::window::Color(11, 17, 32, 255))
         .initialization_script(child_script.as_str())
         .on_page_load(move |_webview, payload| {
             if payload.url().as_str() == "about:blank" {
