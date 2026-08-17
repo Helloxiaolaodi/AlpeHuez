@@ -2951,12 +2951,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </button>
 
-    <button id="workspaceTabsHandle" class="workspace-tabs-handle" type="button" title="显示工作台标签" aria-label="显示工作台标签"></button>
+    <button id="workspaceTabsHandle" class="workspace-tabs-handle" type="button" title="Show workspace tabs" aria-label="Show workspace tabs"></button>
 
     <div class="app-shell">
         <div id="workspaceTabs" class="workspace-tabs" hidden>
             <div id="workspaceTabList" class="workspace-tab-list"></div>
-            <button id="workspaceAddBtn" class="workspace-add-btn" type="button" title="新建工作台" aria-label="新建工作台">
+            <button id="workspaceAddBtn" class="workspace-add-btn" type="button" title="New workspace" aria-label="New workspace">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             </button>
         </div>
@@ -3105,7 +3105,7 @@
                 <div class="topbar-left">
                     <span id="viewTitle">Portal</span>
                 </div>
-                <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter 系统资源" aria-label="VeloMeter 系统资源">
+                <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
                     <span class="vm-cell"><span class="vm-label">CPU</span><span id="vmCpuVal" class="vm-val">--%</span><svg class="vm-spark" id="vmCpuSpark" viewBox="0 0 40 14" preserveAspectRatio="none"></svg></span>
                     <span class="vm-cell"><span class="vm-label">RAM</span><span id="vmMemVal" class="vm-val">--%</span><svg class="vm-spark" id="vmMemSpark" viewBox="0 0 40 14" preserveAspectRatio="none"></svg></span>
                     <span class="vm-cell"><span class="vm-label">DISK</span><span id="vmDiskVal" class="vm-val">--%</span></span>
@@ -3245,7 +3245,7 @@
         <div id="velometerDrawer" class="velometer-drawer" hidden>
             <div class="vm-drawer-head">
                 <strong>VeloMeter</strong>
-                <button id="vmCloseBtn" class="icon-btn" type="button" title="关闭" aria-label="关闭">&times;</button>
+                <button id="vmCloseBtn" class="icon-btn" type="button" title="Close" aria-label="Close">&times;</button>
             </div>
             <div class="vm-rings">
                 <div class="vm-ring-wrap">
@@ -3271,7 +3271,7 @@
                 </div>
             </div>
             <div class="vm-procs">
-                <div class="vm-procs-label">Top 5 进程</div>
+                <div class="vm-procs-label">Top 5 Processes</div>
                 <div id="vmProcList" class="vm-proc-list"></div>
             </div>
         </div>
@@ -3335,7 +3335,7 @@
 
             <section class="settings-section">
                 <h3 data-i18n-settings="supportAuthor">Support</h3>
-                <p>侠之大者，为开源而生。若觉得 AlpeHuez 曾照亮你的工作瞬间，不妨温一壶清茶，支持一二。</p>
+                <p data-i18n-settings="supportBlurb">Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.</p>
                 <div class="support-actions">
                     <button id="koFiBtn" type="button" data-i18n-settings="koFi">Ko-fi (overseas)</button>
                     <button id="wechatBtn" type="button" data-i18n-settings="wechatQr">WeChat QR (China)</button>
@@ -3429,6 +3429,7 @@
                 feedbackPlaceholder: 'Leave feedback for AlpeHuez',
                 saveFeedback: 'Save feedback',
                 supportAuthor: 'Support',
+                supportBlurb: 'Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.',
                 koFi: 'Ko-fi (overseas)',
                 wechatQr: 'WeChat QR (China)',
                 language: 'Language',
@@ -3463,6 +3464,7 @@
                 feedbackPlaceholder: '\u4e3a AlpeHuez \u7559\u4e0b\u53cd\u9988',
                 saveFeedback: '\u4fdd\u5b58\u53cd\u9988',
                 supportAuthor: '\u652f\u6301\u4f5c\u8005',
+                supportBlurb: '\u4fa0\u4e4b\u5927\u8005\uff0c\u4e3a\u5f00\u6e90\u800c\u751f\u3002\u82e5\u89c9\u5f97 AlpeHuez \u66fe\u7167\u4eae\u4f60\u7684\u5de5\u4f5c\u77ac\u95f4\uff0c\u4e0d\u59a8\u6e29\u4e00\u58f6\u6e05\u8336\uff0c\u652f\u6301\u4e00\u4e8c\u3002',
                 koFi: 'Ko-fi\uff08\u6d77\u5916\uff09',
                 wechatQr: '\u5fae\u4fe1\u4e8c\u7ef4\u7801\uff08\u4e2d\u56fd\uff09',
                 language: '\u8bed\u8a00',
@@ -4772,10 +4774,10 @@
             menu.style.top = y + 'px';
             const items = [];
             if (ws.role !== 'leader') {
-                items.push({ label: '设为角色', action: () => promptSetRole(id) });
-                items.push({ label: '删除工作台', action: () => deleteWorkspace(id) });
+                items.push({ label: 'Set as role', action: () => promptSetRole(id) });
+                items.push({ label: 'Delete workspace', action: () => deleteWorkspace(id) });
             }
-            items.push({ label: '重命名', action: () => promptRename(id) });
+            items.push({ label: 'Rename', action: () => promptRename(id) });
             items.forEach((item) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -4790,7 +4792,7 @@
 
         async function promptRename(id) {
             const ws = workspaces.find((w) => w.id === id);
-            const name = prompt('工作台名称', ws ? ws.name : '');
+            const name = prompt('Workspace name', ws ? ws.name : '');
             if (!name || !name.trim()) return;
             const core = window.__TAURI__.core;
             await core.invoke('update_workspace', { id, name: name.trim(), role: ws.role, riderType: ws.riderType, riderName: ws.riderName, riderNumber: ws.riderNumber, specialties: ws.specialties });
@@ -4800,7 +4802,7 @@
 
         async function promptSetRole(id) {
             const ws = workspaces.find((w) => w.id === id);
-            const role = prompt('角色（domestique / leader）', ws.role);
+            const role = prompt('Role (domestique / leader)', ws.role);
             if (!role || !['domestique', 'leader'].includes(role)) return;
             const core = window.__TAURI__.core;
             await core.invoke('update_workspace', { id, name: ws.name, role, riderType: ws.riderType, riderName: ws.riderName, riderNumber: ws.riderNumber, specialties: ws.specialties });
@@ -4809,7 +4811,7 @@
         }
 
         async function deleteWorkspace(id) {
-            if (!confirm('确定删除该工作台？')) return;
+            if (!confirm('Delete this workspace?')) return;
             const core = window.__TAURI__.core;
             await core.invoke('delete_workspace', { id });
             workspaces = await core.invoke('list_workspaces');
@@ -4824,12 +4826,12 @@
         function initWorkspaceTabs() {
             const addBtn = $('workspaceAddBtn');
             if (addBtn) addBtn.addEventListener('click', () => {
-                const name = prompt('工作台名称', '新副将');
+                const name = prompt('Workspace name', 'New domestique');
                 if (!name || !name.trim()) return;
                 const role = 'domestique';
                 const riderType = prompt('Rider Type（GC Contender / Rouleur / Climber / Puncheur / Lead-out Man / Sprinter）', 'Rouleur') || 'Rouleur';
-                const riderName = prompt('车手名', name.trim()) || name.trim();
-                const riderNumber = Number(prompt('车手号', String(workspaces.length + 1))) || 0;
+                const riderName = prompt('Rider name', name.trim()) || name.trim();
+                const riderNumber = Number(prompt('Rider number', String(workspaces.length + 1))) || 0;
                 window.__TAURI__.core.invoke('create_workspace', { name: name.trim(), role, riderType, riderName, riderNumber }).then(async () => {
                     workspaces = await window.__TAURI__.core.invoke('list_workspaces');
                     renderWorkspaceTabs();
