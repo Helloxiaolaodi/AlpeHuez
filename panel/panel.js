@@ -915,6 +915,18 @@ function saveTodos() {
   localStorage.setItem('panel-todos', JSON.stringify(todos));
 }
 
+function logTodoDone(date, completed) {
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('panel-todo-done-dates') || '[]'); } catch (e) { log = []; }
+  if (completed) {
+    log.push(date);
+  } else {
+    const idx = log.lastIndexOf(date);
+    if (idx >= 0) log.splice(idx, 1);
+  }
+  localStorage.setItem('panel-todo-done-dates', JSON.stringify(log));
+}
+
 $('#btnAddTodo').onclick = () => {
   const text = $('#todoInput').value.trim();
   if (!text) return;
@@ -936,6 +948,7 @@ $('#todoList').addEventListener('click', (e) => {
   if (item) {
     const i = Number(item.dataset.todo);
     todos[i].done = !todos[i].done;
+    logTodoDone(new Date().toISOString().slice(0, 10), todos[i].done);
     saveTodos();
     renderTodos();
   }
