@@ -4598,7 +4598,7 @@
                     renderWorkspaceTabs();
                 });
             });
-            loadWorkspaces();
+            return loadWorkspaces();
         }
 
         function initPageLoadingOverlay() {
@@ -5268,7 +5268,7 @@
                 </div>`).join('');
         }
 
-        function init() {
+        async function init() {
             setTimeout(dismissLoadingScreen, 3000);
             recordDailyOpen();
             updateThemeUI(document.documentElement.dataset.theme);
@@ -5281,7 +5281,7 @@
             restoreTabs();
             initKomStatus();
             loadAbout();
-            initWorkspaceTabs();
+            await initWorkspaceTabs();
             initVelometer();
             initPageLoadingOverlay();
             loadPortalLinks();
