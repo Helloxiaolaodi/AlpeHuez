@@ -729,3 +729,11 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .ws-specialties input[type="range"] { flex: 1; accent-color: var(--accent); }
 .ws-val { min-width: 24px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
 .ws-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+#f_json {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+  resize: vertical;
+}

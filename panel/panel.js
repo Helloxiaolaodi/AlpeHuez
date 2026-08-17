@@ -287,7 +287,7 @@ function fieldHtml(f) {
   }
   const tag = f.type === 'textarea' ? 'textarea' : 'input';
   const typeAttr = f.type === 'number' ? 'number' : (f.type === 'password' ? 'password' : 'text');
-  const extra = f.type === 'textarea' ? 'rows="3"' : `type="${typeAttr}"`;
+  const extra = f.type === 'textarea' ? `rows="${f.rows || 3}"` : `type="${typeAttr}"`;
   const hint = f.hint ? `<p class="hint">${f.hint}</p>` : '';
   return `<div class="form-row"><label>${f.label}</label><${tag} id="f_${f.key}" class="input" ${extra} value="${escapeAttr(f.value ?? '')}" placeholder="${escapeAttr(f.placeholder || '')}" ${f.required ? 'required' : ''}></${tag}>${hint}</div>`;
 }
@@ -791,6 +791,7 @@ async function renderWorkspaces() {
       </div>
       <div class="ws-card-actions">
         <button type="button" class="btn" data-edit="${w.id}">编辑</button>
+        <button type="button" class="btn" data-links="${w.id}">链接 JSON</button>
         ${w.role !== 'leader' ? `<button type="button" class="btn btn-danger" data-del="${w.id}">删除</button>` : ''}
       </div>
     </div>`).join('');
@@ -817,6 +818,9 @@ async function renderWorkspaces() {
   list.querySelectorAll('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', () => editWorkspace(Number(btn.dataset.edit)));
   });
+  list.querySelectorAll('[data-links]').forEach((btn) => {
+    btn.addEventListener('click', () => editWorkspaceLinks(Number(btn.dataset.links)));
+  });
 }
 
 async function editWorkspace(id) {
@@ -831,6 +835,37 @@ async function editWorkspace(id) {
   const riderNumber = Number(prompt('车手号', String(w.riderNumber))) || 0;
   await invoke('update_workspace', { id, name, role: w.role, riderType, riderName, riderNumber, specialties: w.specialties });
   renderWorkspaces();
+}
+
+async function editWorkspaceLinks(id) {
+  const { invoke } = window.__TAURI__.core;
+  let data;
+  try {
+    data = await invoke('get_workspace_links', { id });
+  } catch (e) {
+    toast('读取链接失败: ' + e.message, 'error');
+    return;
+  }
+  const text = JSON.stringify(data, null, 2);
+  openModal('工作台链接 JSON', [
+    { key: 'json', label: 'JSON', type: 'textarea', rows: 18, value: '' }
+  ], async (values) => {
+    let parsed;
+    try {
+      parsed = JSON.parse(values.json);
+    } catch (e) {
+      toast('JSON 解析失败: ' + e.message, 'error');
+      return;
+    }
+    try {
+      await invoke('save_workspace_links', { id, data: parsed });
+      toast('已保存');
+    } catch (e) {
+      toast('保存失败: ' + e.message, 'error');
+    }
+  });
+  const ta = document.getElementById('f_json');
+  if (ta) ta.value = text;
 }
 
 function initWorkspacesTab() {
