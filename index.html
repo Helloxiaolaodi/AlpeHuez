@@ -3336,6 +3336,73 @@
                 grid-template-columns: 1fr;
             }
         }
+        .float-ball {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            color: #FFFFFF;
+            background: linear-gradient(145deg, #0087EB, #005FBF);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 50%;
+            box-shadow: 0 14px 28px -10px rgba(0, 135, 235, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .float-ball:hover {
+            box-shadow: 0 16px 34px -10px rgba(0, 135, 235, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .float-ball:active {
+            cursor: grabbing;
+        }
+
+        .float-ball svg {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .float-ball-menu {
+            position: fixed;
+            z-index: 10000;
+            min-width: 168px;
+            padding: 6px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            box-shadow: var(--shadow-float);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+
+        .float-ball-menu[hidden] {
+            display: none;
+        }
+
+        .float-ball-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 7px;
+            background: none;
+            color: var(--text-main);
+            font-size: 12.5px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .float-ball-menu button:hover {
+            background: rgba(0, 135, 235, 0.14);
+        }
     </style>
 </head>
 <body data-context="portal">
@@ -6218,7 +6285,104 @@
             }
         }
 
+        async function applyWindowMode(mode) {
+            try {
+                if (mode === 'fullscreen') {
+                    await toggleFullscreen();
+                    return;
+                }
+                if (!isDesktop) return;
+                const windowApi = window.__TAURI__.window;
+                const win = windowApi.getCurrentWindow();
+                if (mode === 'window') {
+                    await win.setFullscreen(false);
+                    await win.setSize(new windowApi.LogicalSize(1280, 800));
+                    await win.center();
+                } else if (mode === 'vertical') {
+                    await win.setFullscreen(false);
+                    const monitor = await win.currentMonitor();
+                    const height = monitor ? monitor.size.height : 900;
+                    await win.setSize(new windowApi.LogicalSize(380, height));
+                    if (monitor) {
+                        await win.setPosition(new windowApi.PhysicalPosition(
+                            monitor.position.x + monitor.size.width - 380,
+                            monitor.position.y
+                        ));
+                    }
+                }
+                trackAction(`Window mode: ${mode}`);
+            } catch (error) {
+                console.error('applyWindowMode failed:', error);
+            }
+        }
+
+        function initFloatBall() {
+            const ball = $('floatBall');
+            const menu = $('floatBallMenu');
+            if (!ball || !menu) return;
+            let dragging = false;
+            let moved = false;
+            let ox = 0, oy = 0, sx = 0, sy = 0;
+            ball.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                dragging = true;
+                moved = false;
+                sx = e.clientX;
+                sy = e.clientY;
+                const rect = ball.getBoundingClientRect();
+                ox = rect.left;
+                oy = rect.top;
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const dx = e.clientX - sx;
+                const dy = e.clientY - sy;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+                ball.style.left = Math.min(Math.max(8, ox + dx), window.innerWidth - 52) + 'px';
+                ball.style.top = Math.min(Math.max(8, oy + dy), window.innerHeight - 52) + 'px';
+                ball.style.right = 'auto';
+                ball.style.bottom = 'auto';
+            });
+            document.addEventListener('mouseup', () => { dragging = false; });
+            ball.addEventListener('click', () => {
+                if (moved) return;
+                toggleFullscreen();
+            });
+            ball.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (menu.hidden) {
+                    const rect = ball.getBoundingClientRect();
+                    const mw = 168;
+                    const mh = 126;
+                    menu.style.left = Math.min(rect.left, window.innerWidth - mw - 8) + 'px';
+                    menu.style.top = Math.min(rect.top - mh - 6, window.innerHeight - mh - 8) + 'px';
+                    menu.hidden = false;
+                } else {
+                    menu.hidden = true;
+                }
+            });
+            menu.querySelectorAll('[data-fbmode]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    menu.hidden = true;
+                    applyWindowMode(btn.dataset.fbmode);
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && e.target !== ball) menu.hidden = true;
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', initFloatBall);
     </script>
+    <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click fullscreen · right-click modes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/></svg>
+    </div>
+    <div id="floatBallMenu" class="float-ball-menu" hidden>
+        <button type="button" data-fbmode="fullscreen">Fullscreen</button>
+        <button type="button" data-fbmode="window">Window</button>
+        <button type="button" data-fbmode="vertical">Vertical dashboard</button>
+    </div>
 </body>
 </html>

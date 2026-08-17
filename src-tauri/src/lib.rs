@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use tauri::Manager;
+use tauri_plugin_global_shortcut::ShortcutState;
 
 /// 仓库根目录：src-tauri 的上一级（编译期常量，本机构建本机运行）。
 pub fn repo_root() -> &'static Path {
@@ -72,6 +73,25 @@ pub fn run() {
             commands::get_app_config,
             commands::set_app_config,
         ])
+        // Alt+Space 全局召唤：隐藏时显示并聚焦，可见时隐藏。
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_shortcuts(["alt+space"])
+                .expect("invalid global shortcut alt+space")
+                .with_handler(|app, _shortcut, event| {
+                    if event.state == ShortcutState::Pressed {
+                        if let Some(window) = app.get_webview_window("main") {
+                            if window.is_visible().unwrap_or(true) {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                    }
+                })
+                .build(),
+        )
         .register_uri_scheme_protocol("nav", preview::handler)
         .setup(|app| {
             velometer::spawn(app.handle().clone());
