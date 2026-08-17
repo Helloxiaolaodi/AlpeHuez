@@ -697,6 +697,13 @@ pub async fn open_url_scheme(url: String) -> Result<(), String> {
     Ok(())
 }
 
+/// 读取系统剪贴板文本（用于拦截腾讯会议链接等）。
+#[tauri::command]
+pub async fn read_clipboard() -> Result<String, String> {
+    let mut cb = arboard::Clipboard::new().map_err(|e| e.to_string())?;
+    cb.get_text().map_err(|e| e.to_string())
+}
+
 fn browser_mode(app: &tauri::AppHandle) -> Result<String, String> {
     let file = config_file(app)?;
     if !file.exists() {

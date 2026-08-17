@@ -3544,6 +3544,43 @@
             color: var(--text-muted);
             font-size: 12px;
         }
+
+        .vd-meeting-title {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .vd-meeting-title strong {
+            color: var(--brand-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .vd-meeting-count {
+            margin-top: 6px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .btn-meeting {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 9px;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700;
+            background: linear-gradient(145deg, #2E7BFF, #1557E0);
+            box-shadow: 0 8px 20px -8px rgba(46, 123, 255, 0.6);
+            cursor: pointer;
+        }
+
+        .btn-meeting:hover {
+            filter: brightness(1.08);
+        }
     </style>
 </head>
 <body data-context="portal">
@@ -6504,6 +6541,7 @@
             if (!dash) return;
             dash.hidden = false;
             renderVerticalDashboard();
+            startMeetingWatch();
         }
 
         function closeVerticalDashboard() {
@@ -6513,6 +6551,7 @@
                 clearInterval(vdClockTimer);
                 vdClockTimer = null;
             }
+            stopMeetingWatch();
         }
 
         function toggleVerticalDashboard() {
@@ -6525,6 +6564,98 @@
                 closeVerticalDashboard();
                 trackAction('Closed vertical dashboard');
             }
+        }
+
+        let currentMeeting = null;
+        let vdClipTimer = null;
+        let vdMeetingTimer = null;
+
+        try {
+            const saved = JSON.parse(localStorage.getItem('alpehuez_meeting') || 'null');
+            if (saved && saved.key) currentMeeting = saved;
+        } catch (error) { currentMeeting = null; }
+
+        function parseTencentMeeting(text) {
+            if (!text) return null;
+            const urlMatch = text.match(/https?:\/\/meeting\.tencent\.com\/[^\s，。]*/i);
+            const numMatch = text.match(/(?:会议号|meeting\s*(?:id|number|no\.?)?)[:：]?\s*(\d{3}[- ]?\d{3}[- ]?\d{3})/i)
+                || text.match(/(\d{3}-\d{3}-\d{3})/);
+            const urlNum = urlMatch ? (urlMatch[0].match(/\d{3}[- ]?\d{3}[- ]?\d{3}/) || [null])[0] : null;
+            const num = (numMatch ? numMatch[1] : null) || urlNum;
+            const timeMatch = text.match(/(\d{1,2}):(\d{2})/);
+            return {
+                url: urlMatch ? urlMatch[0] : (num ? `https://meeting.tencent.com/dm/${num.replace(/[- ]/g, '')}` : null),
+                num: num ? num.replace(/[- ]/g, '-') : '',
+                time: timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : null
+            };
+        }
+
+        function renderMeetingCard() {
+            const body = $('vdMeetingBody');
+            if (!body) return;
+            if (!currentMeeting) {
+                body.innerHTML = '<p class="vd-sub">No meeting detected.</p>';
+                return;
+            }
+            const m = currentMeeting;
+            let countdownHtml = '';
+            if (m.time) {
+                const now = new Date();
+                const parts = m.time.split(':').map(Number);
+                const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parts[0], parts[1], 0);
+                const diff = target - now;
+                if (diff > 0) {
+                    const h = Math.floor(diff / 3600000);
+                    const min = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    countdownHtml = `<div class="vd-meeting-count">${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(s).padStart(2, '0')}</div>`;
+                } else if (diff > -3600000) {
+                    countdownHtml = '<p class="vd-sub">Meeting is in progress.</p>';
+                } else {
+                    countdownHtml = '<p class="vd-sub">Meeting time has passed.</p>';
+                }
+            }
+            body.innerHTML = `
+                <div class="vd-meeting-title">Tencent Meeting ${m.num ? `<strong>${escapeHtml(m.num)}</strong>` : ''}</div>
+                ${countdownHtml}
+                ${m.url ? '<button type="button" id="vdMeetingJoin" class="btn-meeting">Join meeting</button>' : ''}
+                <p class="vd-sub">Detected from clipboard · ${relativeTime(m.foundAt)}</p>
+            `;
+            const joinBtn = $('vdMeetingJoin');
+            if (joinBtn) joinBtn.addEventListener('click', () => { openUrl(m.url, 'Tencent Meeting'); });
+        }
+
+        async function pollMeetingClipboard() {
+            if (!isDesktop) return;
+            try {
+                const text = await invoke('read_clipboard');
+                const found = parseTencentMeeting(text);
+                if (found) {
+                    const key = found.num || found.url || 'unknown';
+                    if (!currentMeeting || currentMeeting.key !== key) {
+                        currentMeeting = Object.assign({}, found, { key, foundAt: Date.now() });
+                        localStorage.setItem('alpehuez_meeting', JSON.stringify(currentMeeting));
+                        trackAction(`Detected Tencent meeting${currentMeeting.num ? ' ' + currentMeeting.num : ''}`);
+                    }
+                } else if (currentMeeting && Date.now() - currentMeeting.foundAt > 60 * 60 * 1000) {
+                    currentMeeting = null;
+                    localStorage.removeItem('alpehuez_meeting');
+                }
+            } catch (error) {
+                console.error('read_clipboard failed:', error);
+            }
+            renderMeetingCard();
+        }
+
+        function startMeetingWatch() {
+            if (!vdClipTimer) vdClipTimer = setInterval(pollMeetingClipboard, 5000);
+            if (!vdMeetingTimer) vdMeetingTimer = setInterval(renderMeetingCard, 1000);
+            pollMeetingClipboard();
+        }
+
+        function stopMeetingWatch() {
+            if (vdClipTimer) { clearInterval(vdClipTimer); vdClipTimer = null; }
+            if (vdMeetingTimer) { clearInterval(vdMeetingTimer); vdMeetingTimer = null; }
         }
 
         async function applyWindowMode(mode) {
