@@ -5397,6 +5397,12 @@
                 }
             });
 
+            window.addEventListener('focus', () => {
+                if (!document.activeElement || document.activeElement === document.body) {
+                    searchInput.focus({ preventScroll: true });
+                }
+            });
+
             window.addEventListener('resize', () => {
                 if (!engineMenu.classList.contains('hidden')) positionEngineMenu();
                 if (!commandMenu.classList.contains('hidden')) positionCommandMenu();

@@ -7,6 +7,8 @@ mod velometer;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
+use tauri::Manager;
+
 /// 仓库根目录：src-tauri 的上一级（编译期常量，本机构建本机运行）。
 pub fn repo_root() -> &'static Path {
     static ROOT: OnceLock<PathBuf> = OnceLock::new();
@@ -20,6 +22,13 @@ pub fn repo_root() -> &'static Path {
 
 pub fn run() {
     tauri::Builder::default()
+        .on_window_event(|window, event| {
+            // WebView2 在 webview 内容被点击前不主动取得键盘焦点，导致 F11 等 DOM 快捷键首次无效。
+            // 窗口重新获得焦点时把焦点还给 webview，保证无需先点击窗口内容即可按 F11 全屏。
+            if let tauri::WindowEvent::Focused(true) = event {
+                let _ = window.set_focus();
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             commands::read_json,
             commands::write_json,
@@ -67,6 +76,14 @@ pub fn run() {
         .setup(|app| {
             velometer::spawn(app.handle().clone());
             status::spawn(app.handle().clone());
+            // 启动后把焦点交给主 webview，避免首次使用 F11 前必须点击窗口内容。
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(300));
+                if let Some(webview) = handle.get_webview("main") {
+                    let _ = webview.set_focus();
+                }
+            });
             Ok(())
         })
         .run(tauri::generate_context!())
