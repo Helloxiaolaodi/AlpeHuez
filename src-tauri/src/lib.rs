@@ -1,6 +1,7 @@
 mod commands;
 mod db;
 mod preview;
+mod velometer;
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
@@ -62,6 +63,10 @@ pub fn run() {
             commands::set_app_config,
         ])
         .register_uri_scheme_protocol("nav", preview::handler)
+        .setup(|app| {
+            velometer::spawn(app.handle().clone());
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
