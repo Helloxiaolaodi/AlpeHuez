@@ -23,20 +23,20 @@
             --panel: rgba(255, 255, 255, 0.55);
             --panel-solid: rgba(255, 255, 255, 0.7);
             --accent-warm: #FFE0AE;
-            --shadow: 0 4px 20px rgba(0, 135, 235, 0.06);
+            --shadow: 0 4px 20px rgba(177, 227, 255, 0.25);
             --shadow-float: 0 18px 48px -18px rgba(15, 23, 42, 0.22), 0 4px 14px rgba(15, 23, 42, 0.06);
             --success: #0087EB;
             --danger: #EF4444;
             --warning: #F59E0B;
-            --glass-bg: rgba(255, 255, 255, 0.6);
-            --glass-border: rgba(15, 23, 42, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
         }
 
         html[data-theme="space"] {
             --brand-light: rgba(129, 140, 248, 0.22);
             --brand-warm: rgba(255, 224, 174, 0.16);
             --space-bg: url('1109770.jpg');
-            --space-bg-blur: 60px;
+            --space-bg-blur: 50px;
             --bg-body: #0F172A;
             --bg-card: rgba(30, 41, 59, 0.62);
             --text-main: #F1F5F9;
@@ -97,6 +97,14 @@
             filter: blur(var(--space-bg-blur));
             transform: scale(1.12);
             pointer-events: none;
+        }
+
+        /* 浅色模式：暖麦光晕从顶部散发 + 冰雪蓝环境渐变 */
+        html:not([data-theme="space"]) body {
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(255, 224, 174, 0.6) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(177, 227, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(177, 227, 255, 0.7) 100%);
+            background-attachment: fixed;
         }
 
         button {
@@ -3295,8 +3303,8 @@
                 </div>
                 <div class="settings-row">
                     <label data-i18n-settings="backgroundBlur">Background blur</label>
-                    <input id="bgBlur" type="range" min="0" max="80" step="2" value="60">
-                    <span id="bgBlurValue" class="setting-range-value">60px</span>
+                    <input id="bgBlur" type="range" min="0" max="80" step="2" value="50">
+                    <span id="bgBlurValue" class="setting-range-value">50px</span>
                 </div>
             </section>
 
@@ -3486,7 +3494,7 @@
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
         let settingsLang = 'en';
-        let settingsBgBlur = 60;
+        let settingsBgBlur = 50;
         let settingsBgImage = '';
         try {
             settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS, JSON.parse(localStorage.getItem(SHORTCUTS_KEY) || '{}'));
@@ -3585,12 +3593,12 @@
         function getSettingsBgBlur() {
             const slider = $('bgBlur');
             const raw = slider ? Number(slider.value) : settingsBgBlur;
-            return Math.max(0, Math.min(80, Number.isFinite(raw) ? raw : 60));
+            return Math.max(0, Math.min(80, Number.isFinite(raw) ? raw : 50));
         }
 
         function applyBackgroundState(config) {
             const image = config && config.image ? String(config.image) : '';
-            const blur = config && Number.isFinite(Number(config.blur)) ? Number(config.blur) : 60;
+            const blur = config && Number.isFinite(Number(config.blur)) ? Number(config.blur) : 50;
             settingsBgBlur = blur;
             settingsBgImage = image;
             const root = document.documentElement;
