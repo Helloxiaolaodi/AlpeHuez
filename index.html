@@ -161,6 +161,99 @@
             color: #A5B4FC;
         }
 
+        .workspace-tabs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--line);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+        .workspace-tab-list {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow-x: auto;
+            flex: 1;
+            scrollbar-width: none;
+        }
+        .workspace-tab-list::-webkit-scrollbar { display: none; }
+        .workspace-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+        .workspace-tab:hover { background: var(--bg-card); color: var(--text-main); }
+        .workspace-tab.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--line-strong);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+        .workspace-tab .ws-crown { color: #F59E0B; }
+        .workspace-tab .ws-role-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: var(--line);
+            color: var(--text-muted);
+        }
+        .workspace-add-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .workspace-add-btn:hover { background: var(--bg-card); color: var(--text-main); }
+        .workspace-tab.switching { animation: ws-switch-in 0.15s ease; }
+        @keyframes ws-switch-in {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ws-context-menu {
+            position: fixed;
+            z-index: 9999;
+            min-width: 140px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            box-shadow: var(--shadow-float);
+            padding: 4px;
+            backdrop-filter: blur(12px);
+        }
+        .ws-context-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 7px 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .ws-context-menu button:hover { background: var(--bg-card); }
+
         .app-shell {
             position: relative;
             z-index: 1;
@@ -2609,6 +2702,12 @@
     </button>
 
     <div class="app-shell">
+        <div id="workspaceTabs" class="workspace-tabs" hidden>
+            <div id="workspaceTabList" class="workspace-tab-list"></div>
+            <button id="workspaceAddBtn" class="workspace-add-btn" type="button" title="新建工作台" aria-label="新建工作台">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+        </div>
         <aside class="action-rail" aria-label="Global actions">
             <div class="rail-group">
                 <button id="btnHome" class="rail-btn rail-brand active" data-context="portal" title="Portal home" aria-label="Portal home">
@@ -4212,6 +4311,160 @@
             setTimeout(() => screen.remove(), 500);
         }
 
+        const workspaceState = {};
+        let currentWorkspaceId = null;
+        let workspaces = [];
+
+        async function loadWorkspaces() {
+            if (!isDesktop) return;
+            try {
+                const core = window.__TAURI__.core;
+                workspaces = await core.invoke('list_workspaces');
+                currentWorkspaceId = await core.invoke('get_active_workspace');
+                renderWorkspaceTabs();
+            } catch (e) {
+                console.error('loadWorkspaces failed', e);
+            }
+        }
+
+        function renderWorkspaceTabs() {
+            const bar = $('workspaceTabs');
+            const list = $('workspaceTabList');
+            if (!bar || !list) return;
+            if (!workspaces.length) { bar.hidden = true; return; }
+            bar.hidden = false;
+            list.innerHTML = workspaces.map((ws) => {
+                const isLeader = ws.role === 'leader';
+                const crown = isLeader ? '<span class="ws-crown">&#9819;</span>' : '';
+                const badge = `<span class="ws-role-badge">${escapeHtml(ws.riderType || ws.role)}</span>`;
+                const active = ws.id === currentWorkspaceId ? ' active' : '';
+                return `<button type="button" class="workspace-tab${active}" data-ws-id="${ws.id}" title="${escapeHtml(ws.name)}">${crown}${escapeHtml(ws.name)}${badge}</button>`;
+            }).join('');
+            list.querySelectorAll('.workspace-tab').forEach((tab) => {
+                tab.addEventListener('click', () => switchWorkspace(Number(tab.dataset.wsId)));
+                tab.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showWorkspaceContextMenu(Number(tab.dataset.wsId), e.clientX, e.clientY);
+                });
+            });
+        }
+
+        function saveWorkspaceState() {
+            if (currentWorkspaceId == null) return;
+            workspaceState[currentWorkspaceId] = {
+                context: document.body.dataset.context || 'portal',
+                sidebarOpen: document.body.classList.contains('sidebar-is-open'),
+                scrollTop: document.querySelector('.workspace') ? document.querySelector('.workspace').scrollTop : 0,
+                search: $('searchInput') ? $('searchInput').value : '',
+            };
+        }
+
+        function restoreWorkspaceState(id) {
+            const st = workspaceState[id] || {};
+            const context = st.context || 'portal';
+            setContext(context);
+            if (st.sidebarOpen) document.body.classList.add('sidebar-is-open');
+            else document.body.classList.remove('sidebar-is-open');
+            if (st.search && $('searchInput')) $('searchInput').value = st.search;
+        }
+
+        async function switchWorkspace(id) {
+            if (id === currentWorkspaceId || !isDesktop) return;
+            saveWorkspaceState();
+            const core = window.__TAURI__.core;
+            await core.invoke('set_active_workspace', { id });
+            currentWorkspaceId = id;
+            renderWorkspaceTabs();
+            const content = document.querySelector('.workspace');
+            if (content) {
+                content.classList.remove('switching');
+                void content.offsetWidth;
+                content.classList.add('switching');
+            }
+            await refreshWorkspaceData();
+            restoreWorkspaceState(id);
+        }
+
+        async function refreshWorkspaceData() {
+            if (typeof loadPortalLinks === 'function') await loadPortalLinks();
+            if (typeof renderPortalSidebar === 'function') renderPortalSidebar();
+        }
+
+        function showWorkspaceContextMenu(id, x, y) {
+            const ws = workspaces.find((w) => w.id === id);
+            if (!ws) return;
+            const menu = document.createElement('div');
+            menu.className = 'ws-context-menu';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            const items = [];
+            if (ws.role !== 'leader') {
+                items.push({ label: '设为角色', action: () => promptSetRole(id) });
+                items.push({ label: '删除工作台', action: () => deleteWorkspace(id) });
+            }
+            items.push({ label: '重命名', action: () => promptRename(id) });
+            items.forEach((item) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = item.label;
+                btn.addEventListener('click', () => { menu.remove(); item.action(); });
+                menu.appendChild(btn);
+            });
+            document.body.appendChild(menu);
+            const close = (e) => { if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', close); } };
+            setTimeout(() => document.addEventListener('click', close), 0);
+        }
+
+        async function promptRename(id) {
+            const ws = workspaces.find((w) => w.id === id);
+            const name = prompt('工作台名称', ws ? ws.name : '');
+            if (!name || !name.trim()) return;
+            const core = window.__TAURI__.core;
+            await core.invoke('update_workspace', { id, name: name.trim(), role: ws.role, riderType: ws.riderType, riderName: ws.riderName, riderNumber: ws.riderNumber, specialties: ws.specialties });
+            workspaces = await core.invoke('list_workspaces');
+            renderWorkspaceTabs();
+        }
+
+        async function promptSetRole(id) {
+            const ws = workspaces.find((w) => w.id === id);
+            const role = prompt('角色（domestique / leader）', ws.role);
+            if (!role || !['domestique', 'leader'].includes(role)) return;
+            const core = window.__TAURI__.core;
+            await core.invoke('update_workspace', { id, name: ws.name, role, riderType: ws.riderType, riderName: ws.riderName, riderNumber: ws.riderNumber, specialties: ws.specialties });
+            workspaces = await core.invoke('list_workspaces');
+            renderWorkspaceTabs();
+        }
+
+        async function deleteWorkspace(id) {
+            if (!confirm('确定删除该工作台？')) return;
+            const core = window.__TAURI__.core;
+            await core.invoke('delete_workspace', { id });
+            workspaces = await core.invoke('list_workspaces');
+            if (currentWorkspaceId === id) {
+                currentWorkspaceId = workspaces.length ? workspaces[0].id : null;
+                if (currentWorkspaceId != null) await core.invoke('set_active_workspace', { id: currentWorkspaceId });
+            }
+            renderWorkspaceTabs();
+            if (currentWorkspaceId != null) await refreshWorkspaceData();
+        }
+
+        function initWorkspaceTabs() {
+            const addBtn = $('workspaceAddBtn');
+            if (addBtn) addBtn.addEventListener('click', () => {
+                const name = prompt('工作台名称', '新副将');
+                if (!name || !name.trim()) return;
+                const role = 'domestique';
+                const riderType = prompt('Rider Type（GC Contender / Rouleur / Climber / Puncheur / Lead-out Man / Sprinter）', 'Rouleur') || 'Rouleur';
+                const riderName = prompt('车手名', name.trim()) || name.trim();
+                const riderNumber = Number(prompt('车手号', String(workspaces.length + 1))) || 0;
+                window.__TAURI__.core.invoke('create_workspace', { name: name.trim(), role, riderType, riderName, riderNumber }).then(async () => {
+                    workspaces = await window.__TAURI__.core.invoke('list_workspaces');
+                    renderWorkspaceTabs();
+                });
+            });
+            loadWorkspaces();
+        }
+
         const ENGINES = {
             google: { label: 'Google', url: 'https://www.google.com/search?q=' },
             bing: { label: 'Bing', url: 'https://www.bing.com/search?q=' },
@@ -4809,6 +5062,7 @@
             restoreTabs();
             initKomStatus();
             loadAbout();
+            initWorkspaceTabs();
             fetch('links.json')
                 .then((response) => response.json())
                 .then((data) => {
