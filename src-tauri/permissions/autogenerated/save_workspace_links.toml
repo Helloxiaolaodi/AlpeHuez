@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-save-workspace-links"
+description = "Enables the save_workspace_links command without any pre-configured scope."
+commands.allow = ["save_workspace_links"]
+
+[[permission]]
+identifier = "deny-save-workspace-links"
+description = "Denies the save_workspace_links command without any pre-configured scope."
+commands.deny = ["save_workspace_links"]

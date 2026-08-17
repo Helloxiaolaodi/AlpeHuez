@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-list-workspaces"
+description = "Enables the list_workspaces command without any pre-configured scope."
+commands.allow = ["list_workspaces"]
+
+[[permission]]
+identifier = "deny-list-workspaces"
+description = "Denies the list_workspaces command without any pre-configured scope."
+commands.deny = ["list_workspaces"]
