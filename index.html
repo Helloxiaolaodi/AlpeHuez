@@ -184,6 +184,7 @@
             position: relative;
             z-index: 20;
         }
+        .workspace-tabs[hidden] { display: none; }
         .workspace-tab-list {
             display: flex;
             align-items: center;
@@ -265,6 +266,7 @@
             box-shadow: var(--shadow-float);
             animation: vm-drawer-in 0.2s ease;
         }
+        .velometer-drawer[hidden] { display: none; }
         @keyframes vm-drawer-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .vm-drawer-head { display: flex; align-items: center; justify-content: space-between; }
         .vm-rings { display: flex; justify-content: space-around; }
@@ -889,6 +891,7 @@
             transition: opacity 0.3s ease;
             pointer-events: none;
         }
+        .page-loading-overlay[hidden] { display: none; }
         .page-loading-overlay.hide { opacity: 0; }
         .chainring { width: 48px; height: 48px; animation: chainring-spin 1.1s linear infinite; }
         @keyframes chainring-spin { to { transform: rotate(360deg); } }
@@ -4604,7 +4607,6 @@
         function initPageLoadingOverlay() {
             const overlay = $('pageLoadingOverlay');
             if (!overlay || !isDesktop) return;
-            const core = window.__TAURI__.core;
             let timer = null;
             function show() {
                 if (timer) clearTimeout(timer);
@@ -4615,8 +4617,8 @@
                 overlay.classList.add('hide');
                 timer = setTimeout(() => { overlay.hidden = true; }, 350);
             }
-            core.listen('browser-load-started', show);
-            core.listen('browser-load-finished', hide);
+            listen('browser-load-started', show);
+            listen('browser-load-finished', hide);
         }
 
         const ENGINES = {
@@ -5208,8 +5210,7 @@
 
         function initVelometer() {
             if (!isDesktop) return;
-            const core = window.__TAURI__.core;
-            core.listen('velometer-update', (e) => {
+            listen('velometer-update', (e) => {
                 const d = e.payload;
                 const cpuPct = Math.round(d.cpu);
                 const memPct = Math.round((d.memUsed / d.memTotal) * 100);
