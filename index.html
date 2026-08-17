@@ -2192,6 +2192,85 @@
             background: var(--line);
         }
 
+        .usage-heatmap {
+            max-width: 1240px;
+            margin: 0 auto 30px;
+            padding: 16px 18px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+
+        .usage-heatmap[hidden] {
+            display: none;
+        }
+
+        .usage-heatmap-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .usage-heatmap-head h3 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 13px;
+            letter-spacing: -0.01em;
+        }
+
+        .usage-heatmap-head p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .usage-grid {
+            display: grid;
+            grid-template-rows: repeat(7, 10px);
+            grid-auto-flow: column;
+            grid-auto-columns: 10px;
+            gap: 3px;
+        }
+
+        .usage-cell {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: rgba(148, 163, 184, 0.18);
+        }
+
+        .usage-cell.l1 { background: rgba(177, 227, 255, 0.35); }
+        .usage-cell.l2 { background: rgba(0, 135, 235, 0.55); }
+        .usage-cell.l3 { background: rgba(0, 135, 235, 0.8); }
+        .usage-cell.l4 { background: #0087EB; }
+
+        html[data-theme="space"] .usage-cell { background: rgba(255, 255, 255, 0.08); }
+        html[data-theme="space"] .usage-cell.l1 { background: rgba(129, 140, 248, 0.35); }
+        html[data-theme="space"] .usage-cell.l2 { background: rgba(129, 140, 248, 0.6); }
+        html[data-theme="space"] .usage-cell.l3 { background: rgba(129, 140, 248, 0.85); }
+        html[data-theme="space"] .usage-cell.l4 { background: #818CF8; }
+
+        .usage-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .usage-legend .usage-cell {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+
         .sub-heading {
             display: flex;
             align-items: center;
@@ -3401,6 +3480,8 @@
                         </div>
 
                         <div id="content"></div>
+
+                        <div id="usageHeatmap" class="usage-heatmap" hidden></div>
                     </div>
                 </section>
 
@@ -4095,7 +4176,61 @@
                 stats._lastOpenDate = today;
                 stats._interactions = (stats._interactions || 0) + 1;
                 saveStats(stats);
+                recordUsage();
             }
+        }
+
+        function recordUsage() {
+            const today = todayKey();
+            let map = {};
+            try { map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'); } catch (error) { map = {}; }
+            map[today] = (Number(map[today]) || 0) + 1;
+            localStorage.setItem('alpehuez_usage', JSON.stringify(map));
+        }
+
+        function usageCount(key) {
+            try {
+                const map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}');
+                return Number(map[key]) || 0;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        function renderUsageHeatmap() {
+            const el = $('usageHeatmap');
+            if (!el) return;
+            const DAYS = 20 * 7;
+            const today = new Date();
+            let map = {};
+            try { map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'); } catch (error) { map = {}; }
+            const activeDays = Object.keys(map).filter((key) => Number(map[key]) > 0).length;
+            const totalHits = Object.keys(map).reduce((sum, key) => sum + Number(map[key]), 0);
+            const cells = [];
+            for (let i = DAYS - 1; i >= 0; i--) {
+                const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+                const key = d.toISOString().slice(0, 10);
+                const count = usageCount(key);
+                const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : count <= 6 ? 3 : 4;
+                cells.push(`<div class="usage-cell l${level}" title="${key} · ${count}"></div>`);
+            }
+            el.innerHTML = `
+                <div class="usage-heatmap-head">
+                    <h3>Focus Heatmap</h3>
+                    <p>${activeDays} active days · ${totalHits} recorded interactions</p>
+                </div>
+                <div class="usage-grid">${cells.join('')}</div>
+                <div class="usage-legend">
+                    Less
+                    <span class="usage-cell l0"></span>
+                    <span class="usage-cell l1"></span>
+                    <span class="usage-cell l2"></span>
+                    <span class="usage-cell l3"></span>
+                    <span class="usage-cell l4"></span>
+                    More
+                </div>
+            `;
+            el.hidden = false;
         }
 
         function totalClicks(stats) {
@@ -4128,6 +4263,7 @@
             stats[item.url] = (stats[item.url] || 0) + 1;
             stats._interactions = (stats._interactions || 0) + 1;
             saveStats(stats);
+            recordUsage();
         }
 
         function generateLetterAvatar(imgElement, title) {
@@ -4549,6 +4685,7 @@
 
             content.innerHTML = renderedSections || '<div class="empty-state">No matching links</div>';
             syncPortalCategory();
+            renderUsageHeatmap();
         }
 
         function renderBadges() {
