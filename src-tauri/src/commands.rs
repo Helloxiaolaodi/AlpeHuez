@@ -1203,6 +1203,11 @@ pub async fn delete_workspace(app: tauri::AppHandle, id: i64) -> Result<(), Stri
 #[tauri::command]
 pub async fn get_workspace_links(app: tauri::AppHandle, id: i64) -> Result<serde_json::Value, String> {
     let conn = db_conn(&app)?;
+    let ws = db::get_workspace(&conn, id)?;
+    if ws.role == "leader" {
+        let content = std::fs::read_to_string(crate::repo_root().join("links.json")).map_err(|e| e.to_string())?;
+        return serde_json::from_str(&content).map_err(|e| e.to_string());
+    }
     db::get_workspace_links(&conn, id)
 }
 

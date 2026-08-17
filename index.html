@@ -5063,19 +5063,30 @@
             initKomStatus();
             loadAbout();
             initWorkspaceTabs();
-            fetch('links.json')
-                .then((response) => response.json())
-                .then((data) => {
-                    allItems = (data.icons || []).flatMap((group) => group.children || []);
-                    allTree = buildTree(data.icons || []);
-                    renderPortalSidebar();
-                    renderContent();
-                    dismissLoadingScreen();
-                })
-                .catch((error) => {
-                    console.error('Failed to load links.json:', error);
-                    dismissLoadingScreen();
-                });
+            loadPortalLinks();
+        }
+
+        async function loadPortalLinks() {
+            try {
+                let data = null;
+                if (isDesktop && currentWorkspaceId != null) {
+                    const ws = workspaces.find((w) => w.id === currentWorkspaceId);
+                    if (ws && ws.role !== 'leader') {
+                        data = await window.__TAURI__.core.invoke('get_workspace_links', { id: currentWorkspaceId });
+                    }
+                }
+                if (!data) {
+                    data = await (await fetch('links.json')).json();
+                }
+                allItems = (data.icons || []).flatMap((group) => group.children || []);
+                allTree = buildTree(data.icons || []);
+                renderPortalSidebar();
+                renderContent();
+                dismissLoadingScreen();
+            } catch (error) {
+                console.error('Failed to load links:', error);
+                dismissLoadingScreen();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', init);
