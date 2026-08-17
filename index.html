@@ -2538,6 +2538,182 @@
             border-color: rgba(255, 255, 255, 0.08);
         }
 
+        /* PCS 风格车手面板：左侧车手卡 + 右侧能力彩色长条 */
+        .rider-panel {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 14px;
+            max-width: 1100px;
+            margin: 0 auto 22px;
+        }
+
+        .rider-card {
+            position: relative;
+            padding: 20px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .rider-card::after {
+            content: "";
+            position: absolute;
+            right: -46px;
+            top: -46px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(177, 227, 255, 0.4) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        html[data-theme="space"] .rider-card::after {
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.25) 0%, transparent 70%);
+        }
+
+        .rider-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .rider-jersey {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            flex: 0 0 56px;
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 15px;
+            line-height: 1.1;
+            background: linear-gradient(145deg, #F59E0B, #DC8208);
+            border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+            box-shadow: 0 14px 24px -12px rgba(245, 158, 11, 0.6);
+        }
+
+        .rider-jersey small {
+            font-size: 8px;
+            font-weight: 600;
+            opacity: 0.85;
+            letter-spacing: 0.06em;
+        }
+
+        .rider-id h3 {
+            margin: 0;
+            font-size: 19px;
+            letter-spacing: -0.02em;
+        }
+
+        .rider-id p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .rider-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .rider-meta div {
+            padding: 9px 11px;
+            background: rgba(177, 227, 255, 0.24);
+            border: 1px solid rgba(0, 135, 235, 0.1);
+            border-radius: 8px;
+        }
+
+        html[data-theme="space"] .rider-meta div {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .rider-meta label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .rider-meta strong {
+            display: block;
+            margin-top: 3px;
+            font-size: 13px;
+        }
+
+        .ability-card {
+            padding: 20px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .ability-card h2 {
+            margin: 0 0 4px;
+            font-size: 13px;
+            letter-spacing: -0.01em;
+        }
+
+        .ability-card > p {
+            margin: 0 0 16px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .ability-row {
+            margin-bottom: 16px;
+        }
+
+        .ability-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .ability-row-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .ability-row-head span {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ability-row-head strong {
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ability-track {
+            height: 10px;
+            background: rgba(177, 227, 255, 0.22);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        html[data-theme="space"] .ability-track {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ability-bar {
+            height: 100%;
+            border-radius: inherit;
+            transition: width 0.5s ease;
+        }
+
+        .ability-bar.gc { background: linear-gradient(90deg, #FDE68A, #F59E0B); }
+        .ability-bar.climber { background: linear-gradient(90deg, #FCA5A5, #DC2626); }
+        .ability-bar.sprint { background: linear-gradient(90deg, #86EFAC, #16A34A); }
+        .ability-bar.tt { background: linear-gradient(90deg, #93C5FD, #2563EB); }
+
         .about-meta label {
             display: block;
             color: var(--text-muted);
@@ -3202,6 +3378,7 @@
 
                 <section id="view-about" class="view">
                     <div class="view-scroll">
+                        <div id="riderPanel" class="rider-panel"></div>
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
@@ -4658,8 +4835,57 @@
             }
         }
 
+        function renderRiderPanel() {
+            const panel = $('riderPanel');
+            if (!panel) return;
+            const leader = workspaces.find((w) => w.role === 'leader') || workspaces.find((w) => w.id === currentWorkspaceId) || workspaces[0];
+            const rider = leader || { name: 'AlpeHuez', riderType: 'GC Contender', riderName: 'AlpeHuez', riderNumber: 1, role: 'leader', specialties: {} };
+            const specs = Object.assign({ gc: 0, climber: 0, sprint: 0, tt: 0 }, rider.specialties || {});
+            const roles = { leader: 'Team Leader', domestique: 'Domestique' };
+            const abilityRows = [
+                { key: 'gc', label: 'GC', sub: 'General Classification', tone: 'gc' },
+                { key: 'climber', label: 'Climber', sub: 'Mountain / KOM', tone: 'climber' },
+                { key: 'sprint', label: 'Sprint', sub: 'Flat-out finale', tone: 'sprint' },
+                { key: 'tt', label: 'Time Trial', sub: 'Against the clock', tone: 'tt' }
+            ];
+            const value = (k) => Math.max(0, Math.min(100, Number(specs[k]) || 0));
+            panel.innerHTML = `
+                <div class="rider-card">
+                    <div class="rider-head">
+                        <div class="rider-jersey">${escapeHtml(String(rider.riderNumber || rider.id || 1))}<small>ALP</small></div>
+                        <div class="rider-id">
+                            <h3>${escapeHtml(rider.riderName || rider.name || 'AlpeHuez')}</h3>
+                            <p>${escapeHtml(rider.riderType || 'Rider')} · ${escapeHtml(rider.name || 'AlpeHuez Workspace')}</p>
+                        </div>
+                    </div>
+                    <div class="rider-meta">
+                        <div><label>Role</label><strong>${escapeHtml(roles[rider.role] || rider.role || 'Leader')}</strong></div>
+                        <div><label>Number</label><strong>${escapeHtml(String(rider.riderNumber || rider.id || 1))}</strong></div>
+                        <div><label>Rider Type</label><strong>${escapeHtml(rider.riderType || '—')}</strong></div>
+                        <div><label>Team</label><strong>${escapeHtml(rider.name || '—')}</strong></div>
+                    </div>
+                </div>
+                <div class="ability-card">
+                    <h2>Rider Abilities</h2>
+                    <p>Power profile of the team leader, tuned in the Developer Panel workspaces tab.</p>
+                    ${abilityRows.map((row) => `
+                        <div class="ability-row">
+                            <div class="ability-row-head">
+                                <span>${row.label} · ${row.sub}</span>
+                                <strong>${value(row.key)}</strong>
+                            </div>
+                            <div class="ability-track">
+                                <div class="ability-bar ${row.tone}" style="width:${value(row.key)}%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         async function loadAbout() {
             const fallbackVersion = '0.3.0';
+            renderRiderPanel();
             if (!isDesktop) return;
             try {
                 const version = await invoke('get_app_version');
@@ -4771,6 +4997,7 @@
         async function refreshWorkspaceData() {
             if (typeof loadPortalLinks === 'function') await loadPortalLinks();
             if (typeof renderPortalSidebar === 'function') renderPortalSidebar();
+            renderRiderPanel();
         }
 
         function showWorkspaceContextMenu(id, x, y) {
