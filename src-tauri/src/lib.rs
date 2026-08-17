@@ -1,6 +1,7 @@
 mod commands;
 mod db;
 mod preview;
+mod status;
 mod velometer;
 
 use std::path::{Path, PathBuf};
@@ -65,6 +66,7 @@ pub fn run() {
         .register_uri_scheme_protocol("nav", preview::handler)
         .setup(|app| {
             velometer::spawn(app.handle().clone());
+            status::spawn(app.handle().clone());
             Ok(())
         })
         .run(tauri::generate_context!())

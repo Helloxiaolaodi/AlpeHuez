@@ -16,6 +16,7 @@ sysinfo = "0.30"
 base64 = "0.22"
 percent-encoding = "2"
 rusqlite = { version = "0.31", features = ["bundled"] }
+ureq = "2"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52"
