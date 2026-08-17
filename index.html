@@ -15,13 +15,14 @@
             --brand-light: #B1E3FF;
             --brand-warm: #FFE0AE;
             --bg-body: #FFFFFF;
-            --bg-card: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --bg-card: rgba(255, 255, 255, 0.6);
+            --text-main: #0F172A;
+            --text-muted: #475569;
             --line: rgba(15, 23, 42, 0.08);
-            --line-strong: rgba(15, 23, 42, 0.13);
-            --panel: rgba(255, 255, 255, 0.78);
-            --panel-solid: rgba(255, 255, 255, 0.78);
+            --line-strong: rgba(15, 23, 42, 0.14);
+            --panel: rgba(255, 255, 255, 0.55);
+            --panel-solid: rgba(255, 255, 255, 0.7);
+            --accent-warm: #FFE0AE;
             --shadow: 0 4px 20px rgba(0, 135, 235, 0.06);
             --shadow-float: 0 18px 48px -18px rgba(15, 23, 42, 0.22), 0 4px 14px rgba(15, 23, 42, 0.06);
             --success: #0087EB;
@@ -68,6 +69,17 @@
 
         html[data-theme="space"] body {
             background-color: #0F172A;
+        }
+
+        html[data-theme="space"],
+        html[data-theme="space"] body {
+            background-color: #0B1120 !important;
+            color: #E2E8F0;
+        }
+        html[data-theme="space"] .workspace-tab.active,
+        html[data-theme="space"] .workspace-tab:hover {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
         }
 
         html[data-theme="space"] body::before {
@@ -201,6 +213,11 @@
             color: var(--text-main);
             border-color: var(--line-strong);
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+        html:not([data-theme="space"]) .workspace-tab.active,
+        html:not([data-theme="space"]) .workspace-tab:hover {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
         }
         .workspace-tab .ws-crown { color: #F59E0B; }
         .workspace-tab .ws-role-badge {
@@ -2974,7 +2991,7 @@
     <div id="settingsModal" class="settings-backdrop" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
         <div class="settings-panel">
             <div class="settings-header">
-                <h2 id="settingsTitle" data-i18n-settings="settingsTitle">Interface Settings</h2>
+                <h2 id="settingsTitle" data-i18n-settings="settingsTitle">Settings</h2>
                 <button id="settingsClose" class="settings-close" type="button" aria-label="Close settings">×</button>
             </div>
 
@@ -3027,7 +3044,7 @@
             </section>
 
             <section class="settings-section">
-                <h3 data-i18n-settings="supportAuthor">Support the author</h3>
+                <h3 data-i18n-settings="supportAuthor">Support</h3>
                 <p>侠之大者，为开源而生。若觉得 AlpeHuez 曾照亮你的工作瞬间，不妨温一壶清茶，支持一二。</p>
                 <div class="support-actions">
                     <button id="koFiBtn" type="button" data-i18n-settings="koFi">Ko-fi (overseas)</button>
@@ -3106,7 +3123,7 @@
         };
         const SETTINGS_STRINGS = {
             en: {
-                settingsTitle: 'Interface Settings',
+                settingsTitle: 'Settings',
                 background: 'Background',
                 backgroundImage: 'Background image',
                 reset: 'Reset',
@@ -3120,7 +3137,7 @@
                 feedback: 'Feedback',
                 feedbackPlaceholder: 'Leave feedback for AlpeHuez',
                 saveFeedback: 'Save feedback',
-                supportAuthor: 'Support the author',
+                supportAuthor: 'Support',
                 koFi: 'Ko-fi (overseas)',
                 wechatQr: 'WeChat QR (China)',
                 language: 'Language',
