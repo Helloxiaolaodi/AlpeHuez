@@ -45,6 +45,10 @@
         <span data-i18n="deploy">部署</span>
         <span class="badge-dot" id="deployBadge"></span>
       </button>
+      <button class="tab-btn" data-tab="workspaces" data-i18n-title="workspaces">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
+        <span data-i18n="workspaces">工作台</span>
+      </button>
       <div class="sidebar-foot">
         <button class="tab-btn" data-tab="launch" id="launchBtn" data-i18n-title="launchMode" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4"/><path d="M12 19v4"/><path d="M4.22 4.22l2.83 2.83"/><path d="M16.95 16.95l2.83 2.83"/><path d="M1 12h4"/><path d="M19 12h4"/><path d="M4.22 19.78l2.83-2.83"/><path d="M16.95 7.05l2.83-2.83"/></svg>
@@ -216,6 +220,20 @@
             <button class="btn btn-ghost" id="btnRefreshBrowsers" data-i18n="refresh">刷新</button>
           </div>
         </div>
+      </section>
+
+      <!-- ============ 工作台 ============ -->
+      <section class="tab-panel" id="tab-workspaces">
+        <div class="panel-head">
+          <div>
+            <h1 data-i18n="workspaces">工作台</h1>
+            <p class="muted" data-i18n="workspacesDesc">管理车队工作台：增删改工作台、调整车手能力值（specialties）</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" class="btn btn-primary" id="wsAddBtn" data-i18n="newWorkspace">+ 新建工作台</button>
+          </div>
+        </div>
+        <div id="wsList" class="ws-list"></div>
       </section>
     </main>
   </div>

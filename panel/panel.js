@@ -54,6 +54,7 @@ const LOCALES = {
     myfilesDesc: '管理文件浏览器中的文件夹与文件，保存后自动写入 data.json',
     folders: '文件夹', new: '新建', files: '文件', newFile: '新建文件', noFiles: '该文件夹还没有文件',
     deployDesc: '提交并推送到 GitHub，Cloudflare Pages 会自动发布',
+    workspaces: '工作台', workspacesDesc: '管理车队工作台：增删改工作台、调整车手能力值（specialties）', newWorkspace: '新建工作台',
     repoStatus: '仓库状态', branch: '分支', lastCommit: '最近提交',
     devTimeline: '开发时间轴', timelineEmpty: '暂无提交记录', timelineError: '无法读取提交历史：',
     sysTitle: '系统资源', cpu: 'CPU', mem: '内存', disk: '磁盘',
@@ -112,6 +113,7 @@ const LOCALES = {
     myfilesDesc: 'Manage folders & files in the file explorer. Saved to data.json',
     folders: 'Folders', new: 'New', files: 'Files', newFile: 'New File', noFiles: 'No files in this folder yet',
     deployDesc: 'Commit & push to GitHub. Cloudflare Pages auto-deploys',
+    workspaces: 'Workspaces', workspacesDesc: 'Manage team workspaces: add/edit/delete workspaces and adjust rider specialties', newWorkspace: 'New Workspace',
     repoStatus: 'Repo Status', branch: 'Branch', lastCommit: 'Last Commit',
     devTimeline: 'Dev Timeline', timelineEmpty: 'No commits yet', timelineError: 'Failed to read commit history: ',
     sysTitle: 'System Resources', cpu: 'CPU', mem: 'Memory', disk: 'Disk',
@@ -767,6 +769,84 @@ async function applyLaunchMode(mode) {
   } catch (e) { /* 浏览器模式忽略 */ }
 }
 
+/* ---------- 工作台管理 ---------- */
+async function renderWorkspaces() {
+  const list = document.getElementById('wsList');
+  if (!list) return;
+  const { invoke } = window.__TAURI__.core;
+  const ws = await invoke('list_workspaces');
+  list.innerHTML = ws.map((w) => `
+    <div class="ws-card" data-id="${w.id}">
+      <div class="ws-card-head">
+        <strong>${escapeHtml(w.name)}</strong>
+        <span class="ws-role">${w.role === 'leader' ? '主将' : '副将'}</span>
+      </div>
+      <div class="ws-card-meta">${escapeHtml(w.riderType)} · 车手号 ${w.riderNumber}</div>
+      <div class="ws-specialties">
+        ${['gc', 'climber', 'sprint', 'tt'].map((k) => `
+          <label>${k.toUpperCase()}
+            <input type="range" min="0" max="100" value="${(w.specialties && w.specialties[k]) || 0}" data-ws="${w.id}" data-key="${k}">
+            <span class="ws-val">${(w.specialties && w.specialties[k]) || 0}</span>
+          </label>`).join('')}
+      </div>
+      <div class="ws-card-actions">
+        <button type="button" class="btn" data-edit="${w.id}">编辑</button>
+        ${w.role !== 'leader' ? `<button type="button" class="btn btn-danger" data-del="${w.id}">删除</button>` : ''}
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('input[type="range"]').forEach((input) => {
+    input.addEventListener('input', () => {
+      input.nextElementSibling.textContent = input.value;
+    });
+    input.addEventListener('change', async () => {
+      const id = Number(input.dataset.ws);
+      const key = input.dataset.key;
+      const w = ws.find((x) => x.id === id);
+      if (!w) return;
+      const specs = Object.assign({}, w.specialties, { [key]: Number(input.value) });
+      await invoke('update_workspace', { id, name: w.name, role: w.role, riderType: w.riderType, riderName: w.riderName, riderNumber: w.riderNumber, specialties: specs });
+    });
+  });
+  list.querySelectorAll('[data-del]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('确定删除该工作台？')) return;
+      await invoke('delete_workspace', { id: Number(btn.dataset.del) });
+      renderWorkspaces();
+    });
+  });
+  list.querySelectorAll('[data-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => editWorkspace(Number(btn.dataset.edit)));
+  });
+}
+
+async function editWorkspace(id) {
+  const { invoke } = window.__TAURI__.core;
+  const ws = await invoke('list_workspaces');
+  const w = ws.find((x) => x.id === id);
+  if (!w) return;
+  const name = prompt('工作台名称', w.name);
+  if (!name) return;
+  const riderType = prompt('Rider Type', w.riderType) || w.riderType;
+  const riderName = prompt('车手名', w.riderName) || w.riderName;
+  const riderNumber = Number(prompt('车手号', String(w.riderNumber))) || 0;
+  await invoke('update_workspace', { id, name, role: w.role, riderType, riderName, riderNumber, specialties: w.specialties });
+  renderWorkspaces();
+}
+
+function initWorkspacesTab() {
+  const addBtn = document.getElementById('wsAddBtn');
+  if (addBtn) addBtn.addEventListener('click', async () => {
+    const { invoke } = window.__TAURI__.core;
+    const name = prompt('工作台名称', '新副将');
+    if (!name) return;
+    const riderType = prompt('Rider Type', 'Rouleur') || 'Rouleur';
+    const riderName = prompt('车手名', name) || name;
+    const riderNumber = Number(prompt('车手号', '6')) || 0;
+    await invoke('create_workspace', { name, role: 'domestique', riderType, riderName, riderNumber });
+    renderWorkspaces();
+  });
+}
+
 /* ---------- 事件绑定 ---------- */
 function activatePanelTab(tab, notifyParent = false) {
   const btn = Array.from(document.querySelectorAll('.tab-btn')).find((b) => b.dataset.tab === tab);
@@ -777,6 +857,7 @@ function activatePanelTab(tab, notifyParent = false) {
   if (btn) btn.classList.add('active');
   panel.classList.add('active');
   if (tab === 'deploy') { loadGitStatus(); loadGitTimeline(); loadSysStats(); }
+  if (tab === 'workspaces') { renderWorkspaces(); }
   if (notifyParent && embedded && window.parent && window.parent !== window) {
     window.parent.postMessage({ type: 'alpehuez-dev-tab', tab }, '*');
   }
@@ -1175,6 +1256,7 @@ async function init() {
   await safe(renderTodos);
   await safe(() => Promise.all([loadLinks(), loadMyfiles()]));
   await safe(loadGitStatus);
+  await safe(initWorkspacesTab);
   setInterval(() => {
     if (document.getElementById('tab-deploy').classList.contains('active')) loadGitStatus();
   }, 10000);

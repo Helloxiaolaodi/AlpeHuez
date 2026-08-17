@@ -716,3 +716,16 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .sw-item-cat { font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 1px 8px; border-radius: 999px; font-weight: 500; }
 .sw-item-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sw-empty { padding: 34px 10px; text-align: center; color: var(--text-3); font-size: 13px; }
+
+/* ---------- 工作台管理 ---------- */
+.ws-list { display: flex; flex-direction: column; gap: 12px; }
+.ws-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--glass-bg-solid); box-shadow: var(--shadow-sm); }
+.ws-card-head { display: flex; align-items: center; justify-content: space-between; }
+.ws-card-head strong { font-size: 14px; font-weight: 600; }
+.ws-role { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: #fff; }
+.ws-card-meta { color: var(--text-2); font-size: 12px; margin: 4px 0 10px; }
+.ws-specialties { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ws-specialties label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.ws-specialties input[type="range"] { flex: 1; accent-color: var(--accent); }
+.ws-val { min-width: 24px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.ws-card-actions { display: flex; gap: 8px; margin-top: 10px; }
