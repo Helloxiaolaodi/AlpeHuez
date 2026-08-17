@@ -271,6 +271,39 @@
             animation: vm-drawer-in 0.2s ease;
         }
         .velometer-drawer[hidden] { display: none; }
+        .peek-panel {
+            position: absolute;
+            right: 0;
+            top: 56px;
+            width: 400px;
+            z-index: 35;
+            pointer-events: none;
+        }
+        .peek-panel[hidden] { display: none; }
+        .peek-head {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 8px 0 14px;
+            background: var(--panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-left: 1px solid var(--line-strong);
+            border-bottom: 1px solid var(--line-strong);
+            border-radius: 12px 0 0 0;
+            pointer-events: auto;
+        }
+        .peek-title {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
         @keyframes vm-drawer-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .vm-drawer-head { display: flex; align-items: center; justify-content: space-between; }
         .vm-rings { display: flex; justify-content: space-around; }
@@ -1296,6 +1329,7 @@
         }
 
         .workspace {
+            position: relative;
             flex: 1;
             min-width: 0;
             min-height: 0;
@@ -3023,6 +3057,12 @@
         </div>
 
         <main class="workspace">
+            <div id="peekPanel" class="peek-panel" hidden>
+                <div class="peek-head">
+                    <span id="peekTitle" class="peek-title">Peek</span>
+                    <button id="peekCloseBtn" class="icon-btn" type="button" title="Close peek" aria-label="Close peek">&times;</button>
+                </div>
+            </div>
             <header class="topbar">
                 <div class="topbar-left">
                     <span id="viewTitle">Portal</span>
@@ -3910,9 +3950,49 @@
             }
         }
 
-        async function openLink(item) {
+        let peekLabel = null;
+
+        async function openPeek(url, title) {
+            if (!isDesktop) {
+                window.open(url, '_blank');
+                return;
+            }
+            if (peekLabel) {
+                try { await invoke('close_internal_page', { label: peekLabel }); } catch (error) {}
+                peekLabel = null;
+            }
+            const bounds = getStageBounds();
+            const peekWidth = 400;
+            const headHeight = 36;
+            const info = await invoke('open_internal_page', {
+                url,
+                title,
+                x: bounds.x + bounds.width - peekWidth,
+                y: bounds.y + headHeight,
+                width: peekWidth,
+                height: Math.max(0, bounds.height - headHeight),
+                peek: true
+            });
+            peekLabel = info.label;
+            $('peekTitle').textContent = info.title || title;
+            $('peekPanel').hidden = false;
+        }
+
+        async function closePeek() {
+            if (peekLabel) {
+                try { await invoke('close_internal_page', { label: peekLabel }); } catch (error) {}
+                peekLabel = null;
+            }
+            $('peekPanel').hidden = true;
+        }
+
+        async function openLink(item, event) {
             trackClick(item);
-            await openUrl(item.url, item.title);
+            if (item.peek || (event && (event.ctrlKey || event.metaKey))) {
+                await openPeek(item.url, item.title);
+            } else {
+                await openUrl(item.url, item.title);
+            }
             renderContent();
             renderBadges();
         }
@@ -5105,11 +5185,14 @@
                 if (currentView === 'home') syncPortalCategory();
             }, { passive: true });
 
+            const peekCloseBtn = $('peekCloseBtn');
+            if (peekCloseBtn) peekCloseBtn.addEventListener('click', closePeek);
+
             $('content').addEventListener('click', (event) => {
                 const card = event.target.closest('.nav-card');
                 if (!card) return;
                 const item = allItems.find((candidate) => candidate.url === card.dataset.url);
-                if (item) openLink(item);
+                if (item) openLink(item, event);
             });
 
             $('browserTabs').addEventListener('click', async (event) => {
@@ -5259,6 +5342,10 @@
                 });
                 listen('browser-tab-updated', (event) => {
                     const info = event.payload || {};
+                    if (info.label === peekLabel) {
+                        $('peekTitle').textContent = info.title || info.url;
+                        return;
+                    }
                     const isNew = !browserTabs.has(info.label);
                     browserTabs.set(info.label, { label: info.label, title: info.title || info.url, url: info.url || '' });
                     renderBrowserTabs();
@@ -5266,6 +5353,10 @@
                 });
                 listen('browser-tab-closed', (event) => {
                     const label = typeof event.payload === 'string' ? event.payload : (event.payload && event.payload.label);
+                    if (label === peekLabel) {
+                        peekLabel = null;
+                        $('peekPanel').hidden = true;
+                    }
                     if (label && browserTabs.has(label)) {
                         browserTabs.delete(label);
                         renderBrowserTabs();

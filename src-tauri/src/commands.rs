@@ -693,6 +693,7 @@ fn route_external_url(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
             None,
             None,
             None,
+            None,
         )
         .map(|_| ());
     }
@@ -905,8 +906,9 @@ pub async fn open_internal_page(
     y: Option<f64>,
     width: Option<f64>,
     height: Option<f64>,
+    peek: Option<bool>,
 ) -> Result<InternalPageInfo, String> {
-    open_internal_page_impl(app, url, title, x, y, width, height)
+    open_internal_page_impl(app, url, title, x, y, width, height, peek)
 }
 
 fn open_internal_page_impl(
@@ -917,6 +919,7 @@ fn open_internal_page_impl(
     y: Option<f64>,
     width: Option<f64>,
     height: Option<f64>,
+    peek: Option<bool>,
 ) -> Result<InternalPageInfo, String> {
     let parsed = url
         .parse::<tauri::Url>()
@@ -929,7 +932,8 @@ fn open_internal_page_impl(
         .chars()
         .take(12)
         .collect();
-    let label = format!("browser-{hash}");
+    let prefix = if peek.unwrap_or(false) { "peek-" } else { "browser-" };
+    let label = format!("{prefix}{hash}");
     let fallback_title = parsed
         .host_str()
         .map(|h| h.to_string())
