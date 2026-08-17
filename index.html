@@ -225,13 +225,6 @@
             backdrop-filter: blur(12px);
         }
         .workspace-tab .ws-crown { color: #F59E0B; }
-        .workspace-tab .ws-role-badge {
-            font-size: 10px;
-            padding: 1px 6px;
-            border-radius: 999px;
-            background: var(--line);
-            color: var(--text-muted);
-        }
         .velometer-pill {
             display: inline-flex;
             align-items: center;
@@ -4671,9 +4664,8 @@
             list.innerHTML = workspaces.map((ws) => {
                 const isLeader = ws.role === 'leader';
                 const crown = isLeader ? '<span class="ws-crown">&#9819;</span>' : '';
-                const badge = `<span class="ws-role-badge">${escapeHtml(ws.riderType || ws.role)}</span>`;
                 const active = ws.id === currentWorkspaceId ? ' active' : '';
-                return `<button type="button" class="workspace-tab${active}" data-ws-id="${ws.id}" title="${escapeHtml(ws.name)}">${crown}${escapeHtml(ws.name)}${badge}</button>`;
+                return `<button type="button" class="workspace-tab${active}" data-ws-id="${ws.id}" title="${escapeHtml(ws.name)}">${crown}${escapeHtml(ws.riderType || ws.role)}</button>`;
             }).join('');
             list.querySelectorAll('.workspace-tab').forEach((tab) => {
                 tab.addEventListener('click', () => switchWorkspace(Number(tab.dataset.wsId)));
