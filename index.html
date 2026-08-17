@@ -38,17 +38,17 @@
             --space-bg: url('1109770.jpg');
             --space-bg-blur: 50px;
             --bg-body: #0F172A;
-            --bg-card: rgba(30, 41, 59, 0.62);
+            --bg-card: rgba(30, 41, 59, 0.5);
             --text-main: #F1F5F9;
-            --text-muted: #94A3B8;
+            --text-muted: #A8B6C9;
             --line: rgba(255, 255, 255, 0.08);
             --line-strong: rgba(255, 255, 255, 0.14);
-            --panel: rgba(15, 23, 42, 0.56);
-            --panel-solid: rgba(15, 23, 42, 0.58);
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            --shadow-float: 0 18px 48px -18px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.18);
-            --glass-bg: rgba(30, 41, 59, 0.62);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --panel: rgba(15, 23, 42, 0.42);
+            --panel-solid: rgba(15, 23, 42, 0.46);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            --shadow-float: 0 18px 48px -18px rgba(0, 0, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.2);
+            --glass-bg: rgba(30, 41, 59, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.12);
         }
 
         * {
@@ -586,10 +586,45 @@
         .badge-tile,
         .about-hero,
         .about-card,
+        .rider-card,
+        .ability-card,
+        .velometer-drawer,
         .myfiles-item,
-        .menu-panel {
+        .menu-panel,
+        .ws-context-menu {
             backdrop-filter: blur(24px) saturate(150%);
             -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+
+        /* 深色玻璃：顶部与左侧细高光描边，勾勒物理边缘，消除扁平黑洞感 */
+        html[data-theme="space"] .nav-card,
+        html[data-theme="space"] .kom-card,
+        html[data-theme="space"] .stat-tile,
+        html[data-theme="space"] .badge-tile,
+        html[data-theme="space"] .about-hero,
+        html[data-theme="space"] .about-card,
+        html[data-theme="space"] .rider-card,
+        html[data-theme="space"] .ability-card,
+        html[data-theme="space"] .myfiles-item,
+        html[data-theme="space"] .menu-panel {
+            border-top-color: rgba(255, 255, 255, 0.12);
+            border-left-color: rgba(255, 255, 255, 0.07);
+            border-right-color: rgba(255, 255, 255, 0.03);
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+        }
+
+        /* 品牌色状态点：保持高饱和警示感，深色下叠加柔光呼吸 */
+        html[data-theme="space"] .nav-card-status.green {
+            box-shadow: 0 0 7px rgba(0, 135, 235, 0.85);
+        }
+        html[data-theme="space"] .nav-card-status.red {
+            box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
+        }
+        html[data-theme="space"] .service-dot.online {
+            box-shadow: 0 0 6px rgba(0, 135, 235, 0.8);
+        }
+        html[data-theme="space"] .service-dot.offline {
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
         }
 
         body[data-context] .tab-sidebar {

@@ -153,8 +153,16 @@ const LOCALES = {
 let lang = 'zh';
 try { lang = localStorage.getItem('panel-lang') || 'zh'; } catch (e) {}
 let theme = 'dark';
-try { theme = localStorage.getItem('panel-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
-if (embedded) theme = 'light';
+try {
+  const storedPanel = localStorage.getItem('panel-theme');
+  if (storedPanel) {
+    theme = storedPanel;
+  } else if (localStorage.getItem('nav_theme') === 'space') {
+    theme = 'dark';
+  } else {
+    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+} catch (e) {}
 let statusDirty = false;
 
 function t(key, ...args) {
