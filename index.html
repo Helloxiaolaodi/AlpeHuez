@@ -187,8 +187,51 @@
             flex-shrink: 0;
             position: relative;
             z-index: 20;
+            height: 41px;
+            overflow: hidden;
+            transition: height 0.18s ease, opacity 0.18s ease, padding 0.18s ease;
         }
         .workspace-tabs[hidden] { display: none; }
+        body:not(.workspace-tabs-open) #workspaceTabs:not(:hover) {
+            height: 6px;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-bottom-color: transparent;
+        }
+        body:not(.workspace-tabs-open) #workspaceTabs:not(:hover) > * {
+            pointer-events: none;
+        }
+        .workspace-tabs-handle {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 7px;
+            padding: 0;
+            color: #FFFFFF;
+            background: var(--brand-primary);
+            border: 0;
+            border-radius: 0 0 8px 8px;
+            opacity: 0.55;
+            box-shadow: 0 2px 8px rgba(0, 135, 235, 0.18);
+            cursor: pointer;
+            transition: height 0.16s ease, opacity 0.16s ease;
+        }
+        .workspace-tabs-handle:hover {
+            height: 12px;
+            opacity: 1;
+        }
+        body.workspace-tabs-open .workspace-tabs-handle,
+        body.is-fullscreen .workspace-tabs-handle {
+            opacity: 0;
+            pointer-events: none;
+        }
         .workspace-tab-list {
             display: flex;
             align-items: center;
@@ -2908,6 +2951,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </button>
 
+    <button id="workspaceTabsHandle" class="workspace-tabs-handle" type="button" title="显示工作台标签" aria-label="显示工作台标签"></button>
+
     <div class="app-shell">
         <div id="workspaceTabs" class="workspace-tabs" hidden>
             <div id="workspaceTabList" class="workspace-tab-list"></div>
@@ -3353,6 +3398,7 @@
         let layoutRafId = null;
         let pageLoadTimer = null;
         let sidebarHoverTimer = null;
+        let workspaceTabsHoverTimer = null;
         const browserTabs = new Map();
 
         const $ = (id) => document.getElementById(id);
@@ -5065,6 +5111,45 @@
                 contextSidebar.addEventListener('mouseleave', schedulePortalSidebarClose);
                 contextSidebar.addEventListener('transitionend', (event) => {
                     if (event.propertyName === 'flex-basis' || event.propertyName === 'width') {
+                        requestLayoutInternalPages();
+                    }
+                });
+            }
+
+            const workspaceTabsBar = $('workspaceTabs');
+            const workspaceTabsHandle = $('workspaceTabsHandle');
+
+            const openWorkspaceTabs = () => {
+                if (workspaceTabsHoverTimer) {
+                    clearTimeout(workspaceTabsHoverTimer);
+                    workspaceTabsHoverTimer = null;
+                }
+                if (!document.body.classList.contains('workspace-tabs-open')) {
+                    document.body.classList.add('workspace-tabs-open');
+                    requestLayoutInternalPages();
+                }
+            };
+
+            const scheduleWorkspaceTabsClose = () => {
+                if (workspaceTabsHoverTimer) clearTimeout(workspaceTabsHoverTimer);
+                workspaceTabsHoverTimer = setTimeout(() => {
+                    workspaceTabsHoverTimer = null;
+                    if (document.body.classList.contains('workspace-tabs-open')) {
+                        document.body.classList.remove('workspace-tabs-open');
+                        requestLayoutInternalPages();
+                    }
+                }, 220);
+            };
+
+            if (workspaceTabsHandle) {
+                workspaceTabsHandle.addEventListener('mouseenter', openWorkspaceTabs);
+                workspaceTabsHandle.addEventListener('click', openWorkspaceTabs);
+            }
+            if (workspaceTabsBar) {
+                workspaceTabsBar.addEventListener('mouseenter', openWorkspaceTabs);
+                workspaceTabsBar.addEventListener('mouseleave', scheduleWorkspaceTabsClose);
+                workspaceTabsBar.addEventListener('transitionend', (event) => {
+                    if (event.propertyName === 'height') {
                         requestLayoutInternalPages();
                     }
                 });
