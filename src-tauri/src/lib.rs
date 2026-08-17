@@ -1,4 +1,5 @@
 mod commands;
+mod db;
 mod preview;
 
 use std::path::{Path, PathBuf};
