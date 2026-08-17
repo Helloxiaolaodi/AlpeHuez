@@ -1005,6 +1005,48 @@
             background: rgba(177, 227, 255, 0.34);
         }
 
+        .file-item {
+            position: relative;
+        }
+        .file-actions {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .file-item:hover .file-actions { opacity: 1; }
+        .file-action {
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .file-action:hover { color: var(--text-main); }
+        .portal-category-wrap {
+            position: relative;
+        }
+        .portal-category-actions {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .portal-category-wrap:hover .portal-category-actions { opacity: 1; }
+
         .file-folder.dragging,
         .file-link.dragging {
             opacity: 0.45;
@@ -3995,10 +4037,17 @@
                 const itemCount = section.groups.reduce((total, group) => total + group.items.length, 0);
                 const activeClass = activeCategory === String(index) ? ' active' : '';
                 return `
-                    <button type="button" class="portal-category-link${activeClass}" data-target="main-group-${index}">
-                        <span class="portal-category-name">${escapeHtml(section.mainTitle)}</span>
-                        <span class="file-count">${itemCount}</span>
-                    </button>
+                    <div class="portal-category-wrap">
+                        <button type="button" class="portal-category-link${activeClass}" data-target="main-group-${index}">
+                            <span class="portal-category-name">${escapeHtml(section.mainTitle)}</span>
+                            <span class="file-count">${itemCount}</span>
+                        </button>
+                        <span class="portal-category-actions">
+                            <button type="button" class="file-action" data-action="copy" data-copy="${escapeHtml(section.mainTitle)}" title="Copy name" aria-label="Copy name">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </span>
+                    </div>
                 `;
             }).join('') || '<div class="context-empty">No categories yet</div>';
 
@@ -4294,10 +4343,20 @@
                     const relative = encodeURI(file.url || fileName);
                     const fileUrl = `${base}${encodeURIComponent(folder.slug)}/${relative}`;
                     return `
-                        <button type="button" class="file-link" draggable="true" data-url="${escapeHtml(fileUrl)}" data-title="${escapeHtml(fileName)}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-                            <span>${escapeHtml(fileName)}</span>
-                        </button>
+                        <div class="file-item">
+                            <button type="button" class="file-link" draggable="true" data-url="${escapeHtml(fileUrl)}" data-title="${escapeHtml(fileName)}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                                <span>${escapeHtml(fileName)}</span>
+                            </button>
+                            <span class="file-actions">
+                                <button type="button" class="file-action" data-action="copy" data-url="${escapeHtml(fileUrl)}" title="Copy path" aria-label="Copy path">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                </button>
+                                <button type="button" class="file-action" data-action="open" data-url="${escapeHtml(fileUrl)}" title="Open external" aria-label="Open external">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+                                </button>
+                            </span>
+                        </div>
                     `;
                 }).join('');
                 return `
@@ -4941,6 +5000,22 @@
 
             document.querySelectorAll('.dev-tool-btn').forEach((button) => {
                 button.addEventListener('click', () => activateDevTab(button.dataset.devTab));
+            });
+
+            document.addEventListener('click', (event) => {
+                const action = event.target.closest('.file-action');
+                if (!action) return;
+                event.stopPropagation();
+                const url = action.dataset.url;
+                const copyText = action.dataset.copy;
+                if (action.dataset.action === 'copy') {
+                    const text = copyText || url || '';
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).catch(() => {});
+                    }
+                } else if (action.dataset.action === 'open' && url) {
+                    openExternal(url);
+                }
             });
 
             $('fileTree').addEventListener('click', async (event) => {
