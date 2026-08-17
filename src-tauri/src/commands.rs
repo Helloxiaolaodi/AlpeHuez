@@ -18,7 +18,17 @@ use tauri::{
 #[cfg(windows)]
 use std::os::windows::process::ExitStatusExt;
 
+use crate::db;
 use crate::repo_root;
+
+fn db_conn(app: &tauri::AppHandle) -> Result<rusqlite::Connection, String> {
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let conn = db::open(&dir.join("alpehuez.db"))?;
+    db::init(&conn)?;
+    db::seed(&conn)?;
+    Ok(conn)
+}
 
 const ADBLOCK_JS: &str = r#"(function () {
   var SELECTORS = [
@@ -1129,6 +1139,89 @@ pub fn list_internal_pages(app: tauri::AppHandle) -> Vec<InternalPageInfo> {
             InternalPageInfo { label, url, title }
         })
         .collect()
+}
+
+#[tauri::command]
+pub async fn list_workspaces(app: tauri::AppHandle) -> Result<Vec<db::Workspace>, String> {
+    let conn = db_conn(&app)?;
+    db::list_workspaces(&conn)
+}
+
+#[tauri::command]
+pub async fn get_active_workspace(app: tauri::AppHandle) -> Result<i64, String> {
+    let conn = db_conn(&app)?;
+    match db::get_config(&conn, "active_workspace")? {
+        serde_json::Value::Number(n) => n.as_i64().ok_or_else(|| "active_workspace 非整数".into()),
+        _ => {
+            let first = db::list_workspaces(&conn)?.into_iter().next().ok_or_else(|| "无工作台".to_string())?;
+            Ok(first.id)
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn set_active_workspace(app: tauri::AppHandle, id: i64) -> Result<(), String> {
+    let conn = db_conn(&app)?;
+    db::get_workspace(&conn, id)?; // 校验存在
+    db::set_config(&conn, "active_workspace", &serde_json::json!(id))
+}
+
+#[tauri::command]
+pub async fn create_workspace(
+    app: tauri::AppHandle,
+    name: String,
+    role: String,
+    rider_type: String,
+    rider_name: String,
+    rider_number: i64,
+) -> Result<db::Workspace, String> {
+    let conn = db_conn(&app)?;
+    db::create_workspace(&conn, &name, &role, &rider_type, &rider_name, rider_number)
+}
+
+#[tauri::command]
+pub async fn update_workspace(
+    app: tauri::AppHandle,
+    id: i64,
+    name: String,
+    role: String,
+    rider_type: String,
+    rider_name: String,
+    rider_number: i64,
+    specialties: serde_json::Value,
+) -> Result<(), String> {
+    let conn = db_conn(&app)?;
+    db::update_workspace(&conn, id, &name, &role, &rider_type, &rider_name, rider_number, &specialties)
+}
+
+#[tauri::command]
+pub async fn delete_workspace(app: tauri::AppHandle, id: i64) -> Result<(), String> {
+    let conn = db_conn(&app)?;
+    db::delete_workspace(&conn, id)
+}
+
+#[tauri::command]
+pub async fn get_workspace_links(app: tauri::AppHandle, id: i64) -> Result<serde_json::Value, String> {
+    let conn = db_conn(&app)?;
+    db::get_workspace_links(&conn, id)
+}
+
+#[tauri::command]
+pub async fn save_workspace_links(app: tauri::AppHandle, id: i64, data: serde_json::Value) -> Result<(), String> {
+    let conn = db_conn(&app)?;
+    db::save_workspace_links(&conn, id, &data)
+}
+
+#[tauri::command]
+pub async fn get_app_config(app: tauri::AppHandle, key: String) -> Result<serde_json::Value, String> {
+    let conn = db_conn(&app)?;
+    db::get_config(&conn, &key)
+}
+
+#[tauri::command]
+pub async fn set_app_config(app: tauri::AppHandle, key: String, value: serde_json::Value) -> Result<(), String> {
+    let conn = db_conn(&app)?;
+    db::set_config(&conn, &key, &value)
 }
 
 #[cfg(test)]

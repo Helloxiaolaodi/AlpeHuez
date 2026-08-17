@@ -37,6 +37,16 @@
     "allow-get-wechat-qr",
     "allow-list-browsers",
     "allow-get-browser-config",
-    "allow-set-browser-config"
+    "allow-set-browser-config",
+    "allow-list-workspaces",
+    "allow-get-active-workspace",
+    "allow-set-active-workspace",
+    "allow-create-workspace",
+    "allow-update-workspace",
+    "allow-delete-workspace",
+    "allow-get-workspace-links",
+    "allow-save-workspace-links",
+    "allow-get-app-config",
+    "allow-set-app-config"
   ]
 }

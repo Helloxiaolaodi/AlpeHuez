@@ -36,6 +36,16 @@
     "allow-close-internal-page",
     "allow-go-back-internal-page",
     "allow-get-app-version",
-    "allow-list-internal-pages"
+    "allow-list-internal-pages",
+    "allow-list-workspaces",
+    "allow-get-active-workspace",
+    "allow-set-active-workspace",
+    "allow-create-workspace",
+    "allow-update-workspace",
+    "allow-delete-workspace",
+    "allow-get-workspace-links",
+    "allow-save-workspace-links",
+    "allow-get-app-config",
+    "allow-set-app-config"
   ]
 }

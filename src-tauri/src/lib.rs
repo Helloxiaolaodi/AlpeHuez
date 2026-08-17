@@ -50,6 +50,16 @@ pub fn run() {
             commands::go_back_internal_page,
             commands::get_app_version,
             commands::list_internal_pages,
+            commands::list_workspaces,
+            commands::get_active_workspace,
+            commands::set_active_workspace,
+            commands::create_workspace,
+            commands::update_workspace,
+            commands::delete_workspace,
+            commands::get_workspace_links,
+            commands::save_workspace_links,
+            commands::get_app_config,
+            commands::set_app_config,
         ])
         .register_uri_scheme_protocol("nav", preview::handler)
         .run(tauri::generate_context!())
