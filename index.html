@@ -33,21 +33,22 @@
         }
 
         html[data-theme="space"] {
+            --brand-primary: #6366F1;
             --brand-light: rgba(129, 140, 248, 0.22);
             --brand-warm: rgba(255, 224, 174, 0.16);
             --space-bg: url('1109770.jpg');
             --space-bg-blur: 50px;
             --bg-body: #0F172A;
             --bg-card: rgba(30, 41, 59, 0.5);
-            --text-main: #F1F5F9;
+            --text-main: #F8FAFC;
             --text-muted: #A8B6C9;
             --line: rgba(255, 255, 255, 0.08);
             --line-strong: rgba(255, 255, 255, 0.14);
-            --panel: rgba(15, 23, 42, 0.42);
-            --panel-solid: rgba(15, 23, 42, 0.46);
+            --panel: rgba(15, 23, 42, 0.36);
+            --panel-solid: rgba(15, 23, 42, 0.40);
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06);
             --shadow-float: 0 18px 48px -18px rgba(0, 0, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.2);
-            --glass-bg: rgba(30, 41, 59, 0.5);
+            --glass-bg: rgba(30, 41, 59, 0.42);
             --glass-border: rgba(255, 255, 255, 0.12);
         }
 
@@ -297,6 +298,7 @@
         .vm-spark { width: 40px; height: 14px; }
         .vm-spark polyline { fill: none; stroke: #0087EB; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
         .vm-spark.warn polyline { stroke: #F97316; }
+        html[data-theme="space"] .vm-spark polyline { stroke: #6366F1; }
         .velometer-drawer {
             position: absolute;
             top: 0;
@@ -1670,9 +1672,16 @@
             height: 100%;
             transform: translate3d(-50%, 0, 0) scaleX(0);
             transform-origin: center;
-            background: linear-gradient(90deg, transparent, var(--brand-primary) 50%, transparent);
+            background: linear-gradient(90deg, transparent 0%, var(--brand-primary) 50%, transparent 100%);
             opacity: 0;
-            transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.2s ease;
+            transition: transform 0.18s ease, opacity 0.22s ease;
+        }
+
+        /* 加载条从中央向两端展开：scaleX 以元素中心为原点 */
+        @keyframes load-center-in {
+            0%   { transform: translate3d(-50%, 0, 0) scaleX(0.03); opacity: 0.85; }
+            70%  { transform: translate3d(-50%, 0, 0) scaleX(0.9);  opacity: 1; }
+            100% { transform: translate3d(-50%, 0, 0) scaleX(1);    opacity: 1; }
         }
 
         body.browsing .page-load-bar.loading,
@@ -1690,6 +1699,7 @@
         body.browsing .page-load-bar.loading .page-load-center,
         body.is-fullscreen .page-load-bar.loading .page-load-center {
             opacity: 1;
+            animation: load-center-in 1.3s ease forwards;
         }
 
         body.browsing .page-load-bar.done,
@@ -1729,6 +1739,10 @@
             font-weight: 800;
             letter-spacing: 0.16em;
             text-transform: uppercase;
+        }
+
+        html[data-theme="space"] .eyebrow {
+            color: #818CF8;
         }
 
         .hero-copy h1 {
@@ -1903,8 +1917,8 @@
         }
 
         html[data-theme="space"] #searchInput:focus {
-            border-color: rgba(129, 140, 248, 0.5);
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.14);
+            border-color: rgba(99, 102, 241, 0.55);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
         }
 
         .engine-btn {
@@ -2056,6 +2070,10 @@
             border-color: rgba(0, 135, 235, 0.34);
             box-shadow: 0 16px 32px -14px rgba(0, 135, 235, 0.2), var(--shadow);
         }
+        html[data-theme="space"] .nav-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 16px 32px -14px rgba(99, 102, 241, 0.18), var(--shadow);
+        }
         .nav-card.alpehuez-widget {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -2132,6 +2150,12 @@
             object-fit: contain;
             padding: 6px;
             background: #FFFFFF;
+        }
+
+        html[data-theme="space"] .card-icon {
+            color: #818CF8;
+            background: rgba(129, 140, 248, 0.16);
+            border-color: rgba(129, 140, 248, 0.2);
         }
 
         .card-copy {
@@ -2928,7 +2952,7 @@
         .ability-bar {
             height: 100%;
             border-radius: inherit;
-            transition: width 0.5s ease;
+            transition: width 1s ease-in-out;
         }
 
         .ability-bar.gc { background: linear-gradient(90deg, #FDE68A, #F59E0B); }
@@ -3025,8 +3049,8 @@
         html[data-theme="space"] #view-badges,
         html[data-theme="space"] #view-about,
         html[data-theme="space"] #view-dev {
-            --panel: rgba(15, 23, 42, 0.56);
-            --panel-solid: rgba(15, 23, 42, 0.58);
+            --panel: rgba(15, 23, 42, 0.48);
+            --panel-solid: rgba(15, 23, 42, 0.50);
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             --shadow-float: 0 18px 48px -18px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.18);
             background: transparent;
@@ -3034,7 +3058,7 @@
 
         html[data-theme="space"] #view-dev .dev-frame,
         html[data-theme="space"] #view-dev .dev-frame iframe {
-            background: #FFFFFF;
+            background: #0F172A;
         }
 
         .settings-backdrop {
@@ -4514,6 +4538,7 @@
                 stats._interactions = (stats._interactions || 0) + 1;
                 saveStats(stats);
                 recordUsage();
+                addAbilityXp('gc', ABILITY_XP.gcDaily);
             }
         }
 
@@ -4651,6 +4676,130 @@
             saveStats(stats);
             recordUsage();
             trackAction(`Opened ${item.title || item.url}`);
+            addAbilityXp('gc', ABILITY_XP.gcClick);
+            recordSprintClick();
+        }
+
+        /* ---------- 车手能力遥测：四根能力条由真实使用行为驱动 ---------- */
+        const ABILITY_XP = {
+            gcDaily: 4, gcClick: 0.3, gcTodo: 0.5,
+            climberMinute: 0.05, climberDeepMinutes: 45, climberDeepBonus: 15,
+            sprintBurstThreshold: 10, sprintBurstXp: 1.5, sprintTodo: 1,
+            ttMinute: 0.1
+        };
+        const ABILITY_CURVES = { gc: { a: 40, b: 0.05 }, climber: { a: 40, b: 0.05 }, sprint: { a: 40, b: 0.05 }, tt: { a: 40, b: 0.05 } };
+        const ABILITY_DECAY_GRACE_DAYS = 2;
+        const ABILITY_DECAY_RATE = 0.92;
+        const ABILITIES_KEY = 'alpehuez_abilities';
+
+        function emptyAbilities() {
+            return { xp: { gc: 0, climber: 0, sprint: 0, tt: 0 }, lastActivity: todayKey(), lastDecay: todayKey() };
+        }
+        function getAbilities() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(ABILITIES_KEY) || 'null');
+                if (parsed && parsed.xp) return parsed;
+            } catch (error) {}
+            return emptyAbilities();
+        }
+        function saveAbilities(abilities) {
+            localStorage.setItem(ABILITIES_KEY, JSON.stringify(abilities));
+        }
+        function addAbilityXp(key, amount) {
+            if (!(amount > 0)) return;
+            const abilities = getAbilities();
+            abilities.xp[key] = (abilities.xp[key] || 0) + amount;
+            abilities.lastActivity = todayKey();
+            saveAbilities(abilities);
+            updateAbilityBars();
+        }
+        function scoreFor(key) {
+            const abilities = getAbilities();
+            const curve = ABILITY_CURVES[key];
+            const x = abilities.xp[key] || 0;
+            return Math.max(0, Math.min(100, Math.floor(curve.a * Math.log10(1 + curve.b * x))));
+        }
+        function applyAbilityDecay() {
+            const abilities = getAbilities();
+            const today = todayKey();
+            const lastActivity = abilities.lastActivity || today;
+            const lastDecay = abilities.lastDecay || lastActivity;
+            if (lastActivity >= today) return;
+            const cursor = new Date(lastDecay + 'T00:00:00');
+            cursor.setDate(cursor.getDate() + 1);
+            const lastActivityDate = new Date(lastActivity + 'T00:00:00');
+            const todayDate = new Date(today + 'T00:00:00');
+            let changed = false;
+            while (cursor <= todayDate) {
+                const daysSinceActivity = Math.round((cursor - lastActivityDate) / 86400000);
+                if (daysSinceActivity > ABILITY_DECAY_GRACE_DAYS) {
+                    for (const k of ['gc', 'climber', 'sprint', 'tt']) {
+                        abilities.xp[k] = Math.max(0, (abilities.xp[k] || 0) * ABILITY_DECAY_RATE);
+                    }
+                    changed = true;
+                }
+                cursor.setDate(cursor.getDate() + 1);
+            }
+            if (changed) {
+                abilities.lastDecay = today;
+                saveAbilities(abilities);
+            }
+        }
+        function updateAbilityBars() {
+            const panel = $('riderPanel');
+            if (!panel || panel.hidden) return;
+            ['gc', 'climber', 'sprint', 'tt'].forEach((key, index) => {
+                const bar = panel.querySelector(`.ability-bar.${key}`);
+                const strong = panel.querySelectorAll('.ability-row-head strong')[index];
+                const score = scoreFor(key);
+                if (bar) bar.style.width = `${score}%`;
+                if (strong) strong.textContent = String(score);
+            });
+        }
+        function refreshAbilities() {
+            applyAbilityDecay();
+            updateAbilityBars();
+        }
+
+        /* 爬坡：前台专注分钟 + 45 分钟深度会话奖励 */
+        let focusSessionStart = null;
+        function trackFocusChange(active) {
+            const now = Date.now();
+            if (active) {
+                focusSessionStart = now;
+            } else if (focusSessionStart) {
+                const minutes = (now - focusSessionStart) / 60000;
+                focusSessionStart = null;
+                if (minutes >= 1) addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
+                if (minutes >= ABILITY_XP.climberDeepMinutes) addAbilityXp('climber', ABILITY_XP.climberDeepBonus);
+            }
+        }
+        document.addEventListener('visibilitychange', () => trackFocusChange(!document.hidden));
+        window.addEventListener('focus', () => trackFocusChange(true));
+        window.addEventListener('blur', () => trackFocusChange(false));
+
+        /* 冲刺：10 分钟窗口内点击爆发 + 面板待办完成 */
+        let sprintBurst = [];
+        function recordSprintClick() {
+            const now = Date.now();
+            sprintBurst = sprintBurst.filter((timestamp) => now - timestamp < 600000);
+            sprintBurst.push(now);
+            if (sprintBurst.length >= ABILITY_XP.sprintBurstThreshold) {
+                sprintBurst = [];
+                addAbilityXp('sprint', ABILITY_XP.sprintBurstXp);
+            }
+        }
+        let lastTodoScanTs = Date.now() - 30 * 60000;
+        function scanTodoCompletions() {
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
+            const cutoff = lastTodoScanTs;
+            lastTodoScanTs = Date.now();
+            let count = 0;
+            log.forEach((entry) => {
+                if (entry && entry.t > cutoff && /^Completed todo:/i.test(String(entry.a))) count++;
+            });
+            if (count) addAbilityXp('sprint', count * ABILITY_XP.sprintTodo);
         }
 
         function generateLetterAvatar(imgElement, title) {
@@ -4898,8 +5047,11 @@
             }
         }
 
+        let ttSessionStart = null;
+
         async function enterFullscreen() {
             if (!activeBrowserLabel || isFullscreen()) return;
+            ttSessionStart = Date.now();
             document.body.classList.add('is-fullscreen');
             updateFullscreenIcon();
             await Promise.all([requestLayoutInternalPages(), setNativeFullscreen(true)]);
@@ -4908,6 +5060,11 @@
 
         async function exitFullscreen() {
             if (!isFullscreen()) return;
+            if (ttSessionStart) {
+                const minutes = (Date.now() - ttSessionStart) / 60000;
+                ttSessionStart = null;
+                if (minutes >= 0.5) addAbilityXp('tt', minutes * ABILITY_XP.ttMinute);
+            }
             document.body.classList.remove('is-fullscreen');
             updateFullscreenIcon();
             await Promise.all([requestLayoutInternalPages(), setNativeFullscreen(false)]);
@@ -5453,9 +5610,9 @@
         function renderRiderPanel() {
             const panel = $('riderPanel');
             if (!panel) return;
+            applyAbilityDecay();
             const leader = workspaces.find((w) => w.role === 'leader') || workspaces.find((w) => w.id === currentWorkspaceId) || workspaces[0];
             const rider = leader || { name: 'AlpeHuez', riderType: 'GC Contender', riderName: 'AlpeHuez', riderNumber: 1, role: 'leader', specialties: {} };
-            const specs = Object.assign({ gc: 0, climber: 0, sprint: 0, tt: 0 }, rider.specialties || {});
             const roles = { leader: 'Team Leader', domestique: 'Domestique' };
             const abilityRows = [
                 { key: 'gc', label: 'GC', sub: 'General Classification', tone: 'gc' },
@@ -5463,7 +5620,7 @@
                 { key: 'sprint', label: 'Sprint', sub: 'Flat-out finale', tone: 'sprint' },
                 { key: 'tt', label: 'Time Trial', sub: 'Against the clock', tone: 'tt' }
             ];
-            const value = (k) => Math.max(0, Math.min(100, Number(specs[k]) || 0));
+            const value = (k) => scoreFor(k);
             panel.innerHTML = `
                 <div class="rider-card">
                     <div class="rider-head">
@@ -5482,7 +5639,7 @@
                 </div>
                 <div class="ability-card">
                     <h2>Rider Abilities</h2>
-                    <p>Power profile of the team leader, tuned in the Developer Panel workspaces tab.</p>
+                    <p>Live power profile computed from your AlpeHuez usage.</p>
                     ${abilityRows.map((row) => `
                         <div class="ability-row">
                             <div class="ability-row-head">
@@ -6442,6 +6599,8 @@
         async function init() {
             setTimeout(dismissLoadingScreen, 3000);
             recordDailyOpen();
+            refreshAbilities();
+            setInterval(() => { refreshAbilities(); scanTodoCompletions(); }, 60000);
             updateThemeUI(document.documentElement.dataset.theme);
             restorePortalTagsState();
             initSettings();

@@ -75,11 +75,11 @@ pub fn run() {
             commands::get_app_config,
             commands::set_app_config,
         ])
-        // Alt+Space 全局召唤：隐藏时显示并聚焦，可见时隐藏。
+        // Alt+A 全局召唤：隐藏时显示并聚焦，可见时隐藏。
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_shortcuts(["alt+space"])
-                .expect("invalid global shortcut alt+space")
+                .with_shortcuts(["alt+a"])
+                .expect("invalid global shortcut alt+a")
                 .with_handler(|app, _shortcut, event| {
                     if event.state == ShortcutState::Pressed {
                         if let Some(window) = app.get_webview_window("main") {

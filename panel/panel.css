@@ -261,6 +261,7 @@ body.dev-embedded .content {
 }
 body.dev-embedded .bg-layer { background-image: none; }
 body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
+[data-theme="dark"] body.dev-embedded::before { background: rgba(7, 11, 18, 0.55); }
 
 /* ---------- Panels ---------- */
 .tab-panel { display: none; max-width: 960px; margin: 0 auto; }
