@@ -28,6 +28,8 @@
             --success: #0087EB;
             --danger: #EF4444;
             --warning: #F59E0B;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(15, 23, 42, 0.08);
         }
 
         html[data-theme="space"] {
@@ -45,6 +47,8 @@
             --panel-solid: rgba(15, 23, 42, 0.58);
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             --shadow-float: 0 18px 48px -18px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.18);
+            --glass-bg: rgba(30, 41, 59, 0.62);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         * {
@@ -235,7 +239,7 @@
             padding: 4px 12px;
             border-radius: 999px;
             border: 1px solid var(--line);
-            background: var(--bg-card);
+            background: linear-gradient(135deg, rgba(177, 227, 255, 0.45), rgba(255, 224, 174, 0.45));
             backdrop-filter: blur(12px);
             color: var(--text-main);
             font-size: 11px;
@@ -1868,7 +1872,7 @@
 
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 14px;
             max-width: 1240px;
             margin: 0 auto;
@@ -1896,6 +1900,17 @@
             transform: translateY(-2px);
             border-color: rgba(0, 135, 235, 0.34);
             box-shadow: 0 16px 32px -14px rgba(0, 135, 235, 0.2), var(--shadow);
+        }
+        .nav-card.alpehuez-widget {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+        }
+        .nav-card.alpehuez-widget:hover {
+            border-color: #FFE0AE;
+            box-shadow: 0 16px 32px -14px rgba(255, 224, 174, 0.35), var(--shadow);
         }
 
         .nav-card-status {
@@ -4076,6 +4091,9 @@
                             : `<span class="card-icon">${escapeHtml(item.title.charAt(0).toUpperCase())}</span>`;
                         const statusClass = item.isVpnRequired ? 'red' : 'green';
                         const statusTitle = item.isVpnRequired ? 'VPN Required' : 'Direct Access (China)';
+                        const spanStyle = Array.isArray(item.span)
+                            ? `style="grid-column: span ${Math.max(1, item.span[0] | 0)}; grid-row: span ${Math.max(1, item.span[1] | 0)};"`
+                            : '';
                         const serviceDot = item.monitor
                             ? `<span class="service-dot ${serviceStatuses.get(item.url) === true ? 'online' : (serviceStatuses.get(item.url) === false ? 'offline' : 'unknown')}" data-url="${escapeHtml(item.url)}" title="Service status"></span>`
                             : '';
@@ -4087,7 +4105,7 @@
                             }
                         })();
                         return `
-                            <button type="button" class="nav-card" data-url="${escapeHtml(item.url)}" data-title="${escapeHtml(item.title)}" title="Open ${escapeHtml(item.title)} inside AlpeHuez">
+                            <button type="button" class="nav-card alpehuez-widget" data-url="${escapeHtml(item.url)}" data-title="${escapeHtml(item.title)}" title="Open ${escapeHtml(item.title)} inside AlpeHuez" ${spanStyle}>
                                 <span class="nav-card-status ${statusClass}" title="${statusTitle}"></span>
                                 ${serviceDot}
                                 ${iconHtml}
