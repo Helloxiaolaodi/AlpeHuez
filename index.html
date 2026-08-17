@@ -4764,6 +4764,24 @@
 
         async function openLink(item, event) {
             trackClick(item);
+            const url = item.url;
+            const isHttp = /^https?:\/\//i.test(url);
+            if (!isHttp && (url.includes('://') || url.startsWith('mailto:') || url.startsWith('tel:'))) {
+                if (isDesktop) {
+                    try {
+                        await invoke('open_url_scheme', { url });
+                        renderContent();
+                        renderBadges();
+                        return;
+                    } catch (error) {
+                        console.error('open_url_scheme failed:', error);
+                    }
+                }
+                window.open(url, '_blank');
+                renderContent();
+                renderBadges();
+                return;
+            }
             if (item.peek || (event && (event.ctrlKey || event.metaKey))) {
                 await openPeek(item.url, item.title);
             } else {

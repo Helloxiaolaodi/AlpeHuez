@@ -53,6 +53,7 @@ pub fn run() {
             commands::get_browser_config,
             commands::set_browser_config,
             commands::open_url,
+            commands::open_url_scheme,
             commands::open_dev_panel,
             commands::open_internal_page,
             commands::activate_internal_page,

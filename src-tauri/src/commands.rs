@@ -665,6 +665,38 @@ pub async fn open_url(app: tauri::AppHandle, url: String) -> Result<(), String> 
     route_external_url(&app, &url)
 }
 
+/// 在操作系统默认应用中打开自定义 URL Scheme（appflowy://、obsidian://、mailto: 等）。
+/// http/https/file 请走 open_url，此处直接拒绝避免绕过内部 WebView 策略。
+#[tauri::command]
+pub async fn open_url_scheme(url: String) -> Result<(), String> {
+    let trimmed = url.trim();
+    if trimmed.is_empty() {
+        return Err("empty url".into());
+    }
+    if trimmed.starts_with("http://") || trimmed.starts_with("https://") || trimmed.starts_with("file://") {
+        return Err("http(s)/file 请使用 open_url".into());
+    }
+    if !trimmed.contains("://") && !trimmed.starts_with("mailto:") && !trimmed.starts_with("tel:") {
+        return Err("不是可识别的 URL scheme".into());
+    }
+    let quoted = format!("\"{}\"", trimmed);
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("cmd")
+            .args(["/C", "start", "", &quoted])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        std::process::Command::new("open")
+            .arg(trimmed)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 fn browser_mode(app: &tauri::AppHandle) -> Result<String, String> {
     let file = config_file(app)?;
     if !file.exists() {
