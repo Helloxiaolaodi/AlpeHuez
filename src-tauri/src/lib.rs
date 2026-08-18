@@ -139,11 +139,17 @@ pub fn run() {
                 }
             }
             // 启动后把焦点交给主 webview，避免首次使用 F11 前必须点击窗口内容（仅桌面）。
+            // 若窗口启动时不可见（如残留 WebView2 进程干扰初始化），强制 show() 兜底。
             #[cfg(not(target_os = "android"))]
             {
                 let handle = app.handle().clone();
                 std::thread::spawn(move || {
-                    std::thread::sleep(std::time::Duration::from_millis(300));
+                    std::thread::sleep(std::time::Duration::from_millis(500));
+                    if let Some(win) = handle.get_webview_window("main") {
+                        if !win.is_visible().unwrap_or(false) {
+                            let _ = win.show();
+                        }
+                    }
                     if let Some(webview) = handle.get_webview("main") {
                         let _ = webview.set_focus();
                     }
