@@ -49,6 +49,8 @@
     "allow-get-workspace-links",
     "allow-save-workspace-links",
     "allow-get-app-config",
-    "allow-set-app-config"
+    "allow-set-app-config",
+    "allow-hf-backup",
+    "allow-hf-test-connection"
   ]
 }

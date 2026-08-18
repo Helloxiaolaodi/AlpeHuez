@@ -36,6 +36,16 @@ pub fn run() {
             if let tauri::WindowEvent::Focused(true) = event {
                 let _ = window.set_focus();
             }
+            #[cfg(not(target_os = "android"))]
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let app = window.app_handle().clone();
+                let win = window.clone();
+                std::thread::spawn(move || {
+                    commands::auto_backup_on_close(&app);
+                    let _ = win.destroy();
+                });
+            }
         })
         .invoke_handler(tauri::generate_handler![
             commands::read_json,
@@ -80,6 +90,8 @@ pub fn run() {
             commands::save_workspace_links,
             commands::get_app_config,
             commands::set_app_config,
+            commands::hf_backup,
+            commands::hf_test_connection,
         ]);
 
     // Alt+A 全局召唤：隐藏时显示并聚焦，可见时隐藏。Android 无全局快捷键，且该插件在移动端为空壳。

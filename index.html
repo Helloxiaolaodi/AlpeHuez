@@ -3474,6 +3474,13 @@
             padding: 0 10px;
         }
 
+        .settings-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand-primary);
+            cursor: pointer;
+        }
+
         .settings-textarea {
             min-height: 90px;
             padding: 10px;
@@ -4285,6 +4292,23 @@
                     <span id="languageStatus" class="settings-hint"></span>
                 </div>
             </section>
+
+            <section class="settings-section" id="syncSection">
+                <h3 data-i18n-settings="sync">Sync</h3>
+                <div class="settings-row">
+                    <label data-i18n-settings="syncRepo">HF backup repo</label>
+                    <input id="hfRepo" class="settings-input" type="text" value="Helloxiaolaodi/alpehuez-backup">
+                </div>
+                <div class="settings-row">
+                    <label data-i18n-settings="autoBackup">Auto backup on exit</label>
+                    <input id="hfAutoToggle" class="settings-checkbox" type="checkbox">
+                </div>
+                <div class="settings-actions">
+                    <button id="hfBackupBtn" class="settings-action-btn primary" type="button" data-i18n-settings="backupNow">Backup now</button>
+                    <button id="hfTestBtn" class="settings-action-btn" type="button" data-i18n-settings="testConnection">Test connection</button>
+                </div>
+                <span class="settings-hint" id="hfStatus"></span>
+            </section>
         </div>
     </div>
 
@@ -4365,6 +4389,13 @@
                 feedback: 'Feedback',
                 feedbackPlaceholder: 'Leave feedback for AlpeHuez',
                 saveFeedback: 'Save feedback',
+                sync: 'Sync',
+                syncRepo: 'HF backup repo',
+                autoBackup: 'Auto backup on exit',
+                backupNow: 'Backup now',
+                testConnection: 'Test connection',
+                backingUp: 'Backing up...',
+                testingConn: 'Testing connection...',
                 supportAuthor: 'Support',
                 supportBlurb: 'Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.',
                 koFi: 'Ko-fi (overseas)',
@@ -4383,7 +4414,8 @@
                 qrFailed: 'WeChat QR unavailable',
                 shortcutSaved: 'Shortcut saved',
                 shortcutEmpty: 'Shortcut cannot be empty',
-                languageSaved: 'Language saved'
+                languageSaved: 'Language saved',
+                lastBackup: 'Last backup: '
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -4400,6 +4432,13 @@
                 feedback: '\u53cd\u9988',
                 feedbackPlaceholder: '\u4e3a AlpeHuez \u7559\u4e0b\u53cd\u9988',
                 saveFeedback: '\u4fdd\u5b58\u53cd\u9988',
+                sync: '\u540c\u6b65',
+                syncRepo: 'HF \u5907\u4efd\u4ed3\u5e93',
+                autoBackup: '\u9000\u51fa\u65f6\u81ea\u52a8\u5907\u4efd',
+                backupNow: '\u7acb\u5373\u5907\u4efd',
+                testConnection: '\u6d4b\u8bd5\u8fde\u63a5',
+                backingUp: '\u5907\u4efd\u4e2d\u2026',
+                testingConn: '\u6b63\u5728\u6d4b\u8bd5\u8fde\u63a5\u2026',
                 supportAuthor: '\u652f\u6301\u4f5c\u8005',
                 supportBlurb: '\u4fa0\u4e4b\u5927\u8005\uff0c\u4e3a\u5f00\u6e90\u800c\u751f\u3002\u82e5\u89c9\u5f97 AlpeHuez \u66fe\u7167\u4eae\u4f60\u7684\u5de5\u4f5c\u77ac\u95f4\uff0c\u4e0d\u59a8\u6e29\u4e00\u58f6\u6e05\u8336\uff0c\u652f\u6301\u4e00\u4e8c\u3002',
                 koFi: 'Ko-fi\uff08\u6d77\u5916\uff09',
@@ -4418,7 +4457,8 @@
                 qrFailed: '\u5fae\u4fe1\u4e8c\u7ef4\u7801\u4e0d\u53ef\u7528',
                 shortcutSaved: '\u5feb\u6377\u952e\u5df2\u4fdd\u5b58',
                 shortcutEmpty: '\u5feb\u6377\u952e\u4e0d\u80fd\u4e3a\u7a7a',
-                languageSaved: '\u8bed\u8a00\u5df2\u4fdd\u5b58'
+                languageSaved: '\u8bed\u8a00\u5df2\u4fdd\u5b58',
+                lastBackup: '\u4e0a\u6b21\u5907\u4efd\uff1a'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -4458,7 +4498,8 @@
                 ['shortcuts', 'shortcuts'],
                 ['feedback', 'feedback'],
                 ['supportAuthor', 'supportAuthor'],
-                ['language', 'language']
+                ['language', 'language'],
+                ['sync', 'sync']
             ];
             const layout = document.createElement('div');
             layout.className = 'settings-layout';
@@ -4740,7 +4781,29 @@
             loadShortcutSettings();
             loadBackgroundSettings();
             loadFeedbackSettings();
+            loadSyncState();
             modal.classList.add('open');
+        }
+
+        async function loadSyncState() {
+            const section = $('syncSection');
+            if (!section) return;
+            if (!isDesktop) { section.hidden = true; return; }
+            section.hidden = false;
+            const status = $('hfStatus');
+            if (!status) return;
+            try {
+                const repo = await invoke('get_app_config', { key: 'hf_repo' });
+                if (typeof repo === 'string' && repo) $('hfRepo').value = repo;
+                const auto = await invoke('get_app_config', { key: 'hf_auto_backup' });
+                $('hfAutoToggle').checked = auto === true;
+                const last = await invoke('get_app_config', { key: 'hf_last_backup' });
+                status.textContent = (typeof last === 'number')
+                    ? settingsText('lastBackup', 'Last backup: ') + new Date(last * 1000).toLocaleString()
+                    : '';
+            } catch (error) {
+                console.error('load sync state failed:', error);
+            }
         }
 
         function closeSettingsModal() {
@@ -6401,6 +6464,43 @@
                 applySettingsLanguage();
                 const status = $('languageStatus');
                 if (status) status.textContent = settingsText('languageSaved', 'Language saved');
+            });
+            $('hfBackupBtn').addEventListener('click', async () => {
+                const status = $('hfStatus');
+                if (!status) return;
+                status.textContent = settingsText('backingUp', 'Backing up...');
+                try {
+                    const msg = await invoke('hf_backup');
+                    status.textContent = String(msg);
+                    loadSyncState();
+                } catch (error) {
+                    status.textContent = String(error);
+                }
+            });
+            $('hfTestBtn').addEventListener('click', async () => {
+                const status = $('hfStatus');
+                if (!status) return;
+                status.textContent = settingsText('testingConn', 'Testing connection...');
+                try {
+                    const msg = await invoke('hf_test_connection');
+                    status.textContent = String(msg);
+                } catch (error) {
+                    status.textContent = String(error);
+                }
+            });
+            $('hfRepo').addEventListener('change', async () => {
+                try {
+                    await invoke('set_app_config', { key: 'hf_repo', value: $('hfRepo').value.trim() });
+                } catch (error) {
+                    console.error('save hf repo failed:', error);
+                }
+            });
+            $('hfAutoToggle').addEventListener('change', async () => {
+                try {
+                    await invoke('set_app_config', { key: 'hf_auto_backup', value: $('hfAutoToggle').checked });
+                } catch (error) {
+                    console.error('save hf auto toggle failed:', error);
+                }
             });
             $('themeToggleBtn').addEventListener('click', toggleTheme);
             $('btnFullscreen').addEventListener('click', toggleFullscreen);

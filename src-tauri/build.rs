@@ -46,6 +46,8 @@ fn main() {
                 "save_workspace_links",
                 "get_app_config",
                 "set_app_config",
+                "hf_backup",
+                "hf_test_connection",
             ]),
         ),
     )

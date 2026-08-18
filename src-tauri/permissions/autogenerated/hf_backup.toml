@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-hf-backup"
+description = "Enables the hf_backup command without any pre-configured scope."
+commands.allow = ["hf_backup"]
+
+[[permission]]
+identifier = "deny-hf-backup"
+description = "Denies the hf_backup command without any pre-configured scope."
+commands.deny = ["hf_backup"]

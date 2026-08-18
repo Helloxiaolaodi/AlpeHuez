@@ -1330,6 +1330,167 @@ pub async fn set_app_config(app: tauri::AppHandle, key: String, value: serde_jso
     db::set_config(&conn, &key, &value)
 }
 
+// ===== HF 备份（P1）=====
+
+fn hf_token() -> Result<String, String> {
+    let home = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .map_err(|_| "无法定位用户主目录，请确认 ~/.cache/huggingface/token 存在".to_string())?;
+    let path = Path::new(&home).join(".cache").join("huggingface").join("token");
+    let token = fs::read_to_string(&path).map_err(|e| format!("读取 HF token 失败: {e}（路径: {}）", path.display()))?;
+    let token = token.trim();
+    if token.is_empty() {
+        return Err("HF token 为空（~/.cache/huggingface/token）".to_string());
+    }
+    Ok(token.to_string())
+}
+
+fn hf_repo(conn: &rusqlite::Connection) -> String {
+    db::get_config(conn, "hf_repo")
+        .ok()
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "Helloxiaolaodi/alpehuez-backup".to_string())
+}
+
+fn hf_remote_url(repo: &str, token: &str) -> String {
+    format!("https://user:{token}@huggingface.co/datasets/{repo}.git")
+}
+
+fn run_git_proxy(args: &[&str], cwd: &Path) -> (i32, String) {
+    let mut c = Command::new("git");
+    silent(&mut c);
+    let mut full = vec!["-c", "http.lowSpeedLimit=1", "-c", "http.lowSpeedTime=45"];
+    full.extend_from_slice(args);
+    c.env("https_proxy", "http://127.0.0.1:7897")
+        .env("http_proxy", "http://127.0.0.1:7897");
+    match c.args(&full).current_dir(cwd).output() {
+        Ok(out) => {
+            let mut s = String::from_utf8_lossy(&out.stdout).to_string();
+            s.push_str(&String::from_utf8_lossy(&out.stderr));
+            (out.status.code().unwrap_or(-1), s)
+        }
+        Err(e) => (-1, e.to_string()),
+    }
+}
+
+fn hf_backup_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?.join("hf-backup");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir)
+}
+
+/// 执行一次 HF 备份（手动按钮与退出时自动备份共用）。
+pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
+    use rusqlite::backup::Backup;
+    let conn = db_conn(app)?;
+    let repo = hf_repo(&conn);
+    let token = hf_token()?;
+    let url = hf_remote_url(&repo, &token);
+    let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let dir = hf_backup_dir(app)?;
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+
+    if !dir.join(".git").exists() {
+        let (c, o) = run_git_proxy(&["init", "-b", "main"], &dir);
+        if c != 0 { return Err(format!("git init 失败: {o}")); }
+        for (k, v) in [("user.name", "AlpeHuez Backup"), ("user.email", "alpehuez@localhost")] {
+            let (c, o) = run_git_proxy(&["config", k, v], &dir);
+            if c != 0 { return Err(format!("git config {k} 失败: {o}")); }
+        }
+    }
+
+    // SQLite 在线备份（一致性快照，正确处理 journal）
+    {
+        let src = db::open(&data_dir.join("alpehuez.db"))?;
+        let mut dest = rusqlite::Connection::open(dir.join("alpehuez.db")).map_err(|e| e.to_string())?;
+        let backup = Backup::new(&src, &mut dest).map_err(|e| format!("备份 SQLite 失败: {e}"))?;
+        backup
+            .run_to_completion(8, std::time::Duration::from_millis(50), None)
+            .map_err(|e| format!("备份 SQLite 失败: {e}"))?;
+    }
+
+    if let Ok(cfg_dir) = app.path().app_config_dir() {
+        let src = cfg_dir.join("config.json");
+        if src.exists() {
+            fs::copy(&src, dir.join("config.json")).map_err(|e| format!("复制 config.json 失败: {e}"))?;
+        }
+    }
+    let links = repo_root().join("links.json");
+    if links.exists() {
+        fs::copy(&links, dir.join("links.json")).map_err(|e| format!("复制 links.json 失败: {e}"))?;
+    }
+
+    let manifest = serde_json::json!({
+        "timestamp": ts,
+        "app": "AlpeHuez",
+        "files": ["alpehuez.db", "config.json", "links.json", "backup-manifest.json"]
+    });
+    fs::write(
+        dir.join("backup-manifest.json"),
+        serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("写备份清单失败: {e}"))?;
+
+    let (c1, o1) = run_git_proxy(&["add", "-A"], &dir);
+    if c1 != 0 { return Err(format!("git add 失败: {o1}")); }
+    let (c2, o2) = run_git_proxy(&["commit", "-m", &format!("backup: {ts}")], &dir);
+    if c2 != 0 && !o2.contains("nothing to commit") {
+        return Err(format!("git commit 失败: {o2}"));
+    }
+    if c2 == 0 {
+        let (c3, o3) = run_git_proxy(&["push", &url, "HEAD:main"], &dir);
+        if c3 != 0 {
+            let (_, fo) = run_git_proxy(&["fetch", &url], &dir);
+            let (c4, o4) = run_git_proxy(&["rebase", "FETCH_HEAD"], &dir);
+            if c4 != 0 {
+                return Err(format!("推送失败: {o3}；rebase 远端失败: {o4}（{fo}）"));
+            }
+            let (c5, o5) = run_git_proxy(&["push", &url, "HEAD:main"], &dir);
+            if c5 != 0 { return Err(o5); }
+        }
+    }
+
+    db::set_config(&conn, "hf_last_backup", &serde_json::json!(ts)).map_err(|e| e.to_string())?;
+    Ok(format!("备份完成（{ts}）"))
+}
+
+#[cfg(not(target_os = "android"))]
+/// 退出时自动备份：读取 hf_auto_backup 配置，为 true 则执行备份。
+pub fn auto_backup_on_close(app: &tauri::AppHandle) {
+    let auto = db_conn(app)
+        .ok()
+        .and_then(|conn| db::get_config(&conn, "hf_auto_backup").ok())
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    if auto {
+        let _ = run_hf_backup(app);
+    }
+}
+
+#[tauri::command]
+pub async fn hf_backup(app: tauri::AppHandle) -> Result<String, String> {
+    run_hf_backup(&app)
+}
+
+#[tauri::command]
+pub async fn hf_test_connection(app: tauri::AppHandle) -> Result<String, String> {
+    let token = hf_token()?;
+    let conn = db_conn(&app)?;
+    let repo = hf_repo(&conn);
+    let url = hf_remote_url(&repo, &token);
+    let dir = hf_backup_dir(&app)?;
+    let (c, o) = run_git_proxy(&["ls-remote", &url, "HEAD"], &dir);
+    if c == 0 {
+        Ok(format!("连接成功，仓库 {repo} 可访问"))
+    } else {
+        Err(format!("连接失败: {o}"))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -17,7 +17,7 @@ md5 = "0.7"
 sysinfo = "0.30"
 base64 = "0.22"
 percent-encoding = "2"
-rusqlite = { version = "0.31", features = ["bundled"] }
+rusqlite = { version = "0.31", features = ["bundled", "backup"] }
 ureq = "2"
 
 [target.'cfg(windows)'.dependencies]
