@@ -1546,6 +1546,21 @@
             -webkit-backdrop-filter: blur(24px) saturate(140%);
         }
 
+        .title-bar { position: fixed; top: 0; left: 0; right: 0; height: 32px; z-index: 13000; display: flex; align-items: center; justify-content: space-between; padding-left: 12px; background: var(--bg-body); border-bottom: 1px solid var(--line); user-select: none; -webkit-user-select: none; }
+        html.no-titlebar .title-bar { display: none; }
+        body.is-fullscreen .title-bar { display: none; }
+        .title-bar-brand { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-muted); }
+        .title-bar-controls { display: flex; height: 100%; }
+        .win-btn { width: 44px; height: 100%; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
+        .win-btn:hover { background: var(--bg-card); color: var(--text-main); }
+        .win-close:hover { background: #E81123; color: #fff; }
+        html:not(.no-titlebar) .app-shell { margin-top: 32px; height: calc(100vh - 32px); }
+        html:not(.no-titlebar) .settings-drawer-panel,
+        html:not(.no-titlebar) .telemetry-pod { top: 32px; }
+        html:not(.no-titlebar) .app-context-menu,
+        html:not(.no-titlebar) .ws-context-menu { max-height: calc(100vh - 44px); }
+        body.is-fullscreen .app-shell { margin-top: 0; height: 100vh; }
+
         .topbar-left {
             display: flex;
             align-items: center;
@@ -3954,6 +3969,14 @@
     </style>
 </head>
 <body data-context="portal">
+    <div id="titleBar" class="title-bar" data-tauri-drag-region>
+        <span class="title-bar-brand" data-tauri-drag-region>AlpeHuez</span>
+        <div class="title-bar-controls">
+            <button type="button" id="winMin" class="win-btn" title="Minimize" aria-label="Minimize"><svg viewBox="0 0 10 10"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1"/></svg></button>
+            <button type="button" id="winMax" class="win-btn" title="Maximize" aria-label="Maximize"><svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
+            <button type="button" id="winClose" class="win-btn win-close" title="Close" aria-label="Close"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1"/></svg></button>
+        </div>
+    </div>
     <div id="loadingScreen">
         <div class="spinner"></div>
         <div class="loading-text">Loading AlpeHuez Workspace</div>
@@ -4425,6 +4448,7 @@
         const hasTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
         const isAndroid = /android/i.test(navigator.userAgent);
         const isDesktop = hasTauri && !isAndroid;
+        if (!isDesktop) document.documentElement.classList.add('no-titlebar');
         const invoke = hasTauri ? window.__TAURI__.core.invoke : null;
         const listen = hasTauri ? window.__TAURI__.event.listen : null;
 
@@ -7541,9 +7565,22 @@
             });
         }
 
+        function initTitleBar() {
+            if (!isDesktop) return;
+            const win = window.__TAURI__ && window.__TAURI__.window && window.__TAURI__.window.getCurrentWindow();
+            if (!win) return;
+            const min = document.getElementById('winMin');
+            const max = document.getElementById('winMax');
+            const close = document.getElementById('winClose');
+            if (min) min.addEventListener('click', () => win.minimize());
+            if (max) max.addEventListener('click', () => win.toggleMaximize());
+            if (close) close.addEventListener('click', () => win.close());
+        }
+
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('DOMContentLoaded', initFloatBall);
         document.addEventListener('DOMContentLoaded', initTelemetryPod);
+        document.addEventListener('DOMContentLoaded', initTitleBar);
     </script>
     <div id="toastStack" class="toast-stack" aria-live="polite"></div>
     <div id="telemetryPod" class="telemetry-pod" hidden>

@@ -51,6 +51,10 @@
     "allow-get-app-config",
     "allow-set-app-config",
     "allow-hf-backup",
-    "allow-hf-test-connection"
+    "allow-hf-test-connection",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "core:window:allow-start-dragging"
   ]
 }
