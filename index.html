@@ -6112,6 +6112,7 @@
             document.querySelectorAll('.view').forEach((view) => view.classList.remove('active'));
             $('viewTitle').textContent = tab ? tab.title : 'Browser';
             renderBrowserTabs();
+            if (window.syncLoadingOverlay) window.syncLoadingOverlay();
             if (isDesktop) {
                 try {
                     await invoke('activate_internal_page', { label });
@@ -6338,6 +6339,7 @@
             exitFullscreen();
             resetPortalSidebarState();
             activeBrowserLabel = null;
+            if (window.syncLoadingOverlay) window.syncLoadingOverlay();
             currentView = viewName;
             document.body.classList.remove('browsing');
             document.querySelectorAll('.view').forEach((view) => view.classList.remove('active'));
@@ -6669,6 +6671,7 @@
             const overlay = $('pageLoadingOverlay');
             if (!overlay || !isDesktop) return;
             let timer = null;
+            const loadingTabs = new Set();
             function show() {
                 if (timer) clearTimeout(timer);
                 overlay.hidden = false;
@@ -6678,8 +6681,22 @@
                 overlay.classList.add('hide');
                 timer = setTimeout(() => { overlay.hidden = true; }, 350);
             }
-            listen('browser-load-started', show);
-            listen('browser-load-finished', hide);
+            // 加载遮罩只跟随当前激活标签：后台标签的加载、peek 加载都不会误触发，
+            // 新标签打开时 activateBrowserTab 通过 syncLoadingOverlay 补一次同步。
+            listen('browser-load-started', (event) => {
+                const label = event.payload && event.payload.label;
+                if (label) loadingTabs.add(label);
+                if (label === activeBrowserLabel) show();
+            });
+            listen('browser-load-finished', (event) => {
+                const label = event.payload && event.payload.label;
+                if (label) loadingTabs.delete(label);
+                if (label === activeBrowserLabel) hide();
+            });
+            window.syncLoadingOverlay = () => {
+                if (loadingTabs.has(activeBrowserLabel)) show();
+                else hide();
+            };
         }
 
         const ENGINES = {
