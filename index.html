@@ -2601,6 +2601,19 @@
             text-align: center;
         }
 
+        .empty-state-art {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 16px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .empty-state-art svg { width: 120px; height: 80px; margin-bottom: 16px; color: var(--brand-primary); }
+        .empty-state-art p { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .empty-state-art span { font-size: 12.5px; color: var(--text-muted); }
+
         .view-heading {
             max-width: 1100px;
             margin: 0 auto 24px;
@@ -4895,6 +4908,18 @@
             }[char]));
         }
 
+        function emptyState(title, sub) {
+            return `<div class="empty-state-art">
+                <svg viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.5">
+                    <circle cx="40" cy="60" r="14"/><circle cx="80" cy="60" r="14"/>
+                    <path d="M40 60h40M40 60l-6-18h14l6 18M80 60l-6-18H54"/>
+                    <path d="M34 42h52M40 60l-8-18M80 60l8-18" opacity="0.4"/>
+                </svg>
+                <p>${escapeHtml(title)}</p>
+                <span>${escapeHtml(sub)}</span>
+            </div>`;
+        }
+
         function getStats() {
             try {
                 const parsed = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
@@ -4952,6 +4977,7 @@
             try { map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'); } catch (error) { map = {}; }
             const activeDays = Object.keys(map).filter((key) => Number(map[key]) > 0).length;
             const totalHits = Object.keys(map).reduce((sum, key) => sum + Number(map[key]), 0);
+            if (activeDays === 0) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
             const cells = [];
             for (let i = DAYS - 1; i >= 0; i--) {
                 const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
@@ -5003,10 +5029,7 @@
             if (!el) return;
             let log = [];
             try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
-            if (!log.length) {
-                el.hidden = true;
-                return;
-            }
+            if (!log.length) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
             const rows = log.slice().reverse().map((entry) => `
                 <div class="tl-item" style="border-left: 1px solid var(--line-strong); padding-left: 12px;">
                     <span class="tl-dot"></span>
@@ -5641,7 +5664,7 @@
                 `;
             });
 
-            content.innerHTML = renderedSections || '<div class="empty-state">No matching links</div>';
+            content.innerHTML = renderedSections || emptyState('No matching links', 'Try a different search keyword.');
             syncPortalCategory();
         }
 
@@ -5850,7 +5873,7 @@
             const data = await loadMyFilesData();
             const folders = data.folders || [];
             if (!folders.length) {
-                container.innerHTML = '<div class="empty-state">No folders found</div>';
+                container.innerHTML = emptyState('No folders yet', 'Files you open will be collected here.');
                 return;
             }
             const base = myFilesBase();
