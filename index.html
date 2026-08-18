@@ -5180,16 +5180,29 @@
             const now = Date.now();
             if (active) {
                 focusSessionStart = now;
-            } else if (focusSessionStart) {
-                const minutes = (now - focusSessionStart) / 60000;
-                focusSessionStart = null;
-                if (minutes >= 1) addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
-                if (minutes >= ABILITY_XP.climberDeepMinutes) addAbilityXp('climber', ABILITY_XP.climberDeepBonus);
+            } else {
+                if (focusSessionStart) {
+                    const minutes = (now - focusSessionStart) / 60000;
+                    focusSessionStart = null;
+                    if (minutes >= 1) addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
+                    if (minutes >= ABILITY_XP.climberDeepMinutes) addAbilityXp('climber', ABILITY_XP.climberDeepBonus);
+                }
+                settleBrowserDwell();
             }
         }
         document.addEventListener('visibilitychange', () => trackFocusChange(!document.hidden));
         window.addEventListener('focus', () => trackFocusChange(true));
         window.addEventListener('blur', () => trackFocusChange(false));
+
+        /* 爬坡：WebView 驻留计时，浏览标签页的驻留分钟数也计入 climber XP */
+        let browserDwellStart = null;
+        function settleBrowserDwell() {
+            if (!browserDwellStart) return;
+            const minutes = (Date.now() - browserDwellStart) / 60000;
+            browserDwellStart = null;
+            if (minutes >= 1) addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
+            if (minutes >= ABILITY_XP.climberDeepMinutes) addAbilityXp('climber', ABILITY_XP.climberDeepBonus);
+        }
 
         /* 冲刺：10 分钟窗口内点击爆发 + 面板待办完成 */
         let sprintBurst = [];
@@ -5734,6 +5747,8 @@
 
         async function activateBrowserTab(label) {
             const tab = browserTabs.get(label);
+            settleBrowserDwell();
+            browserDwellStart = Date.now();
             activeBrowserLabel = label;
             document.body.classList.add('browsing');
             currentView = 'browser';
@@ -5987,6 +6002,7 @@
         }
 
         async function closeBrowserTab(label) {
+            settleBrowserDwell();
             if (isDesktop) {
                 try {
                     await invoke('close_internal_page', { label });
