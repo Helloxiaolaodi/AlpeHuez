@@ -10,6 +10,7 @@
     "core:default",
     "allow-open-dev-panel",
     "allow-open-url",
+    "allow-open-url-scheme",
     "allow-open-internal-page",
     "allow-activate-internal-page",
     "allow-layout-internal-pages",

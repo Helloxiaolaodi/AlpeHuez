@@ -5,18 +5,22 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 use std::process::{Command, ExitStatus, Stdio};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
-use tauri::{
-    PhysicalPosition, PhysicalSize,
-    webview::{PageLoadEvent, WebviewBuilder},
-    Emitter, Manager, Rect, WebviewUrl, WebviewWindowBuilder,
-};
+#[cfg(not(target_os = "android"))]
+use std::sync::atomic::Ordering;
+#[cfg(not(target_os = "android"))]
+use std::sync::Arc;
+
+use tauri::Manager;
+#[cfg(not(target_os = "android"))]
+use tauri::{webview::{PageLoadEvent, WebviewBuilder}, Emitter, PhysicalPosition, PhysicalSize, Rect, WebviewUrl, WebviewWindowBuilder};
 
 #[cfg(windows)]
 use std::os::windows::process::ExitStatusExt;
+#[cfg(unix)]
+use std::os::unix::process::ExitStatusExt;
 
 use crate::db;
 use crate::repo_root;
@@ -679,15 +683,19 @@ pub async fn open_url_scheme(url: String) -> Result<(), String> {
     if !trimmed.contains("://") && !trimmed.starts_with("mailto:") && !trimmed.starts_with("tel:") {
         return Err("不是可识别的 URL scheme".into());
     }
-    let quoted = format!("\"{}\"", trimmed);
+    #[cfg(target_os = "android")]
+    {
+        tauri_plugin_opener::open_url(trimmed, None::<&str>).map_err(|e| e.to_string())?;
+    }
     #[cfg(target_os = "windows")]
     {
+        let quoted = format!("\"{}\"", trimmed);
         std::process::Command::new("cmd")
             .args(["/C", "start", "", &quoted])
             .spawn()
             .map_err(|e| e.to_string())?;
     }
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(all(not(target_os = "windows"), not(target_os = "android")))]
     {
         std::process::Command::new("open")
             .arg(trimmed)
@@ -700,8 +708,15 @@ pub async fn open_url_scheme(url: String) -> Result<(), String> {
 /// 读取系统剪贴板文本（用于拦截腾讯会议链接等）。
 #[tauri::command]
 pub async fn read_clipboard() -> Result<String, String> {
-    let mut cb = arboard::Clipboard::new().map_err(|e| e.to_string())?;
-    cb.get_text().map_err(|e| e.to_string())
+    #[cfg(not(target_os = "android"))]
+    {
+        let mut cb = arboard::Clipboard::new().map_err(|e| e.to_string())?;
+        return cb.get_text().map_err(|e| e.to_string());
+    }
+    #[cfg(target_os = "android")]
+    {
+        Err("剪贴板读取仅桌面版可用".into())
+    }
 }
 
 fn browser_mode(app: &tauri::AppHandle) -> Result<String, String> {
@@ -723,27 +738,36 @@ fn route_external_url(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
     if !url.starts_with("http://") && !url.starts_with("https://") {
         return Err("仅支持 http/https 链接".into());
     }
-    if browser_mode(app)? == "internal" {
-        return open_internal_page_impl(
-            app.clone(),
-            url.to_string(),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-        .map(|_| ());
+    // Android：无内嵌子窗口，一律交给系统浏览器打开。
+    #[cfg(target_os = "android")]
+    {
+        let _ = app;
+        return tauri_plugin_opener::open_url(url, None::<&str>).map_err(|e| e.to_string());
     }
-    if let Ok(Some(browser)) = get_browser_path(app) {
-        Command::new(&browser)
-            .arg(&url)
-            .spawn()
-            .map_err(|e| e.to_string())?;
-        return Ok(());
+    #[cfg(not(target_os = "android"))]
+    {
+        if browser_mode(app)? == "internal" {
+            return open_internal_page_impl(
+                app.clone(),
+                url.to_string(),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .map(|_| ());
+        }
+        if let Ok(Some(browser)) = get_browser_path(app) {
+            Command::new(&browser)
+                .arg(&url)
+                .spawn()
+                .map_err(|e| e.to_string())?;
+            return Ok(());
+        }
+        open_in_system_browser(&url)
     }
-    open_in_system_browser(&url)
 }
 
 /// 用 ShellExecuteW 打开 URL（尊重系统默认浏览器关联），失败时回退到常见浏览器可执行文件。
@@ -890,7 +914,15 @@ static PANEL_OPENING: AtomicBool = AtomicBool::new(false);
 
 #[tauri::command]
 pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
-    if let Some(win) = app.get_webview_window("panel") {
+    // Android 不支持多窗口，开发者面板仅桌面版可用。
+    #[cfg(target_os = "android")]
+    {
+        let _ = app;
+        return Err("开发者面板仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        if let Some(win) = app.get_webview_window("panel") {
         let nonce = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|e| e.to_string())?
@@ -932,6 +964,7 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
 
     PANEL_OPENING.store(false, Ordering::SeqCst);
     result
+    }
 }
 
 /// 在 AlpeHuez 主窗口内打开外部网站，所有网页标签共享同一份
@@ -960,6 +993,14 @@ fn open_internal_page_impl(
     height: Option<f64>,
     peek: Option<bool>,
 ) -> Result<InternalPageInfo, String> {
+    // Android 不支持子 webview 内嵌浏览，所有站点走系统浏览器。
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, url, title, x, y, width, height, peek);
+        return Err("移动端不支持应用内浏览，已改用系统浏览器打开".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     let parsed = url
         .parse::<tauri::Url>()
         .map_err(|e| e.to_string())?;
@@ -1085,6 +1126,7 @@ fn open_internal_page_impl(
         url,
         title: page_title,
     })
+    }
 }
 
 #[tauri::command]
@@ -1092,6 +1134,14 @@ pub async fn activate_internal_page(
     app: tauri::AppHandle,
     label: Option<String>,
 ) -> Result<(), String> {
+    // Android 无内嵌子 webview，网页标签仅桌面版可用。
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     for (candidate, webview) in app.webviews() {
         if !candidate.starts_with("browser-") || webview.window().label() != "main" {
             continue;
@@ -1104,6 +1154,7 @@ pub async fn activate_internal_page(
         }
     }
     Ok(())
+    }
 }
 
 #[tauri::command]
@@ -1114,6 +1165,13 @@ pub async fn layout_internal_pages(
     width: f64,
     height: f64,
 ) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, x, y, width, height);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     for (label, webview) in app.webviews() {
         if !label.starts_with("browser-") || webview.window().label() != "main" {
             continue;
@@ -1125,19 +1183,35 @@ pub async fn layout_internal_pages(
         webview.set_bounds(bounds).map_err(|e| e.to_string())?;
     }
     Ok(())
+    }
 }
 
 #[tauri::command]
 pub async fn focus_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     let webview = app
         .get_webview(&label)
         .ok_or_else(|| "网页标签已关闭".to_string())?;
     webview.show().map_err(|e| e.to_string())?;
     webview.set_focus().map_err(|e| e.to_string())
+    }
 }
 
 #[tauri::command]
 pub async fn close_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     if !label.starts_with("browser-") {
         return Err("无效的网页标签".into());
     }
@@ -1146,10 +1220,18 @@ pub async fn close_internal_page(app: tauri::AppHandle, label: String) -> Result
     }
     let _ = app.emit("browser-tab-closed", label);
     Ok(())
+    }
 }
 
 #[tauri::command]
 pub fn go_back_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
     if !label.starts_with("browser-") {
         return Err("invalid browser tab label".into());
     }
@@ -1159,6 +1241,7 @@ pub fn go_back_internal_page(app: tauri::AppHandle, label: String) -> Result<(),
     webview
         .eval("window.history.back()")
         .map_err(|e| e.to_string())
+    }
 }
 
 #[tauri::command]

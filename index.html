@@ -4075,9 +4075,11 @@
         const STATS_KEY = 'nav_stats';
         const PORTAL_TAGS_KEY = 'portal_tags_expanded';
         const MYFILES_FOLDER_COLLAPSED_KEY = 'myfiles_folder_collapsed';
-        const isDesktop = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
-        const invoke = isDesktop ? window.__TAURI__.core.invoke : null;
-        const listen = isDesktop ? window.__TAURI__.event.listen : null;
+        const isTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isDesktop = isTauri && !isAndroid;
+        const invoke = isTauri ? window.__TAURI__.core.invoke : null;
+        const listen = isTauri ? window.__TAURI__.event.listen : null;
 
         const ICONS = {
             home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 4l9 7.2"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-6h4v6"/></svg>',
@@ -4921,13 +4923,13 @@
                 renderBrowserTabs();
                 await activateBrowserTab(info.label);
             } else {
-                window.open(url, '_blank');
+                await openExternal(url);
             }
         }
 
         async function openUrl(url, title) {
             if (!isDesktop) {
-                window.open(url, '_blank');
+                await openExternal(url);
                 return;
             }
             let mode = 'internal';
@@ -4948,7 +4950,7 @@
 
         async function openPeek(url, title) {
             if (!isDesktop) {
-                window.open(url, '_blank');
+                await openExternal(url);
                 return;
             }
             if (peekLabel) {
@@ -4985,7 +4987,7 @@
             const url = item.url;
             const isHttp = /^https?:\/\//i.test(url);
             if (!isHttp && (url.includes('://') || url.startsWith('mailto:') || url.startsWith('tel:'))) {
-                if (isDesktop) {
+                if (isTauri) {
                     try {
                         await invoke('open_url_scheme', { url });
                         renderContent();
@@ -5010,16 +5012,15 @@
         }
 
         async function openExternal(url) {
-            if (isDesktop) {
+            if (isTauri) {
                 try {
                     await invoke('open_url', { url });
+                    return;
                 } catch (error) {
                     console.error('open_url failed:', error);
-                    window.open(url, '_blank');
                 }
-            } else {
-                window.open(url, '_blank');
             }
+            window.open(url, '_blank');
         }
 
         async function backBrowserTab() {

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-open-url-scheme"
+description = "Enables the open_url_scheme command without any pre-configured scope."
+commands.allow = ["open_url_scheme"]
+
+[[permission]]
+identifier = "deny-open-url-scheme"
+description = "Denies the open_url_scheme command without any pre-configured scope."
+commands.deny = ["open_url_scheme"]

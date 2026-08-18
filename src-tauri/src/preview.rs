@@ -1,11 +1,23 @@
-use std::fs;
 use std::path::Path;
+
+#[cfg(not(target_os = "android"))]
+use std::fs;
 
 use percent_encoding::percent_decode_str;
 use tauri::http::{Request, Response, StatusCode};
 use tauri::UriSchemeContext;
 
+#[cfg(not(target_os = "android"))]
 use crate::repo_root;
+
+/// Android 上没有仓库目录，门户文件在编译期用 include_dir 打进二进制，
+/// nav:// 直接从嵌入资源提供。目录内容由 build.rs 在 Android 目标编译前
+/// 从仓库根目录拷贝（仅移动端真正用到的文件）。
+#[cfg(target_os = "android")]
+use include_dir::{include_dir, Dir};
+
+#[cfg(target_os = "android")]
+const WEBROOT: Dir = include_dir!("$CARGO_MANIFEST_DIR/android-webroot");
 
 const MIME: &[(&str, &str)] = &[
     (".html", "text/html; charset=utf-8"),
@@ -91,35 +103,53 @@ pub fn handler(
     let path = request.uri().path();
     let decoded = percent_decode_str(path).decode_utf8_lossy();
     let rel = if decoded == "/" {
-        "index.html"
+        "index.html".to_string()
     } else {
-        decoded.trim_start_matches('/')
+        decoded.trim_start_matches('/').to_string()
     };
-    let root = repo_root();
-    let full = root.join(rel);
 
-    let normalized = match full.canonicalize() {
-        Ok(p) => p,
-        Err(_) => {
-            if !full.starts_with(root) {
-                return response(StatusCode::FORBIDDEN, "text/plain", b"Forbidden".to_vec());
+    // Android：从嵌入资源读取；桌面：从 repo_root 文件系统读取（含目录回退到 index.html）。
+    #[cfg(target_os = "android")]
+    let (bytes, mime_path) = {
+        let rel2 = if rel.ends_with('/') {
+            format!("{}index.html", rel)
+        } else {
+            rel.clone()
+        };
+        let bytes = WEBROOT.get_file(&rel2).map(|f| f.contents().to_vec());
+        (bytes, rel2)
+    };
+
+    #[cfg(not(target_os = "android"))]
+    let (bytes, mime_path) = {
+        let root = repo_root();
+        let full = root.join(&rel);
+
+        let normalized = match full.canonicalize() {
+            Ok(p) => p,
+            Err(_) => {
+                if !full.starts_with(root) {
+                    return response(StatusCode::FORBIDDEN, "text/plain", b"Forbidden".to_vec());
+                }
+                return response(StatusCode::NOT_FOUND, "text/plain", b"Not found".to_vec());
             }
-            return response(StatusCode::NOT_FOUND, "text/plain", b"Not found".to_vec());
+        };
+        if !normalized.starts_with(root) {
+            return response(StatusCode::FORBIDDEN, "text/plain", b"Forbidden".to_vec());
         }
-    };
-    if !normalized.starts_with(root) {
-        return response(StatusCode::FORBIDDEN, "text/plain", b"Forbidden".to_vec());
-    }
 
-    let target = if normalized.is_dir() {
-        normalized.join("index.html")
-    } else {
-        normalized
+        let target = if normalized.is_dir() {
+            normalized.join("index.html")
+        } else {
+            normalized
+        };
+        let mime_path = target.to_str().unwrap_or("").to_string();
+        (fs::read(&target).ok(), mime_path)
     };
 
-    match fs::read(&target) {
-        Ok(bytes) => {
-            let mime = mime_for(target.to_str().unwrap_or(""));
+    match bytes {
+        Some(bytes) => {
+            let mime = mime_for(&mime_path);
             if mime.starts_with("text/html") {
                 let mut html = String::from_utf8_lossy(&bytes).to_string();
                 if let Some(pos) = html.rfind("</body>") {
@@ -132,6 +162,6 @@ pub fn handler(
                 response(StatusCode::OK, mime, bytes)
             }
         }
-        Err(_) => response(StatusCode::NOT_FOUND, "text/plain", b"Not found".to_vec()),
+        None => response(StatusCode::NOT_FOUND, "text/plain", b"Not found".to_vec()),
     }
 }
