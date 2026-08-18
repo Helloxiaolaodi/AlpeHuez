@@ -1,0 +1,3 @@
+004f97cf758c7f29ea2864d05d4faddcef5feecc4317ce09b19f1a50a7b319fb *AlpeHuez_0.4.0_arm64.apk
+a6992af79449a56640f877d39398b86d0d2fd79d2c93e86f48b85adf7795eec7 *AlpeHuez_0.4.0_x64-setup.exe
+9f4d46d2923279f8de39a35ac1964c4462bdef82edec4ed65ce2b4a2441e8af2 *my-nav-panel.exe
