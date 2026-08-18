@@ -47,6 +47,7 @@
             --focus-mesh-1: rgba(177, 227, 255, 0.2);
             --focus-mesh-2: rgba(255, 224, 174, 0.12);
             --font-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         html[data-theme="space"] {
@@ -123,6 +124,10 @@
             font: inherit;
             cursor: pointer;
         }
+
+        button:active { transform: scale(0.95); }
+        button[draggable="true"]:active { transform: none; }
+        button { transition: transform 0.15s var(--spring), background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
 
         button,
         input {
@@ -2221,7 +2226,7 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
             text-align: left;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            transition: transform 0.25s var(--spring), box-shadow 0.25s ease, border-color 0.25s ease;
         }
         html:not([data-theme="space"]) .nav-card:hover {
             transform: translateY(-2px);
@@ -3155,7 +3160,7 @@
         .ability-ring { display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .ability-ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
         .ability-ring .ring-track { fill: none; stroke: var(--line); stroke-width: 7; }
-        .ability-ring .ring-fill { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .ability-ring .ring-fill { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 0.8s var(--spring); }
         .ability-ring .ring-glow { filter: drop-shadow(0 0 6px currentColor); }
         html[data-theme="space"] .ability-ring .ring-track { stroke: rgba(162, 123, 255,0.14); }
         html[data-theme="space"] .ability-ring .ring-glow { filter: drop-shadow(0 0 10px currentColor); }
@@ -3310,7 +3315,7 @@
             border-left: 1px solid var(--line-strong);
             box-shadow: var(--shadow-float);
             transform: translateX(100%);
-            transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.32s var(--spring);
             overflow-y: auto;
         }
 
@@ -3332,7 +3337,7 @@
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
-            transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.34s var(--spring);
             background: var(--panel-solid);
             backdrop-filter: blur(24px) saturate(150%);
             -webkit-backdrop-filter: blur(24px) saturate(150%);
@@ -3368,7 +3373,7 @@
             box-shadow: var(--shadow-float);
             font-size: 13px;
             font-weight: 500;
-            animation: toast-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: toast-in 0.3s var(--spring);
         }
         html[data-theme="space"] .toast {
             background: rgba(20, 18, 26, 0.9);
@@ -7521,6 +7526,14 @@
                 ball.style.bottom = 'auto';
             });
             document.addEventListener('mouseup', () => { dragging = false; });
+            document.addEventListener('mousemove', (e) => {
+                const el = e.target.closest('.nav-card, .stat-tile, .about-card');
+                if (el) {
+                    const r = el.getBoundingClientRect();
+                    el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                    el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+                }
+            });
             ball.addEventListener('click', () => {
                 if (moved) return;
                 const pod = $('telemetryPod');
