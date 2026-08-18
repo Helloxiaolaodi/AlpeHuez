@@ -1084,6 +1084,8 @@
             background: var(--brand-primary);
         }
 
+        .browser-tab.sleeping { opacity: 0.55; filter: blur(0.3px); }
+
         html[data-theme="space"] .browser-tab:hover {
             background: rgba(255, 255, 255, 0.06);
             color: #F1F5F9;
@@ -6055,18 +6057,48 @@
             }
             container.innerHTML = [...browserTabs.values()].map((tab) => {
                 const letter = tab.title ? tab.title.charAt(0).toUpperCase() : 'G';
+                const sleeping = tab.sleeping ? ' sleeping' : '';
                 return `
-                    <button type="button" class="browser-tab ${activeBrowserLabel === tab.label ? 'active' : ''}" data-label="${escapeHtml(tab.label)}" title="${escapeHtml(tab.url || tab.title)}">
-                        <span class="tab-icon">${escapeHtml(letter)}</span>
-                        <span class="tab-title">${escapeHtml(tab.title || tab.url)}</span>
+                    <button type="button" class="browser-tab ${activeBrowserLabel === tab.label ? 'active' : ''}${sleeping}" data-label="${escapeHtml(tab.label)}" title="${escapeHtml(tab.url || tab.title)}">
+                        <span class="tab-icon">${tab.sleeping ? 'Zzz' : escapeHtml(letter)}</span>
+                        <span class="tab-title">${tab.sleeping ? 'Zzz… click to wake' : escapeHtml(tab.title || tab.url)}</span>
                         <span class="tab-close" data-close="${escapeHtml(tab.label)}" title="Close tab">&times;</span>
                     </button>
                 `;
             }).join('');
         }
 
+        async function sleepTab(label) {
+            const tab = browserTabs.get(label);
+            if (!tab || tab.sleeping) return;
+            tab.sleeping = true;
+            if (isDesktop) {
+                try { await invoke('set_internal_page_visible', { label, visible: false }); } catch (e) { console.error(e); }
+            }
+            renderBrowserTabs();
+        }
+        async function wakeTab(label) {
+            const tab = browserTabs.get(label);
+            if (!tab || !tab.sleeping) return;
+            tab.sleeping = false;
+            if (isDesktop) {
+                try { await invoke('set_internal_page_visible', { label, visible: true }); } catch (e) { console.error(e); }
+            }
+            renderBrowserTabs();
+        }
+        setInterval(() => {
+            if (!isDesktop) return;
+            const now = Date.now();
+            browserTabs.forEach((tab, label) => {
+                if (label === activeBrowserLabel || tab.sleeping) return;
+                if (tab.lastActive && now - tab.lastActive > 15 * 60 * 1000) sleepTab(label);
+            });
+        }, 60 * 1000);
+
         async function activateBrowserTab(label) {
             const tab = browserTabs.get(label);
+            if (tab && tab.sleeping) await wakeTab(label);
+            if (tab) tab.lastActive = Date.now();
             settleBrowserDwell();
             browserDwellStart = Date.now();
             activeBrowserLabel = label;
