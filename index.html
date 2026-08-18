@@ -3262,6 +3262,58 @@
             border-left-color: rgba(0, 209, 255, 0.2);
         }
 
+        .telemetry-pod {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 350px;
+            z-index: 9500;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--panel-solid);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border-left: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-float);
+        }
+        .telemetry-pod.open { transform: translateX(0); }
+        .telemetry-pod[hidden] { display: none; }
+        html[data-theme="space"] .telemetry-pod {
+            background: var(--bg-elevated);
+            border-left: 1px solid rgba(0, 209, 255, 0.2);
+        }
+        .tp-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--line);
+        }
+        .tp-scroll { flex: 1; overflow-y: auto; padding: 16px 18px; }
+        .tp-section { margin-bottom: 22px; }
+        .tp-section h3 {
+            margin: 0 0 10px;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .tp-actions { display: flex; gap: 8px; }
+        .tp-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid var(--line-strong);
+            border-radius: 9px;
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+        .tp-btn:hover { border-color: var(--brand-primary); }
+
         .settings-header {
             display: flex;
             align-items: center;
@@ -4006,10 +4058,6 @@
                         </div>
 
                         <div id="content"></div>
-
-                        <div id="usageHeatmap" class="usage-heatmap" hidden></div>
-
-                        <div id="activityTimeline" class="activity-timeline" hidden></div>
                     </div>
                 </section>
 
@@ -4251,7 +4299,8 @@
             fullscreenExit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v5H3"/><path d="M21 8h-5V3"/><path d="M3 16h5v5"/><path d="M16 21v-5h5"/></svg>',
             jerseyYellow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/><path d="M3 6h3M18 6h3" stroke-width="1.1"/></svg>',
             jerseyPolka: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/><circle cx="9" cy="13" r="1.2"/><circle cx="14" cy="10" r="1.2"/><circle cx="12" cy="16" r="1.2"/></svg>',
-            jerseyGreen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/><line x1="8" y1="6" x2="16" y2="6" stroke-width="1.1"/></svg>'
+            jerseyGreen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/><line x1="8" y1="6" x2="16" y2="6" stroke-width="1.1"/></svg>',
+            close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
         };
 
         let allTree = [];
@@ -4747,7 +4796,7 @@
         }
 
         function renderUsageHeatmap() {
-            const el = $('usageHeatmap');
+            const el = $('tpHeatmap');
             if (!el) return;
             const DAYS = 20 * 7;
             const today = new Date();
@@ -4783,6 +4832,7 @@
         }
 
         function trackAction(action) {
+            if (localStorage.getItem('alpehuez_zen') === '1') return;
             let log = [];
             try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
             log.push({ t: Date.now(), a: String(action) });
@@ -4801,7 +4851,7 @@
         }
 
         function renderActivityTimeline() {
-            const el = $('activityTimeline');
+            const el = $('tpTimeline');
             if (!el) return;
             let log = [];
             try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
@@ -4810,7 +4860,7 @@
                 return;
             }
             const rows = log.slice().reverse().map((entry) => `
-                <div class="tl-item">
+                <div class="tl-item" style="border-left: 1px solid var(--line-strong); padding-left: 12px;">
                     <span class="tl-dot"></span>
                     <span class="tl-text">${escapeHtml(entry.a)}</span>
                     <span class="tl-when">${relativeTime(entry.t)}</span>
@@ -4893,6 +4943,7 @@
             localStorage.setItem(ABILITIES_KEY, JSON.stringify(abilities));
         }
         function addAbilityXp(key, amount) {
+            if (localStorage.getItem('alpehuez_zen') === '1') return;
             if (!(amount > 0)) return;
             const abilities = getAbilities();
             abilities.xp[key] = (abilities.xp[key] || 0) + amount;
@@ -5444,8 +5495,6 @@
 
             content.innerHTML = renderedSections || '<div class="empty-state">No matching links</div>';
             syncPortalCategory();
-            renderUsageHeatmap();
-            renderActivityTimeline();
         }
 
         function renderBadges() {
@@ -7108,6 +7157,87 @@
             }
         }
 
+        function openTelemetryPod() {
+            const pod = $('telemetryPod');
+            if (!pod) return;
+            pod.hidden = false;
+            requestAnimationFrame(() => pod.classList.add('open'));
+            renderUsageHeatmap();
+            renderActivityTimeline();
+            const icon = $('floatBallIcon');
+            if (icon) icon.innerHTML = ICONS.close;
+            trackAction('Opened Telemetry Pod');
+        }
+        function closeTelemetryPod() {
+            const pod = $('telemetryPod');
+            if (!pod) return;
+            pod.classList.remove('open');
+            const icon = $('floatBallIcon');
+            if (icon) icon.innerHTML = ICONS.jerseyYellow;
+            setTimeout(() => { pod.hidden = true; }, 350);
+        }
+
+        function initTelemetryPod() {
+            const pod = $('telemetryPod');
+            if (!pod) return;
+            const closeBtn = $('tpClose');
+            if (closeBtn) closeBtn.addEventListener('click', closeTelemetryPod);
+            const zenBtn = $('tpZen');
+            if (zenBtn) zenBtn.addEventListener('click', () => {
+                const zen = localStorage.getItem('alpehuez_zen') === '1';
+                localStorage.setItem('alpehuez_zen', zen ? '' : '1');
+                zenBtn.textContent = zen ? 'Zen Mode' : 'Zen Mode: ON';
+                showToast(zen ? 'Zen Mode off' : 'Zen Mode on — telemetry paused');
+            });
+            const exportBtn = $('tpExport');
+            if (exportBtn) exportBtn.addEventListener('click', () => {
+                const report = buildTelemetryReport();
+                try {
+                    navigator.clipboard.writeText(report);
+                    showToast('Report copied to clipboard');
+                } catch (error) {
+                    showToast('Could not copy report');
+                }
+            });
+            document.addEventListener('click', (e) => {
+                if (pod.classList.contains('open') && !pod.contains(e.target) && e.target !== $('floatBall')) {
+                    closeTelemetryPod();
+                }
+            });
+        }
+
+        function buildTelemetryReport() {
+            const abilities = getAbilities();
+            const lines = ['AlpeHuez Telemetry Report'];
+            lines.push('');
+            lines.push('Abilities:');
+            ['gc', 'climber', 'sprint', 'tt'].forEach((key) => {
+                lines.push(`  ${key}: ${scoreFor(key)}/100 (${Math.round(abilities.xp[key] || 0)} xp)`);
+            });
+            let map = {};
+            try { map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'); } catch (error) { map = {}; }
+            const activeDays = Object.keys(map).filter((key) => Number(map[key]) > 0).length;
+            const totalHits = Object.keys(map).reduce((sum, key) => sum + Number(map[key]), 0);
+            lines.push('');
+            lines.push(`Focus Heatmap: ${activeDays} active days · ${totalHits} recorded interactions`);
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
+            lines.push('');
+            lines.push(`Activity Timeline: ${log.length} recent actions`);
+            return lines.join('\n');
+        }
+
+        function showToast(message) {
+            const existing = $('tpToast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.id = 'tpToast';
+            toast.textContent = message;
+            toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 16px;border-radius:10px;background:var(--bg-elevated);border:1px solid var(--line-strong);box-shadow:var(--shadow-float);color:var(--text-main);font-size:12.5px;font-weight:600;';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
+        }
+
         function initFloatBall() {
             const ball = $('floatBall');
             const menu = $('floatBallMenu');
@@ -7141,7 +7271,9 @@
             document.addEventListener('mouseup', () => { dragging = false; });
             ball.addEventListener('click', () => {
                 if (moved) return;
-                toggleFullscreen();
+                const pod = $('telemetryPod');
+                if (pod && pod.classList.contains('open')) closeTelemetryPod();
+                else openTelemetryPod();
             });
             ball.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -7169,9 +7301,26 @@
 
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('DOMContentLoaded', initFloatBall);
+        document.addEventListener('DOMContentLoaded', initTelemetryPod);
     </script>
-    <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click fullscreen · right-click modes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/></svg>
+    <div id="telemetryPod" class="telemetry-pod" hidden>
+        <div class="tp-head">
+            <strong>Telemetry Pod</strong>
+            <button type="button" id="tpClose" class="icon-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="tp-scroll">
+            <div class="tp-section"><h3>Focus Heatmap</h3><div id="tpHeatmap"></div></div>
+            <div class="tp-section"><h3>Activity Timeline</h3><div id="tpTimeline"></div></div>
+            <div class="tp-section"><h3>Quick Actions</h3>
+                <div class="tp-actions">
+                    <button type="button" id="tpZen" class="tp-btn">Zen Mode</button>
+                    <button type="button" id="tpExport" class="tp-btn">Export Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">
+        <svg id="floatBallIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/></svg>
     </div>
     <div id="floatBallMenu" class="float-ball-menu" hidden>
         <button type="button" data-fbmode="fullscreen">Fullscreen</button>
