@@ -1555,7 +1555,6 @@
         .win-btn:hover { background: var(--bg-card); color: var(--text-main); }
         .win-close:hover { background: #E81123; color: #fff; }
         html:not(.no-titlebar) .app-shell { margin-top: 32px; height: calc(100vh - 32px); }
-        html:not(.no-titlebar) .settings-drawer-panel,
         html:not(.no-titlebar) .telemetry-pod { top: 32px; }
         html:not(.no-titlebar) .app-context-menu,
         html:not(.no-titlebar) .ws-context-menu { max-height: calc(100vh - 44px); }
@@ -3309,6 +3308,10 @@
             position: fixed;
             inset: 0;
             z-index: 9000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 12vh;
             visibility: hidden;
         }
 
@@ -3332,25 +3335,29 @@
         }
 
         .settings-drawer-panel {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: min(420px, 92vw);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: min(760px, 94vw);
+            max-height: 78vh;
+            padding: 22px 22px 18px;
             background: var(--bg-elevated);
-            border-left: 1px solid var(--line-strong);
+            border: 1px solid var(--line-strong);
+            border-radius: 16px;
             box-shadow: var(--shadow-float);
-            transform: translateX(100%);
-            transition: transform 0.32s var(--spring);
-            overflow-y: auto;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(10px) scale(0.985);
+            transition: opacity 0.24s var(--spring), transform 0.3s var(--spring);
         }
 
         .settings-drawer.open .settings-drawer-panel {
-            transform: translateX(0);
+            opacity: 1;
+            transform: none;
         }
 
         html[data-theme="space"] .settings-drawer-panel {
-            border-left-color: rgba(162, 123, 255,0.2);
+            border-color: rgba(162, 123, 255,0.2);
         }
 
         .telemetry-pod {
@@ -3472,6 +3479,39 @@
             border: 1px solid var(--line);
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.04);
+        }
+
+        .segmented {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+        }
+        html[data-theme="space"] .segmented {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .seg-btn {
+            min-width: 64px;
+            padding: 6px 14px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+        .seg-btn:hover {
+            color: var(--text-main);
+        }
+        .seg-btn.active {
+            color: var(--text-main);
+            background: var(--bg-elevated);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
         .settings-tab {
@@ -4286,7 +4326,6 @@
                 <div class="cp-input-row">
                     <svg class="cp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input id="cpInput" type="text" placeholder="Search or type / for commands..." autocomplete="off" spellcheck="false">
-                    <span class="kbd-badge">Esc</span>
                 </div>
                 <div id="cpResults" class="cp-results"></div>
                 <div class="cp-actionbar">
@@ -4342,6 +4381,13 @@
 
             <section class="settings-section">
                 <h3 data-i18n-settings="appearance">Appearance</h3>
+                <div class="settings-row">
+                    <label data-i18n-settings="backgroundMode">Background mode</label>
+                    <div id="bgModeSeg" class="segmented" role="radiogroup" aria-label="Background mode">
+                        <button type="button" class="seg-btn" data-theme="gradient" role="radio" aria-checked="true" data-i18n-settings="lightMode">Light</button>
+                        <button type="button" class="seg-btn" data-theme="space" role="radio" aria-checked="false" data-i18n-settings="darkMode">Dark</button>
+                    </div>
+                </div>
                 <div class="settings-row">
                     <label data-i18n-settings="backgroundBlur">Background blur</label>
                     <input id="bgBlur" type="range" min="0" max="80" step="2" value="50">
@@ -4454,6 +4500,7 @@
 
         const ICONS = {
             home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 4l9 7.2"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-6h4v6"/></svg>',
+            sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
             sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
             moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
             badge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v3a5 5 0 0 1-10 0V4z"/><path d="M7 5H4v3a4 4 0 0 0 3 3.87"/><path d="M17 5h3v3a4 4 0 0 1-3 3.87"/></svg>',
@@ -4506,6 +4553,9 @@
                 appearance: 'Appearance',
                 backgroundBlur: 'Background blur',
                 noiseGrain: 'Noise grain (dark)',
+                backgroundMode: 'Background mode',
+                lightMode: 'Light',
+                darkMode: 'Dark',
                 shortcuts: 'Shortcuts',
                 fullscreen: 'Fullscreen',
                 back: 'Back',
@@ -4547,6 +4597,9 @@
                 appearance: '\u5916\u89c2',
                 backgroundBlur: '\u80cc\u666f\u6a21\u7cca',
                 noiseGrain: '\u566a\u70b9\u8d28\u611f\uff08\u6df1\u8272\uff09',
+                backgroundMode: '\u80cc\u666f\u6a21\u5f0f',
+                lightMode: '\u6d45\u8272',
+                darkMode: '\u6df1\u8272',
                 shortcuts: '\u5feb\u6377\u952e',
                 fullscreen: '\u5168\u5c4f',
                 back: '\u8fd4\u56de',
@@ -4715,6 +4768,22 @@
             localStorage.setItem('alpehuez_noise', on ? '1' : '0');
             document.documentElement.classList.toggle('noise-off', !on);
         });
+        const bgModeSeg = $('bgModeSeg');
+        function syncBgModeUI() {
+            if (!bgModeSeg) return;
+            const current = document.documentElement.dataset.theme === 'space' ? 'space' : 'gradient';
+            bgModeSeg.querySelectorAll('.seg-btn').forEach((btn) => {
+                const active = btn.dataset.theme === current;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-checked', active ? 'true' : 'false');
+            });
+        }
+        if (bgModeSeg) bgModeSeg.addEventListener('click', (e) => {
+            const btn = e.target.closest('.seg-btn');
+            if (!btn) return;
+            setTheme(btn.dataset.theme);
+            syncBgModeUI();
+        });
 
         const zenToggle = $('zenToggle');
         zenToggle.checked = localStorage.getItem('alpehuez_zen') === '1';
@@ -4846,6 +4915,7 @@
             if (!modal) return;
             ensureSettingsLayout();
             switchSettingsTab('appearance');
+            syncBgModeUI();
             loadShortcutSettings();
             loadBackgroundBlur();
             loadFeedbackSettings();
@@ -4882,6 +4952,7 @@
         async function initSettings() {
             ensureSettingsLayout();
             applySettingsLanguage();
+            syncBgModeUI();
             loadShortcutSettings();
             await Promise.all([loadBackgroundBlur(), loadFeedbackSettings()]);
         }
@@ -6322,16 +6393,14 @@
         if (!ENGINES[activeEngine]) activeEngine = 'google';
 
         const COMMANDS = [
-            { match: 'light', label: 'Light mode', desc: 'Switch to light theme', theme: 'gradient', icon: ICONS.sun },
-            { match: 'dark', label: 'Dark mode', desc: 'Switch to dark theme', theme: 'space', icon: ICONS.moon },
+            { match: 'settings', label: 'Interface Settings', desc: 'Open app settings', action: 'settings', icon: ICONS.sliders },
             { match: 'myfiles', label: 'My Files', desc: 'Open file sharing workspace', action: 'myfiles', icon: ICONS.files },
             { match: 'badges', label: 'Achievements', desc: 'Open the achievement gallery', view: 'badges', icon: ICONS.badge },
-            { match: 'about', label: 'About AlpeHuez', desc: 'Version and update notes', view: 'about', icon: ICONS.globe },
             { match: 'dev', label: 'Developer Panel', desc: 'Open the developer console', view: 'dev', icon: ICONS.code },
-            { match: 'github', label: 'GitHub', desc: 'Open GitHub in a tab', url: 'https://github.com/Helloxiaolaodi', icon: ICONS.github },
-            { match: 'cnblogs', label: 'Blog', desc: 'Open cnblogs in a tab', url: 'https://www.cnblogs.com/Helloxiaolaodi', icon: ICONS.blog },
-            { match: 'google', label: 'Google', desc: 'Open Google in a tab', url: 'https://www.google.com', icon: ICONS.search },
-            { match: 'bing', label: 'Bing', desc: 'Open Bing in a tab', url: 'https://www.bing.com', icon: ICONS.search }
+            { match: 'blog', label: 'Blog', desc: 'Open cnblogs in a tab', url: 'https://www.cnblogs.com/Helloxiaolaodi', icon: ICONS.blog },
+            { match: 'github', label: 'GitHub', desc: 'Open GitHub in a tab', url: 'https://github.com/Helloxiaolaodi', icon: ICONS.github, quick: true },
+            { match: 'google', label: 'Google', desc: 'Open Google in a tab', url: 'https://www.google.com', icon: ICONS.search, quick: true },
+            { match: 'bing', label: 'Bing', desc: 'Open Bing in a tab', url: 'https://www.bing.com', icon: ICONS.search, quick: true }
         ];
 
         const engineBtn = $('engineBtn');
@@ -6378,8 +6447,8 @@
         function renderCommands() {
             const query = searchInput ? searchInput.value.trim().slice(1).toLowerCase() : '';
             filteredCommands = query
-                ? COMMANDS.filter((command) => command.match.startsWith(query) || command.label.toLowerCase().includes(query))
-                : COMMANDS.slice();
+                ? COMMANDS.filter((command) => !command.quick && (command.match.startsWith(query) || command.label.toLowerCase().includes(query)))
+                : COMMANDS.filter((command) => !command.quick);
             if (commandIndex >= filteredCommands.length) commandIndex = 0;
             commandMenu.innerHTML = filteredCommands.length
                 ? filteredCommands.map((command, index) => `
@@ -6417,14 +6486,12 @@
             const isCmd = q.startsWith('/');
             const query = isCmd ? q.slice(1) : q;
             const items = [];
-            if (!isCmd) {
-                items.push({ kind: 'search', title: `Search ${ENGINES[activeEngine].label} for "${q || '...'}"`, run: () => { if (q) { trackAction(`Searched ${ENGINES[activeEngine].label} for "${q.slice(0,40)}"`); openUrl(ENGINES[activeEngine].url + encodeURIComponent(q), ENGINES[activeEngine].label); } closeCommandPalette(); } });
-                allItems.filter((it) => !query || (it.title + ' ' + it.url).toLowerCase().includes(query.toLowerCase())).slice(0, 8).forEach((it) => {
-                    items.push({ kind: 'link', title: it.title, sub: it.url, run: () => { openLink(it, {}); closeCommandPalette(); } });
-                });
+            if (isCmd) {
+                const cmds = COMMANDS.filter((c) => !c.quick && (!query || c.label.toLowerCase().includes(query.toLowerCase())));
+                cmds.forEach((c) => items.push({ kind: 'command', title: c.label, sub: c.desc, run: () => { runCommand(c); closeCommandPalette(); } }));
+            } else {
+                COMMANDS.filter((c) => c.quick).forEach((c) => items.push({ kind: 'command', title: c.label, sub: c.desc, run: () => { runCommand(c); closeCommandPalette(); } }));
             }
-            const cmds = COMMANDS.filter((c) => !query || c.label.toLowerCase().includes(query.toLowerCase()));
-            cmds.forEach((c) => items.push({ kind: 'command', title: c.label, run: () => { runCommand(c); closeCommandPalette(); } }));
             cpResults.innerHTML = items.length ? items.map((it, i) => `
                 <div class="cp-item ${i === 0 ? 'active' : ''}" data-i="${i}">
                     <span>${escapeHtml(it.title)}</span>
@@ -6467,6 +6534,7 @@
                 else if (command.view === 'dev') openDevPanel();
                 else if (command.view) switchView(command.view);
                 else if (command.action === 'myfiles') switchView('myfiles');
+                else if (command.action === 'settings') openSettingsModal();
                 else if (command.url) await openUrl(command.url, command.label);
             } catch (error) {
                 console.error('runCommand failed:', error);
