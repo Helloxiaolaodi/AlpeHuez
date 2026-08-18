@@ -27,6 +27,7 @@ fn main() {
                 "set_browser_config",
                 "open_url",
                 "open_url_scheme",
+                "read_clipboard",
                 "open_dev_panel",
                 "open_internal_page",
                 "activate_internal_page",

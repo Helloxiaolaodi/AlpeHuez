@@ -4075,11 +4075,12 @@
         const STATS_KEY = 'nav_stats';
         const PORTAL_TAGS_KEY = 'portal_tags_expanded';
         const MYFILES_FOLDER_COLLAPSED_KEY = 'myfiles_folder_collapsed';
-        const isTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
+        // 注意：不能用 `const isTauri` —— Tauri 注入的 window.isTauri 是不可配置全局属性，顶层同名 const 会 SyntaxError 白屏。
+        const hasTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
         const isAndroid = /android/i.test(navigator.userAgent);
-        const isDesktop = isTauri && !isAndroid;
-        const invoke = isTauri ? window.__TAURI__.core.invoke : null;
-        const listen = isTauri ? window.__TAURI__.event.listen : null;
+        const isDesktop = hasTauri && !isAndroid;
+        const invoke = hasTauri ? window.__TAURI__.core.invoke : null;
+        const listen = hasTauri ? window.__TAURI__.event.listen : null;
 
         const ICONS = {
             home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.2 12 4l9 7.2"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-6h4v6"/></svg>',
@@ -4987,7 +4988,7 @@
             const url = item.url;
             const isHttp = /^https?:\/\//i.test(url);
             if (!isHttp && (url.includes('://') || url.startsWith('mailto:') || url.startsWith('tel:'))) {
-                if (isTauri) {
+                if (hasTauri) {
                     try {
                         await invoke('open_url_scheme', { url });
                         renderContent();
@@ -5012,7 +5013,7 @@
         }
 
         async function openExternal(url) {
-            if (isTauri) {
+            if (hasTauri) {
                 try {
                     await invoke('open_url', { url });
                     return;
