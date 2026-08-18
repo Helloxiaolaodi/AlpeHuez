@@ -22,18 +22,18 @@
 
 /* 深色（默认主打）：暗黑极客 + 骑行爬坡 */
 [data-theme="dark"] {
-  --bg-0: #070b12;
-  --bg-1: #0b1119;
-  --bg-2: #101826;
-  --text: #e6edf5;
-  --text-2: #93a1b4;
-  --text-3: #55637a;
-  --accent: #0087EB;            /* 克莱因蓝 */
-  --accent-hover: #006FD0;
-  --accent-soft: rgba(0, 135, 235, 0.14);
-  --blue: rgba(177, 227, 255, 0.35);
-  --green: #0087EB;
-  --green-soft: rgba(0, 135, 235, 0.12);
+  --bg-0: #050505;
+  --bg-1: #09090B;
+  --bg-2: #0E0E11;
+  --text: #F8FAFC;
+  --text-2: #A1A1AA;
+  --text-3: #71717A;
+  --accent: #A78BFA;            /* Linear 紫 */
+  --accent-hover: #8B5CF6;
+  --accent-soft: rgba(167, 139, 250, 0.16);
+  --blue: rgba(196, 181, 253, 0.30);
+  --green: #A78BFA;
+  --green-soft: rgba(167, 139, 250, 0.14);
   --amber: #fbbf24;
   --amber-soft: rgba(251, 191, 36, 0.12);
   --red: #f87171;
@@ -43,33 +43,33 @@
   --surface-strong: rgba(255, 255, 255, 0.08);
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
-  --glass-bg: rgba(13, 19, 29, 0.6);
-  --glass-bg-strong: rgba(13, 19, 29, 0.75);
-  --glass-bg-solid: rgba(13, 19, 29, 0.94);
+  --glass-bg: rgba(9, 9, 11, 0.6);
+  --glass-bg-strong: rgba(9, 9, 11, 0.75);
+  --glass-bg-solid: rgba(9, 9, 11, 0.94);
   --glass-border: rgba(255, 255, 255, 0.09);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --glow-accent: 0 0 0 1px rgba(0, 135, 235, 0.35), 0 0 20px rgba(0, 135, 235, 0.15);
+  --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 48px -18px rgba(0, 0, 0, 0.6);
+  --glow-accent: 0 0 0 1px rgba(167, 139, 250, 0.35), 0 0 20px rgba(167, 139, 250, 0.18);
   /* 背景预设 */
-  --preset-default: radial-gradient(1100px 560px at 88% -12%, rgba(0, 135, 235, 0.14), transparent 60%), radial-gradient(900px 480px at -8% 112%, rgba(177, 227, 255, 0.10), transparent 60%), radial-gradient(700px 400px at 50% 120%, rgba(255, 224, 174, 0.06), transparent 60%);
-  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(0,135,235,0.14)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(177,227,255,0.10)'/></svg>"), linear-gradient(180deg, #0b1119, #0d1a24);
-  --preset-grid: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), radial-gradient(900px 500px at 50% 0%, rgba(0, 135, 235, 0.12), transparent 60%), linear-gradient(180deg, #0b1119, #0d1a24);
+  --preset-default: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'), radial-gradient(1100px 560px at 88% -12%, rgba(167, 139, 250, 0.16), transparent 60%), radial-gradient(900px 480px at -8% 112%, rgba(196, 181, 253, 0.10), transparent 60%), radial-gradient(700px 400px at 50% 120%, rgba(244, 114, 182, 0.06), transparent 60%);
+  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(167,139,250,0.16)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(196,181,253,0.12)'/></svg>"), linear-gradient(180deg, #09090B, #0E0E11);
+  --preset-grid: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), radial-gradient(900px 500px at 50% 0%, rgba(167, 139, 250, 0.14), transparent 60%), linear-gradient(180deg, #09090B, #0E0E11);
   --preset-custom: none;
 }
 
 /* 浅色：极简 B 端 */
 [data-theme="light"] {
-  --bg-0: #F4F6F8;
-  --bg-1: #F8FAFC;
-  --bg-2: #EAF2F8;
-  --text: #111827;
-  --text-2: #64748B;
+  --bg-0: #EAFBF7;
+  --bg-1: #F2FDFA;
+  --bg-2: #E4F8F2;
+  --text: #0F172A;
+  --text-2: #475569;
   --text-3: #94A3B8;
   --accent: #0087EB;
   --accent-hover: #006FD0;
   --accent-soft: rgba(0, 135, 235, 0.12);
-  --blue: #B1E3FF;
+  --blue: #C4F2FE;
   --green: #0087EB;
   --green-soft: #EAF5FF;
   --amber: #C77A1E;
@@ -85,14 +85,14 @@
   --glass-bg-strong: #ffffff;
   --glass-bg-solid: #ffffff;
   --glass-border: #E5EAF0;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(0, 135, 235, 0.05);
-  --shadow-lg: 0 8px 30px rgba(15, 23, 42, 0.10);
+  --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 8px 24px rgba(168, 255, 225, 0.2);
+  --shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 48px -18px rgba(15, 23, 42, 0.12);
   --glow-accent: 0 0 0 1px rgba(0, 135, 235, 0.28);
   /* 背景预设 */
-  --preset-default: radial-gradient(900px 500px at 90% -10%, rgba(0, 135, 235, 0.12), transparent 60%), radial-gradient(700px 400px at -5% 110%, rgba(255, 224, 174, 0.22), transparent 60%);
-  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(0,135,235,0.12)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(177,227,255,0.16)'/></svg>"), linear-gradient(180deg, #F8FAFC, #EEF5FA);
-  --preset-grid: repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.04) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.04) 0 1px, transparent 1px 44px), linear-gradient(180deg, #F8FAFC, #EEF5FA);
+  --preset-default: radial-gradient(900px 500px at 90% -10%, rgba(168, 255, 225, 0.35), transparent 60%), radial-gradient(700px 400px at -5% 110%, rgba(196, 242, 254, 0.5), transparent 60%);
+  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(168,255,225,0.30)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(196,242,254,0.40)'/></svg>"), linear-gradient(180deg, #F2FDFA, #E4F8F2);
+  --preset-grid: repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.04) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.04) 0 1px, transparent 1px 44px), linear-gradient(180deg, #F2FDFA, #E4F8F2);
   --preset-custom: none;
 }
 
