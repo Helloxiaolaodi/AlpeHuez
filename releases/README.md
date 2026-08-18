@@ -7,6 +7,7 @@ Current archive:
 
 | Version | Folder | Artifacts |
 | --- | --- | --- |
+| 0.3.0 | `v0.3.0/` | portable exe, NSIS setup, Android APK (arm64) |
 | 0.2.0 | `v0.2.0/` | portable exe, NSIS setup |
 | 0.1.0 | `v0.1.0/` | portable exe, NSIS setup, MSI |
 
