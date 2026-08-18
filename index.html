@@ -346,7 +346,8 @@
             color: var(--text-main);
             font-size: 11px;
             cursor: pointer;
-            transition: border-color 0.15s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: var(--shadow);
         }
         .velometer-pill:hover { border-color: var(--line-strong); }
         html[data-theme="space"] .velometer-pill {
@@ -359,7 +360,7 @@
         .velometer-pill .vm-ring { position: relative; display: inline-flex; width: 40px; height: 40px; transform: none; }
         .velometer-pill .vm-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .vm-track { fill: none; stroke: var(--line); stroke-width: 4; }
-        .vm-fill { fill: none; stroke: var(--brand-primary); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 4px rgba(162, 123, 255, 0.6)); }
+        .vm-fill { fill: none; stroke: url(#vmGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 4px rgba(162, 123, 255, 0.6)); }
         html:not([data-theme="space"]) .vm-fill { filter: drop-shadow(0 0 4px rgba(0, 135, 235, 0.4)); }
         .vm-ring-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
         .velometer-drawer {
@@ -369,8 +370,9 @@
             bottom: 0;
             width: 320px;
             z-index: 40;
-            background: var(--panel-solid);
-            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
             border-left: 1px solid var(--line-strong);
             padding: 16px;
             display: flex;
@@ -380,6 +382,10 @@
             animation: vm-drawer-in 0.2s ease;
         }
         .velometer-drawer[hidden] { display: none; }
+        html[data-theme="space"] .velometer-drawer {
+            background: rgba(45, 40, 58, 0.72);
+            border-left: 1px solid rgba(162, 123, 255, 0.2);
+        }
         .peek-panel {
             position: absolute;
             right: 0;
@@ -419,11 +425,30 @@
         .vm-ring-wrap { position: relative; width: 80px; height: 80px; }
         .vm-ring { width: 80px; height: 80px; transform: rotate(-90deg); }
         .vm-ring-bg { fill: none; stroke: var(--line); stroke-width: 7; }
-        .vm-ring-fg { fill: none; stroke: #0087EB; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 213.6; stroke-dashoffset: 213.6; transition: stroke-dashoffset 0.4s ease; filter: drop-shadow(0 0 6px rgba(0, 135, 235, 0.35)); }
-        html[data-theme="space"] .vm-ring-fg { stroke: #A27BFF; filter: drop-shadow(0 0 6px rgba(162, 123, 255, 0.5)); }
+        .vm-ring-fg { fill: none; stroke: url(#vmGrad); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 213.6; stroke-dashoffset: 213.6; transition: stroke-dashoffset 0.4s ease; filter: drop-shadow(0 0 8px rgba(0, 135, 235, 0.4)); }
+        html[data-theme="space"] .vm-ring-fg { stroke: url(#vmGrad); filter: drop-shadow(0 0 8px rgba(162, 123, 255, 0.55)); }
+        .vm-grad-stop-a { stop-color: #00B8E6; }
+        .vm-grad-stop-b { stop-color: #0087EB; }
+        html[data-theme="space"] .vm-grad-stop-a { stop-color: #C084FC; }
+        html[data-theme="space"] .vm-grad-stop-b { stop-color: #A27BFF; }
         .vm-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .vm-ring-center strong { font-size: 15px; font-variant-numeric: tabular-nums; }
         .vm-ring-center span { font-size: 10px; color: var(--text-muted); }
+        .vm-ring-dot {
+            position: absolute;
+            left: 50%;
+            top: -4px;
+            width: 8px;
+            height: 8px;
+            margin-left: -4px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            box-shadow: 0 0 8px 1px var(--brand-primary);
+            transform-origin: 50% 500%;
+            /* 圆点中心 (40,0) → 环心 (40,40)，80px 环 + 8px 点：500% = 40px */
+            pointer-events: none;
+            transition: transform 0.4s ease;
+        }
         .vm-procs-label { font-size: 12px; color: var(--text-muted); }
         .vm-proc-list { display: flex; flex-direction: column; gap: 6px; }
         .vm-proc { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -4529,9 +4554,16 @@
             <div class="vm-rings">
                 <div class="vm-ring-wrap">
                     <svg class="vm-ring" viewBox="0 0 80 80">
+                        <defs>
+                            <linearGradient id="vmGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" class="vm-grad-stop-a"/>
+                                <stop offset="100%" class="vm-grad-stop-b"/>
+                            </linearGradient>
+                        </defs>
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingCpu" cx="40" cy="40" r="34"/>
                     </svg>
+                    <span class="vm-ring-dot" id="vmRingCpuDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingCpuVal">--%</strong><span>CPU</span></div>
                 </div>
                 <div class="vm-ring-wrap">
@@ -4539,6 +4571,7 @@
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingMem" cx="40" cy="40" r="34"/>
                     </svg>
+                    <span class="vm-ring-dot" id="vmRingMemDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingMemVal">--%</strong><span>RAM</span></div>
                 </div>
                 <div class="vm-ring-wrap">
@@ -4546,6 +4579,7 @@
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingDisk" cx="40" cy="40" r="34"/>
                     </svg>
+                    <span class="vm-ring-dot" id="vmRingDiskDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingDiskVal">--%</strong><span>DISK</span></div>
                 </div>
             </div>
@@ -7425,9 +7459,9 @@
                 $('vmDiskVal').textContent = diskPct + '%';
                 setMiniRing($('vmCpuRing'), cpuPct);
                 setMiniRing($('vmMemRing'), memPct);
-                setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct);
-                setRing($('vmRingMem'), $('vmRingMemVal'), memPct);
-                setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct);
+                setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct, $('vmRingCpuDot'));
+                setRing($('vmRingMem'), $('vmRingMemVal'), memPct, $('vmRingMemDot'));
+                setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct, $('vmRingDiskDot'));
                 renderProcList(d.processes || []);
             });
             const pill = $('velometerPill');
@@ -7447,11 +7481,12 @@
             el.style.strokeDashoffset = String(c * (1 - v / 100));
         }
 
-        function setRing(circle, label, pct) {
+        function setRing(circle, label, pct, dot) {
             if (!circle || !label) return;
             const offset = VM_RING_CIRC * (1 - pct / 100);
             circle.style.strokeDashoffset = offset.toFixed(1);
             label.textContent = pct + '%';
+            if (dot) dot.style.transform = `rotate(${(pct * 3.6).toFixed(1)}deg)`;
         }
 
         function renderProcList(procs) {
