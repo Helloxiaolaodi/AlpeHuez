@@ -3564,18 +3564,67 @@
             text-transform: uppercase;
             color: var(--text-muted);
         }
-        .tp-actions { display: flex; gap: 8px; }
-        .tp-btn {
-            flex: 1;
-            padding: 9px 12px;
+        .tp-dock {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 0 14px 14px;
+            padding: 7px;
             border: 1px solid var(--line-strong);
-            border-radius: 9px;
+            border-radius: 14px;
             background: var(--bg-card);
-            color: var(--text-main);
-            font-size: 12.5px;
-            font-weight: 600;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
         }
-        .tp-btn:hover { border-color: var(--brand-primary); }
+
+        .tp-dock-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            background: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: transform 0.18s var(--spring), background 0.18s, color 0.18s;
+        }
+
+        .tp-dock-btn svg {
+            width: 17px;
+            height: 17px;
+            pointer-events: none;
+        }
+
+        .tp-dock-btn:hover {
+            color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tp-dock-btn.zen-on {
+            color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.12);
+        }
+
+        html[data-theme="space"] .tp-dock-btn:hover {
+            background: rgba(162, 123, 255, 0.12);
+        }
+
+        html[data-theme="space"] .tp-dock-btn.zen-on {
+            background: rgba(162, 123, 255, 0.15);
+        }
+
+        .tp-dock-sep {
+            width: 1px;
+            height: 20px;
+            background: var(--line);
+            margin: 0 4px;
+        }
 
         .settings-header {
             display: flex;
@@ -4928,7 +4977,11 @@
             const zen = zenToggle.checked;
             localStorage.setItem('alpehuez_zen', zen ? '1' : '');
             const zenBtn = $('tpZen');
-            if (zenBtn) zenBtn.textContent = zen ? 'Zen Mode: ON' : 'Zen Mode';
+            if (zenBtn) {
+                zenBtn.classList.toggle('zen-on', zen);
+                zenBtn.setAttribute('aria-label', zen ? 'Zen Mode: ON' : 'Zen Mode');
+                zenBtn.title = zen ? 'Zen Mode: ON' : 'Zen Mode';
+            }
             showToast(zen ? 'Zen Mode on — telemetry paused' : 'Zen Mode off', zen ? 'success' : 'info');
         });
         $('clearTelemetry').addEventListener('click', () => {
@@ -7727,12 +7780,20 @@
             const closeBtn = $('tpClose');
             if (closeBtn) closeBtn.addEventListener('click', closeTelemetryPod);
             const zenBtn = $('tpZen');
-            if (zenBtn) zenBtn.addEventListener('click', () => {
-                const zen = localStorage.getItem('alpehuez_zen') === '1';
-                localStorage.setItem('alpehuez_zen', zen ? '' : '1');
-                zenBtn.textContent = zen ? 'Zen Mode' : 'Zen Mode: ON';
-                showToast(zen ? 'Zen Mode off' : 'Zen Mode on — telemetry paused');
-            });
+            if (zenBtn) {
+                const syncZenBtn = (zen) => {
+                    zenBtn.classList.toggle('zen-on', zen);
+                    zenBtn.setAttribute('aria-label', zen ? 'Zen Mode: ON' : 'Zen Mode');
+                    zenBtn.title = zen ? 'Zen Mode: ON' : 'Zen Mode';
+                };
+                syncZenBtn(localStorage.getItem('alpehuez_zen') === '1');
+                zenBtn.addEventListener('click', () => {
+                    const zen = localStorage.getItem('alpehuez_zen') === '1';
+                    localStorage.setItem('alpehuez_zen', zen ? '' : '1');
+                    syncZenBtn(!zen);
+                    showToast(zen ? 'Zen Mode off' : 'Zen Mode on — telemetry paused');
+                });
+            }
             const exportBtn = $('tpExport');
             if (exportBtn) exportBtn.addEventListener('click', () => {
                 const report = buildTelemetryReport();
@@ -7742,6 +7803,9 @@
                 } catch (error) {
                     showToast('Could not copy report');
                 }
+            });
+            pod.querySelectorAll('.tp-dock-btn[data-fbmode]').forEach((btn) => {
+                btn.addEventListener('click', () => applyWindowMode(btn.dataset.fbmode));
             });
             document.addEventListener('click', (e) => {
                 if (pod.classList.contains('open') && !pod.contains(e.target) && e.target !== $('floatBall')) {
@@ -7877,12 +7941,14 @@
         <div class="tp-scroll">
             <div class="tp-section"><h3>Focus Heatmap</h3><div id="tpHeatmap"></div></div>
             <div class="tp-section"><h3>Activity Timeline</h3><div id="tpTimeline"></div></div>
-            <div class="tp-section"><h3>Quick Actions</h3>
-                <div class="tp-actions">
-                    <button type="button" id="tpZen" class="tp-btn">Zen Mode</button>
-                    <button type="button" id="tpExport" class="tp-btn">Export Report</button>
-                </div>
-            </div>
+        </div>
+        <div class="tp-dock" role="toolbar" aria-label="Quick actions">
+            <button type="button" id="tpZen" class="tp-dock-btn" aria-label="Zen Mode" title="Zen Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button type="button" id="tpExport" class="tp-dock-btn" aria-label="Export Report" title="Export Report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+            <span class="tp-dock-sep"></span>
+            <button type="button" class="tp-dock-btn" data-fbmode="fullscreen" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/></svg></button>
+            <button type="button" class="tp-dock-btn" data-fbmode="window" aria-label="Window mode" title="Window Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+            <button type="button" class="tp-dock-btn" data-fbmode="vertical" aria-label="Vertical dashboard" title="Vertical Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
         </div>
     </div>
     <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">
