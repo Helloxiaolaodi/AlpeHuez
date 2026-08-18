@@ -38,7 +38,6 @@
             --danger: #FF5000;
             --warning: #F38020;
             --bg-sidebar: #F7F7F5;
-            --status-active: #0087EB;
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.8);
             --bg-elevated: rgba(255, 255, 255, 0.85);
@@ -68,7 +67,6 @@
             --danger: #F87171;
             --warning: #FFB74D;
             --bg-sidebar: #16131D;
-            --status-active: #A27BFF;
             --glass-bg: rgba(20, 18, 26, 0.5);
             --glass-border: rgba(255, 255, 255, 0.04);
             --bg-elevated: #2D283A;
@@ -2564,16 +2562,16 @@
             background: rgba(148, 163, 184, 0.18);
         }
 
-        .usage-cell.l1 { background: rgba(0, 135, 235,0.35); }
-        .usage-cell.l2 { background: rgba(0, 135, 235,0.55); }
-        .usage-cell.l3 { background: rgba(0, 135, 235,0.8); }
-        .usage-cell.l4 { background: var(--status-active); }
+        .usage-cell.l1 { background: rgba(99, 102, 241, 0.45); }
+        .usage-cell.l2 { background: rgba(168, 85, 247, 0.6); }
+        .usage-cell.l3 { background: rgba(236, 72, 153, 0.75); }
+        .usage-cell.l4 { background: rgba(251, 146, 60, 0.95); }
 
         html[data-theme="space"] .usage-cell { background: rgba(255, 255, 255, 0.08); }
-        html[data-theme="space"] .usage-cell.l1 { background: rgba(162, 123, 255,0.35); }
-        html[data-theme="space"] .usage-cell.l2 { background: rgba(162, 123, 255,0.6); }
-        html[data-theme="space"] .usage-cell.l3 { background: rgba(162, 123, 255,0.85); }
-        html[data-theme="space"] .usage-cell.l4 { background: var(--status-active); }
+        html[data-theme="space"] .usage-cell.l1 { background: rgba(129, 140, 248, 0.4); }
+        html[data-theme="space"] .usage-cell.l2 { background: rgba(192, 132, 252, 0.55); }
+        html[data-theme="space"] .usage-cell.l3 { background: rgba(244, 114, 182, 0.7); }
+        html[data-theme="space"] .usage-cell.l4 { background: rgba(251, 191, 36, 0.95); }
 
         .usage-legend {
             display: flex;
@@ -2590,6 +2588,36 @@
             height: 10px;
             display: inline-block;
         }
+
+        .usage-cell {
+            transition: transform 0.18s var(--spring);
+        }
+
+        .usage-cell:hover {
+            transform: scale(1.45);
+            z-index: 1;
+            position: relative;
+        }
+
+        .hm-tip {
+            position: fixed;
+            z-index: 13500;
+            padding: 5px 9px;
+            border-radius: 7px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-float);
+            color: var(--text-main);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.4;
+            white-space: nowrap;
+            pointer-events: none;
+            backdrop-filter: blur(14px) saturate(150%);
+            -webkit-backdrop-filter: blur(14px) saturate(150%);
+        }
+
+        .hm-tip[hidden] { display: none; }
 
         .activity-timeline {
             max-width: 1240px;
@@ -5152,7 +5180,7 @@
                 const key = d.toISOString().slice(0, 10);
                 const count = usageCount(key);
                 const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : count <= 6 ? 3 : 4;
-                cells.push(`<div class="usage-cell l${level}" title="${key} · ${count}"></div>`);
+                cells.push(`<div class="usage-cell l${level}" data-key="${key}" data-count="${count}" role="img" aria-label="${key} · ${count} interactions"></div>`);
             }
             el.innerHTML = `
                 <div class="usage-heatmap-head">
@@ -7661,6 +7689,41 @@
         function initTelemetryPod() {
             const pod = $('telemetryPod');
             if (!pod) return;
+            if (!$('hmTip')) {
+                const tip = document.createElement('div');
+                tip.id = 'hmTip';
+                tip.className = 'hm-tip';
+                tip.hidden = true;
+                document.body.appendChild(tip);
+            }
+            const heatmapEl = $('tpHeatmap');
+            if (heatmapEl) {
+                let hmLastCell = null;
+                heatmapEl.addEventListener('mousemove', (e) => {
+                    const cell = e.target.closest('.usage-cell');
+                    if (cell) {
+                        if (cell !== hmLastCell) {
+                            hmLastCell = cell;
+                            const d = new Date(cell.dataset.key + 'T00:00:00');
+                            const count = Number(cell.dataset.count) || 0;
+                            const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                            tip.textContent = `${label} · ${count} ${count === 1 ? 'interaction' : 'interactions'}`;
+                            tip.hidden = false;
+                        }
+                        const pad = 12;
+                        let x = e.clientX + 10;
+                        let y = e.clientY - tip.offsetHeight - 10;
+                        if (y < 8) y = e.clientY + 14;
+                        if (x + tip.offsetWidth > window.innerWidth - 8) x = e.clientX - tip.offsetWidth - 10;
+                        tip.style.left = `${x}px`;
+                        tip.style.top = `${y}px`;
+                    }
+                });
+                heatmapEl.addEventListener('mouseleave', () => {
+                    hmLastCell = null;
+                    tip.hidden = true;
+                });
+            }
             const closeBtn = $('tpClose');
             if (closeBtn) closeBtn.addEventListener('click', closeTelemetryPod);
             const zenBtn = $('tpZen');
