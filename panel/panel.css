@@ -495,6 +495,12 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 }
 .log:empty::before { content: "—"; color: var(--text-3); }
 
+/* ---------- 部署日志 Block（Warp 风格） ---------- */
+.deploy-block { margin: 6px 0; border-left: 2px solid rgba(34, 197, 94, 0.6); background: rgba(9, 9, 11, 0.4); border-radius: 6px; overflow: hidden; }
+.deploy-block.err { border-left-color: rgba(239, 68, 68, 0.7); }
+.deploy-block-head { padding: 4px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.deploy-block pre { margin: 0; padding: 4px 10px 8px; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+
 /* ---------- 登录门禁 ---------- */
 .login-backdrop {
   position: fixed; inset: 0; z-index: 300;

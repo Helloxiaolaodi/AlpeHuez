@@ -478,24 +478,27 @@ pub async fn sys_stats() -> Result<SysStats, String> {
 }
 
 #[tauri::command]
-pub async fn git_push(message: String) -> Result<PushResult, String> {
+pub async fn git_push(app: tauri::AppHandle, message: String) -> Result<PushResult, String> {
+    use tauri::Emitter;
     let root = repo_root();
     let msg = if message.trim().is_empty() {
         "Update site content".to_string()
     } else {
         message.trim().to_string()
     };
+    let emit = |phase: &str, text: &str| {
+        let _ = app.emit("deploy-log", serde_json::json!({ "phase": phase, "text": text }));
+    };
+    emit("add", "$ git add -A\n");
     let (_, add) = run_cmd("git", &["add", "-A"], root);
+    emit("add", &add);
+    emit("commit", "$ git commit -m \"...\"\n");
     let (commit_code, commit) = run_cmd("git", &["commit", "-m", &msg], root);
+    emit("commit", &commit);
+    emit("push", "$ git push\n");
     let (push_code, push) = run_cmd("git", &["push"], root);
-    Ok(PushResult {
-        ok: true,
-        add,
-        commit,
-        commit_code,
-        push,
-        push_code,
-    })
+    emit("push", &push);
+    Ok(PushResult { ok: true, add, commit, commit_code, push, push_code })
 }
 
 #[tauri::command]

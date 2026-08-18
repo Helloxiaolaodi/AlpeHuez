@@ -268,6 +268,19 @@ function appendLog(text) {
   el.scrollTop = el.scrollHeight;
 }
 
+/* 部署日志：git_push 分阶段推送 deploy-log 事件，每个 phase 渲染为 Warp 风格 Block */
+if (isDesktop && window.__TAURI__.event && typeof window.__TAURI__.event.listen === 'function') {
+  window.__TAURI__.event.listen('deploy-log', (e) => {
+    const { phase, text } = e.payload;
+    const ok = phase === 'add' || phase === 'commit' || phase === 'push';
+    const block = document.createElement('div');
+    block.className = 'deploy-block' + (ok ? ' ok' : ' err');
+    block.innerHTML = `<div class="deploy-block-head">${escapeHtml(phase)}</div><pre>${escapeHtml(text)}</pre>`;
+    $('#logArea').appendChild(block);
+    $('#logArea').scrollTop = $('#logArea').scrollHeight;
+  });
+}
+
 /* ---------- 模态框 ---------- */
 function fieldHtml(f) {
   if (f.type === 'checkbox') {
