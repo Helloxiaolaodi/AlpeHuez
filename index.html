@@ -277,6 +277,38 @@
             scrollbar-width: none;
         }
         .workspace-tab-list::-webkit-scrollbar { display: none; }
+        .ws-tab-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        .ws-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+        .ws-nav-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+        .ws-nav-btn:hover {
+            color: var(--brand-primary);
+            background: var(--bg-card);
+        }
+        html[data-theme="space"] .ws-nav-btn:hover {
+            background: rgba(162, 123, 255, 0.12);
+        }
         .workspace-tab {
             display: inline-flex;
             align-items: center;
@@ -1671,8 +1703,7 @@
             transition: opacity 0.16s ease, transform 0.16s ease;
         }
 
-        body.browsing .topbar-left,
-        body.browsing #themeToggleBtn {
+        body.browsing .topbar-left {
             display: none;
         }
 
@@ -4043,6 +4074,20 @@
     <div class="app-shell">
         <div id="workspaceTabs" class="workspace-tabs" hidden>
             <div id="workspaceTabList" class="workspace-tab-list"></div>
+            <div class="ws-tab-controls">
+                <button type="button" id="wsBtnBack" class="ws-nav-btn" title="Back (Alt+Left)" aria-label="Back (Alt+Left)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button type="button" id="wsBtnForward" class="ws-nav-btn" title="Forward (Alt+Right)" aria-label="Forward (Alt+Right)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <button type="button" id="wsBtnFullscreen" class="ws-nav-btn" title="Enter fullscreen (F11)" aria-label="Enter fullscreen (F11)">
+                    <span id="wsFullscreenIcon"></span>
+                </button>
+                <button type="button" id="themeToggleBtn" class="ws-nav-btn" title="Switch theme" aria-label="Switch theme">
+                    <span id="themeIcon"></span>
+                </button>
+            </div>
             <button id="workspaceAddBtn" class="workspace-add-btn" type="button" title="New workspace" aria-label="New workspace">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             </button>
@@ -4201,9 +4246,6 @@
                     </button>
                     <button id="btnFullscreen" class="icon-btn fullscreen-btn" title="Enter fullscreen (F11)" aria-label="Enter fullscreen (F11)">
                         <span id="fullscreenIcon"></span>
-                    </button>
-                    <button id="themeToggleBtn" class="icon-btn" title="Switch theme" aria-label="Switch theme">
-                        <span id="themeIcon"></span>
                     </button>
                 </div>
             </header>
@@ -4548,6 +4590,7 @@
         const DEFAULT_SHORTCUTS = {
             fullscreen: 'F11',
             back: 'Alt+ArrowLeft',
+            forward: 'Alt+ArrowRight',
             search: 'Ctrl+K',
             dev: 'Ctrl+Shift+D'
         };
@@ -5486,6 +5529,15 @@
             }
         }
 
+        async function forwardBrowserTab() {
+            if (!isDesktop || !activeBrowserLabel) return;
+            try {
+                await invoke('go_forward_internal_page', { label: activeBrowserLabel });
+            } catch (error) {
+                console.error('go_forward_internal_page failed:', error);
+            }
+        }
+
         function pageLoadStarted() {
             const bar = $('pageLoadBar');
             if (!bar) return;
@@ -5510,15 +5562,16 @@
         }
 
         function updateFullscreenIcon() {
-            const icon = $('fullscreenIcon');
-            const button = $('btnFullscreen');
             const active = isFullscreen();
+            const label = active ? 'Exit fullscreen (F11)' : 'Enter fullscreen (F11)';
+            const icon = $('fullscreenIcon');
+            const wsIcon = $('wsFullscreenIcon');
+            const button = $('btnFullscreen');
+            const wsBtn = $('wsBtnFullscreen');
             if (icon) icon.innerHTML = active ? ICONS.fullscreenExit : ICONS.fullscreenEnter;
-            if (button) {
-                const label = active ? 'Exit fullscreen (F11)' : 'Enter fullscreen (F11)';
-                button.title = label;
-                button.setAttribute('aria-label', label);
-            }
+            if (wsIcon) wsIcon.innerHTML = active ? ICONS.fullscreenExit : ICONS.fullscreenEnter;
+            if (button) { button.title = label; button.setAttribute('aria-label', label); }
+            if (wsBtn) { wsBtn.title = label; wsBtn.setAttribute('aria-label', label); }
         }
 
         async function setNativeFullscreen(active) {
@@ -6693,6 +6746,9 @@
             $('themeToggleBtn').addEventListener('click', toggleTheme);
             $('btnFullscreen').addEventListener('click', toggleFullscreen);
             $('btnBack').addEventListener('click', backBrowserTab);
+            $('wsBtnBack').addEventListener('click', backBrowserTab);
+            $('wsBtnForward').addEventListener('click', forwardBrowserTab);
+            $('wsBtnFullscreen').addEventListener('click', toggleFullscreen);
             updateFullscreenIcon();
 
             const contextSidebar = document.querySelector('.tab-sidebar');
@@ -7032,6 +7088,11 @@
                 if (shortcutMatches(event, settingsShortcuts.back)) {
                     event.preventDefault();
                     backBrowserTab();
+                    return;
+                }
+                if (shortcutMatches(event, settingsShortcuts.forward)) {
+                    event.preventDefault();
+                    forwardBrowserTab();
                     return;
                 }
                 if (event.key === 'Escape') {
