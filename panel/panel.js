@@ -272,7 +272,7 @@ function appendLog(text) {
 if (isDesktop && window.__TAURI__.event && typeof window.__TAURI__.event.listen === 'function') {
   window.__TAURI__.event.listen('deploy-log', (e) => {
     const { phase, text } = e.payload;
-    const ok = phase === 'add' || phase === 'commit' || phase === 'push';
+    const ok = phase !== 'error';
     const block = document.createElement('div');
     block.className = 'deploy-block' + (ok ? ' ok' : ' err');
     block.innerHTML = `<div class="deploy-block-head">${escapeHtml(phase)}</div><pre>${escapeHtml(text)}</pre>`;

@@ -490,14 +490,14 @@ pub async fn git_push(app: tauri::AppHandle, message: String) -> Result<PushResu
         let _ = app.emit("deploy-log", serde_json::json!({ "phase": phase, "text": text }));
     };
     emit("add", "$ git add -A\n");
-    let (_, add) = run_cmd("git", &["add", "-A"], root);
-    emit("add", &add);
+    let (add_code, add) = run_cmd("git", &["add", "-A"], root);
+    if add_code != 0 { emit("error", &add); } else { emit("add", &add); }
     emit("commit", "$ git commit -m \"...\"\n");
     let (commit_code, commit) = run_cmd("git", &["commit", "-m", &msg], root);
-    emit("commit", &commit);
+    if commit_code != 0 { emit("error", &commit); } else { emit("commit", &commit); }
     emit("push", "$ git push\n");
     let (push_code, push) = run_cmd("git", &["push"], root);
-    emit("push", &push);
+    if push_code != 0 { emit("error", &push); } else { emit("push", &push); }
     Ok(PushResult { ok: true, add, commit, commit_code, push, push_code })
 }
 
