@@ -4695,7 +4695,8 @@
         const hasTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
         const isAndroid = /android/i.test(navigator.userAgent);
         const isDesktop = hasTauri && !isAndroid;
-        if (!isDesktop) document.documentElement.classList.add('no-titlebar');
+        // 旧版 exe 窗口仍带原生标题栏时隐藏自定义栏，避免双标题栏
+        if (!isDesktop || window.outerHeight - window.innerHeight > 2) document.documentElement.classList.add('no-titlebar');
         const invoke = hasTauri ? window.__TAURI__.core.invoke : null;
         const listen = hasTauri ? window.__TAURI__.event.listen : null;
 
