@@ -83,7 +83,6 @@ fn stage_webroot() {
         "index.html",
         "links.json",
         "tailwind.min.js",
-        "1109770.jpg",
         "github-profile.jpg",
     ] {
         stage(f);
