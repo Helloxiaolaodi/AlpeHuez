@@ -915,9 +915,22 @@
         }
 
         .portal-category-link.active {
+            position: relative;
             color: var(--brand-primary);
-            background: rgba(0, 135, 235,0.62);
-            border-color: rgba(0, 135, 235,0.14);
+            background: rgba(0, 135, 235, 0.1);
+            border-color: rgba(0, 135, 235, 0.12);
+        }
+
+        .portal-category-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            border-radius: 2px;
+            background: var(--brand-primary);
         }
 
         .portal-category-name {
@@ -935,7 +948,7 @@
 
         .portal-category-link:hover {
             color: var(--brand-primary);
-            background: rgba(0, 135, 235,0.34);
+            background: rgba(0, 135, 235, 0.08);
         }
 
         .portal-tag-filter {
@@ -971,6 +984,12 @@
         html[data-theme="space"] .portal-tag-filter .tag-chip:hover {
             background: rgba(255, 255, 255, 0.06);
             color: #F1F5F9;
+        }
+
+        html[data-theme="space"] .portal-category-link.active,
+        html[data-theme="space"] .tag-chip.active {
+            background: rgba(162, 123, 255, 0.12);
+            border-color: rgba(162, 123, 255, 0.2);
         }
 
         .context-empty {
@@ -1019,13 +1038,25 @@
 
         .browser-tab:hover {
             color: var(--text-main);
-            background: rgba(0, 135, 235,0.34);
+            background: rgba(0, 135, 235, 0.08);
         }
 
         .browser-tab.active {
             color: var(--brand-primary);
-            background: rgba(0, 135, 235,0.62);
-            border-color: rgba(0, 135, 235,0.14);
+            background: rgba(0, 135, 235, 0.1);
+            border-color: rgba(0, 135, 235, 0.12);
+        }
+
+        .browser-tab.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            border-radius: 2px;
+            background: var(--brand-primary);
         }
 
         html[data-theme="space"] .browser-tab:hover {
@@ -1035,8 +1066,8 @@
 
         html[data-theme="space"] .browser-tab.active {
             color: #FFFFFF;
-            background: rgba(162, 123, 255,0.2);
-            border-color: rgba(162, 123, 255,0.24);
+            background: rgba(162, 123, 255, 0.12);
+            border-color: rgba(162, 123, 255, 0.2);
         }
 
         .tab-icon {
@@ -1398,19 +1429,32 @@
 
         .dev-tool-btn:hover {
             color: var(--text-main);
-            background: rgba(0, 135, 235,0.34);
+            background: rgba(0, 135, 235, 0.08);
         }
 
         .dev-tool-btn.active {
+            position: relative;
             color: var(--brand-primary);
-            background: rgba(0, 135, 235,0.62);
-            border-color: rgba(0, 135, 235,0.14);
+            background: rgba(0, 135, 235, 0.1);
+            border-color: rgba(0, 135, 235, 0.12);
+        }
+
+        .dev-tool-btn.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            border-radius: 2px;
+            background: var(--brand-primary);
         }
 
         html[data-theme="space"] .dev-tool-btn.active {
             color: #FFFFFF;
-            background: rgba(162, 123, 255,0.2);
-            border-color: rgba(162, 123, 255,0.24);
+            background: rgba(162, 123, 255, 0.12);
+            border-color: rgba(162, 123, 255, 0.2);
         }
 
         .git-context {
@@ -2221,13 +2265,13 @@
 
         .tag-chip:hover {
             color: var(--brand-primary);
-            background: rgba(0, 135, 235,0.35);
+            background: rgba(0, 135, 235, 0.08);
         }
 
         .tag-chip.active {
-            color: #0087EB;
-            background: rgba(0, 135, 235,0.1);
-            border-color: rgba(0, 135, 235,0.12);
+            color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.1);
+            border-color: rgba(0, 135, 235, 0.12);
         }
 
         .portal-legend {
