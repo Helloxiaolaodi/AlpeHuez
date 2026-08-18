@@ -434,21 +434,6 @@
         .vm-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .vm-ring-center strong { font-size: 15px; font-variant-numeric: tabular-nums; }
         .vm-ring-center span { font-size: 10px; color: var(--text-muted); }
-        .vm-ring-dot {
-            position: absolute;
-            left: 50%;
-            top: -4px;
-            width: 8px;
-            height: 8px;
-            margin-left: -4px;
-            border-radius: 50%;
-            background: var(--brand-primary);
-            box-shadow: 0 0 8px 1px var(--brand-primary);
-            transform-origin: 50% 550%;
-            /* 点盒顶部 -4px，550% × 8px = 44px → 枢轴在环心 (40,40) */
-            pointer-events: none;
-            transition: transform 0.4s ease;
-        }
         .vm-procs-label { font-size: 12px; color: var(--text-muted); }
         .vm-proc-list { display: flex; flex-direction: column; gap: 6px; }
         .vm-proc { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -4563,7 +4548,6 @@
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingCpu" cx="40" cy="40" r="34"/>
                     </svg>
-                    <span class="vm-ring-dot" id="vmRingCpuDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingCpuVal">--%</strong><span>CPU</span></div>
                 </div>
                 <div class="vm-ring-wrap">
@@ -4571,7 +4555,6 @@
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingMem" cx="40" cy="40" r="34"/>
                     </svg>
-                    <span class="vm-ring-dot" id="vmRingMemDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingMemVal">--%</strong><span>RAM</span></div>
                 </div>
                 <div class="vm-ring-wrap">
@@ -4579,7 +4562,6 @@
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingDisk" cx="40" cy="40" r="34"/>
                     </svg>
-                    <span class="vm-ring-dot" id="vmRingDiskDot"></span>
                     <div class="vm-ring-center"><strong id="vmRingDiskVal">--%</strong><span>DISK</span></div>
                 </div>
             </div>
@@ -7459,9 +7441,9 @@
                 $('vmDiskVal').textContent = diskPct + '%';
                 setMiniRing($('vmCpuRing'), cpuPct);
                 setMiniRing($('vmMemRing'), memPct);
-                setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct, $('vmRingCpuDot'));
-                setRing($('vmRingMem'), $('vmRingMemVal'), memPct, $('vmRingMemDot'));
-                setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct, $('vmRingDiskDot'));
+                setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct);
+                setRing($('vmRingMem'), $('vmRingMemVal'), memPct);
+                setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct);
                 renderProcList(d.processes || []);
             });
             const pill = $('velometerPill');
@@ -7481,12 +7463,11 @@
             el.style.strokeDashoffset = String(c * (1 - v / 100));
         }
 
-        function setRing(circle, label, pct, dot) {
+        function setRing(circle, label, pct) {
             if (!circle || !label) return;
             const offset = VM_RING_CIRC * (1 - pct / 100);
             circle.style.strokeDashoffset = offset.toFixed(1);
             label.textContent = pct + '%';
-            if (dot) dot.style.transform = `rotate(${(pct * 3.6).toFixed(1)}deg)`;
         }
 
         function renderProcList(procs) {
