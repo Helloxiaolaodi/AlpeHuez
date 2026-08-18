@@ -2021,6 +2021,56 @@
             pointer-events: none;
         }
 
+        .search-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 40px;
+            padding: 0 12px;
+            color: var(--text-main);
+            background: var(--panel-solid);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+        .search-trigger:hover {
+            border-color: rgba(0, 135, 235, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12), var(--shadow);
+        }
+        html[data-theme="space"] .search-trigger:hover {
+            border-color: rgba(99, 102, 241, 0.55);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+        }
+        .search-trigger .kbd-badge {
+            position: static;
+            margin: 0;
+        }
+        .search-trigger-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            flex: 0 0 auto;
+        }
+
+        .command-palette { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding-top: 18vh; }
+        .command-palette[hidden] { display: none; }
+        .cp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
+        .cp-panel { position: relative; width: min(700px, 92vw); background: var(--panel-solid); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-float); overflow: hidden; }
+        html[data-theme="space"] .cp-panel { background: rgba(9,9,11,0.8); border-color: rgba(255,255,255,0.1); }
+        .cp-input-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+        .cp-input-row input { flex: 1; border: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 15px; outline: none; }
+        .cp-search-icon { width: 18px; height: 18px; color: var(--text-muted); flex: 0 0 auto; }
+        .cp-results { max-height: 46vh; overflow-y: auto; padding: 6px; }
+        .cp-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px; }
+        .cp-item.active, .cp-item:hover { background: var(--bg-card); }
+        .cp-item .cp-kind { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+        .cp-actionbar { display: flex; align-items: center; gap: 16px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--text-muted); }
+        .cp-hint { display: inline-flex; align-items: center; gap: 5px; }
+        .cp-hint kbd { padding: 1px 5px; border: 1px solid var(--line-strong); border-radius: 4px; font: inherit; font-size: 10px; background: var(--bg-card); }
+
         .portal-toolbar {
             display: flex;
             align-items: center;
@@ -3874,15 +3924,11 @@
                         </div>
 
                         <div class="top-control-bar">
-                            <div class="search-shell">
-                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                <button id="engineBtn" type="button" class="engine-btn" title="Search engine">
-                                    <span id="engineLabel">Google</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                                </button>
-                                <input id="searchInput" type="text" placeholder="Search or type / for commands..." autocomplete="off" spellcheck="false">
+                            <button id="searchTrigger" type="button" class="search-trigger" title="Search or run commands">
+                                <svg class="search-trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <span>Search</span>
                                 <span class="kbd-badge">Ctrl K</span>
-                            </div>
+                            </button>
                             <div id="appflowyKomPill" class="kom-card" title="Initializing..." hidden>
                                 <div class="kom-header">
                                     <div class="kom-title">
@@ -3986,6 +4032,23 @@
                 </div>
             </div>
         </main>
+        <div id="commandPalette" class="command-palette" hidden>
+            <div class="cp-backdrop"></div>
+            <div class="cp-panel" role="dialog" aria-modal="true">
+                <div class="cp-input-row">
+                    <svg class="cp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input id="cpInput" type="text" placeholder="Search or type / for commands..." autocomplete="off" spellcheck="false">
+                    <span class="kbd-badge">Esc</span>
+                </div>
+                <div id="cpResults" class="cp-results"></div>
+                <div class="cp-actionbar">
+                    <span class="cp-hint"><kbd>↵</kbd> Open</span>
+                    <span class="cp-hint"><kbd>↑↓</kbd> Navigate</span>
+                    <span class="cp-hint"><kbd>/</kbd> Commands</span>
+                    <span class="cp-hint"><kbd>Esc</kbd> Close</span>
+                </div>
+            </div>
+        </div>
         <div id="velometerDrawer" class="velometer-drawer" hidden>
             <div class="vm-drawer-head">
                 <strong>VeloMeter</strong>
@@ -5970,6 +6033,7 @@
         document.body.appendChild(commandMenu);
 
         function positionEngineMenu() {
+            if (!searchInput) return;
             const searchRect = searchInput.getBoundingClientRect();
             engineMenu.style.left = searchRect.left + 'px';
             engineMenu.style.top = (searchRect.bottom + 8) + 'px';
@@ -5978,6 +6042,7 @@
         }
 
         function positionCommandMenu() {
+            if (!searchInput) return;
             const rect = searchInput.getBoundingClientRect();
             commandMenu.style.left = rect.left + 'px';
             commandMenu.style.top = (rect.bottom + 8) + 'px';
@@ -5997,7 +6062,7 @@
         let filteredCommands = [];
 
         function renderCommands() {
-            const query = searchInput.value.trim().slice(1).toLowerCase();
+            const query = searchInput ? searchInput.value.trim().slice(1).toLowerCase() : '';
             filteredCommands = query
                 ? COMMANDS.filter((command) => command.match.startsWith(query) || command.label.toLowerCase().includes(query))
                 : COMMANDS.slice();
@@ -6020,13 +6085,66 @@
             commandMenu.classList.remove('hidden');
         }
 
+        const commandPalette = $('commandPalette');
+        const cpInput = $('cpInput');
+        const cpResults = $('cpResults');
+
+        function openCommandPalette() {
+            commandPalette.hidden = false;
+            cpInput.value = '';
+            renderCommandPalette();
+            setTimeout(() => cpInput.focus(), 30);
+        }
+        function closeCommandPalette() {
+            commandPalette.hidden = true;
+        }
+        function renderCommandPalette() {
+            const q = cpInput.value.trim();
+            const isCmd = q.startsWith('/');
+            const query = isCmd ? q.slice(1) : q;
+            const items = [];
+            if (!isCmd) {
+                items.push({ kind: 'search', title: `Search ${ENGINES[activeEngine].label} for "${q || '...'}"`, run: () => { if (q) { trackAction(`Searched ${ENGINES[activeEngine].label} for "${q.slice(0,40)}"`); openUrl(ENGINES[activeEngine].url + encodeURIComponent(q), ENGINES[activeEngine].label); } closeCommandPalette(); } });
+                allItems.filter((it) => !query || (it.title + ' ' + it.url).toLowerCase().includes(query.toLowerCase())).slice(0, 8).forEach((it) => {
+                    items.push({ kind: 'link', title: it.title, sub: it.url, run: () => { openLink(it, {}); closeCommandPalette(); } });
+                });
+            }
+            const cmds = COMMANDS.filter((c) => !query || c.label.toLowerCase().includes(query.toLowerCase()));
+            cmds.forEach((c) => items.push({ kind: 'command', title: c.label, run: () => { runCommand(c); closeCommandPalette(); } }));
+            cpResults.innerHTML = items.length ? items.map((it, i) => `
+                <div class="cp-item ${i === 0 ? 'active' : ''}" data-i="${i}">
+                    <span>${escapeHtml(it.title)}</span>
+                    ${it.sub ? `<span class="cp-kind">${escapeHtml(it.sub)}</span>` : `<span class="cp-kind">${it.kind}</span>`}
+                </div>`).join('') : '<div class="cp-item" style="color:var(--text-muted)">No results</div>';
+            cpResults._items = items;
+        }
+        cpInput.addEventListener('input', renderCommandPalette);
+        cpInput.addEventListener('keydown', (e) => {
+            const items = cpResults._items || [];
+            const actives = cpResults.querySelectorAll('.cp-item');
+            let idx = [...actives].findIndex((el) => el.classList.contains('active'));
+            if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % actives.length; }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + actives.length) % actives.length; }
+            else if (e.key === 'Enter') { e.preventDefault(); if (items[idx]) items[idx].run(); return; }
+            else if (e.key === 'Escape') { closeCommandPalette(); return; }
+            actives.forEach((el, i) => el.classList.toggle('active', i === idx));
+        });
+        cpResults.addEventListener('click', (e) => {
+            const item = e.target.closest('.cp-item');
+            if (!item) return;
+            const items = cpResults._items || [];
+            const it = items[Number(item.dataset.i)];
+            if (it) it.run();
+        });
+        commandPalette.addEventListener('click', (e) => { if (e.target.classList.contains('cp-backdrop')) closeCommandPalette(); });
+
         function hideMenus() {
             engineMenu.classList.add('hidden');
             commandMenu.classList.add('hidden');
         }
 
         function isCommandMode() {
-            return searchInput.value.trim().startsWith('/');
+            return searchInput ? searchInput.value.trim().startsWith('/') : false;
         }
 
         async function runCommand(command) {
@@ -6040,10 +6158,10 @@
                 console.error('runCommand failed:', error);
             }
             hideMenus();
-            searchInput.value = '';
+            if (searchInput) searchInput.value = '';
             searchTerm = '';
             renderContent();
-            searchInput.focus();
+            if (searchInput) searchInput.focus();
         }
 
         function openMyFiles() {
@@ -6325,7 +6443,7 @@
                 if (searchTerm || activeTag !== 'all') {
                     searchTerm = '';
                     activeTag = 'all';
-                    $('searchInput').value = '';
+                    if ($('searchInput')) $('searchInput').value = '';
                     renderContent();
                 }
                 activeCategory = categoryLink.dataset.target.replace('main-group-', '');
@@ -6364,10 +6482,10 @@
                 if (tabButton) await activateBrowserTab(tabButton.dataset.label);
             });
 
-            engineLabel.textContent = ENGINES[activeEngine].label;
+            if (engineLabel) engineLabel.textContent = ENGINES[activeEngine].label;
             renderEngineMenu();
 
-            engineBtn.addEventListener('click', (event) => {
+            if (engineBtn) engineBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
                 if (engineMenu.classList.contains('hidden')) {
                     commandMenu.classList.add('hidden');
@@ -6383,7 +6501,7 @@
                 if (!option) return;
                 activeEngine = option.dataset.engine;
                 localStorage.setItem('nav_engine', activeEngine);
-                engineLabel.textContent = ENGINES[activeEngine].label;
+                if (engineLabel) engineLabel.textContent = ENGINES[activeEngine].label;
                 hideMenus();
             });
 
@@ -6395,53 +6513,58 @@
                 if (command) runCommand(command);
             });
 
-            searchInput.addEventListener('input', () => {
-                const value = searchInput.value;
-                if (value.trim().startsWith('/')) {
-                    searchTerm = '';
-                    renderContent();
-                    showCommandMenu();
-                } else {
-                    searchTerm = value;
-                    renderContent();
-                    hideMenus();
-                }
-            });
+            const searchTrigger = $('searchTrigger');
+            if (searchTrigger) searchTrigger.addEventListener('click', openCommandPalette);
 
-            searchInput.addEventListener('click', (event) => {
-                event.stopPropagation();
-                if (isCommandMode() && commandMenu.classList.contains('hidden')) showCommandMenu();
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    const value = searchInput.value;
+                    if (value.trim().startsWith('/')) {
+                        searchTerm = '';
+                        renderContent();
+                        showCommandMenu();
+                    } else {
+                        searchTerm = value;
+                        renderContent();
+                        hideMenus();
+                    }
+                });
 
-            searchInput.addEventListener('keydown', (event) => {
-                if (isCommandMode()) {
-                    if (event.key === 'ArrowDown') {
-                        event.preventDefault();
-                        if (filteredCommands.length) {
-                            commandIndex = (commandIndex + 1) % filteredCommands.length;
-                            renderCommands();
+                searchInput.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    if (isCommandMode() && commandMenu.classList.contains('hidden')) showCommandMenu();
+                });
+
+                searchInput.addEventListener('keydown', (event) => {
+                    if (isCommandMode()) {
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+                            if (filteredCommands.length) {
+                                commandIndex = (commandIndex + 1) % filteredCommands.length;
+                                renderCommands();
+                            }
+                        } else if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+                            if (filteredCommands.length) {
+                                commandIndex = (commandIndex - 1 + filteredCommands.length) % filteredCommands.length;
+                                renderCommands();
+                            }
+                        } else if (event.key === 'Enter') {
+                            event.preventDefault();
+                            const command = filteredCommands[commandIndex];
+                            if (command) runCommand(command);
                         }
-                    } else if (event.key === 'ArrowUp') {
-                        event.preventDefault();
-                        if (filteredCommands.length) {
-                            commandIndex = (commandIndex - 1 + filteredCommands.length) % filteredCommands.length;
-                            renderCommands();
+                        return;
+                    }
+                    if (event.key === 'Enter') {
+                        const query = event.target.value.trim();
+                        if (query) {
+                            trackAction(`Searched ${ENGINES[activeEngine].label} for "${query.slice(0, 40)}"`);
+                            openUrl(ENGINES[activeEngine].url + encodeURIComponent(query), ENGINES[activeEngine].label);
                         }
-                    } else if (event.key === 'Enter') {
-                        event.preventDefault();
-                        const command = filteredCommands[commandIndex];
-                        if (command) runCommand(command);
                     }
-                    return;
-                }
-                if (event.key === 'Enter') {
-                    const query = event.target.value.trim();
-                    if (query) {
-                        trackAction(`Searched ${ENGINES[activeEngine].label} for "${query.slice(0, 40)}"`);
-                        openUrl(ENGINES[activeEngine].url + encodeURIComponent(query), ENGINES[activeEngine].label);
-                    }
-                }
-            });
+                });
+            }
 
             document.addEventListener('click', hideMenus);
             document.addEventListener('keydown', (event) => {
@@ -6465,13 +6588,13 @@
                         closeSettingsModal();
                     }
                     hideMenus();
-                    searchInput.value = '';
+                    if (searchInput) searchInput.value = '';
                     searchTerm = '';
                     renderContent();
                 }
                 if (shortcutMatches(event, settingsShortcuts.search)) {
                     event.preventDefault();
-                    searchInput.focus();
+                    openCommandPalette();
                 }
                 if (shortcutMatches(event, settingsShortcuts.dev)) {
                     event.preventDefault();
@@ -6480,7 +6603,7 @@
             });
 
             window.addEventListener('focus', () => {
-                if (!document.activeElement || document.activeElement === document.body) {
+                if (searchInput && (!document.activeElement || document.activeElement === document.body)) {
                     searchInput.focus({ preventScroll: true });
                 }
             });
