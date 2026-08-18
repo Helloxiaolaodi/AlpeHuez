@@ -12,9 +12,11 @@
     <style>
         :root {
             --brand-primary: #0087EB;
-            --brand-light: #B1E3FF;
-            --brand-warm: #FFE0AE;
-            --bg-body: #B1E3FF;
+            --brand-light: #C4F2FE;
+            --brand-mint: #A8FFE1;
+            --brand-mint-soft: #C5FDCB;
+            --brand-cyan: #9AFDFF;
+            --bg-body: #EAFBF7;
             --bg-card: rgba(255, 255, 255, 0.6);
             --text-main: #0F172A;
             --text-muted: #475569;
@@ -22,9 +24,9 @@
             --line-strong: rgba(15, 23, 42, 0.14);
             --panel: rgba(255, 255, 255, 0.55);
             --panel-solid: rgba(255, 255, 255, 0.7);
-            --accent-warm: #FFE0AE;
-            --shadow: 0 4px 20px rgba(177, 227, 255, 0.25);
-            --shadow-float: 0 18px 48px -18px rgba(15, 23, 42, 0.22), 0 4px 14px rgba(15, 23, 42, 0.06);
+            --accent-warm: #A8FFE1;
+            --shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 8px 24px rgba(168,255,225,0.2);
+            --shadow-float: inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 48px -18px rgba(15,23,42,0.12);
             --success: #0087EB;
             --danger: #EF4444;
             --warning: #F59E0B;
@@ -100,11 +102,11 @@
             pointer-events: none;
         }
 
-        /* 浅色模式：暖麦光晕从顶部散发 + 冰雪蓝环境渐变 */
+        /* 浅色模式：薄荷冷色调 + 青空蓝环境渐变 */
         html:not([data-theme="space"]) body {
             background-image:
-                radial-gradient(circle at 50% 0%, rgba(255, 224, 174, 0.6) 0%, transparent 50%),
-                linear-gradient(135deg, rgba(177, 227, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(177, 227, 255, 0.7) 100%);
+                radial-gradient(circle at 50% 0%, rgba(168, 255, 225, 0.5) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(196, 242, 254, 0.6) 0%, rgba(255, 255, 255, 0.85) 50%, rgba(154, 253, 255, 0.55) 100%);
             background-attachment: fixed;
         }
 
@@ -526,6 +528,12 @@
             color: var(--brand-primary);
             background: rgba(177, 227, 255, 0.62);
             border-color: rgba(0, 135, 235, 0.14);
+        }
+
+        /* 侧边栏选中态（Things 3 呼吸感）：极轻薄微亮背景 + 图标加深，不用实心大色块 */
+        html:not([data-theme="space"]) .rail-btn.active {
+            background: rgba(0, 135, 235, 0.08);
+            color: #0087EB;
         }
 
         .rail-btn.active::before {
@@ -2246,6 +2254,14 @@
             flex: 1;
             background: var(--line);
         }
+
+        /* 排版即 UI（Things 3 哲学）：浅色模式去掉生硬分割线，靠字重/颜色/间距分层级 */
+        html:not([data-theme="space"]) .nav-card,
+        html:not([data-theme="space"]) .kom-card,
+        html:not([data-theme="space"]) .stat-tile {
+            border: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        html:not([data-theme="space"]) .section-heading { font-weight: 700; color: #111827; }
 
         .usage-heatmap {
             max-width: 1240px;
