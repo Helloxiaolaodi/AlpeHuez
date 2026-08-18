@@ -2665,13 +2665,31 @@
             height: 50%;
         }
 
-        .tl-dot {
-            width: 8px;
-            height: 8px;
-            flex: 0 0 8px;
-            border-radius: 50%;
-            background: var(--brand-primary);
-            box-shadow: 0 0 6px rgba(0, 135, 235,0.6);
+        .tl-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+            color: var(--brand-primary);
+        }
+
+        .tl-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .tl-count {
+            flex: 0 0 auto;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.4;
         }
 
         .tl-item .tl-when {
@@ -5155,11 +5173,39 @@
             el.hidden = false;
         }
 
-        function trackAction(action) {
-            if (localStorage.getItem('alpehuez_zen') === '1') return;
+        const TL_ICONS = {
+            open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+            fullscreen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>',
+            theme: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
+            workspace: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+            search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+            dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>',
+            meeting: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7 16 12v5l7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+            window: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+            pod: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+            legacy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'
+        };
+
+        // 迁移/归一化：旧条目 {t, a} -> {t, type:'legacy', label, count:1}
+        function readTimeline() {
             let log = [];
             try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
-            log.push({ t: Date.now(), a: String(action) });
+            return log.map((e) => (e && typeof e === 'object' && e.a != null && e.type == null)
+                ? { t: e.t, type: 'legacy', label: String(e.a), count: 1 }
+                : { t: e.t, type: e.type || 'legacy', label: e.label != null ? String(e.label) : String(e.a || ''), count: Number(e.count) || 1 });
+        }
+
+        function trackAction(type, label) {
+            if (localStorage.getItem('alpehuez_zen') === '1') return;
+            let log = readTimeline();
+            const now = Date.now();
+            const last = log[log.length - 1];
+            if (last && last.type === type && last.label === label && now - last.t < 8000) {
+                last.t = now;
+                last.count = (last.count || 1) + 1;
+            } else {
+                log.push({ t: now, type, label, count: 1 });
+            }
             if (log.length > 60) log = log.slice(log.length - 60);
             localStorage.setItem('alpehuez_timeline', JSON.stringify(log));
         }
@@ -5177,13 +5223,13 @@
         function renderActivityTimeline() {
             const el = $('tpTimeline');
             if (!el) return;
-            let log = [];
-            try { log = JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'); } catch (error) { log = []; }
+            const log = readTimeline();
             if (!log.length) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
             const rows = log.slice().reverse().map((entry) => `
-                <div class="tl-item" style="border-left: 1px solid var(--line-strong); padding-left: 12px;">
-                    <span class="tl-dot"></span>
-                    <span class="tl-text">${escapeHtml(entry.a)}</span>
+                <div class="tl-item">
+                    <span class="tl-icon">${TL_ICONS[entry.type] || TL_ICONS.legacy}</span>
+                    <span class="tl-text">${escapeHtml(entry.label)}</span>
+                    ${entry.count > 1 ? `<span class="tl-count">×${entry.count}</span>` : ''}
                     <span class="tl-when">${relativeTime(entry.t)}</span>
                 </div>
             `).join('');
@@ -5233,7 +5279,7 @@
             stats._interactions = (stats._interactions || 0) + 1;
             saveStats(stats);
             recordUsage();
-            trackAction(`Opened ${item.title || item.url}`);
+            trackAction('open', `Opened ${item.title || item.url}`);
             addAbilityXp('gc', ABILITY_XP.gcClick);
             recordSprintClick();
         }
@@ -5663,10 +5709,10 @@
             lastFullscreenToggleAt = now;
             if (isFullscreen()) {
                 await exitFullscreen();
-                trackAction('Exited fullscreen');
+                trackAction('fullscreen', 'Exited fullscreen');
             } else {
                 await enterFullscreen();
-                trackAction('Entered fullscreen');
+                trackAction('fullscreen', 'Entered fullscreen');
             }
         }
 
@@ -6274,7 +6320,7 @@
             document.documentElement.dataset.theme = next;
             localStorage.setItem(THEME_KEY, next);
             updateThemeUI(next);
-            trackAction(next === 'space' ? 'Switched to dark mode' : 'Switched to light mode');
+            trackAction('theme', next === 'space' ? 'Switched to dark mode' : 'Switched to light mode');
         }
 
         function toggleTheme() {
@@ -6352,7 +6398,7 @@
             await core.invoke('set_active_workspace', { id });
             currentWorkspaceId = id;
             renderWorkspaceTabs();
-            trackAction(`Switched workspace to ${ws ? ws.name : id}`);
+            trackAction('workspace', `Switched workspace to ${ws ? ws.name : id}`);
             const content = document.querySelector('.workspace');
             if (content) {
                 content.classList.remove('switching');
@@ -7114,7 +7160,7 @@
                     if (event.key === 'Enter') {
                         const query = event.target.value.trim();
                         if (query) {
-                            trackAction(`Searched ${ENGINES[activeEngine].label} for "${query.slice(0, 40)}"`);
+                            trackAction('search', `Searched ${ENGINES[activeEngine].label} for "${query.slice(0, 40)}"`);
                             openUrl(ENGINES[activeEngine].url + encodeURIComponent(query), ENGINES[activeEngine].label);
                         }
                     }
@@ -7460,10 +7506,10 @@
             if (!dash) return;
             if (dash.hidden) {
                 openVerticalDashboard();
-                trackAction('Opened vertical dashboard');
+                trackAction('dashboard', 'Opened vertical dashboard');
             } else {
                 closeVerticalDashboard();
-                trackAction('Closed vertical dashboard');
+                trackAction('dashboard', 'Closed vertical dashboard');
             }
         }
 
@@ -7536,7 +7582,7 @@
                     if (!currentMeeting || currentMeeting.key !== key) {
                         currentMeeting = Object.assign({}, found, { key, foundAt: Date.now() });
                         localStorage.setItem('alpehuez_meeting', JSON.stringify(currentMeeting));
-                        trackAction(`Detected Tencent meeting${currentMeeting.num ? ' ' + currentMeeting.num : ''}`);
+                        trackAction('meeting', `Detected Tencent meeting${currentMeeting.num ? ' ' + currentMeeting.num : ''}`);
                     }
                 } else if (currentMeeting && Date.now() - currentMeeting.foundAt > 60 * 60 * 1000) {
                     currentMeeting = null;
@@ -7586,7 +7632,7 @@
                     }
                     openVerticalDashboard();
                 }
-                trackAction(`Window mode: ${mode}`);
+                trackAction('window', `Window mode: ${mode}`);
             } catch (error) {
                 console.error('applyWindowMode failed:', error);
             }
@@ -7601,7 +7647,7 @@
             renderActivityTimeline();
             const icon = $('floatBallIcon');
             if (icon) icon.innerHTML = ICONS.close;
-            trackAction('Opened Telemetry Pod');
+            trackAction('pod', 'Opened Telemetry Pod');
         }
         function closeTelemetryPod() {
             const pod = $('telemetryPod');
