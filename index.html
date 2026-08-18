@@ -8010,6 +8010,13 @@
         document.addEventListener('DOMContentLoaded', initFloatBall);
         document.addEventListener('DOMContentLoaded', initTelemetryPod);
         document.addEventListener('DOMContentLoaded', initTitleBar);
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isDesktop) {
+                invoke('mark_first_run').then((first) => {
+                    if (first) showToast('AlpeHuez is running in the background — press Alt+A to summon');
+                }).catch(() => {});
+            }
+        });
     </script>
     <div id="toastStack" class="toast-stack" aria-live="polite"></div>
     <div id="telemetryPod" class="telemetry-pod" hidden>

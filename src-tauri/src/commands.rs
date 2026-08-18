@@ -1206,6 +1206,20 @@ pub async fn set_internal_page_visible(app: tauri::AppHandle, label: String, vis
 }
 
 #[tauri::command]
+pub fn mark_first_run(app: tauri::AppHandle) -> bool {
+    let marker = app
+        .path()
+        .app_config_dir()
+        .unwrap_or_default()
+        .join("first_run.marker");
+    if marker.exists() {
+        return false;
+    }
+    let _ = std::fs::write(&marker, "1");
+    true
+}
+
+#[tauri::command]
 pub fn go_back_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
     #[cfg(target_os = "android")]
     {

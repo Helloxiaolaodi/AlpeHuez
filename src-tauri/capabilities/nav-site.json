@@ -22,6 +22,7 @@
     "allow-get-app-version",
     "allow-list-internal-pages",
     "allow-set-internal-page-visible",
+    "allow-mark-first-run",
     "allow-read-json",
     "allow-write-json",
     "allow-read-software",
