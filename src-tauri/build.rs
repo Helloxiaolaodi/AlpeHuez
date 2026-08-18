@@ -37,6 +37,7 @@ fn main() {
                 "go_back_internal_page",
                 "get_app_version",
                 "list_internal_pages",
+                "set_internal_page_visible",
                 "list_workspaces",
                 "get_active_workspace",
                 "set_active_workspace",

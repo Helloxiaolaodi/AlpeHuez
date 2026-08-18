@@ -37,6 +37,7 @@
     "allow-go-back-internal-page",
     "allow-get-app-version",
     "allow-list-internal-pages",
+    "allow-set-internal-page-visible",
     "allow-list-workspaces",
     "allow-get-active-workspace",
     "allow-set-active-workspace",

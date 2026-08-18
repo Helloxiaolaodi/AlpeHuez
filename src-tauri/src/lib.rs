@@ -71,6 +71,7 @@ pub fn run() {
             commands::go_back_internal_page,
             commands::get_app_version,
             commands::list_internal_pages,
+            commands::set_internal_page_visible,
             commands::list_workspaces,
             commands::get_active_workspace,
             commands::set_active_workspace,

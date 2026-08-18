@@ -20,6 +20,7 @@
     "allow-go-back-internal-page",
     "allow-get-app-version",
     "allow-list-internal-pages",
+    "allow-set-internal-page-visible",
     "allow-read-json",
     "allow-write-json",
     "allow-read-software",

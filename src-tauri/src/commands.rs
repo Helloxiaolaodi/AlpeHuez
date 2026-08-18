@@ -1240,6 +1240,20 @@ pub async fn close_internal_page(app: tauri::AppHandle, label: String) -> Result
     }
 }
 
+/// 按 label 隐藏/显示内部页面窗口（标签休眠用）。
+#[tauri::command]
+pub async fn set_internal_page_visible(app: tauri::AppHandle, label: String, visible: bool) -> Result<(), String> {
+    if let Some(win) = app.get_webview_window(&label) {
+        if visible {
+            win.show().map_err(|e| e.to_string())?;
+            win.set_focus().map_err(|e| e.to_string())?;
+        } else {
+            win.hide().map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
 #[tauri::command]
 pub fn go_back_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
     #[cfg(target_os = "android")]
