@@ -43,7 +43,7 @@ pub fn run() {
                 let win = window.clone();
                 std::thread::spawn(move || {
                     commands::auto_backup_on_close(&app);
-                    let _ = win.destroy();
+                    let _ = win.hide();
                 });
             }
         })
@@ -130,25 +130,12 @@ pub fn run() {
             }
             velometer::spawn(app.handle().clone());
             status::spawn(app.handle().clone());
-            // 首次运行显示窗口并提示，之后后台启动（Alt+A 呼出）。
+            // 窗口 visible:true 启动即显示；关闭窗口驻留后台（CloseRequested → hide），Alt+A 呼出。
             // Android 无全局快捷键可唤回，窗口必须始终显示。
             #[cfg(target_os = "android")]
             {
                 if let Some(win) = app.get_webview_window("main") {
                     let _ = win.show();
-                }
-            }
-            #[cfg(not(target_os = "android"))]
-            {
-                let marker = app
-                    .path()
-                    .app_config_dir()
-                    .unwrap_or_default()
-                    .join("first_run.marker");
-                if !marker.exists() {
-                    if let Some(win) = app.get_webview_window("main") {
-                        let _ = win.show();
-                    }
                 }
             }
             // 启动后把焦点交给主 webview，避免首次使用 F11 前必须点击窗口内容（仅桌面）。
