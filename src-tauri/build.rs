@@ -33,6 +33,7 @@ fn main() {
                 "focus_internal_page",
                 "close_internal_page",
                 "go_back_internal_page",
+                "go_forward_internal_page",
                 "get_app_version",
                 "list_internal_pages",
                 "set_internal_page_visible",

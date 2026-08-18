@@ -1191,18 +1191,30 @@ pub async fn close_internal_page(app: tauri::AppHandle, label: String) -> Result
     }
 }
 
-/// 按 label 隐藏/显示内部页面窗口（标签休眠用）。
+/// 按 label 隐藏/显示内部页面 webview（标签休眠用）。内部页面是 child webview，
+/// 不是独立窗口，必须用 get_webview 查找（get_webview_window 永远匹配不到 browser-*）。
 #[tauri::command]
 pub async fn set_internal_page_visible(app: tauri::AppHandle, label: String, visible: bool) -> Result<(), String> {
-    if let Some(win) = app.get_webview_window(&label) {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label, visible);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+    if !label.starts_with("browser-") {
+        return Err("无效的网页标签".into());
+    }
+    if let Some(webview) = app.get_webview(&label) {
         if visible {
-            win.show().map_err(|e| e.to_string())?;
-            win.set_focus().map_err(|e| e.to_string())?;
+            webview.show().map_err(|e| e.to_string())?;
+            webview.set_focus().map_err(|e| e.to_string())?;
         } else {
-            win.hide().map_err(|e| e.to_string())?;
+            webview.hide().map_err(|e| e.to_string())?;
         }
     }
     Ok(())
+    }
 }
 
 #[tauri::command]
