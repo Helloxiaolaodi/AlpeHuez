@@ -147,13 +147,6 @@ pub struct SysStats {
     pub disk_total: u64,
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BrowserInfo {
-    pub name: String,
-    pub path: String,
-}
-
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InternalPageInfo {
@@ -860,38 +853,6 @@ fn get_browser_path(app: &tauri::AppHandle) -> Result<Option<String>, String> {
         .map(|s| s.to_string()))
 }
 
-/// 扫描注册表列出已安装浏览器（HKCU 优先，按路径去重）。
-#[tauri::command]
-pub async fn list_browsers() -> Result<Vec<BrowserInfo>, String> {
-    #[cfg(windows)]
-    {
-        use std::collections::HashSet;
-        use winreg::enums::*;
-        use winreg::RegKey;
-        let mut browsers: Vec<BrowserInfo> = Vec::new();
-        let mut seen: HashSet<String> = HashSet::new();
-        for (hive, sub) in [
-            (HKEY_CURRENT_USER, "Software\\Clients\\StartMenuInternet"),
-            (HKEY_LOCAL_MACHINE, "Software\\Clients\\StartMenuInternet"),
-        ] {
-            let Ok(key) = RegKey::predef(hive).open_subkey(sub) else { continue };
-            for name in key.enum_keys().flatten() {
-                let Ok(cmd_key) = key.open_subkey(format!("{}\\shell\\open\\command", name)) else { continue };
-                let Ok(path) = cmd_key.get_value::<String, _>("") else { continue };
-                let path = path.trim_matches('"').to_string();
-                if !path.is_empty() && seen.insert(path.clone()) {
-                    browsers.push(BrowserInfo { name, path });
-                }
-            }
-        }
-        Ok(browsers)
-    }
-    #[cfg(not(windows))]
-    {
-        Ok(Vec::new())
-    }
-}
-
 #[tauri::command]
 pub async fn get_browser_config(app: tauri::AppHandle) -> Result<Value, String> {
     let file = config_file(&app)?;
@@ -902,24 +863,6 @@ pub async fn get_browser_config(app: tauri::AppHandle) -> Result<Value, String> 
     } else {
         Ok(serde_json::json!({}))
     }
-}
-
-#[tauri::command]
-pub async fn set_browser_config(app: tauri::AppHandle, config: Value) -> Result<(), String> {
-    let file = config_file(&app)?;
-    let mut v = if file.exists() {
-        let content = fs::read_to_string(&file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}))
-    } else {
-        serde_json::json!({})
-    };
-    if !v.is_object() {
-        v = serde_json::json!({});
-    }
-    v.as_object_mut()
-        .expect("刚构造的对象")
-        .insert("browser".into(), config);
-    fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
 }
 
 /// 打开开发者面板窗口（单例，已存在则聚焦）。
