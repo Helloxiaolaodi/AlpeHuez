@@ -3075,6 +3075,15 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .ability-rings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px 0; }
+        .ability-ring { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .ability-ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
+        .ability-ring .ring-track { fill: none; stroke: var(--line); stroke-width: 7; }
+        .ability-ring .ring-fill { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .ability-ring .ring-glow { filter: drop-shadow(0 0 6px currentColor); }
+        .ability-ring .ring-label { font-size: 12px; font-weight: 600; }
+        .ability-ring .ring-val { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
         .ability-track {
             height: 10px;
             background: rgba(177, 227, 255, 0.22);
@@ -4902,12 +4911,15 @@
         function updateAbilityBars() {
             const panel = $('riderPanel');
             if (!panel || panel.hidden) return;
-            ['gc', 'climber', 'sprint', 'tt'].forEach((key, index) => {
-                const bar = panel.querySelector(`.ability-bar.${key}`);
-                const strong = panel.querySelectorAll('.ability-row-head strong')[index];
+            ['gc', 'climber', 'sprint', 'tt'].forEach((key) => {
                 const score = scoreFor(key);
-                if (bar) bar.style.width = `${score}%`;
-                if (strong) strong.textContent = String(score);
+                const fill = panel.querySelector(`.ability-ring .ring-fill[data-key="${key}"]`);
+                const val = panel.querySelector(`.ability-ring[data-key="${key}"] .ring-val`);
+                if (fill) {
+                    const r = 30, c = 2 * Math.PI * r;
+                    fill.style.strokeDashoffset = String(c * (1 - score / 100));
+                }
+                if (val) val.textContent = String(score);
             });
         }
         function refreshAbilities() {
@@ -5763,6 +5775,20 @@
             }
         }
 
+        const RING_TONES = { gc: '#F59E0B', climber: '#DC2626', sprint: '#16A34A', tt: '#2563EB' };
+        const RING_LABELS = { gc: 'GC', climber: 'Climber', sprint: 'Sprint', tt: 'TT' };
+        function ringSvg(key, score) {
+            const r = 30, c = 2 * Math.PI * r;
+            const color = RING_TONES[key] || '#0087EB';
+            return `<div class="ability-ring" data-key="${key}">
+                <svg viewBox="0 0 72 72" aria-hidden="true">
+                    <circle class="ring-track" cx="36" cy="36" r="${r}"/>
+                    <circle class="ring-fill ring-glow" data-key="${key}" cx="36" cy="36" r="${r}" stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - score / 100)}"/>
+                </svg>
+                <span class="ring-label">${RING_LABELS[key]}</span>
+                <span class="ring-val">${score}</span>
+            </div>`;
+        }
         function renderRiderPanel() {
             const panel = $('riderPanel');
             if (!panel) return;
@@ -5796,17 +5822,9 @@
                 <div class="ability-card">
                     <h2>Rider Abilities</h2>
                     <p>Live power profile computed from your AlpeHuez usage.</p>
-                    ${abilityRows.map((row) => `
-                        <div class="ability-row">
-                            <div class="ability-row-head">
-                                <span>${row.label} · ${row.sub}</span>
-                                <strong>${value(row.key)}</strong>
-                            </div>
-                            <div class="ability-track">
-                                <div class="ability-bar ${row.tone}" style="width:${value(row.key)}%"></div>
-                            </div>
-                        </div>
-                    `).join('')}
+                    <div class="ability-rings">
+                        ${abilityRows.map((row) => ringSvg(row.key, value(row.key))).join('')}
+                    </div>
                 </div>
             `;
         }
