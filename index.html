@@ -1087,7 +1087,7 @@
         .page-loading-overlay {
             position: absolute;
             inset: 0;
-            z-index: 50;
+            z-index: 31;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1108,17 +1108,20 @@
         }
         .page-loading-overlay[hidden] { display: none; }
         .page-loading-overlay.hide { opacity: 0; visibility: hidden; }
-        .chainring {
-            width: 64px;
-            height: 64px;
-            animation: chainring-spin 1.15s linear infinite;
-            filter: drop-shadow(0 0 12px rgba(0, 135, 235,0.4));
+        .load-bike {
+            width: 110px;
+            height: auto;
+            color: var(--brand-primary);
+            animation: bike-bob 1.6s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(0, 135, 235, 0.4));
         }
-        html[data-theme="space"] .chainring {
-            stroke: #A27BFF;
-            filter: drop-shadow(0 0 14px rgba(162, 123, 255,0.55));
+        html[data-theme="space"] .load-bike {
+            filter: drop-shadow(0 0 14px rgba(162, 123, 255, 0.55));
         }
-        @keyframes chainring-spin { to { transform: rotate(360deg); } }
+        @keyframes bike-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
         .page-loading-text {
             font-size: 12px;
             font-weight: 600;
@@ -4166,11 +4169,12 @@
         </aside>
 
         <div id="pageLoadingOverlay" class="page-loading-overlay" hidden>
-            <svg class="chainring" viewBox="0 0 64 64" fill="none" stroke="#0087EB" stroke-width="2.6" stroke-linecap="round">
-                <circle cx="32" cy="32" r="27" stroke-dasharray="5 9" opacity="0.5"/>
-                <circle cx="32" cy="32" r="22"/>
-                <circle cx="32" cy="32" r="6"/>
-                <path d="M32 10v44M10 32h44M14.6 14.6l34.8 34.8M49.4 14.6L14.6 49.4"/>
+            <svg class="load-bike" viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="40" cy="60" r="14"/><circle cx="80" cy="60" r="14"/>
+                <path d="M40 60h40M40 60l-6-18h14l6 18M80 60l-6-18H54"/>
+                <path d="M34 42h52M40 60l-8-18M80 60l8-18" opacity="0.45"/>
+                <circle cx="40" cy="60" r="2" fill="currentColor"/>
+                <circle cx="80" cy="60" r="2" fill="currentColor"/>
             </svg>
             <span class="page-loading-text">AlpeHuez 破风加载中…</span>
         </div>
