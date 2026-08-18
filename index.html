@@ -1674,7 +1674,7 @@
             box-shadow: none;
         }
 
-        body.is-fullscreen .view {
+        body.is-fullscreen.browsing .view {
             visibility: hidden;
             opacity: 0;
         }
@@ -5466,7 +5466,7 @@
         let ttSessionStart = null;
 
         async function enterFullscreen() {
-            if (!activeBrowserLabel || isFullscreen()) return;
+            if (isFullscreen()) return;
             ttSessionStart = Date.now();
             document.body.classList.add('is-fullscreen');
             updateFullscreenIcon();
