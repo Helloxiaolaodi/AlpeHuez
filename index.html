@@ -3391,6 +3391,9 @@
             border-color: rgba(162, 123, 255, 0.35);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(162, 123, 255, 0.15);
         }
+        html[data-theme="space"] .toast--success { border-color: var(--success); }
+        html[data-theme="space"] .toast--warn { border-color: var(--warning); }
+        html[data-theme="space"] .toast--error { border-color: var(--danger); }
         .toast--success { border-color: var(--success); }
         .toast--warn { border-color: var(--warning); }
         .toast--error { border-color: var(--danger); }
@@ -4399,6 +4402,17 @@
                 </div>
                 <span class="settings-hint" id="hfStatus"></span>
             </section>
+
+            <section class="settings-section" id="telemetrySection">
+                <h3 data-i18n-settings="telemetry">Telemetry</h3>
+                <div class="settings-row">
+                    <label data-i18n-settings="zenMode">Zen Mode (pause scoring)</label>
+                    <input id="zenToggle" type="checkbox" class="settings-checkbox">
+                </div>
+                <div class="settings-row">
+                    <button id="clearTelemetry" class="settings-action-btn" type="button" data-i18n-settings="clearTelemetry">Clear abilities &amp; heatmap</button>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -4484,6 +4498,9 @@
                 testConnection: 'Test connection',
                 backingUp: 'Backing up...',
                 testingConn: 'Testing connection...',
+                telemetry: 'Telemetry',
+                zenMode: 'Zen Mode (pause scoring)',
+                clearTelemetry: 'Clear abilities &amp; heatmap',
                 supportAuthor: 'Support',
                 supportBlurb: 'Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.',
                 koFi: 'Ko-fi (overseas)',
@@ -4522,6 +4539,9 @@
                 testConnection: '\u6d4b\u8bd5\u8fde\u63a5',
                 backingUp: '\u5907\u4efd\u4e2d\u2026',
                 testingConn: '\u6b63\u5728\u6d4b\u8bd5\u8fde\u63a5\u2026',
+                telemetry: '\u8fd0\u52a8\u8f68\u8ff9',
+                zenMode: '\u7985\u5fc3\u6a21\u5f0f\uff08\u6682\u505c\u8ba1\u5206\uff09',
+                clearTelemetry: '\u6e05\u9664\u80fd\u529b\u4e0e\u70ed\u529b\u56fe',
                 supportAuthor: '\u652f\u6301\u4f5c\u8005',
                 supportBlurb: '\u4fa0\u4e4b\u5927\u8005\uff0c\u4e3a\u5f00\u6e90\u800c\u751f\u3002\u82e5\u89c9\u5f97 AlpeHuez \u66fe\u7167\u4eae\u4f60\u7684\u5de5\u4f5c\u77ac\u95f4\uff0c\u4e0d\u59a8\u6e29\u4e00\u58f6\u6e05\u8336\uff0c\u652f\u6301\u4e00\u4e8c\u3002',
                 koFi: 'Ko-fi\uff08\u6d77\u5916\uff09',
@@ -4576,7 +4596,8 @@
                 ['feedback', 'feedback'],
                 ['supportAuthor', 'supportAuthor'],
                 ['language', 'language'],
-                ['sync', 'sync']
+                ['sync', 'sync'],
+                ['telemetry', 'telemetry']
             ];
             const layout = document.createElement('div');
             layout.className = 'settings-layout';
@@ -4669,6 +4690,23 @@
             const on = noiseToggle.checked;
             localStorage.setItem('alpehuez_noise', on ? '1' : '0');
             document.documentElement.classList.toggle('noise-off', !on);
+        });
+
+        const zenToggle = $('zenToggle');
+        zenToggle.checked = localStorage.getItem('alpehuez_zen') === '1';
+        zenToggle.addEventListener('change', () => {
+            const zen = zenToggle.checked;
+            localStorage.setItem('alpehuez_zen', zen ? '1' : '');
+            const zenBtn = $('tpZen');
+            if (zenBtn) zenBtn.textContent = zen ? 'Zen Mode: ON' : 'Zen Mode';
+            showToast(zen ? 'Zen Mode on — telemetry paused' : 'Zen Mode off', zen ? 'success' : 'info');
+        });
+        $('clearTelemetry').addEventListener('click', () => {
+            localStorage.removeItem('alpehuez_abilities');
+            localStorage.removeItem('alpehuez_usage');
+            localStorage.removeItem('alpehuez_timeline');
+            showToast('Telemetry cleared', 'success');
+            renderRiderPanel();
         });
 
         function applyShortcutFields() {
