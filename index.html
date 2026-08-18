@@ -6208,12 +6208,17 @@
             menu._items = items;
         }
         function hideContextMenu() { $('appContextMenu').hidden = true; }
-        $('appContextMenu').addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const it = $('appContextMenu')._items[Number(btn.dataset.i)];
-            hideContextMenu();
-            if (it && it.action) it.action();
+        // #appContextMenu 在脚本块之后（body 末尾），必须在 DOMContentLoaded 后再绑定，否则顶层执行时元素尚不存在。
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctxMenu = $('appContextMenu');
+            if (!ctxMenu) return;
+            ctxMenu.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const it = ctxMenu._items[Number(btn.dataset.i)];
+                hideContextMenu();
+                if (it && it.action) it.action();
+            });
         });
         document.addEventListener('click', hideContextMenu);
 
