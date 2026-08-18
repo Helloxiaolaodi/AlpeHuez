@@ -15,7 +15,7 @@ Current archive:
 To build and archive a future version, run from the repository root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.3.0
+powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.4.0
 ```
 
 The script updates `tauri.conf.json`, `Cargo.toml`, and `Cargo.lock`, builds the
