@@ -1275,6 +1275,7 @@ async function initAuth() {
   const errorEl = $('#loginError');
   const pwdInput = $('#loginPassword');
   backdrop.hidden = false;
+  document.body.classList.add('login-active');
   // 登录前只刷新登录框文案，不触发后台数据加载，避免进入面板时出现一闪而过的内容/弹层。
   try {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
@@ -1289,6 +1290,7 @@ async function initAuth() {
       const ok = await window.__TAURI__.core.invoke('verify_password', { input });
       if (ok) {
         backdrop.hidden = true;
+        document.body.classList.remove('login-active');
         $('#btnChangePwd').hidden = false;
         init();
       } else {
