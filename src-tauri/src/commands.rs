@@ -1219,6 +1219,27 @@ pub fn go_back_internal_page(app: tauri::AppHandle, label: String) -> Result<(),
 }
 
 #[tauri::command]
+pub fn go_forward_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+    if !label.starts_with("browser-") {
+        return Err("invalid browser tab label".into());
+    }
+    let webview = app
+        .get_webview(&label)
+        .ok_or_else(|| "browser tab is closed".to_string())?;
+    webview
+        .eval("window.history.forward()")
+        .map_err(|e| e.to_string())
+    }
+}
+
+#[tauri::command]
 pub fn get_app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }

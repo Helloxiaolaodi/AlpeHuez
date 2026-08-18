@@ -77,6 +77,7 @@ pub fn run() {
             commands::focus_internal_page,
             commands::close_internal_page,
             commands::go_back_internal_page,
+            commands::go_forward_internal_page,
             commands::get_app_version,
             commands::list_internal_pages,
             commands::set_internal_page_visible,

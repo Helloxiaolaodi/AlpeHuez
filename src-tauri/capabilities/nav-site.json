@@ -18,6 +18,7 @@
     "allow-focus-internal-page",
     "allow-close-internal-page",
     "allow-go-back-internal-page",
+    "allow-go-forward-internal-page",
     "allow-get-app-version",
     "allow-list-internal-pages",
     "allow-set-internal-page-visible",
