@@ -444,8 +444,8 @@
             border-radius: 50%;
             background: var(--brand-primary);
             box-shadow: 0 0 8px 1px var(--brand-primary);
-            transform-origin: 50% 500%;
-            /* 圆点中心 (40,0) → 环心 (40,40)，80px 环 + 8px 点：500% = 40px */
+            transform-origin: 50% 550%;
+            /* 点盒顶部 -4px，550% × 8px = 44px → 枢轴在环心 (40,40) */
             pointer-events: none;
             transition: transform 0.4s ease;
         }
