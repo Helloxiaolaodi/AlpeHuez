@@ -1656,9 +1656,13 @@
         html.no-titlebar .title-bar { display: none; }
         body.is-fullscreen .title-bar { display: none; }
         .title-bar-brand { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-muted); }
-        .title-bar-controls { display: flex; height: 100%; }
-        .win-btn { width: 44px; height: 100%; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
-        .win-btn:hover { background: var(--bg-card); color: var(--text-main); }
+        .title-bar-controls { display: flex; align-items: center; height: 100%; padding-right: 8px; gap: 2px; }
+        .win-btn { width: 30px; height: 24px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: var(--text-muted); cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; }
+        .win-btn:hover { background: rgba(127, 127, 127, 0.14); color: var(--text-main); }
+        .win-btn:active { transform: scale(0.92); }
+        .win-btn svg { width: 10px; height: 10px; }
+        .win-btn svg line, .win-btn svg rect, .win-btn svg path { stroke-width: 1.3; }
+        .win-btn.win-close:hover { background: #E81123; color: #fff; }
         .win-close:hover { background: #E81123; color: #fff; }
         html:not(.no-titlebar) .app-shell { margin-top: 32px; height: calc(100vh - 32px); }
         html:not(.no-titlebar) .telemetry-pod { top: 32px; }
