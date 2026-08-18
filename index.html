@@ -7701,7 +7701,7 @@
                 let hmLastCell = null;
                 heatmapEl.addEventListener('mousemove', (e) => {
                     const cell = e.target.closest('.usage-cell');
-                    if (cell) {
+                    if (cell && cell.dataset.key) {
                         if (cell !== hmLastCell) {
                             hmLastCell = cell;
                             const d = new Date(cell.dataset.key + 'T00:00:00');
