@@ -105,10 +105,21 @@
         html[data-theme="space"] body {
             background-color: #14121A;
             background-image:
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'),
-                radial-gradient(circle at 50% -20%, rgba(162, 123, 255, 0.15) 0%, transparent 60%);
-            background-blend-mode: overlay, normal;
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>');
+            background-blend-mode: overlay;
             background-attachment: fixed;
+        }
+        html[data-theme="space"] body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% -20%, rgba(162, 123, 255, 0.15) 0%, transparent 60%);
+            filter: blur(var(--space-bg-blur, 0px));
+        }
+        html[data-theme="space"].noise-off body {
+            background-image: none;
         }
 
         /* 浅色模式：液态玻璃与晨曦 */
@@ -4304,17 +4315,15 @@
             </div>
 
             <section class="settings-section">
-                <h3 data-i18n-settings="background">Background</h3>
-                <div class="settings-row">
-                    <label data-i18n-settings="backgroundImage">Background image</label>
-                    <input id="bgFile" class="settings-input" type="file" accept="image/png,image/jpeg,image/webp">
-                    <button id="bgReset" class="settings-action-btn" type="button" data-i18n-settings="reset">Reset</button>
-                    <span class="settings-hint" id="bgStatus"></span>
-                </div>
+                <h3 data-i18n-settings="appearance">Appearance</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="backgroundBlur">Background blur</label>
                     <input id="bgBlur" type="range" min="0" max="80" step="2" value="50">
                     <span id="bgBlurValue" class="setting-range-value">50px</span>
+                </div>
+                <div class="settings-row">
+                    <label data-i18n-settings="noiseGrain">Noise grain (dark)</label>
+                    <input id="noiseToggle" type="checkbox" class="settings-checkbox">
                 </div>
             </section>
 
@@ -4447,7 +4456,6 @@
 
         const SETTINGS_LANG_KEY = 'alpehuez_lang';
         const SHORTCUTS_KEY = 'alpehuez_shortcuts';
-        const BG_STATE_KEY = 'alpehuez_bg_state';
         const DEFAULT_SHORTCUTS = {
             fullscreen: 'F11',
             back: 'Alt+ArrowLeft',
@@ -4457,10 +4465,9 @@
         const SETTINGS_STRINGS = {
             en: {
                 settingsTitle: 'Settings',
-                background: 'Background',
-                backgroundImage: 'Background image',
-                reset: 'Reset',
+                appearance: 'Appearance',
                 backgroundBlur: 'Background blur',
+                noiseGrain: 'Noise grain (dark)',
                 shortcuts: 'Shortcuts',
                 fullscreen: 'Fullscreen',
                 back: 'Back',
@@ -4485,10 +4492,6 @@
                 interfaceLanguage: 'Interface language',
                 english: 'English',
                 chinese: 'Simplified Chinese',
-                bgSaved: 'Background saved',
-                bgReset: 'Background reset',
-                bgUploading: 'Uploading background...',
-                bgLoadError: 'Unable to load background',
                 feedbackSaved: 'Feedback saved',
                 feedbackFailed: 'Unable to save feedback',
                 qrLoading: 'Loading QR code...',
@@ -4500,10 +4503,9 @@
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
-                background: '\u80cc\u666f',
-                backgroundImage: '\u80cc\u666f\u56fe\u7247',
-                reset: '\u91cd\u7f6e',
+                appearance: '\u5916\u89c2',
                 backgroundBlur: '\u80cc\u666f\u6a21\u7cca',
+                noiseGrain: '\u566a\u70b9\u8d28\u611f\uff08\u6df1\u8272\uff09',
                 shortcuts: '\u5feb\u6377\u952e',
                 fullscreen: '\u5168\u5c4f',
                 back: '\u8fd4\u56de',
@@ -4528,10 +4530,6 @@
                 interfaceLanguage: '\u754c\u9762\u8bed\u8a00',
                 english: '\u82f1\u6587',
                 chinese: '\u7b80\u4f53\u4e2d\u6587',
-                bgSaved: '\u80cc\u666f\u5df2\u4fdd\u5b58',
-                bgReset: '\u80cc\u666f\u5df2\u91cd\u7f6e',
-                bgUploading: '\u6b63\u5728\u4e0a\u4f20\u80cc\u666f',
-                bgLoadError: '\u65e0\u6cd5\u52a0\u8f7d\u80cc\u666f',
                 feedbackSaved: '\u53cd\u9988\u5df2\u4fdd\u5b58',
                 feedbackFailed: '\u65e0\u6cd5\u4fdd\u5b58\u53cd\u9988',
                 qrLoading: '\u6b63\u5728\u52a0\u8f7d\u4e8c\u7ef4\u7801',
@@ -4544,8 +4542,6 @@
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
         let settingsLang = 'en';
-        let settingsBgBlur = 50;
-        let settingsBgImage = '';
         try {
             settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS, JSON.parse(localStorage.getItem(SHORTCUTS_KEY) || '{}'));
             settingsLang = localStorage.getItem(SETTINGS_LANG_KEY) || 'en';
@@ -4575,7 +4571,7 @@
             if (!sections.length) return;
 
             const tabs = [
-                ['background', 'background'],
+                ['appearance', 'appearance'],
                 ['shortcuts', 'shortcuts'],
                 ['feedback', 'feedback'],
                 ['supportAuthor', 'supportAuthor'],
@@ -4602,7 +4598,7 @@
             content.className = 'settings-content';
             sections.forEach((section) => {
                 const heading = section.querySelector('h3');
-                const key = heading && heading.dataset.i18nSettings ? heading.dataset.i18nSettings : 'background';
+                const key = heading && heading.dataset.i18nSettings ? heading.dataset.i18nSettings : 'appearance';
                 section.classList.remove('active');
                 section.dataset.settingsPanel = key;
                 content.appendChild(section);
@@ -4612,7 +4608,7 @@
             layout.appendChild(content);
             const header = panel.querySelector('.settings-header');
             panel.insertBefore(layout, header ? header.nextSibling : panel.firstChild);
-            switchSettingsTab('background');
+            switchSettingsTab('appearance');
         }
 
         function applySettingsLanguage() {
@@ -4629,122 +4625,51 @@
             });
         }
 
-        function getAssetUrl(filePath) {
-            try {
-                const core = window.__TAURI__ && window.__TAURI__.core;
-                if (core && typeof core.convertFileSrc === 'function') {
-                    return core.convertFileSrc(filePath);
-                }
-            } catch (error) {
-                console.error('convertFileSrc failed:', error);
-            }
-            return 'asset://localhost/' + String(filePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
-        }
-
-        function getSettingsBgBlur() {
-            const slider = $('bgBlur');
-            const raw = slider ? Number(slider.value) : settingsBgBlur;
-            return Math.max(0, Math.min(80, Number.isFinite(raw) ? raw : 50));
-        }
-
-        function applyBackgroundState(config) {
-            const image = config && config.image ? String(config.image) : '';
-            const blur = config && Number.isFinite(Number(config.blur)) ? Number(config.blur) : 50;
-            settingsBgBlur = blur;
-            settingsBgImage = image;
-            const root = document.documentElement;
-            if (image) {
-                root.style.setProperty('--space-bg', `url(${JSON.stringify(getAssetUrl(image))})`);
-            } else {
-                root.style.removeProperty('--space-bg');
-            }
-            root.style.setProperty('--space-bg-blur', `${blur}px`);
+        const BG_BLUR_KEY = 'alpehuez_bg_blur';
+        function applyBgBlur(blur) {
+            document.documentElement.style.setProperty('--space-bg-blur', `${blur}px`);
             const slider = $('bgBlur');
             const value = $('bgBlurValue');
             if (slider) slider.value = String(blur);
             if (value) value.textContent = `${blur}px`;
         }
-
-        async function persistBackgroundConfig(config) {
-            if (isDesktop) {
-                await invoke('set_bg_config', { config });
-            } else {
-                try {
-                    localStorage.setItem(BG_STATE_KEY, JSON.stringify(config));
-                } catch (error) {
-                    console.error('save bg state failed:', error);
-                }
-            }
-        }
-
-        async function loadBackgroundSettings() {
+        async function loadBackgroundBlur() {
             try {
+                let blur = 50;
                 if (isDesktop) {
                     const config = await invoke('get_bg_config');
-                    applyBackgroundState(config || {});
+                    if (config && Number.isFinite(Number(config.blur))) blur = Number(config.blur);
                 } else {
-                    applyBackgroundState(JSON.parse(localStorage.getItem(BG_STATE_KEY) || '{}'));
+                    const raw = localStorage.getItem(BG_BLUR_KEY);
+                    if (raw !== null && Number.isFinite(Number(raw))) blur = Number(raw);
                 }
+                applyBgBlur(blur);
             } catch (error) {
-                console.error('load bg settings failed:', error);
+                console.error('load bg blur failed:', error);
             }
         }
-
-        async function handleBackgroundFile(event) {
-            const file = event.target.files && event.target.files[0];
-            const status = $('bgStatus');
-            if (!file) return;
-            if (!isDesktop) {
-                if (status) status.textContent = settingsText('bgLoadError', 'Unable to load background');
-                return;
-            }
-            if (status) status.textContent = settingsText('bgUploading', 'Uploading background...');
-            try {
-                const data = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-                const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-                const savedPath = await invoke('save_bg_image', { data, ext });
-                const config = { image: savedPath, blur: getSettingsBgBlur() };
-                await persistBackgroundConfig(config);
-                applyBackgroundState(config);
-                if (status) status.textContent = settingsText('bgSaved', 'Background saved');
-            } catch (error) {
-                console.error('save bg image failed:', error);
-                if (status) status.textContent = settingsText('bgLoadError', 'Unable to load background');
-            }
-        }
-
-        async function resetBackground() {
-            const config = { image: '', blur: 60 };
-            try {
-                await persistBackgroundConfig(config);
-                applyBackgroundState(config);
-                const status = $('bgStatus');
-                if (status) status.textContent = settingsText('bgReset', 'Background reset');
-            } catch (error) {
-                console.error('reset bg failed:', error);
-            }
-        }
-
-        function updateBackgroundBlurPreview() {
-            const blur = getSettingsBgBlur();
-            settingsBgBlur = blur;
-            document.documentElement.style.setProperty('--space-bg-blur', `${blur}px`);
-            const value = $('bgBlurValue');
-            if (value) value.textContent = `${blur}px`;
-        }
-
         async function saveBackgroundBlur() {
+            const blur = Number($('bgBlur').value) || 50;
+            applyBgBlur(blur);
             try {
-                await persistBackgroundConfig({ image: settingsBgImage, blur: getSettingsBgBlur() });
+                if (isDesktop) {
+                    await invoke('set_bg_config', { config: { blur } });
+                } else {
+                    localStorage.setItem(BG_BLUR_KEY, String(blur));
+                }
             } catch (error) {
                 console.error('save blur failed:', error);
             }
         }
+        const noiseToggle = $('noiseToggle');
+        const noiseOn = localStorage.getItem('alpehuez_noise') !== '0';
+        noiseToggle.checked = noiseOn;
+        document.documentElement.classList.toggle('noise-off', !noiseOn);
+        noiseToggle.addEventListener('change', () => {
+            const on = noiseToggle.checked;
+            localStorage.setItem('alpehuez_noise', on ? '1' : '0');
+            document.documentElement.classList.toggle('noise-off', !on);
+        });
 
         function applyShortcutFields() {
             const fields = {
@@ -4858,9 +4783,9 @@
             const modal = $('settingsModal');
             if (!modal) return;
             ensureSettingsLayout();
-            switchSettingsTab('background');
+            switchSettingsTab('appearance');
             loadShortcutSettings();
-            loadBackgroundSettings();
+            loadBackgroundBlur();
             loadFeedbackSettings();
             loadSyncState();
             modal.classList.add('open');
@@ -4896,7 +4821,7 @@
             ensureSettingsLayout();
             applySettingsLanguage();
             loadShortcutSettings();
-            await Promise.all([loadBackgroundSettings(), loadFeedbackSettings()]);
+            await Promise.all([loadBackgroundBlur(), loadFeedbackSettings()]);
         }
 
         function escapeHtml(value) {
@@ -6568,9 +6493,7 @@
                 }
                 if (event.target === $('settingsModal')) closeSettingsModal();
             });
-            $('bgFile').addEventListener('change', handleBackgroundFile);
-            $('bgReset').addEventListener('click', resetBackground);
-            $('bgBlur').addEventListener('input', updateBackgroundBlurPreview);
+            $('bgBlur').addEventListener('input', (event) => applyBgBlur(Number(event.target.value) || 50));
             $('bgBlur').addEventListener('change', saveBackgroundBlur);
             $('shortcutFullscreen').addEventListener('change', () => saveShortcut('fullscreen', 'shortcutFullscreen'));
             $('shortcutBack').addEventListener('change', () => saveShortcut('back', 'shortcutBack'));
