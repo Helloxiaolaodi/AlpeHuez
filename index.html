@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlpeHuez v0.3.0</title>
+    <title>AlpeHuez v0.4.0</title>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
         const savedTheme = storedTheme === 'space' ? 'space' : 'gradient';
@@ -4366,14 +4366,14 @@
                 <div class="context-label"><span>App</span></div>
                 <div class="context-about-card">
                     <label>Version</label>
-                    <strong id="contextAboutVersion">v0.3.0</strong>
+                    <strong id="contextAboutVersion">v0.4.0</strong>
                     <label>Developer</label>
                     <strong>Helloxiaolaodi</strong>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <span class="version-chip" id="versionChip">v0.3.0</span>
+                <span class="version-chip" id="versionChip">v0.4.0</span>
                 <span class="legend-item" title="Internal pages share a persistent WebView session">
                     <span class="legend-dot green"></span>
                     AlpeHuez
@@ -4489,13 +4489,13 @@
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
-                                <h1>AlpeHuez <span id="aboutVersion">v0.3.0</span></h1>
+                                <h1>AlpeHuez <span id="aboutVersion">v0.4.0</span></h1>
                                 <p>A workspace browser for Helloxiaolaodi. It combines the portal dashboard, vertical browser tabs, persistent sessions, local achievements, and the developer console in one desktop shell.</p>
                             </div>
                         </div>
                         <div class="about-grid">
                             <div class="about-card">
-                                <h2>v0.3.0 Update Notes</h2>
+                                <h2>v0.4.0 Update Notes</h2>
                                 <ul>
                                     <li>Unified AlpeHuez workspace shell: Portal, My Files, Dev Panel, Achievements, and About sit in the Activity Bar with contextual sidebar panels.</li>
                                     <li>Zen-style vertical tabs replace the crowded top tab strip; link cards, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews.</li>
@@ -4513,7 +4513,7 @@
                                 <h2>Developer &amp; Links</h2>
                                 <div class="about-meta">
                                     <div><label>Developer</label><strong>Helloxiaolaodi</strong></div>
-                                    <div><label>Version</label><strong id="aboutVersionMeta">0.3.0</strong></div>
+                                    <div><label>Version</label><strong id="aboutVersionMeta">0.4.0</strong></div>
                                     <div><label>GitHub</label><strong>Helloxiaolaodi/AlpeHuez</strong></div>
                                     <div><label>AlpeHuez</label><strong>Persistent WebView</strong></div>
                                 </div>
@@ -6137,7 +6137,7 @@
 
         function renderContextAbout() {
             const version = $('aboutVersionMeta');
-            const label = version && version.textContent ? 'v' + version.textContent : 'v0.3.0';
+            const label = version && version.textContent ? 'v' + version.textContent : 'v0.4.0';
             $('contextAboutVersion').textContent = label;
         }
 
@@ -6443,7 +6443,7 @@
         }
 
         async function loadAbout() {
-            const fallbackVersion = '0.3.0';
+            const fallbackVersion = '0.4.0';
             renderRiderPanel();
             if (!isDesktop) return;
             try {
