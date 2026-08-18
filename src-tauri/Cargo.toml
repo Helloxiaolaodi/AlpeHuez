@@ -1,6 +1,6 @@
 [package]
 name = "my-nav-panel"
-version = "0.3.0"
+version = "0.4.0"
 description = "AlpeHuez developer panel desktop app"
 edition = "2021"
 
