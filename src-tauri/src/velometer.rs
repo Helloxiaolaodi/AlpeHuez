@@ -52,7 +52,7 @@ pub fn spawn(app: tauri::AppHandle) {
                 .map(|(_, p)| ProcessInfo {
                     name: p.name().to_string(),
                     cpu: p.cpu_usage(),
-                    mem_mb: p.memory() / 1024,
+                    mem_mb: p.memory() / (1024 * 1024),
                 })
                 .collect();
             processes.sort_by(|a, b| b.cpu.partial_cmp(&a.cpu).unwrap_or(std::cmp::Ordering::Equal));
