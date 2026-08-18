@@ -56,36 +56,6 @@
     max-width: 720px;
   }
 
-  .sw-lang {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px;
-    background: #eef2f7;
-    border: 1px solid var(--sw-border);
-    border-radius: 10px;
-    flex-shrink: 0;
-  }
-
-  .sw-lang button {
-    min-width: 76px;
-    padding: 8px 12px;
-    border: 0;
-    border-radius: 7px;
-    background: transparent;
-    color: var(--sw-text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .sw-lang button[aria-pressed="true"] {
-    background: var(--sw-surface);
-    color: var(--sw-text);
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
-  }
-
   .sw-toolbar {
     display: flex;
     align-items: center;
@@ -309,7 +279,6 @@
   @media (max-width: 640px) {
     .sw-page { padding: 22px 16px 70px; }
     .sw-header { flex-direction: column; }
-    .sw-lang { align-self: flex-start; }
     .sw-grid { grid-template-columns: 1fr; }
     .sw-card { min-height: 0; }
   }
@@ -331,10 +300,6 @@
     <div>
       <h1 data-i18n="heroTitle">Windows Software Downloads</h1>
       <p data-i18n="heroDesc">Official download links for the Windows software I use, organized by category.</p>
-    </div>
-    <div class="sw-lang" role="group" aria-label="Language">
-      <button type="button" data-lang="en" aria-pressed="true">English</button>
-      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
     </div>
   </section>
 
@@ -459,19 +424,9 @@
     document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
       el.placeholder = t[el.getAttribute('data-i18n-placeholder')];
     });
-    document.querySelectorAll('.sw-lang button').forEach((btn) => {
-      btn.setAttribute('aria-pressed', String(btn.dataset.lang === state.lang));
-    });
     renderCats();
     render();
   }
-
-  document.querySelectorAll('.sw-lang button').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.lang = btn.dataset.lang;
-      applyLang();
-    });
-  });
 
   catsEl.addEventListener('click', (event) => {
     const btn = event.target.closest('.sw-cat');
