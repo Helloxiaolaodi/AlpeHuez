@@ -5,6 +5,8 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 use std::process::{Command, ExitStatus, Stdio};
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
 use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
@@ -24,6 +26,15 @@ use std::os::unix::process::ExitStatusExt;
 
 use crate::db;
 use crate::repo_root;
+
+/// Windows 下禁止子进程创建控制台窗口（消灭幽灵终端）。
+fn silent(cmd: &mut Command) {
+    #[cfg(windows)]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+}
 
 fn db_conn(app: &tauri::AppHandle) -> Result<rusqlite::Connection, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
@@ -171,7 +182,9 @@ fn recompute_links_md5(links: &Value) -> String {
 }
 
 fn run_cmd(cmd: &str, args: &[&str], cwd: &Path) -> (i32, String) {
-    match Command::new(cmd).args(args).current_dir(cwd).output() {
+    let mut c = Command::new(cmd);
+    silent(&mut c);
+    match c.args(args).current_dir(cwd).output() {
         Ok(out) => {
             let mut s = String::from_utf8_lossy(&out.stdout).to_string();
             s.push_str(&String::from_utf8_lossy(&out.stderr));
@@ -182,7 +195,9 @@ fn run_cmd(cmd: &str, args: &[&str], cwd: &Path) -> (i32, String) {
 }
 
 fn run_cmd_timeout(cmd: &str, args: &[&str], cwd: &Path, timeout_secs: u64) -> (i32, String, bool) {
-    let mut child = match Command::new(cmd)
+    let mut c = Command::new(cmd);
+    silent(&mut c);
+    let mut child = match c
         .args(args)
         .current_dir(cwd)
         .stdout(Stdio::piped())
@@ -227,7 +242,9 @@ fn run_cmd_timeout(cmd: &str, args: &[&str], cwd: &Path, timeout_secs: u64) -> (
 }
 
 fn find_node() -> String {
-    if Command::new("node").arg("--version").output().is_ok() {
+    let mut c = Command::new("node");
+    silent(&mut c);
+    if c.arg("--version").output().is_ok() {
         return "node".to_string();
     }
     for p in [
@@ -690,17 +707,17 @@ pub async fn open_url_scheme(url: String) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {
         let quoted = format!("\"{}\"", trimmed);
-        std::process::Command::new("cmd")
-            .args(["/C", "start", "", &quoted])
+        let mut c = std::process::Command::new("cmd");
+        silent(&mut c);
+        c.args(["/C", "start", "", &quoted])
             .spawn()
             .map_err(|e| e.to_string())?;
     }
     #[cfg(all(not(target_os = "windows"), not(target_os = "android")))]
     {
-        std::process::Command::new("open")
-            .arg(trimmed)
-            .spawn()
-            .map_err(|e| e.to_string())?;
+        let mut c = std::process::Command::new("open");
+        silent(&mut c);
+        c.arg(trimmed).spawn().map_err(|e| e.to_string())?;
     }
     Ok(())
 }
@@ -760,10 +777,9 @@ fn route_external_url(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
             .map(|_| ());
         }
         if let Ok(Some(browser)) = get_browser_path(app) {
-            Command::new(&browser)
-                .arg(&url)
-                .spawn()
-                .map_err(|e| e.to_string())?;
+            let mut c = Command::new(&browser);
+            silent(&mut c);
+            c.arg(&url).spawn().map_err(|e| e.to_string())?;
             return Ok(());
         }
         open_in_system_browser(&url)
@@ -806,10 +822,9 @@ fn open_in_system_browser(url: &str) -> Result<(), String> {
         "C:\\Program Files\\360\\360se6\\Application\\360se.exe",
     ] {
         if Path::new(path).exists() {
-            Command::new(path)
-                .arg(url)
-                .spawn()
-                .map_err(|e| e.to_string())?;
+            let mut c = Command::new(path);
+            silent(&mut c);
+            c.arg(url).spawn().map_err(|e| e.to_string())?;
             return Ok(());
         }
     }
@@ -818,10 +833,9 @@ fn open_in_system_browser(url: &str) -> Result<(), String> {
 
 #[cfg(not(windows))]
 fn open_in_system_browser(url: &str) -> Result<(), String> {
-    Command::new("xdg-open")
-        .arg(url)
-        .spawn()
-        .map_err(|e| e.to_string())?;
+    let mut c = Command::new("xdg-open");
+    silent(&mut c);
+    c.arg(url).spawn().map_err(|e| e.to_string())?;
     Ok(())
 }
 
