@@ -888,8 +888,8 @@ $('#btnTheme').onclick = () => {
 $('#btnPreview').addEventListener('click', (e) => {
   if (isDesktop) {
     e.preventDefault();
-    window.__TAURI__.core.invoke('open_url', { url: 'http://nav.localhost/index.html' }).catch(() => {
-      window.open('http://nav.localhost/index.html', '_blank');
+    window.__TAURI__.core.invoke('open_url', { url: 'http://nav.localhost/index.html' }).catch((err) => {
+      console.warn('open_url failed:', err);
     });
   }
 });

@@ -901,6 +901,7 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
     }
 
     let shown = Arc::new(AtomicBool::new(false));
+    let route_app = app.clone();
     let result = WebviewWindowBuilder::new(&app, "panel", WebviewUrl::App("index.html".into()))
         .title("AlpeHuez 开发者面板")
         .inner_size(1280.0, 800.0)
@@ -918,6 +919,13 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
                 }
             },
         )
+        .on_new_window(move |new_url, _features| {
+            let opener = route_app.clone();
+            std::thread::spawn(move || {
+                let _ = route_external_url(&opener, new_url.as_str());
+            });
+            tauri::webview::NewWindowResponse::Deny
+        })
         .build()
         .map(|_| ())
         .map_err(|e| e.to_string());
