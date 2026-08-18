@@ -22,6 +22,7 @@ const MIME = {
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8',
   '.md': 'text/markdown; charset=utf-8',

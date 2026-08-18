@@ -88,6 +88,7 @@ fn stage_webroot() {
         stage(f);
     }
     stage("icons");
+    stage("fonts");
     stage("myfiles/data.json");
     stage("myfiles/index.html");
     stage("myfiles/explorer.js");
