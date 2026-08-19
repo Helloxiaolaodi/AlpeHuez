@@ -9,6 +9,10 @@ use std::sync::OnceLock;
 
 use tauri::Manager;
 #[cfg(not(target_os = "android"))]
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
+#[cfg(not(target_os = "android"))]
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+#[cfg(not(target_os = "android"))]
 use tauri_plugin_global_shortcut::ShortcutState;
 
 static ROOT: OnceLock<PathBuf> = OnceLock::new();
@@ -28,6 +32,16 @@ pub fn repo_root() -> &'static Path {
     })
 }
 
+/// 显示并聚焦主窗口。Windows 上直接 show() 有时不置顶，需 unminimize + set_focus 兜底。
+#[cfg(not(target_os = "android"))]
+fn show_main(app: &tauri::AppHandle) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.show();
+        let _ = win.unminimize();
+        let _ = win.set_focus();
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
@@ -39,17 +53,18 @@ pub fn run() {
             }
             #[cfg(not(target_os = "android"))]
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                // 关闭按钮 → 隐藏到系统托盘，进程驻留为常驻守护（托盘「退出」才真正退出）。
+                // 备份动作移到托盘菜单 quit 分支统一执行。
                 api.prevent_close();
-                let app = window.app_handle().clone();
-                let win = window.clone();
-                std::thread::spawn(move || {
-                    // 先隐藏窗口给用户即时反馈，备份完成后退出进程。
-                    // 不能 hide 后驻留：隐藏的进程不会被用户察觉，再次双击 exe 启动新实例会
-                    // 与它争抢全局快捷键和 WebView2 数据目录，导致新窗口无法显示。
-                    let _ = win.hide();
-                    commands::auto_backup_on_close(&app);
-                    app.exit(0);
-                });
+                let _ = window.hide();
+            }
+            // 最小化按钮 → 同样隐藏到系统托盘（驻留后台继续运行）。
+            // Resized 在最小化/还原时都会触发，按 is_minimized 状态区分。
+            #[cfg(not(target_os = "android"))]
+            if let tauri::WindowEvent::Resized(_) = event {
+                if window.is_minimized().unwrap_or(false) {
+                    let _ = window.hide();
+                }
             }
         })
         .invoke_handler(tauri::generate_handler![
@@ -138,6 +153,8 @@ pub fn run() {
                         .open(dir.join("instance.lock"))
                     {
                         if lock_file.try_lock().is_err() {
+                            // 已有驻留实例在运行：写入 show_request 标记让其唤出窗口，本实例退出。
+                            let _ = std::fs::write(dir.join("show_request"), b"1");
                             std::process::exit(0);
                         }
                         // 保持文件打开以持锁整个进程生命周期
@@ -178,6 +195,69 @@ pub fn run() {
                         let _ = webview.set_focus();
                     }
                 });
+            }
+            // 常驻模式：监听第二次启动写下的 show_request 标记，把隐藏中的主窗口唤出。
+            #[cfg(not(target_os = "android"))]
+            {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    if let Ok(dir) = handle.path().app_data_dir() {
+                        let marker = dir.join("show_request");
+                        loop {
+                            std::thread::sleep(std::time::Duration::from_millis(300));
+                            if marker.exists() {
+                                let _ = std::fs::remove_file(&marker);
+                                show_main(&handle);
+                            }
+                        }
+                    }
+                });
+            }
+            // 系统托盘（常驻守护）：左键单击显示窗口，右键菜单 显示/隐藏/退出。
+            // 退出时才执行自动备份，关闭窗口只隐藏不备份（用户可能只是暂时收起）。
+            #[cfg(not(target_os = "android"))]
+            {
+                let show_i = MenuItem::with_id(app, "show", "显示 AlpeHuez", true, None::<&str>)?;
+                let hide_i = MenuItem::with_id(app, "hide", "隐藏窗口", true, None::<&str>)?;
+                let quit_i = MenuItem::with_id(app, "quit", "退出 AlpeHuez", true, None::<&str>)?;
+                let sep = PredefinedMenuItem::separator(app)?;
+                let menu = Menu::with_items(app, &[&show_i, &hide_i, &sep, &quit_i])?;
+
+                let mut tray = TrayIconBuilder::new()
+                    .menu(&menu)
+                    .icon(app.default_window_icon().expect("缺少应用图标").clone())
+                    .tooltip("AlpeHuez")
+                    .show_menu_on_left_click(false);
+                tray = tray.on_menu_event(|app, event| match event.id.as_ref() {
+                    "show" => show_main(app),
+                    "hide" => {
+                        if let Some(win) = app.get_webview_window("main") {
+                            let _ = win.hide();
+                        }
+                    }
+                    "quit" => {
+                        let handle = app.clone();
+                        std::thread::spawn(move || {
+                            if let Some(win) = handle.get_webview_window("main") {
+                                let _ = win.hide();
+                            }
+                            commands::auto_backup_on_close(&handle);
+                            handle.exit(0);
+                        });
+                    }
+                    _ => {}
+                });
+                tray = tray.on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        show_main(tray.app_handle());
+                    }
+                });
+                tray.build(app)?;
             }
             Ok(())
         });
