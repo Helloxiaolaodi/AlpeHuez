@@ -5260,6 +5260,20 @@
                 </div>
             </section>
 
+            <section class="settings-section" id="accountSection">
+                <h3 data-i18n-settings="account">Account</h3>
+                <div class="settings-row">
+                    <label data-i18n-settings="recoveryEmailField">Recovery email</label>
+                    <input id="recoveryEmailInput" class="settings-input" type="email" placeholder="you@example.com">
+                    <span class="settings-hint" data-i18n-settings="recoveryEmailHint">Used to reset a forgotten password. A 6-digit code is delivered via email.</span>
+                </div>
+                <div class="settings-actions">
+                    <button id="recoveryEmailSave" class="settings-action-btn primary" type="button" data-i18n-settings="setupSave">Save</button>
+                    <button id="forgotPwdBtn" class="settings-action-btn" type="button" data-i18n-settings="forgotPassword">Forgot password?</button>
+                    <span class="settings-hint" id="recoveryEmailStatus"></span>
+                </div>
+            </section>
+
             <section class="settings-section" id="syncSection">
                 <h3 data-i18n-settings="sync">Sync</h3>
                 <div class="settings-row">
@@ -5467,7 +5481,24 @@
                 passwordsMismatch: 'Passwords do not match',
                 setupSave: 'Save',
                 setupSaved: 'Access password set',
-                setupFailed: 'Setup failed: {detail}'
+                setupFailed: 'Setup failed: {detail}',
+                account: 'Account',
+                recoveryEmailField: 'Recovery email',
+                emailSaved: 'Recovery email saved',
+                emailSaveFailed: 'Unable to save recovery email',
+                forgotPassword: 'Forgot password?',
+                recoverTitle: 'Recover password',
+                recoverEmailLbl: 'Recovery email',
+                recoverSend: 'Send code',
+                recoverSentTitle: 'Code sent',
+                recoverSentText: 'A recovery code was sent to {email}. Check your inbox.',
+                recoverCodeText: "If the email doesn't arrive, use this code directly: {code}",
+                recoverOk: 'Got it',
+                recoverStep2Title: 'Reset password',
+                recoverCodeLbl: 'Verification code',
+                recoverReset: 'Reset password',
+                pwdChanged: 'Password changed',
+                recoverFailed: 'Recovery failed: {detail}'
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -5581,7 +5612,24 @@
                 passwordsMismatch: '\u4e24\u6b21\u8f93\u5165\u7684\u5bc6\u7801\u4e0d\u4e00\u81f4',
                 setupSave: '\u4fdd\u5b58',
                 setupSaved: '\u8bbf\u95ee\u5bc6\u7801\u5df2\u8bbe\u7f6e',
-                setupFailed: '\u8bbe\u7f6e\u5931\u8d25\uff1a{detail}'
+                setupFailed: '\u8bbe\u7f6e\u5931\u8d25\uff1a{detail}',
+                account: '\u8d26\u6237',
+                recoveryEmailField: '\u627e\u56de\u90ae\u7bb1',
+                emailSaved: '\u627e\u56de\u90ae\u7bb1\u5df2\u4fdd\u5b58',
+                emailSaveFailed: '\u627e\u56de\u90ae\u7bb1\u4fdd\u5b58\u5931\u8d25',
+                forgotPassword: '\u5fd8\u8bb0\u5bc6\u7801\uff1f',
+                recoverTitle: '\u627e\u56de\u5bc6\u7801',
+                recoverEmailLbl: '\u627e\u56de\u90ae\u7bb1',
+                recoverSend: '\u53d1\u9001\u9a8c\u8bc1\u7801',
+                recoverSentTitle: '\u9a8c\u8bc1\u7801\u5df2\u53d1\u9001',
+                recoverSentText: '\u9a8c\u8bc1\u7801\u5df2\u53d1\u9001\u5230 {email}\uff0c\u8bf7\u524d\u5f80\u90ae\u7bb1\u67e5\u770b\u3002',
+                recoverCodeText: '\u5982\u679c\u6536\u4e0d\u5230\u90ae\u4ef6\uff0c\u53ef\u76f4\u63a5\u4f7f\u7528\u6b64\u9a8c\u8bc1\u7801\uff1a{code}',
+                recoverOk: '\u77e5\u9053\u4e86',
+                recoverStep2Title: '\u91cd\u7f6e\u5bc6\u7801',
+                recoverCodeLbl: '\u9a8c\u8bc1\u7801',
+                recoverReset: '\u91cd\u7f6e\u5bc6\u7801',
+                pwdChanged: '\u5bc6\u7801\u5df2\u66f4\u65b0',
+                recoverFailed: '\u627e\u56de\u5931\u8d25\uff1a{detail}'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -5621,6 +5669,7 @@
                 ['supportAuthor', 'supportAuthor'],
                 ['language', 'language'],
                 ['personalization', 'personalization'],
+                ['account', 'account'],
                 ['sync', 'sync'],
                 ['telemetry', 'telemetry']
             ];
@@ -5890,6 +5939,7 @@
             loadFeedbackSettings();
             loadSyncState();
             loadQuoteLibraryInput();
+            loadAccountSettings();
             modal.classList.add('open');
         }
 
@@ -5924,7 +5974,142 @@
             applySettingsLanguage();
             syncBgModeUI();
             loadShortcutSettings();
+            initAccountSettings();
             await Promise.all([loadBackgroundBlur(), loadFeedbackSettings()]);
+        }
+
+        /* ---------- 账户：找回邮箱 + 忘记密码（仅桌面应用） ---------- */
+        function errText(e) {
+            if (typeof e === 'string') return e;
+            return (e && e.message) || JSON.stringify(e);
+        }
+
+        async function loadAccountSettings() {
+            const input = $('recoveryEmailInput');
+            if (!input || !isDesktop) return;
+            try {
+                const email = await invoke('get_access_email');
+                input.value = typeof email === 'string' ? email : '';
+            } catch (e) { /* 读取失败按空处理 */ }
+        }
+
+        function initAccountSettings() {
+            if (!isDesktop) return;
+            const saveBtn = $('recoveryEmailSave');
+            if (saveBtn) saveBtn.addEventListener('click', async () => {
+                const status = $('recoveryEmailStatus');
+                if (status) status.textContent = '';
+                try {
+                    await invoke('set_access_email', { email: $('recoveryEmailInput').value.trim() });
+                    if (status) status.textContent = settingsText('emailSaved', 'Recovery email saved');
+                } catch (e) {
+                    if (status) status.textContent = errText(e) || settingsText('emailSaveFailed', 'Unable to save recovery email');
+                }
+            });
+            const forgotBtn = $('forgotPwdBtn');
+            if (forgotBtn) forgotBtn.addEventListener('click', () => {
+                recoverStepEmail();
+            });
+            const modal = $('recoverModal');
+            if (modal) {
+                const close = $('recoverModalClose');
+                if (close) close.addEventListener('click', () => { modal.hidden = true; });
+                modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+            }
+        }
+
+        function recoverStepEmail() {
+            const modal = $('recoverModal');
+            if (!modal) return;
+            $('recoverModalTitle').textContent = settingsText('recoverTitle', 'Recover password');
+            const body = $('recoverModalBody');
+            body.innerHTML =
+                '<div class="setup-field">' +
+                    '<label for="recoverEmailField">' + settingsText('recoverEmailLbl', 'Recovery email') + '</label>' +
+                    '<input type="email" id="recoverEmailField" autocomplete="email">' +
+                    '<span class="setup-hint">' + settingsText('recoveryEmailHint', '') + '</span>' +
+                '</div>' +
+                '<p class="setup-error" id="recoverError" style="display:none"></p>' +
+                '<div class="setup-actions">' +
+                    '<button type="button" id="recoverSendBtn" class="app-modal-btn primary">' + settingsText('recoverSend', 'Send code') + '</button>' +
+                '</div>';
+            modal.hidden = false;
+            const errEl = $('recoverError');
+            const sendBtn = $('recoverSendBtn');
+            $('recoverEmailField').focus();
+            sendBtn.addEventListener('click', async () => {
+                const email = $('recoverEmailField').value.trim();
+                if (!email) return;
+                sendBtn.disabled = true;
+                try {
+                    const code = await invoke('request_password_recovery', { email });
+                    recoverStepSent(email, code);
+                } catch (e) {
+                    errEl.textContent = errText(e) || settingsText('recoverFailed', 'Recovery failed').replace('{detail}', '');
+                    errEl.style.display = 'block';
+                    sendBtn.disabled = false;
+                }
+            });
+        }
+
+        function recoverStepSent(email, code) {
+            const modal = $('recoverModal');
+            $('recoverModalTitle').textContent = settingsText('recoverSentTitle', 'Code sent');
+            $('recoverModalBody').innerHTML =
+                '<p style="margin:0 0 10px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverSentText', 'A recovery code was sent to {email}. Check your inbox.').replace('{email}', email) + '</p>' +
+                '<p style="margin:0 0 14px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverCodeText', "If the email doesn't arrive, use this code directly: {code}").replace('{code}', '<strong style="color:var(--text-main);letter-spacing:2px">' + code + '</strong>') + '</p>' +
+                '<div class="setup-actions">' +
+                    '<button type="button" id="recoverNextBtn" class="app-modal-btn primary">' + settingsText('recoverOk', 'Got it') + '</button>' +
+                '</div>';
+            $('recoverNextBtn').addEventListener('click', () => recoverStepReset(code));
+        }
+
+        function recoverStepReset(code) {
+            const modal = $('recoverModal');
+            $('recoverModalTitle').textContent = settingsText('recoverStep2Title', 'Reset password');
+            $('recoverModalBody').innerHTML =
+                '<div class="setup-field">' +
+                    '<label for="recoverCodeField">' + settingsText('recoverCodeLbl', 'Verification code') + '</label>' +
+                    '<input type="text" id="recoverCodeField" inputmode="numeric" value="' + code + '">' +
+                '</div>' +
+                '<div class="setup-field">' +
+                    '<label for="recoverNewField">' + settingsText('newPassword', 'New password') + '</label>' +
+                    '<input type="password" id="recoverNewField" autocomplete="new-password">' +
+                '</div>' +
+                '<div class="setup-field">' +
+                    '<label for="recoverConfirmField">' + settingsText('confirmPassword', 'Confirm password') + '</label>' +
+                    '<input type="password" id="recoverConfirmField" autocomplete="new-password">' +
+                '</div>' +
+                '<p class="setup-error" id="recoverError" style="display:none"></p>' +
+                '<div class="setup-actions">' +
+                    '<button type="button" id="recoverResetBtn" class="app-modal-btn primary">' + settingsText('recoverReset', 'Reset password') + '</button>' +
+                '</div>';
+            const errEl = $('recoverError');
+            const resetBtn = $('recoverResetBtn');
+            $('recoverCodeField').focus();
+            resetBtn.addEventListener('click', async () => {
+                const newPwd = $('recoverNewField').value;
+                if (newPwd.length < 4) {
+                    errEl.textContent = settingsText('passwordTooShort', 'Password must be at least 4 characters');
+                    errEl.style.display = 'block';
+                    return;
+                }
+                if (newPwd !== $('recoverConfirmField').value) {
+                    errEl.textContent = settingsText('passwordsMismatch', 'Passwords do not match');
+                    errEl.style.display = 'block';
+                    return;
+                }
+                resetBtn.disabled = true;
+                try {
+                    await invoke('reset_password', { code: $('recoverCodeField').value.trim(), new: newPwd });
+                    modal.hidden = true;
+                    showToast(settingsText('pwdChanged', 'Password changed'), 'success');
+                } catch (e) {
+                    errEl.textContent = errText(e) || settingsText('recoverFailed', 'Recovery failed');
+                    errEl.style.display = 'block';
+                    resetBtn.disabled = false;
+                }
+            });
         }
 
         function escapeHtml(value) {
@@ -9534,6 +9719,17 @@
                     <button type="button" id="setupSaveBtn" class="app-modal-btn primary" data-i18n-settings="setupSave">Save</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="recoverModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal setup-modal" role="dialog" aria-modal="true">
+            <div class="app-modal-head">
+                <h3 id="recoverModalTitle" data-i18n-settings="recoverTitle">Recover password</h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="recoverModalClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body" id="recoverModalBody"></div>
         </div>
     </div>
     <div id="floatBall" class="float-ball" data-i18n-title-settings="floatBallTitle" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">

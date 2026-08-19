@@ -98,10 +98,11 @@ const LOCALES = {
     forgotPassword: '忘记密码？',
     recoverTitle: '找回密码',
     recoverEmail: '找回邮箱',
+    recoverSentTitle: '验证码已发送',
+    recoverSentText: '验证码已发送到 {email}，请前往邮箱查看。',
+    recoverCodeText: '如果收不到邮件，可直接使用此验证码：{code}',
     recoverStep2Title: '重置密码',
     recoverCode: '6 位验证码',
-    recoverMailOpened: '已打开邮件客户端，请发送后从邮箱查看验证码。',
-    recoverMailFailed: '无法打开邮件客户端，验证码：{code}',
     recoverFailed: '找回失败：',
     recoverMailSubject: 'AlpeHuez 找回密码验证码',
     recoverMailBody: '你的 AlpeHuez 找回密码验证码是：',
@@ -177,10 +178,11 @@ const LOCALES = {
     forgotPassword: 'Forgot password?',
     recoverTitle: 'Recover password',
     recoverEmail: 'Recovery email',
+    recoverSentTitle: 'Code sent',
+    recoverSentText: 'A recovery code was sent to {email}. Check your inbox.',
+    recoverCodeText: 'If the email doesn\'t arrive, use this code directly: {code}',
     recoverStep2Title: 'Reset password',
     recoverCode: '6-digit code',
-    recoverMailOpened: 'Mail client opened — send the email and read the code from it.',
-    recoverMailFailed: 'Could not open mail client. Code: {code}',
     recoverFailed: 'Recovery failed: ',
     recoverMailSubject: 'AlpeHuez password recovery code',
     recoverMailBody: 'Your AlpeHuez recovery code is: ',
@@ -457,6 +459,9 @@ if (isDesktop && window.__TAURI__.event && typeof window.__TAURI__.event.listen 
 
 /* ---------- 模态框 ---------- */
 function fieldHtml(f) {
+  if (f.type === 'info') {
+    return `<div class="form-row info-row"><p class="hint">${f.label}</p></div>`;
+  }
   if (f.type === 'checkbox') {
     return `<div class="checkbox-row"><label class="toggle"><input type="checkbox" id="f_${f.key}" ${f.value ? 'checked' : ''}><span class="toggle-slider"></span></label><label for="f_${f.key}">${f.label}</label></div>`;
   }
@@ -1597,34 +1602,38 @@ async function initAuth() {
         toast(errText(e) || t('recoverFailed'), 'error');
         return;
       }
+      // 尽力打开邮件客户端，失败不阻断（验证码会在下方弹窗里直接展示）。
       try {
         const subject = encodeURIComponent(t('recoverMailSubject'));
         const body = encodeURIComponent(t('recoverMailBody') + ' ' + code);
         await window.__TAURI__.core.invoke('open_url_scheme', { url: `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}` });
-        toast(t('recoverMailOpened'), 'success');
-      } catch (e) {
-        toast(t('recoverMailFailed').replace('{code}', code), 'error');
-      }
-      openModal(t('recoverStep2Title'), [
-        { key: 'code', label: t('recoverCode'), type: 'text', required: true },
-        { key: 'new', label: t('newPassword'), type: 'password', required: true },
-        { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
-      ], async (v2) => {
-        if (v2.new !== v2.confirm) {
-          toast(t('pwdMismatch'), 'error');
-          return;
-        }
-        try {
-          await window.__TAURI__.core.invoke('reset_password', { code: v2.code.trim(), new: v2.new });
-          toast(t('pwdChanged'), 'success');
-          // 新密码已知，直接放行进入面板。
-          backdrop.hidden = true;
-          document.body.classList.remove('login-active');
-          $('#btnChangePwd').hidden = false;
-          init();
-        } catch (e) {
-          toast(errText(e) || t('recoverFailed'), 'error');
-        }
+      } catch (e) { /* 无邮件客户端时忽略 */ }
+      // 可见的「验证码已发送」确认窗口。
+      openModal(t('recoverSentTitle'), [
+        { key: 'sentInfo', type: 'info', label: t('recoverSentText').replace('{email}', email) },
+        { key: 'codeInfo', type: 'info', label: t('recoverCodeText').replace('{code}', code) },
+      ], async () => {
+        openModal(t('recoverStep2Title'), [
+          { key: 'code', label: t('recoverCode'), type: 'text', required: true },
+          { key: 'new', label: t('newPassword'), type: 'password', required: true },
+          { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
+        ], async (v2) => {
+          if (v2.new !== v2.confirm) {
+            toast(t('pwdMismatch'), 'error');
+            return;
+          }
+          try {
+            await window.__TAURI__.core.invoke('reset_password', { code: v2.code.trim(), new: v2.new });
+            toast(t('pwdChanged'), 'success');
+            // 新密码已知，直接放行进入面板。
+            backdrop.hidden = true;
+            document.body.classList.remove('login-active');
+            $('#btnChangePwd').hidden = false;
+            init();
+          } catch (e) {
+            toast(errText(e) || t('recoverFailed'), 'error');
+          }
+        });
       });
     });
   }

@@ -285,107 +285,6 @@
     line-height: 1.6;
   }
 
-  /* ---- 桌面端下载配置条 ---- */
-  .sw-dl-config {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 0 0 14px;
-    padding: 12px 14px;
-    border: 1px solid var(--sw-border);
-    border-radius: 9px;
-    background: var(--sw-surface);
-    box-shadow: var(--sw-shadow);
-    font-size: 12.5px;
-    color: var(--sw-text-secondary);
-  }
-
-  .sw-dl-config label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .sw-dl-dir {
-    flex: 1 1 240px;
-    min-width: 200px;
-    padding: 8px 10px;
-    border: 1px solid var(--sw-border-strong);
-    border-radius: 7px;
-    background: var(--sw-surface);
-    font-size: 12.5px;
-    color: var(--sw-text);
-    outline: none;
-  }
-
-  .sw-dl-dir:focus {
-    border-color: #B1E3FF;
-    box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12);
-  }
-
-  .sw-dl-save {
-    padding: 8px 14px;
-    border: 1px solid var(--sw-green);
-    border-radius: 7px;
-    background: var(--sw-green);
-    color: #ffffff;
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-  }
-
-  .sw-dl-save:hover {
-    background: #006FD0;
-    border-color: #006FD0;
-  }
-
-  /* ---- 下载状态条（右下角悬浮） ---- */
-  .sw-dl-status {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    z-index: 999;
-    width: min(360px, calc(100vw - 36px));
-    padding: 10px 12px 12px;
-    border: 1px solid var(--sw-border);
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: 0 8px 30px -6px rgba(0, 0, 0, 0.25);
-    font-size: 12.5px;
-    color: var(--sw-text);
-  }
-
-  .sw-dl-status-text {
-    margin-bottom: 7px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-  }
-
-  .sw-dl-status-track {
-    height: 5px;
-    border-radius: 999px;
-    background: #EAF5FF;
-    overflow: hidden;
-  }
-
-  .sw-dl-status-bar {
-    height: 100%;
-    width: 0;
-    border-radius: 999px;
-    background: var(--sw-green);
-    transition: width 0.2s ease;
-  }
-
-  .sw-dl-status.is-err .sw-dl-status-text {
-    color: #b91c1c;
-  }
-
-  .sw-dl-status.is-ok .sw-dl-status-text {
-    color: #0f766e;
-  }
-
   /* ---- 深色模式：跟随主应用 space 主题 ---- */
   html[data-theme="space"] {
     color-scheme: dark;
@@ -424,8 +323,7 @@
   html[data-theme="space"] .breadcrumb .current { color: #ffffff; }
   html[data-theme="space"] .footer { color: #8C93B8; }
 
-  html[data-theme="space"] .sw-search:focus,
-  html[data-theme="space"] .sw-dl-dir:focus {
+  html[data-theme="space"] .sw-search:focus {
     border-color: rgba(162, 123, 255, 0.6);
     box-shadow: 0 0 0 3px rgba(162, 123, 255, 0.18);
   }
@@ -473,25 +371,12 @@
     border-color: rgba(162, 123, 255, 0.5);
     color: #C4B8FF;
   }
-  html[data-theme="space"] .sw-dl-save:hover {
-    background: #5BB882;
-    border-color: #5BB882;
-  }
 
   html[data-theme="space"] .sw-note {
     border-color: rgba(251, 191, 36, 0.35);
     background: rgba(251, 191, 36, 0.10);
     color: #FCD34D;
   }
-
-  html[data-theme="space"] .sw-dl-status {
-    background: #2B2747;
-  }
-  html[data-theme="space"] .sw-dl-status-track {
-    background: rgba(255, 255, 255, 0.10);
-  }
-  html[data-theme="space"] .sw-dl-status.is-err .sw-dl-status-text { color: #F87171; }
-  html[data-theme="space"] .sw-dl-status.is-ok .sw-dl-status-text { color: #6FCF97; }
 
   @media (max-width: 640px) {
     .sw-page { padding: 22px 16px 70px; }
@@ -509,16 +394,6 @@
     </div>
   </section>
 
-  <section class="sw-dl-config" id="swDlConfig" hidden>
-    <label data-i18n="dlDir">下载目录</label>
-    <input type="text" id="swDlDir" class="sw-dl-dir" placeholder="D:\Downloads">
-    <label>
-      <input type="checkbox" id="swFdm">
-      <span data-i18n="dlFdm">使用 Free Download Manager</span>
-    </label>
-    <button type="button" class="sw-dl-save" id="swDlSave" data-i18n="dlSave">保存</button>
-  </section>
-
   <section class="sw-toolbar">
     <input type="search" id="swSearch" class="sw-search" data-i18n-placeholder="searchPlaceholder" placeholder="Search software...">
     <div class="sw-cats" id="swCats"></div>
@@ -530,11 +405,6 @@
 </main>
 
 <footer class="footer">Helloxiaolaodi &#183; My Files</footer>
-
-<div class="sw-dl-status" id="swDlStatus" hidden>
-  <div class="sw-dl-status-text" id="swDlStatusText"></div>
-  <div class="sw-dl-status-track"><div class="sw-dl-status-bar" id="swDlStatusBar"></div></div>
-</div>
 
 <script>
 (function () {
@@ -551,16 +421,7 @@
       download: 'Download',
       site: 'Official Site',
       note: 'Links point to official websites or official download pages. If a direct download link is unavailable, open the official site and choose the version that matches your system.',
-      empty: 'No software matches your search.',
-      dlDir: 'Download folder',
-      dlFdm: 'Use Free Download Manager',
-      dlSave: 'Save',
-      dlConfigSaved: 'Download settings saved.',
-      dlSaveFailed: 'Failed to save download settings.',
-      dlDownloading: 'Downloading',
-      dlDone: 'Downloaded to',
-      dlFailed: 'Download failed:',
-      dlHandedToFdm: 'Sent to Free Download Manager.'
+      empty: 'No software matches your search.'
     },
     zh: {
       pageTitle: '软件',
@@ -570,16 +431,7 @@
       download: '下载',
       site: '官网',
       note: '链接均指向官方网站或官方下载页面。如果没有直接下载链接，请打开官网后选择适合自己系统的版本。',
-      empty: '没有找到匹配的软件。',
-      dlDir: '下载目录',
-      dlFdm: '使用 Free Download Manager',
-      dlSave: '保存',
-      dlConfigSaved: '下载设置已保存。',
-      dlSaveFailed: '下载设置保存失败：',
-      dlDownloading: '正在下载',
-      dlDone: '已下载到',
-      dlFailed: '下载失败：',
-      dlHandedToFdm: '已交给 Free Download Manager。'
+      empty: '没有找到匹配的软件。'
     }
   };
 
@@ -647,7 +499,7 @@
         </div>
         <div class="sw-grid">
           ${items.map((s) => {
-            const extra = s.extra ? `<a class="sw-btn sw-btn-site" href="${escapeHtml(s.extra.url)}" target="_blank" rel="noopener">${escapeHtml(s.extra[state.lang])}</a>` : '';
+            const extra = s.extra ? `<a class="sw-btn sw-btn-site" href="${escapeHtml(s.extra.url)}">${escapeHtml(s.extra[state.lang])}</a>` : '';
             return `<article class="sw-card">
               <div class="sw-card-top">
                 <div class="sw-logo" aria-hidden="true">${escapeHtml(initials(s.name))}</div>
@@ -657,8 +509,8 @@
                 </div>
               </div>
               <div class="sw-card-actions">
-                <a class="sw-btn sw-btn-download" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${t.download}</a>
-                <a class="sw-btn sw-btn-site" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${t.site}</a>
+                <a class="sw-btn sw-btn-download" href="${escapeHtml(s.url)}">${t.download}</a>
+                <a class="sw-btn sw-btn-site" href="${escapeHtml(s.url)}">${t.site}</a>
                 ${extra}
               </div>
             </article>`;
@@ -697,133 +549,36 @@
     render();
   });
 
-  /* ---- 桌面端：下载配置 + 内置下载 / FDM ---- */
+  /* ---- 按钮统一在应用内部打开（由主窗口创建内部 webview） ---- */
+  // 注意：按钮 <a> 不能带 target="_blank"。WebView2 对 target="_blank" 的点击会触发
+  // NewWindowRequested 并被路由到系统浏览器，即使 JS 已 preventDefault 也无济于事，
+  // 结果就是"同时打开内部页面和外部浏览器"。因此这里一律用 JS 控制打开方式。
   const isDesktop = !!(window.__TAURI__ && window.__TAURI__.core);
 
-  let dlConfig = { dir: '', useFdm: false };
-  let dlStatusTimer = null;
-
-  function showDlStatus(message, kind) {
-    const box = document.getElementById('swDlStatus');
-    const text = document.getElementById('swDlStatusText');
-    if (!box || !text) return;
-    box.hidden = false;
-    box.classList.remove('is-err', 'is-ok');
-    if (kind) box.classList.add('is-' + kind);
-    text.textContent = message;
-    if (dlStatusTimer) clearTimeout(dlStatusTimer);
-    if (kind === 'ok' || kind === 'err') {
-      dlStatusTimer = setTimeout(() => { box.hidden = true; }, 6000);
-    }
-  }
-
-  // Tauri 命令错误以字符串 reject，需转成可读信息。
-  function errText(e) {
-    if (typeof e === 'string') return e;
-    if (e && typeof e === 'object') return e.message || String(e);
-    return String(e);
-  }
-
-  // 前缀已带「：/:」时不再加空格。
-  function dlErrorLabel(prefix, e) {
-    const msg = errText(e);
-    const sep = /[：:]\s*$/.test(prefix) ? '' : ' ';
-    return prefix + sep + msg;
-  }
-
-  function showDlProgress(p) {
-    const box = document.getElementById('swDlStatus');
-    const text = document.getElementById('swDlStatusText');
-    const fill = document.getElementById('swDlStatusBar');
-    if (!box || !text || !fill) return;
-    box.hidden = false;
-    box.classList.remove('is-err', 'is-ok');
-    const pct = p.total > 0 ? Math.min(100, Math.round((p.received || 0) / p.total * 100)) : null;
-    text.textContent = I18N[state.lang].dlDownloading + ' ' + (p.name || '') + (pct !== null ? ' · ' + pct + '%' : '');
-    fill.style.width = (pct !== null ? pct : 30) + '%';
-  }
-
-  async function initDownloadConfig() {
-    if (!isDesktop) return;
+  function openInternal(url) {
     try {
-      const cfg = await window.__TAURI__.core.invoke('get_download_config');
-      dlConfig = { dir: (cfg && cfg.dir) || '', useFdm: !!(cfg && cfg.useFdm) };
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'alpehuez-open-url', url, title: document.title }, '*');
+      } else if (isDesktop) {
+        window.__TAURI__.core.invoke('open_url', { url }).catch(() => {});
+      }
     } catch (e) {
-      console.error('load download config failed:', e);
+      console.error('open url failed:', e);
     }
-    const bar = document.getElementById('swDlConfig');
-    const dirInput = document.getElementById('swDlDir');
-    const fdmCheck = document.getElementById('swFdm');
-    if (bar) bar.hidden = false;
-    if (dirInput) dirInput.value = dlConfig.dir;
-    if (fdmCheck) fdmCheck.checked = dlConfig.useFdm;
-    if (dirInput) dirInput.addEventListener('change', () => { dlConfig.dir = dirInput.value.trim(); });
-    if (fdmCheck) fdmCheck.addEventListener('change', () => { dlConfig.useFdm = fdmCheck.checked; });
-  }
-
-  const saveDlBtn = document.getElementById('swDlSave');
-  if (saveDlBtn) {
-    saveDlBtn.addEventListener('click', async () => {
-      if (!isDesktop) return;
-      const dirInput = document.getElementById('swDlDir');
-      const fdmCheck = document.getElementById('swFdm');
-      const dir = (dirInput ? dirInput.value.trim() : dlConfig.dir);
-      const useFdm = fdmCheck ? fdmCheck.checked : dlConfig.useFdm;
-      try {
-        await window.__TAURI__.core.invoke('set_download_config', { dir, useFdm });
-        dlConfig = { dir, useFdm };
-        showDlStatus(I18N[state.lang].dlConfigSaved, 'ok');
-      } catch (e) {
-        showDlStatus(dlErrorLabel(I18N[state.lang].dlSaveFailed, e), 'err');
-      }
-    });
-  }
-
-  if (isDesktop) {
-    window.__TAURI__.event.listen('download-progress', (event) => {
-      const p = event.payload || {};
-      if (p.phase === 'start' || p.phase === 'progress') {
-        showDlProgress(p);
-      } else if (p.phase === 'done') {
-        showDlStatus(I18N[state.lang].dlDone + ' ' + (p.target || ''), 'ok');
-      } else if (p.phase === 'error') {
-        showDlStatus(I18N[state.lang].dlFailed + ' ' + (p.error || ''), 'err');
-      }
-    });
   }
 
   contentEl.addEventListener('click', (event) => {
-    const dlBtn = event.target.closest('.sw-btn-download');
-    if (dlBtn) {
-      if (!isDesktop) return;
-      event.preventDefault();
-      const url = dlBtn.getAttribute('href');
-      if (dlConfig.useFdm) {
-        window.__TAURI__.core.invoke('open_in_fdm', { url })
-          .then(() => showDlStatus(I18N[state.lang].dlHandedToFdm, 'ok'))
-          .catch((e) => showDlStatus(dlErrorLabel(I18N[state.lang].dlFailed, e), 'err'));
-      } else {
-        window.__TAURI__.core.invoke('download_file', { url, dir: dlConfig.dir })
-          .catch((e) => showDlStatus(dlErrorLabel(I18N[state.lang].dlFailed, e), 'err'));
-      }
+    const btn = event.target.closest('.sw-btn-download, .sw-btn-site');
+    if (!btn) return;
+    event.preventDefault();
+    const url = btn.getAttribute('href');
+    if (!isDesktop) {
+      // 网页版（无 Tauri）没有内部 webview，在新标签页打开。
+      window.open(url, '_blank', 'noopener');
       return;
     }
-    const siteBtn = event.target.closest('.sw-btn-site');
-    if (siteBtn) {
-      if (!isDesktop) return;
-      event.preventDefault();
-      const url = siteBtn.getAttribute('href');
-      try {
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: 'alpehuez-open-url', url, title: document.title }, '*');
-        }
-      } catch (e) {
-        console.error('open site failed:', e);
-      }
-    }
+    openInternal(url);
   });
-
-  initDownloadConfig();
 
   async function loadData() {
     try {
