@@ -19,6 +19,33 @@ use include_dir::{include_dir, Dir};
 #[cfg(target_os = "android")]
 const WEBROOT: Dir = include_dir!("$CARGO_MANIFEST_DIR/android-webroot");
 
+/// 桌面打包版（无仓库目录）同样把网页资源嵌入二进制，首次启动播种到
+/// app_data_dir/webroot 后作为仓库根使用。内容由 build.rs 在编译前从仓库拷贝。
+#[cfg(not(target_os = "android"))]
+use include_dir::{include_dir, Dir};
+
+#[cfg(not(target_os = "android"))]
+const WEBROOT: Dir = include_dir!("$CARGO_MANIFEST_DIR/webroot");
+
+/// 把嵌入的网页资源播种到目标目录，仅写入缺失文件（不覆盖已存在的用户数据）。
+/// 打包版首次启动、本地没有仓库目录时调用。
+#[cfg(not(target_os = "android"))]
+pub fn materialize(dest: &Path) {
+    fn walk(dir: &Dir, base: &Path) {
+        let _ = fs::create_dir_all(base);
+        for file in dir.files() {
+            let target = base.join(file.path().file_name().expect("文件应有文件名"));
+            if !target.exists() {
+                let _ = fs::write(&target, file.contents());
+            }
+        }
+        for sub in dir.dirs() {
+            walk(sub, &base.join(sub.path().file_name().expect("目录应有目录名")));
+        }
+    }
+    walk(&WEBROOT, dest);
+}
+
 const MIME: &[(&str, &str)] = &[
     (".html", "text/html; charset=utf-8"),
     (".js", "text/javascript; charset=utf-8"),
@@ -164,5 +191,61 @@ pub fn handler(
             }
         }
         None => response(StatusCode::NOT_FOUND, "text/plain", b"Not found".to_vec()),
+    }
+}
+
+#[cfg(all(test, not(target_os = "android")))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn materialize_seeds_webroot() {
+        let dest = std::env::temp_dir().join(format!(
+            "alpehuez-webroot-test-{}",
+            std::process::id()
+        ));
+        let _ = std::fs::remove_dir_all(&dest);
+        materialize(&dest);
+
+        let expect_exists = [
+            "index.html",
+            "links.json",
+            "fonts/Inter.woff2",
+            "panel/index.html",
+            "panel/panel.js",
+            "myfiles/index.html",
+            "myfiles/login.html",
+            "myfiles/softwares/Windows Software Downloads.html",
+            "myfiles/galibierhub/index.html",
+        ];
+        for rel in expect_exists {
+            assert!(
+                dest.join(rel).exists(),
+                "嵌入资源缺失: {rel}（build.rs 是否已暂存 webroot？）"
+            );
+        }
+        // 个人大报告目录不打包
+        assert!(!dest.join("myfiles/targetc").exists());
+        assert!(!dest.join("myfiles/global-oral").exists());
+
+        // 打包版 data.json 不公开任何文件夹（个人报告不进包，softwares 已移出 My Files 界面）
+        let data: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(dest.join("myfiles/data.json")).expect("读取 data.json"),
+        )
+        .expect("解析 data.json");
+        let folders = data["folders"]
+            .as_array()
+            .expect("folders 应为数组");
+        assert!(folders.is_empty(), "打包版 My Files 不应列出文件夹");
+
+        // 播种不应覆盖已存在的文件（用户数据保护）
+        std::fs::write(dest.join("links.json"), b"user-modified").expect("写入 links.json");
+        materialize(&dest);
+        assert_eq!(
+            std::fs::read_to_string(dest.join("links.json")).expect("读取 links.json"),
+            "user-modified"
+        );
+
+        let _ = std::fs::remove_dir_all(&dest);
     }
 }

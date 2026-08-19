@@ -16,6 +16,19 @@ fn main() {
                 "run_script",
                 "verify_password",
                 "change_password",
+                "get_myfiles_password",
+                "set_myfiles_password",
+                "has_access_password",
+                "get_access_email",
+                "set_access_email",
+                "setup_access",
+                "request_password_recovery",
+                "verify_recovery_code",
+                "reset_password",
+                "get_download_config",
+                "set_download_config",
+                "download_file",
+                "open_in_fdm",
                 "save_bg_image",
                 "get_bg_config",
                 "set_bg_config",
@@ -56,21 +69,52 @@ fn main() {
     )
     .expect("tauri-build failed");
 
-    // Android：把门户文件暂存到 android-webroot，供 preview.rs 的 include_dir! 编译期嵌入。
-    // 仅拷贝移动端真正用到的文件，避开 .git / releases / src-tauri / 大报告等。
+    // 把网页资源暂存到独立目录，供 preview.rs 的 include_dir! 编译期嵌入：
+    // 打包版（无仓库目录）运行时 nav:// 与读写命令回退到这些嵌入资源。
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
-        stage_webroot();
+        stage_webroot("android-webroot", &android_files());
+    } else {
+        stage_webroot("webroot", &desktop_files());
+        trim_myfiles_data("webroot");
     }
 }
 
-fn stage_webroot() {
+fn android_files() -> Vec<&'static str> {
+    vec![
+        "index.html",
+        "links.json",
+        "tailwind.min.js",
+        "github-profile.jpg",
+        "icons",
+        "fonts",
+        "myfiles/data.json",
+        "myfiles/index.html",
+        "myfiles/explorer.js",
+        "myfiles/explorer.css",
+        "myfiles/softwares",
+    ]
+}
+
+fn desktop_files() -> Vec<&'static str> {
+    let mut list = android_files();
+    list.extend([
+        "panel",
+        "myfiles/login.html",
+        // 小而必要的公开内容目录；targetc/global-oral 等个人大报告不打包。
+        "myfiles/galibierhub",
+        "myfiles/lucuro",
+    ]);
+    list
+}
+
+fn stage_webroot(out_name: &str, files: &[&str]) {
     let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
     let root = manifest.parent().expect("src-tauri 应有父目录");
-    let out = manifest.join("android-webroot");
+    let out = manifest.join(out_name);
     let _ = std::fs::remove_dir_all(&out);
-    std::fs::create_dir_all(&out).expect("创建 android-webroot 失败");
+    std::fs::create_dir_all(&out).expect("创建暂存目录失败");
 
-    let stage = |rel: &str| {
+    for rel in files {
         let src = root.join(rel);
         let dst = out.join(rel);
         if src.is_dir() {
@@ -80,25 +124,25 @@ fn stage_webroot() {
                 .expect("创建暂存目录失败");
             std::fs::copy(&src, &dst).expect("暂存文件失败");
         } else {
-            panic!("android-webroot 暂存缺失文件: {rel}");
+            panic!("暂存缺失文件: {rel}");
         }
-    };
-
-    for f in [
-        "index.html",
-        "links.json",
-        "tailwind.min.js",
-        "github-profile.jpg",
-    ] {
-        stage(f);
+        println!("cargo:rerun-if-changed={}", src.display());
     }
-    stage("icons");
-    stage("fonts");
-    stage("myfiles/data.json");
-    stage("myfiles/index.html");
-    stage("myfiles/explorer.js");
-    stage("myfiles/explorer.css");
-    stage("myfiles/softwares");
+}
+
+/// 打包版 My Files 不公开任何文件夹：个人报告目录（targetc/global-oral 等）不进包，
+/// softwares 已从 My Files 界面移除（只在左侧栏 Software 入口打开）。
+fn trim_myfiles_data(out_name: &str) {
+    use serde_json::Value;
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let src = manifest.parent().expect("src-tauri 应有父目录").join("myfiles/data.json");
+    let dst = manifest.join(out_name).join("myfiles/data.json");
+    let Ok(text) = std::fs::read_to_string(&src) else { return };
+    let Ok(mut v) = serde_json::from_str::<Value>(&text) else { return };
+    if let Some(obj) = v.as_object_mut() {
+        obj.insert("folders".into(), Value::Array(vec![]));
+    }
+    let _ = std::fs::write(&dst, serde_json::to_string_pretty(&v).expect("序列化 data.json") + "\n");
 }
 
 fn copy_dir(src: &Path, dst: &Path) {

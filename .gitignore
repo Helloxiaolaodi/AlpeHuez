@@ -10,5 +10,6 @@ node_modules/
 .webview2-check/
 debug-window.log
 
-# Android 门户暂存目录（build.rs 生成，供 include_dir 嵌入）
+# 门户暂存目录（build.rs 生成，供 include_dir 嵌入）
 src-tauri/android-webroot/
+src-tauri/webroot/

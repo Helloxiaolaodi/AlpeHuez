@@ -2,7 +2,7 @@ use base64::Engine;
 use serde::Serialize;
 use serde_json::Value;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::Path;
 use std::process::{Command, ExitStatus, Stdio};
 #[cfg(windows)]
@@ -556,23 +556,6 @@ fn get_password(app: &tauri::AppHandle) -> Result<String, String> {
     }
 }
 
-fn set_password(app: &tauri::AppHandle, new: &str) -> Result<(), String> {
-    let file = config_file(app)?;
-    let mut v = if file.exists() {
-        let content = fs::read_to_string(&file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}))
-    } else {
-        serde_json::json!({})
-    };
-    if !v.is_object() {
-        v = serde_json::json!({});
-    }
-    v.as_object_mut()
-        .expect("刚构造的对象")
-        .insert("password".into(), serde_json::Value::String(new.to_string()));
-    fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
-}
-
 #[tauri::command]
 pub async fn verify_password(app: tauri::AppHandle, input: String) -> Result<bool, String> {
     let stored = get_password(&app)?;
@@ -588,7 +571,504 @@ pub async fn change_password(app: tauri::AppHandle, old: String, new: String) ->
     if new.len() < 4 {
         return Err("新密码至少 4 位".into());
     }
-    set_password(&app, &new)
+    // #31 统一访问密码：面板密码与 My Files 访问密码保持同步。
+    write_config_keys(&app, &[("password", new.clone()), ("myfiles_password", new)])
+}
+
+/// My Files 网页访问密码：仅保存在本机配置（不入仓库）。
+/// 部署端密码需手动同步到 Cloudflare Pages 环境变量 ALPEHUZ_ACCESS_PASSWORD。
+#[tauri::command]
+pub async fn get_myfiles_password(app: tauri::AppHandle) -> Result<String, String> {
+    let file = config_file(&app)?;
+    if file.exists() {
+        let content = fs::read_to_string(&file).map_err(|e| e.to_string())?;
+        let v: Value = serde_json::from_str(&content).map_err(|e| e.to_string())?;
+        return Ok(v
+            .get("myfiles_password")
+            .and_then(|p| p.as_str())
+            .unwrap_or("")
+            .to_string());
+    }
+    Ok(String::new())
+}
+
+#[tauri::command]
+pub async fn set_myfiles_password(app: tauri::AppHandle, password: String) -> Result<(), String> {
+    let password = password.trim().to_string();
+    if password.len() < 4 {
+        return Err("新密码至少 4 位".into());
+    }
+    // #31 统一访问密码：My Files 访问密码与面板密码保持同步。
+    write_config_keys(&app, &[("myfiles_password", password.clone()), ("password", password)])
+}
+
+/* ---------- 统一访问密码：首次设置 / 找回密码 ---------- */
+
+/// 写多个字符串键到 config.json（单个原子写入，避免多次读写竞争）。
+fn write_config_keys(app: &tauri::AppHandle, keys: &[(&str, String)]) -> Result<(), String> {
+    let file = config_file(app)?;
+    let mut v = read_config_value(&file);
+    if let Some(obj) = v.as_object_mut() {
+        for (k, val) in keys {
+            obj.insert(k.to_string(), serde_json::Value::String(val.clone()));
+        }
+    }
+    fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
+}
+
+/// 是否已配置访问密码（面板 / My Files 统一使用同一密码）。
+#[tauri::command]
+pub async fn has_access_password(app: tauri::AppHandle) -> Result<bool, String> {
+    if let Ok(env_password) = std::env::var("ALPEHUZ_PASSWORD") {
+        if !env_password.is_empty() {
+            return Ok(true);
+        }
+    }
+    let file = config_file(&app)?;
+    let v = read_config_value(&file);
+    Ok(v.get("password")
+        .and_then(|p| p.as_str())
+        .map(|s| !s.is_empty())
+        .unwrap_or(false))
+}
+
+/// 读取找回密码邮箱（config.json 的 recovery_email，空串表示未设置）。
+#[tauri::command]
+pub async fn get_access_email(app: tauri::AppHandle) -> Result<String, String> {
+    let file = config_file(&app)?;
+    let v = read_config_value(&file);
+    Ok(v.get("recovery_email")
+        .and_then(|e| e.as_str())
+        .unwrap_or("")
+        .to_string())
+}
+
+#[tauri::command]
+pub async fn set_access_email(app: tauri::AppHandle, email: String) -> Result<(), String> {
+    let email = email.trim().to_string();
+    if !email.is_empty() && !email.contains('@') {
+        return Err("邮箱地址格式不正确".into());
+    }
+    write_config_keys(&app, &[("recovery_email", email)])
+}
+
+/// 首次使用设置向导：一次性写入统一的访问密码 + 找回邮箱。
+#[tauri::command]
+pub async fn setup_access(app: tauri::AppHandle, password: String, email: String) -> Result<(), String> {
+    let password = password.trim().to_string();
+    if password.len() < 4 {
+        return Err("新密码至少 4 位".into());
+    }
+    let email = email.trim().to_string();
+    if !email.is_empty() && !email.contains('@') {
+        return Err("邮箱地址格式不正确".into());
+    }
+    write_config_keys(
+        &app,
+        &[
+            ("password", password.clone()),
+            ("myfiles_password", password),
+            ("recovery_email", email),
+        ],
+    )
+}
+
+/// 生成 6 位找回验证码（基于时间戳 + 进程号 + 邮箱的散列，足够本地使用）。
+fn make_recovery_code(email: &str) -> String {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.subsec_nanos())
+        .unwrap_or(0);
+    let digest = md5::compute(format!("{}|{}|{}", email, std::process::id(), nanos));
+    let hex = format!("{:x}", digest);
+    let mut code = String::new();
+    for c in hex.chars() {
+        if code.len() >= 6 {
+            break;
+        }
+        if c.is_ascii_digit() {
+            code.push(c);
+        }
+    }
+    if code.len() < 6 {
+        code = format!("{:06}", nanos % 1_000_000);
+    }
+    code
+}
+
+/// 校验找回邮箱并生成 6 位验证码；返回验证码供 mailto 邮件填写。
+/// 本机应用无法真正发送邮件，验证码随 mailto 内容交给用户的邮件客户端。
+#[tauri::command]
+pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> Result<String, String> {
+    let email = email.trim().to_string();
+    let file = config_file(&app)?;
+    let v = read_config_value(&file);
+    let stored = v.get("recovery_email").and_then(|e| e.as_str()).unwrap_or("");
+    if stored.is_empty() {
+        return Err("尚未设置找回邮箱，无法找回密码。请在面板「修改密码」中填写找回邮箱".into());
+    }
+    if stored != email {
+        return Err("邮箱与预留的找回邮箱不一致".into());
+    }
+    let code = make_recovery_code(&email);
+    let expires = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+        + 600; // 10 分钟有效
+    write_config_keys(
+        &app,
+        &[
+            ("recovery_code", code.clone()),
+            ("recovery_code_expires", expires.to_string()),
+        ],
+    )?;
+    Ok(code)
+}
+
+/// 校验验证码是否匹配且未过期。
+#[tauri::command]
+pub async fn verify_recovery_code(app: tauri::AppHandle, code: String) -> Result<bool, String> {
+    let file = config_file(&app)?;
+    let v = read_config_value(&file);
+    let stored = v.get("recovery_code").and_then(|c| c.as_str()).unwrap_or("");
+    if stored.is_empty() || stored != code.trim() {
+        return Ok(false);
+    }
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let expires = v
+        .get("recovery_code_expires")
+        .and_then(|c| c.as_str())
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(0);
+    Ok(expires > now)
+}
+
+/// 用验证码重置访问密码（无需旧密码）。成功后清除验证码。
+#[tauri::command]
+pub async fn reset_password(app: tauri::AppHandle, code: String, new: String) -> Result<(), String> {
+    let ok = verify_recovery_code(app.clone(), code).await?;
+    if !ok {
+        return Err("验证码错误或已过期".into());
+    }
+    let new = new.trim().to_string();
+    if new.len() < 4 {
+        return Err("新密码至少 4 位".into());
+    }
+    write_config_keys(
+        &app,
+        &[
+            ("password", new.clone()),
+            ("myfiles_password", new),
+            ("recovery_code", String::new()),
+            ("recovery_code_expires", String::new()),
+        ],
+    )
+}
+
+/* ---------- 软件下载：下载目录配置 + 内置下载 + Free Download Manager ---------- */
+
+/// 读取 config.json 为对象（文件不存在/损坏返回空对象）。
+fn read_config_value(file: &Path) -> Value {
+    if file.exists() {
+        if let Ok(content) = fs::read_to_string(file) {
+            if let Ok(v) = serde_json::from_str::<Value>(&content) {
+                if v.is_object() {
+                    return v;
+                }
+            }
+        }
+    }
+    serde_json::json!({})
+}
+
+/// 默认下载目录：Windows 取 USERPROFILE\Downloads。
+fn default_download_dir() -> String {
+    #[cfg(windows)]
+    {
+        if let Ok(profile) = std::env::var("USERPROFILE") {
+            if !profile.is_empty() {
+                return format!("{}\\Downloads", profile);
+            }
+        }
+    }
+    if let Ok(home) = std::env::var("HOME") {
+        if !home.is_empty() {
+            return format!("{}/Downloads", home);
+        }
+    }
+    ".".to_string()
+}
+
+/// 下载配置：{ dir, useFdm }，仅保存在本机 config.json（不入仓库）。
+#[tauri::command]
+pub async fn get_download_config(app: tauri::AppHandle) -> Result<Value, String> {
+    let v = read_config_value(&config_file(&app)?);
+    let dir = v
+        .get("download_dir")
+        .and_then(|d| d.as_str())
+        .filter(|s| !s.trim().is_empty())
+        .map(|s| s.to_string())
+        .unwrap_or_else(default_download_dir);
+    let use_fdm = v
+        .get("download_use_fdm")
+        .and_then(|b| b.as_bool())
+        .unwrap_or(false);
+    Ok(serde_json::json!({ "dir": dir, "useFdm": use_fdm }))
+}
+
+#[tauri::command]
+pub async fn set_download_config(app: tauri::AppHandle, dir: String, use_fdm: bool) -> Result<(), String> {
+    let mut dir = dir.trim().to_string();
+    if dir.is_empty() {
+        dir = default_download_dir();
+    }
+    let dir_path = std::path::PathBuf::from(&dir);
+    if !dir_path.exists() {
+        fs::create_dir_all(&dir_path).map_err(|e| format!("无法创建下载目录：{}", e))?;
+    }
+    let file = config_file(&app)?;
+    let mut v = read_config_value(&file);
+    v["download_dir"] = serde_json::Value::String(dir);
+    v["download_use_fdm"] = serde_json::Value::Bool(use_fdm);
+    fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
+}
+
+/// 文件名清洗：去掉 Windows 非法字符与控制字符，杜绝路径穿越/覆盖。
+fn sanitize_filename(name: &str) -> String {
+    let cleaned: String = name
+        .chars()
+        .filter(|c| !matches!(c, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*'))
+        .filter(|c| !c.is_control())
+        .collect();
+    let trimmed = cleaned.trim().trim_matches('.').to_string();
+    if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("con") || trimmed.eq_ignore_ascii_case("nul") {
+        "download".to_string()
+    } else {
+        trimmed
+    }
+}
+
+/// 从 URL 路径末段推导文件名（含 percent 解码）。
+fn url_filename(url: &str) -> Option<String> {
+    let path = url.split(['?', '#']).next().unwrap_or(url);
+    let last = path.split('/').filter(|s| !s.is_empty()).last()?;
+    let decoded = percent_encoding::percent_decode_str(last).decode_utf8_lossy().into_owned();
+    let name = sanitize_filename(&decoded);
+    if name.is_empty() || name == "download" {
+        None
+    } else {
+        Some(name)
+    }
+}
+
+/// 从 Content-Disposition 头解析文件名（支持 filename* / filename 两种写法）。
+fn cd_filename(value: &str) -> Option<String> {
+    if let Some(idx) = value.find("filename*=UTF-8''") {
+        let raw = value[idx + "filename*=UTF-8''".len()..].split(';').next().unwrap_or("").trim();
+        let decoded = percent_encoding::percent_decode_str(raw).decode_utf8_lossy().into_owned();
+        let name = sanitize_filename(&decoded);
+        if !name.is_empty() && name != "download" {
+            return Some(name);
+        }
+    }
+    if let Some(idx) = value.find("filename=") {
+        let raw = value[idx + 9..].split(';').next().unwrap_or("").trim_matches('"').trim();
+        let name = sanitize_filename(raw);
+        if !name.is_empty() && name != "download" {
+            return Some(name);
+        }
+    }
+    None
+}
+
+/// 内置下载：后台线程流式下载到本地目录，进度通过 download-progress 事件上报。
+/// 立即返回 { id, target }，前端监听 download-progress 事件更新进度。
+#[tauri::command]
+pub async fn download_file(app: tauri::AppHandle, url: String, dir: String) -> Result<Value, String> {
+    let url = url.trim().to_string();
+    if !url.starts_with("http://") && !url.starts_with("https://") {
+        return Err("仅支持 http/https 下载链接".into());
+    }
+    let dir = if dir.trim().is_empty() {
+        default_download_dir()
+    } else {
+        dir.trim().to_string()
+    };
+    let dir_path = std::path::PathBuf::from(&dir);
+    fs::create_dir_all(&dir_path).map_err(|e| format!("无法创建下载目录：{}", e))?;
+
+    let name = url_filename(&url).unwrap_or_else(|| "download".to_string());
+    let id = format!("{:x}", md5::compute(format!("{}|{}", url, name)));
+    let target = dir_path.join(&name);
+    let target_str = target.to_string_lossy().to_string();
+
+    let handle = app.clone();
+    let thread_id = id.clone();
+    std::thread::spawn(move || download_worker(&handle, &url, &dir_path, &name, &thread_id, &target));
+
+    Ok(serde_json::json!({ "id": id, "target": target_str }))
+}
+
+fn download_worker(
+    app: &tauri::AppHandle,
+    url: &str,
+    dir: &Path,
+    fallback_name: &str,
+    id: &str,
+    fallback_target: &std::path::PathBuf,
+) {
+    use tauri::Emitter;
+    let emit = |v: Value| {
+        let _ = app.emit("download-progress", v);
+    };
+    emit(serde_json::json!({
+        "id": id, "phase": "start", "name": fallback_name,
+        "target": fallback_target.to_string_lossy().to_string(), "received": 0, "total": 0
+    }));
+    let agent = ureq::AgentBuilder::new()
+        .timeout_connect(Duration::from_secs(30))
+        .build();
+    let result = agent.get(url).set("User-Agent", "AlpeHuez/0.5.0").call();
+    let resp = match result {
+        Ok(resp) => resp,
+        Err(e) => {
+            emit(serde_json::json!({ "id": id, "phase": "error", "error": format!("连接失败：{}", e) }));
+            return;
+        }
+    };
+    let total: u64 = resp
+        .header("Content-Length")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
+    let name = if fallback_name == "download" {
+        resp.header("Content-Disposition")
+            .and_then(cd_filename)
+            .unwrap_or_else(|| fallback_name.to_string())
+    } else {
+        fallback_name.to_string()
+    };
+    let target = dir.join(&name);
+    let mut file = match fs::File::create(&target) {
+        Ok(f) => f,
+        Err(e) => {
+            emit(serde_json::json!({ "id": id, "phase": "error", "error": format!("无法创建文件：{}", e) }));
+            return;
+        }
+    };
+    let mut reader = resp.into_reader();
+    let mut buf = [0u8; 65536];
+    let mut received: u64 = 0;
+    let mut last_emit = Instant::now();
+    loop {
+        match reader.read(&mut buf) {
+            Ok(0) => break,
+            Ok(n) => {
+                received += n as u64;
+                if let Err(e) = file.write_all(&buf[..n]) {
+                    emit(serde_json::json!({ "id": id, "phase": "error", "error": format!("写入失败：{}", e) }));
+                    return;
+                }
+                if last_emit.elapsed() >= Duration::from_millis(150) || (total > 0 && received >= total) {
+                    emit(serde_json::json!({
+                        "id": id, "phase": "progress", "name": name,
+                        "target": target.to_string_lossy().to_string(),
+                        "received": received, "total": total
+                    }));
+                    last_emit = Instant::now();
+                }
+            }
+            Err(e) => {
+                emit(serde_json::json!({ "id": id, "phase": "error", "error": format!("读取失败：{}", e) }));
+                return;
+            }
+        }
+    }
+    emit(serde_json::json!({
+        "id": id, "phase": "done", "name": name,
+        "target": target.to_string_lossy().to_string(),
+        "received": received, "total": total
+    }));
+}
+
+/// 打开 Free Download Manager 接管下载（第二种下载方式）。
+/// FDM 命令行传 URL 即可加入下载队列，无需额外参数。
+#[tauri::command]
+pub async fn open_in_fdm(url: String) -> Result<(), String> {
+    let url = url.trim().to_string();
+    if !url.starts_with("http://") && !url.starts_with("https://") {
+        return Err("仅支持 http/https 下载链接".into());
+    }
+    #[cfg(windows)]
+    {
+        let exe = find_fdm_exe()?;
+        let mut c = Command::new(&exe);
+        silent(&mut c);
+        c.arg(&url).spawn().map_err(|e| format!("启动 Free Download Manager 失败：{}", e))?;
+        Ok(())
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = url;
+        Err("Free Download Manager 仅支持 Windows".into())
+    }
+}
+
+/// 查找 fdm.exe：先查已知安装路径，再查注册表 Uninstall 项。
+#[cfg(windows)]
+fn find_fdm_exe() -> Result<std::path::PathBuf, String> {
+    use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ};
+    use winreg::RegKey;
+
+    const KNOWN: &[&str] = &[
+        r"C:\Program Files\FreeDownloadManager.ORG\Free Download Manager\fdm.exe",
+        r"C:\Program Files (x86)\FreeDownloadManager.ORG\Free Download Manager\fdm.exe",
+        r"C:\Program Files\Free Download Manager\fdm.exe",
+        r"C:\Program Files (x86)\Free Download Manager\fdm.exe",
+    ];
+    for p in KNOWN {
+        let pb = std::path::PathBuf::from(p);
+        if pb.exists() {
+            return Ok(pb);
+        }
+    }
+    let uninstall_roots = [
+        (HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (HKEY_CURRENT_USER, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+    ];
+    for (hive, sub) in uninstall_roots {
+        let Ok(root) = RegKey::predef(hive).open_subkey_with_flags(sub, KEY_READ) else {
+            continue;
+        };
+        for name in root.enum_keys().flatten() {
+            let Ok(sk) = root.open_subkey_with_flags(&name, KEY_READ) else {
+                continue;
+            };
+            let Ok(display_name) = sk.get_value::<String, _>("DisplayName") else {
+                continue;
+            };
+            if !display_name.to_lowercase().contains("free download manager") {
+                continue;
+            }
+            if let Ok(icon) = sk.get_value::<String, _>("DisplayIcon") {
+                let exe = icon.split(',').next().unwrap_or(&icon).trim().trim_matches('"');
+                if !exe.is_empty() && std::path::Path::new(exe).exists() {
+                    return Ok(std::path::PathBuf::from(exe));
+                }
+            }
+            if let Ok(location) = sk.get_value::<String, _>("InstallLocation") {
+                let p = std::path::PathBuf::from(location).join("fdm.exe");
+                if p.exists() {
+                    return Ok(p);
+                }
+            }
+        }
+    }
+    Err("未找到 Free Download Manager（fdm.exe），请先安装 FDM 或使用内置下载".into())
 }
 
 /// 保存背景图（base64 → 物理文件，方案 B）。返回文件绝对路径，前端用 convertFileSrc 引用。
@@ -762,6 +1242,9 @@ fn browser_mode(app: &tauri::AppHandle) -> Result<String, String> {
     Ok(if mode == "external" { "external" } else { "internal" }.into())
 }
 
+/// 在外部浏览器打开 http/https 链接。调用方（前端 openUrl / openExternal）已按
+/// browser_mode 自行决定走内部 WebView 还是外部，这里只负责"外部打开"，不再看 mode，
+/// 否则右键「Open external」会被错误地开进内部 WebView。
 fn route_external_url(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
     if !url.starts_with("http://") && !url.starts_with("https://") {
         return Err("仅支持 http/https 链接".into());
@@ -774,19 +1257,6 @@ fn route_external_url(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
     }
     #[cfg(not(target_os = "android"))]
     {
-        if browser_mode(app)? == "internal" {
-            return open_internal_page_impl(
-                app.clone(),
-                url.to_string(),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
-            .map(|_| ());
-        }
         if let Ok(Some(browser)) = get_browser_path(app) {
             let mut c = Command::new(&browser);
             silent(&mut c);
@@ -1478,6 +1948,19 @@ fn hf_backup_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
     Ok(dir)
 }
 
+/// 清除备份仓残留的 rebase/am 状态。上一次备份若在 push 被拒后 rebase 中途
+/// 失败（网络中断等），会在 .git 下留下 rebase-merge 目录，导致后续备份
+/// 一律报 "already a rebase-merge directory"。这里全部容忍失败：能 abort 就
+/// abort，不能就删目录，最后强制回到 main 分支。
+fn cleanup_hf_git_state(dir: &Path) {
+    let _ = run_git_proxy(&["rebase", "--abort"], dir);
+    let _ = run_git_proxy(&["am", "--abort"], dir);
+    let _ = fs::remove_dir_all(dir.join(".git").join("rebase-merge"));
+    let _ = fs::remove_dir_all(dir.join(".git").join("rebase-apply"));
+    let _ = run_git_proxy(&["checkout", "-f", "main"], dir);
+    let _ = run_git_proxy(&["reset", "--hard", "main"], dir);
+}
+
 fn copy_dir_all(src: &std::path::Path, dst: &std::path::Path) -> std::io::Result<()> {
     fs::create_dir_all(dst)?;
     for entry in fs::read_dir(src)? {
@@ -1535,6 +2018,9 @@ pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
             if c != 0 { return Err(format!("git config {k} 失败: {o}")); }
         }
     }
+
+    // 先清除上一次可能残留的 rebase 状态，再重写全部快照文件。
+    cleanup_hf_git_state(&dir);
 
     // SQLite 在线备份（一致性快照，正确处理 journal）
     {

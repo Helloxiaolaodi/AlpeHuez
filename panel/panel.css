@@ -579,6 +579,14 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 }
 .login-card h2 { font-size: 18px; font-weight: 650; }
 .login-error { color: var(--red); font-size: 12.5px; }
+.login-forgot {
+  align-self: center;
+  background: none; border: none; padding: 2px 4px;
+  font-size: 12.5px; color: var(--text-3);
+  cursor: pointer; text-decoration: underline;
+  transition: color 0.15s ease;
+}
+.login-forgot:hover { color: var(--accent); }
 
 /* ---------- Modal ---------- */
 .modal-backdrop {

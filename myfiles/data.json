@@ -2,21 +2,6 @@
     "name": "My Files",
     "folders": [
         {
-            "slug": "softwares",
-            "name": "Softwares",
-            "protected": false,
-            "dateAdded": "2026-08-14",
-            "folders": [],
-            "files": [
-                {
-                    "name": "Windows Software Downloads（Helloxiaolaodi）",
-                    "kind": "report",
-                    "size": "25 KB",
-                    "url": "Windows Software Downloads.html"
-                }
-            ]
-        },
-        {
             "slug": "targetc",
             "name": "TargetC",
             "protected": true,

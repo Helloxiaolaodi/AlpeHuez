@@ -1,10 +1,10 @@
 {
     "version":  "0.5.0",
-    "notes":  "3c7e52f chore: rebuild v0.5.0 exe with tray daemon + loading fix\nf46d7d2 feat: full i18n — telemetry pod, activity/code modal, float ball, vertical dashboard\nba5aeb2 feat: dev panel — new-card button in navigation cards header\nf5c3d03 fix: hide internal webviews while page loads to avoid black frame\n42d8cde feat: system tray resident daemon",
-    "pub_date":  "2026-08-19T09:24:18Z",
+    "notes":  "4e53e85 feat: v0.5.0 — Emotional Dark palette, auto-update, NSIS skin, panel i18n\n3c7e52f chore: rebuild v0.5.0 exe with tray daemon + loading fix\nf46d7d2 feat: full i18n — telemetry pod, activity/code modal, float ball, vertical dashboard\nba5aeb2 feat: dev panel — new-card button in navigation cards header\nf5c3d03 fix: hide internal webviews while page loads to avoid black frame",
+    "pub_date":  "2026-08-19T13:22:55Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0hXY0svMHl4cy9GbWwvQXpENmRVdERJdGRVNHJTRW5GekwweC8wSFhHZ2RtMkRXV0NuYnZUZkZuK0lDeHBzTkhRYnIyZVQ3TmhtUGM2V0k0elhpTGdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MTMxMTg0CWZpbGU6QWxwZUh1ZXpfMC41LjBfeDY0LXNldHVwLmV4ZQpaVXlXaWxBblJqa1FLR1p3RXRBUi9uZC84Q1o2OURHTGFHVE9VdTFLWnNmc3E5Z2N3WVFRaVRjWGg1cVVZVklNaTBuT3ZBUnNQVHNWSTNDUnc0UEZDQT09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0lsWXR0SEphellianhTRndlN2lIT2hhbElPbGdFQXdPbmlxMjRLOGUwSEV6QXJ6V0h3c2RaVld0RVhZVmgrMEMrMnFObWowTHRwTDVmMm9nN0YvdndrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MTQ1Nzc1CWZpbGU6QWxwZUh1ZXpfMC41LjBfeDY0LXNldHVwLmV4ZQptTktlVFA4Q2Zmb3I4TXN0SGVZdUlnM3JGbXJvWDJVNnBIUUJqMFhqUVlINEhONWtNblRsV1dFVzNrTkQzUFRVejNEeGJqejUxdlZuSlR1bWdHeXVBZz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.5.0/AlpeHuez_0.5.0_x64-setup.exe"
                                          }
                   }

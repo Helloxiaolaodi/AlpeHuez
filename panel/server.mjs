@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,8 +11,7 @@ const repoRoot = path.resolve(here, '..');
 const PORT = Number(process.env.PORT || 5173);
 const HOST = '127.0.0.1';
 
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
+const MIME = {  '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -36,6 +36,9 @@ const SCRIPTS = {
   enhance_links: 'enhance_links.mjs',
   repair_icons: 'repair_icons.mjs',
 };
+
+// My Files 网页访问密码存用户目录（绝不写入仓库，避免泄露到公开 GitHub）。
+const myfilesPasswordFile = () => path.join(os.homedir(), '.alpehuez', 'myfiles-password.json');
 
 function sendJson(res, status, obj) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -80,7 +83,12 @@ function runProcess(cmd, args, cwd, timeoutMs = 120000) {
 }
 
 async function serveStatic(req, res, urlPath) {
-  const rel = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
+  let rel = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
+  try {
+    rel = decodeURIComponent(rel);
+  } catch {
+    // 保留原始路径，交给后续 resolve 处理
+  }
   const filePath = path.resolve(repoRoot, rel);
   if (filePath !== repoRoot && !filePath.startsWith(repoRoot + path.sep)) {
     res.writeHead(403);
@@ -152,6 +160,26 @@ async function handleApi(req, res, url) {
       }
     }
     await writeFile(path.join(repoRoot, 'myfiles', 'data.json'), JSON.stringify(data, null, 4) + '\n', 'utf8');
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (route === '/api/myfiles-password' && req.method === 'GET') {
+    try {
+      const data = JSON.parse(await readFile(myfilesPasswordFile(), 'utf8'));
+      return sendJson(res, 200, { ok: true, password: data.password || '' });
+    } catch {
+      return sendJson(res, 200, { ok: true, password: '' });
+    }
+  }
+
+  if (route === '/api/myfiles-password' && req.method === 'POST') {
+    const body = JSON.parse(await readBody(req));
+    const password = String(body.password || '').trim();
+    if (password.length < 4) {
+      return sendJson(res, 400, { ok: false, error: '新密码至少 4 位' });
+    }
+    await mkdir(path.dirname(myfilesPasswordFile()), { recursive: true });
+    await writeFile(myfilesPasswordFile(), JSON.stringify({ password }, null, 2) + '\n', 'utf8');
     return sendJson(res, 200, { ok: true });
   }
 

@@ -6,6 +6,7 @@ edition = "2021"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
+serde_json = "1"
 
 [dependencies]
 tauri = { version = "2", features = ["protocol-asset", "unstable", "tray-icon"] }
@@ -20,6 +21,7 @@ base64 = "0.22"
 percent-encoding = "2"
 rusqlite = { version = "0.31", features = ["bundled", "backup"] }
 ureq = "2"
+include_dir = "0.7"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52"
@@ -27,9 +29,6 @@ windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_Shel
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
 arboard = "3"
-
-[target.'cfg(target_os = "android")'.dependencies]
-include_dir = "0.7"
 
 [lib]
 name = "my_nav_panel_lib"

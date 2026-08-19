@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enter Access Password</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; background: radial-gradient(900px 520px at 88% -10%, rgba(0, 135, 235, 0.10), transparent 60%), radial-gradient(700px 420px at -5% 110%, rgba(255, 224, 174, 0.28), transparent 60%), #F8FAFC; background-attachment: fixed; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .card { background: #fff; border-radius: 12px; padding: 40px 36px; width: 100%; max-width: 380px; box-shadow: 0 2px 12px rgba(0,0,0,.08); text-align: center; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p { color: #666; font-size: 14px; margin: 0 0 24px; }
+  input[type="password"] { width: 100%; padding: 12px 14px; border: 1px solid #d0d5dd; border-radius: 8px; font-size: 15px; outline: none; margin-bottom: 16px; }
+  input[type="password"]:focus { border-color: #0366d6; }
+  button { width: 100%; padding: 12px; background: #0366d6; color: #fff; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; }
+  button:hover { background: #0256b0; }
+  .error { color: #d1242f; font-size: 13px; margin: 0 0 16px; display: none; }
+</style>
+</head>
+<body>
+  <a href="/" style="position:fixed;top:12px;left:12px;z-index:9999;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,.92);border:1px solid #d0d0d0;border-radius:8px;font-size:13px;line-height:1;text-decoration:none;color:#333;box-shadow:0 1px 4px rgba(0,0,0,.15);font-family:system-ui,-apple-system,sans-serif;">&#8592; 返回首页</a>
+  <form class="card" method="POST" action="/myfiles/login">
+    <h1>My Files</h1>
+    <p class="error" id="error">Incorrect password. Please try again.</p>
+    <input type="password" name="password" placeholder="Access password" autofocus required>
+    <input type="hidden" name="next" id="next" value="">
+    <button type="submit">Enter</button>
+  </form>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next');
+    document.getElementById('next').value = next || '/myfiles/';
+    if (params.get('error')) {
+      document.getElementById('error').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

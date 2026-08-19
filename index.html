@@ -1760,6 +1760,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-left: auto;
         }
 
         .icon-btn,
@@ -3460,6 +3461,27 @@
         @keyframes app-modal-fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes app-modal-pop { from { transform: translateY(10px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
 
+        /* 首次使用设置向导 */
+        .setup-modal { max-width: 400px; }
+        .setup-modal .app-modal-body { display: flex; flex-direction: column; gap: 12px; }
+        .setup-field { display: flex; flex-direction: column; gap: 5px; }
+        .setup-field label { font-size: 12px; color: var(--text-muted); }
+        .setup-field input {
+            padding: 9px 11px;
+            font: inherit;
+            font-size: 13px;
+            color: var(--text-main);
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .setup-field input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12); }
+        .setup-field .setup-hint { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+        .setup-modal .setup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+        .setup-modal .setup-error { display: none; font-size: 12px; color: #dc4a4a; }
+
         /* PCS 风格车手面板：左侧车手卡 + 右侧能力彩色长条 */
         .rider-panel {
             display: grid;
@@ -4760,6 +4782,9 @@
                 <button id="btnMyFiles" class="rail-btn" data-context="myfiles" title="Open My Files" aria-label="Open My Files">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                 </button>
+                <button id="btnSoftware" class="rail-btn" data-context="software" title="Software" aria-label="Software">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
                 <button id="devPanelBtn" class="rail-btn" data-context="dev" title="Developer panel (Ctrl+Shift+D)" aria-label="Developer panel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
                 </button>
@@ -4814,6 +4839,15 @@
                 </div>
                 <div class="context-label"><span>Folders</span><span class="count-pill" id="folderCount">0</span></div>
                 <div id="fileTree" class="file-tree"></div>
+            </div>
+
+            <div id="context-software" class="context-panel">
+                <div class="context-head">
+                    <strong>Windows Software</strong>
+                    <span>Downloads</span>
+                </div>
+                <div class="context-label"><span>Categories</span><span class="count-pill" id="swCatCount">0</span></div>
+                <div id="swCategoryList" class="portal-categories"></div>
             </div>
 
             <div id="context-dev" class="context-panel">
@@ -4922,14 +4956,6 @@
                 <div class="topbar-left">
                     <span id="viewTitle">Portal</span>
                 </div>
-                <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
-                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
-                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
-                    <span class="vm-cell vm-net-pill">
-                        <span class="vm-net-row up"><span class="vm-net-arrow">↑</span><span id="vmPillNetUp">0.0K</span></span>
-                        <span class="vm-net-row down"><span class="vm-net-arrow">↓</span><span id="vmPillNetDown">0.0K</span></span>
-                    </span>
-                </button>
                 <div class="topbar-actions">
                     <button id="btnBack" class="icon-btn topbar-back-btn" title="Back (Alt+Left)" aria-label="Back (Alt+Left)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -4938,6 +4964,14 @@
                         <span id="fullscreenIcon"></span>
                     </button>
                 </div>
+                <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
+                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
+                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
+                    <span class="vm-cell vm-net-pill">
+                        <span class="vm-net-row up"><span class="vm-net-arrow">↑</span><span id="vmPillNetUp">0.0K</span></span>
+                        <span class="vm-net-row down"><span class="vm-net-arrow">↓</span><span id="vmPillNetDown">0.0K</span></span>
+                    </span>
+                </button>
             </header>
 
             <div class="workspace-body">
@@ -4992,12 +5026,19 @@
                     </div>
                 </section>
 
+                <section id="view-software" class="view">
+                    <div class="dev-frame">
+                        <iframe id="softwareFrame" src="myfiles/softwares/Windows%20Software%20Downloads.html" title="Software"></iframe>
+                    </div>
+                </section>
+
                 <section id="view-badges" class="view">
                     <div class="view-scroll">
                         <div class="view-heading">
                             <h1>Achievement Gallery</h1>
                             <p>Progress is recorded locally in this workspace. Daily openings, link card clicks, and hidden milestone interactions unlock the next badge.</p>
                         </div>
+                        <div id="riderPanel" class="rider-panel"></div>
                         <div class="stats-strip">
                             <div class="stat-tile"><label>Daily Opens</label><strong id="statOpens">0</strong></div>
                             <div class="stat-tile"><label>Card Clicks</label><strong id="statClicks">0</strong></div>
@@ -5009,7 +5050,6 @@
 
                 <section id="view-about" class="view">
                     <div class="view-scroll">
-                        <div id="riderPanel" class="rider-panel"></div>
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
@@ -5416,7 +5456,18 @@
                 updateDownloading: 'Downloading update…',
                 updateInstalling: 'Installing update…',
                 updateManual: 'Manual download',
-                updateManualHint: 'This build is portable — download the installer manually.'
+                updateManualHint: 'This build is portable — download the installer manually.',
+                setupTitle: 'Set Up Access',
+                setupDesc: 'First run of AlpeHuez — set one password shared by the Developer Panel and My Files.',
+                newPassword: 'New password',
+                confirmPassword: 'Confirm password',
+                recoveryEmail: 'Recovery email (optional)',
+                recoveryEmailHint: 'Used to reset a forgotten password. A 6-digit code is delivered via email.',
+                passwordTooShort: 'Password must be at least 4 characters',
+                passwordsMismatch: 'Passwords do not match',
+                setupSave: 'Save',
+                setupSaved: 'Access password set',
+                setupFailed: 'Setup failed: {detail}'
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -5519,7 +5570,18 @@
                 updateDownloading: '\u6b63\u5728\u4e0b\u8f7d\u66f4\u65b0\u2026',
                 updateInstalling: '\u6b63\u5728\u5b89\u88c5\u66f4\u65b0\u2026',
                 updateManual: '\u624b\u52a8\u4e0b\u8f7d',
-                updateManualHint: '\u5f53\u524d\u4e3a\u4fbf\u643a\u7248\uff0c\u8bf7\u624b\u52a8\u4e0b\u8f7d\u5b89\u88c5\u5305\u3002'
+                updateManualHint: '\u5f53\u524d\u4e3a\u4fbf\u643a\u7248\uff0c\u8bf7\u624b\u52a8\u4e0b\u8f7d\u5b89\u88c5\u5305\u3002',
+                setupTitle: '\u8bbe\u7f6e\u8bbf\u95ee\u5bc6\u7801',
+                setupDesc: '\u9996\u6b21\u4f7f\u7528 AlpeHuez \u2014 \u4e3a\u5f00\u53d1\u8005\u9762\u677f\u548c My Files \u8bbe\u7f6e\u7edf\u4e00\u8bbf\u95ee\u5bc6\u7801\u3002',
+                newPassword: '\u65b0\u5bc6\u7801',
+                confirmPassword: '\u786e\u8ba4\u5bc6\u7801',
+                recoveryEmail: '\u627e\u56de\u90ae\u7bb1\uff08\u53ef\u9009\uff09',
+                recoveryEmailHint: '\u5fd8\u8bb0\u5bc6\u7801\u65f6\u7528\u4e8e\u627e\u56de\u3002\u5c06\u901a\u8fc7\u90ae\u4ef6\u53d1\u9001 6 \u4f4d\u9a8c\u8bc1\u7801\u3002',
+                passwordTooShort: '\u5bc6\u7801\u81f3\u5c11 4 \u4f4d',
+                passwordsMismatch: '\u4e24\u6b21\u8f93\u5165\u7684\u5bc6\u7801\u4e0d\u4e00\u81f4',
+                setupSave: '\u4fdd\u5b58',
+                setupSaved: '\u8bbf\u95ee\u5bc6\u7801\u5df2\u8bbe\u7f6e',
+                setupFailed: '\u8bbe\u7f6e\u5931\u8d25\uff1a{detail}'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -5788,6 +5850,13 @@
             try {
                 await invoke('save_feedback', { text });
                 if (status) status.textContent = settingsText('feedbackSaved', 'Feedback saved');
+                // 反馈最终通过默认邮件客户端发送到 yangsanduo2025@gmail.com
+                const mailto = 'mailto:yangsanduo2025@gmail.com?subject=' + encodeURIComponent('AlpeHuez Feedback') + '&body=' + encodeURIComponent(text);
+                if (hasTauri) {
+                    try { await invoke('open_url_scheme', { url: mailto }); } catch (e) { console.error('open mailto failed:', e); }
+                } else {
+                    window.open(mailto, '_blank');
+                }
             } catch (error) {
                 console.error('save feedback failed:', error);
                 if (status) status.textContent = settingsText('feedbackFailed', 'Unable to save feedback');
@@ -7206,6 +7275,31 @@
             $('contextAboutVersion').textContent = label;
         }
 
+        async function renderSoftwareContext() {
+            const container = $('swCategoryList');
+            const count = $('swCatCount');
+            if (!container || !count) return;
+            try {
+                const response = await fetch('myfiles/softwares/software-data.json');
+                if (!response.ok) throw new Error('software data unavailable');
+                const data = await response.json();
+                const categories = data.categories || [];
+                count.textContent = categories.length;
+                container.innerHTML = categories.length
+                    ? categories.map((category) => `
+                        <div class="portal-category-wrap">
+                            <button type="button" class="portal-category-link">
+                                <span class="portal-category-name">${escapeHtml(category.name || category)}</span>
+                            </button>
+                        </div>
+                    `).join('')
+                    : '<div class="context-empty">No categories</div>';
+            } catch (error) {
+                console.error('Failed to load software-data.json:', error);
+                container.innerHTML = '<div class="context-empty">No categories</div>';
+            }
+        }
+
         async function loadMyFilesData() {
             if (myfilesData) return myfilesData;
             try {
@@ -7371,6 +7465,7 @@
             });
             if (context !== 'portal') resetPortalSidebarState();
             if (context === 'myfiles') renderFileTree();
+            if (context === 'software') renderSoftwareContext();
             if (context === 'badges') renderContextStats();
             if (context === 'about') renderContextAbout();
             if (context === 'dev') renderDevContext();
@@ -7381,7 +7476,7 @@
             if (frame && frame.contentWindow) {
                 frame.contentWindow.postMessage({ type: 'alpehuez-dev-tab', tab: devActiveTab }, '*');
             }
-            pushThemeToDevFrame();
+            pushThemeToFrames();
         }
 
         function activateDevTab(tab) {
@@ -7406,12 +7501,13 @@
             document.querySelectorAll('.view').forEach((view) => view.classList.remove('active'));
             const target = $('view-' + viewName);
             if (target) target.classList.add('active');
-            const titles = { home: 'Portal', myfiles: 'My Files', badges: 'Achievements', about: 'About', dev: 'Developer Panel' };
+            const titles = { home: 'Portal', myfiles: 'My Files', software: 'Software', badges: 'Achievements', about: 'About', dev: 'Developer Panel' };
             $('viewTitle').textContent = titles[viewName] || 'AlpeHuez';
-            const contexts = { home: 'portal', myfiles: 'myfiles', badges: 'badges', about: 'about', dev: 'dev' };
+            const contexts = { home: 'portal', myfiles: 'myfiles', software: 'software', badges: 'badges', about: 'about', dev: 'dev' };
             setContext(contexts[viewName] || 'portal');
             if (viewName === 'myfiles') renderMyFilesView();
-            if (viewName === 'badges') renderBadges();
+            if (viewName === 'software') renderSoftwareContext();
+            if (viewName === 'badges') { renderBadges(); renderRiderPanel(); }
             if (viewName === 'about') loadAbout();
             if (viewName === 'dev') syncDevTabToFrame();
             if (isDesktop) {
@@ -7520,14 +7616,15 @@
             $('themeIcon').innerHTML = theme === 'space' ? ICONS.sun : ICONS.moon;
         }
 
-        function pushThemeToDevFrame() {
-            const frame = $('devFrame');
-            if (frame && frame.contentWindow) {
-                frame.contentWindow.postMessage({
-                    type: 'alpehuez-theme',
-                    theme: document.documentElement.dataset.theme === 'space' ? 'dark' : 'light'
-                }, '*');
-            }
+        function pushThemeToFrames() {
+            const theme = document.documentElement.dataset.theme === 'space' ? 'dark' : 'light';
+            const payload = { type: 'alpehuez-theme', theme };
+            ['devFrame', 'softwareFrame'].forEach((id) => {
+                const frame = $(id);
+                if (frame && frame.contentWindow) {
+                    frame.contentWindow.postMessage(payload, '*');
+                }
+            });
         }
 
         function setTheme(theme) {
@@ -7536,7 +7633,7 @@
             localStorage.setItem(THEME_KEY, next);
             updateThemeUI(next);
             trackAction('theme', next === 'space' ? 'Switched to dark mode' : 'Switched to light mode');
-            pushThemeToDevFrame();
+            pushThemeToFrames();
         }
 
         function toggleTheme() {
@@ -8079,6 +8176,7 @@
             $('btnBadges').addEventListener('click', () => switchView('badges'));
             $('btnAbout').addEventListener('click', () => switchView('about'));
             $('btnMyFiles').addEventListener('click', () => switchView('myfiles'));
+            $('btnSoftware').addEventListener('click', () => switchView('software'));
             $('devPanelBtn').addEventListener('click', openDevPanel);
             $('btnGitHub').addEventListener('click', () => openUrl('https://github.com/Helloxiaolaodi', 'GitHub'));
             $('btnCnblogs').addEventListener('click', () => openUrl('https://www.cnblogs.com/Helloxiaolaodi', 'Blog'));
@@ -8330,7 +8428,9 @@
 
             $('devFrame').addEventListener('load', syncDevTabToFrame);
             window.addEventListener('message', (event) => {
-                if (event.source !== $('devFrame').contentWindow || !event.data) return;
+                const fromDev = event.source === ($('devFrame') && $('devFrame').contentWindow);
+                const fromSoftware = event.source === ($('softwareFrame') && $('softwareFrame').contentWindow);
+                if ((!fromDev && !fromSoftware) || !event.data) return;
                 const messageType = event.data.type;
                 if (messageType === 'alpehuez-fullscreen-toggle') {
                     toggleFullscreen();
@@ -8338,6 +8438,8 @@
                     backBrowserTab();
                 } else if (messageType === 'alpehuez-dev-tab') {
                     activateDevTab(event.data.tab);
+                } else if (messageType === 'alpehuez-open-url') {
+                    openInternalUrl(event.data.url, event.data.title || 'Software');
                 }
             });
 
@@ -9260,6 +9362,56 @@
                 }).catch(() => {});
             }
         });
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!isDesktop || !invoke) return;
+            const setupModal = $('setupModal');
+            if (!setupModal) return;
+            const setupPwd = $('setupPwd');
+            const setupPwd2 = $('setupPwd2');
+            const setupEmail = $('setupEmail');
+            const setupError = $('setupError');
+            const setupSaveBtn = $('setupSaveBtn');
+            const setupClose = $('setupModalClose');
+            const setupLater = $('setupLaterBtn');
+            function showSetupModal() {
+                try { applySettingsLanguage(); } catch (e) { /* 忽略 */ }
+                setupError.hidden = true;
+                setupModal.hidden = false;
+                setupPwd.focus();
+            }
+            invoke('has_access_password').then((has) => {
+                if (!has) showSetupModal();
+            }).catch(() => {});
+            if (setupClose) setupClose.addEventListener('click', () => { setupModal.hidden = true; });
+            if (setupLater) setupLater.addEventListener('click', () => { setupModal.hidden = true; });
+            setupModal.addEventListener('click', (e) => { if (e.target === setupModal) setupModal.hidden = true; });
+            async function doSetup() {
+                const pwd = setupPwd.value;
+                if (pwd.length < 4) {
+                    setupError.textContent = settingsText('passwordTooShort');
+                    setupError.hidden = false;
+                    return;
+                }
+                if (pwd !== setupPwd2.value) {
+                    setupError.textContent = settingsText('passwordsMismatch');
+                    setupError.hidden = false;
+                    return;
+                }
+                setupSaveBtn.disabled = true;
+                try {
+                    await invoke('setup_access', { password: pwd, email: setupEmail.value.trim() });
+                    setupModal.hidden = true;
+                    showToast(settingsText('setupSaved'), 'success');
+                } catch (e) {
+                    setupError.textContent = settingsText('setupFailed').replace('{detail}', (e && (e.message || e)) || '');
+                    setupError.hidden = false;
+                } finally {
+                    setupSaveBtn.disabled = false;
+                }
+            }
+            setupSaveBtn.addEventListener('click', doSetup);
+            setupPwd2.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSetup(); });
+        });
     </script>
     <div id="toastStack" class="toast-stack" aria-live="polite"></div>
     <div id="telemetryPod" class="telemetry-pod" hidden>
@@ -9349,6 +9501,37 @@
                 <div class="update-actions">
                     <button type="button" id="updateInstallBtn" class="app-modal-btn primary" data-i18n-settings="downloadInstall">Download &amp; Install</button>
                     <button type="button" id="updateLaterBtn" class="app-modal-btn" data-i18n-settings="later">Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="setupModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal setup-modal" role="dialog" aria-modal="true">
+            <div class="app-modal-head">
+                <h3 data-i18n-settings="setupTitle">Set Up Access</h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="setupModalClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body">
+                <p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)" data-i18n-settings="setupDesc">First run of AlpeHuez — set one password shared by the Developer Panel and My Files.</p>
+                <div class="setup-field">
+                    <label for="setupPwd" data-i18n-settings="newPassword">New password</label>
+                    <input type="password" id="setupPwd" autocomplete="new-password">
+                </div>
+                <div class="setup-field">
+                    <label for="setupPwd2" data-i18n-settings="confirmPassword">Confirm password</label>
+                    <input type="password" id="setupPwd2" autocomplete="new-password">
+                </div>
+                <div class="setup-field">
+                    <label for="setupEmail" data-i18n-settings="recoveryEmail">Recovery email (optional)</label>
+                    <input type="email" id="setupEmail" autocomplete="email">
+                    <span class="setup-hint" data-i18n-settings="recoveryEmailHint">Used to reset a forgotten password. A 6-digit code is delivered via email.</span>
+                </div>
+                <p class="setup-error" id="setupError"></p>
+                <div class="setup-actions">
+                    <button type="button" id="setupLaterBtn" class="app-modal-btn" data-i18n-settings="later">Later</button>
+                    <button type="button" id="setupSaveBtn" class="app-modal-btn primary" data-i18n-settings="setupSave">Save</button>
                 </div>
             </div>
         </div>

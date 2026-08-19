@@ -51,6 +51,16 @@ Each area uses the same pattern:
 - `login.js`: form POST handler
 - `_middleware.js`: redirects unauthenticated requests to the login page
 
+## My Files Root Protection
+
+`functions/myfiles/_middleware.js` additionally protects everything else under `/myfiles/` — the root explorer (`index.html`), the softwares folder index, and any other pages — using the same `ALPEHUZ_ACCESS_PASSWORD` environment variable. Login page: `/myfiles/login.html` (cookie `myfiles_auth_v2`).
+
+Public exceptions (no password required):
+
+- `/myfiles/softwares/Windows Software Downloads.html` and `/myfiles/softwares/software-data.json`
+- Shared explorer assets: `/myfiles/explorer.css`, `/myfiles/explorer.js`, `/myfiles/data.json`
+- The four report-area prefixes are left to their own `_middleware.js` files
+
 ## Quarto Reports
 
 TargetC and Global Oral reports are generated from `.qmd` sources with Quarto.

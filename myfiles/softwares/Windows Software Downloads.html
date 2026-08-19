@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Windows Software Downloads</title>
+<title>Software</title>
 <link rel="stylesheet" href="/myfiles/explorer.css">
 <style>
   :root {
@@ -159,17 +159,26 @@
     gap: 12px;
     min-height: 168px;
     padding: 16px;
-    background: var(--sw-surface);
-    border: 1px solid var(--sw-border);
-    border-radius: 8px;
-    box-shadow: var(--sw-shadow);
-    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 1), 0 16px 32px rgba(0, 135, 235, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
   .sw-card:hover {
-    transform: translateY(-1px);
-    border-color: #cbd5e1;
-    box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  /* 浅色模式与 Portal 网址卡片一致：细线边框（排版即 UI），hover 用暖金强调色 + 薄荷光晕 */
+  html:not([data-theme="space"]) .sw-card {
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  html:not([data-theme="space"]) .sw-card:hover {
+    border-color: #FFE0AE;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 18px 40px -12px rgba(168, 255, 225, 0.5);
   }
 
   .sw-card-top {
@@ -276,6 +285,214 @@
     line-height: 1.6;
   }
 
+  /* ---- 桌面端下载配置条 ---- */
+  .sw-dl-config {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--sw-border);
+    border-radius: 9px;
+    background: var(--sw-surface);
+    box-shadow: var(--sw-shadow);
+    font-size: 12.5px;
+    color: var(--sw-text-secondary);
+  }
+
+  .sw-dl-config label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sw-dl-dir {
+    flex: 1 1 240px;
+    min-width: 200px;
+    padding: 8px 10px;
+    border: 1px solid var(--sw-border-strong);
+    border-radius: 7px;
+    background: var(--sw-surface);
+    font-size: 12.5px;
+    color: var(--sw-text);
+    outline: none;
+  }
+
+  .sw-dl-dir:focus {
+    border-color: #B1E3FF;
+    box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12);
+  }
+
+  .sw-dl-save {
+    padding: 8px 14px;
+    border: 1px solid var(--sw-green);
+    border-radius: 7px;
+    background: var(--sw-green);
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .sw-dl-save:hover {
+    background: #006FD0;
+    border-color: #006FD0;
+  }
+
+  /* ---- 下载状态条（右下角悬浮） ---- */
+  .sw-dl-status {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 999;
+    width: min(360px, calc(100vw - 36px));
+    padding: 10px 12px 12px;
+    border: 1px solid var(--sw-border);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 8px 30px -6px rgba(0, 0, 0, 0.25);
+    font-size: 12.5px;
+    color: var(--sw-text);
+  }
+
+  .sw-dl-status-text {
+    margin-bottom: 7px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .sw-dl-status-track {
+    height: 5px;
+    border-radius: 999px;
+    background: #EAF5FF;
+    overflow: hidden;
+  }
+
+  .sw-dl-status-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: var(--sw-green);
+    transition: width 0.2s ease;
+  }
+
+  .sw-dl-status.is-err .sw-dl-status-text {
+    color: #b91c1c;
+  }
+
+  .sw-dl-status.is-ok .sw-dl-status-text {
+    color: #0f766e;
+  }
+
+  /* ---- 深色模式：跟随主应用 space 主题 ---- */
+  html[data-theme="space"] {
+    color-scheme: dark;
+    --sw-surface: #4A4380;
+    --sw-border: rgba(255, 255, 255, 0.10);
+    --sw-border-strong: rgba(255, 255, 255, 0.16);
+    --sw-text: #F3F4FF;
+    --sw-text-secondary: #B9BEDD;
+    --sw-text-muted: #8C93B8;
+    --sw-accent: #A2B8FF;
+    --sw-accent-soft: rgba(162, 123, 255, 0.16);
+    --sw-green: #6FCF97;
+    --sw-green-soft: rgba(111, 207, 151, 0.14);
+    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  html[data-theme="space"] body {
+    background:
+      radial-gradient(900px 520px at 88% -10%, rgba(121, 133, 255, 0.12), transparent 60%),
+      radial-gradient(700px 420px at -5% 110%, rgba(162, 123, 255, 0.10), transparent 60%),
+      linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+    background-attachment: fixed;
+  }
+
+  html[data-theme="space"] .topbar {
+    background: rgba(20, 18, 26, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  html[data-theme="space"] .breadcrumb {
+    background: rgba(20, 18, 26, 0.55);
+    border-color: rgba(255, 255, 255, 0.10);
+  }
+  html[data-theme="space"] .breadcrumb a { color: #B9BEDD; }
+  html[data-theme="space"] .breadcrumb a:hover { color: #ffffff; }
+  html[data-theme="space"] .breadcrumb .sep { color: #8C93B8; }
+  html[data-theme="space"] .breadcrumb .current { color: #ffffff; }
+  html[data-theme="space"] .footer { color: #8C93B8; }
+
+  html[data-theme="space"] .sw-search:focus,
+  html[data-theme="space"] .sw-dl-dir:focus {
+    border-color: rgba(162, 123, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(162, 123, 255, 0.18);
+  }
+
+  html[data-theme="space"] .sw-cat:hover {
+    background: rgba(162, 123, 255, 0.18);
+    color: #C4B8FF;
+  }
+  html[data-theme="space"] .sw-cat[aria-pressed="true"] {
+    background: rgba(162, 123, 255, 0.26);
+    border-color: rgba(162, 123, 255, 0.35);
+    color: #D5CBFF;
+  }
+
+  html[data-theme="space"] .sw-section-head .sw-count {
+    background: rgba(162, 123, 255, 0.16);
+    color: #C4B8FF;
+  }
+
+  html[data-theme="space"] .sw-logo {
+    background: linear-gradient(135deg, #57508F, #4A4380);
+    color: #D5CBFF;
+  }
+
+  html[data-theme="space"] .sw-card {
+    background: rgba(54, 47, 84, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: #504373;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.04), 0 10px 26px -6px rgba(0, 0, 0, 0.32);
+  }
+
+  html[data-theme="space"] .sw-card:hover {
+    border-color: rgba(121, 133, 255, 0.5);
+    box-shadow: 0 16px 32px -14px rgba(121, 133, 255, 0.18),
+      inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 12px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  html[data-theme="space"] .sw-btn-download:hover {
+    background: #5BB882;
+    border-color: #5BB882;
+  }
+  html[data-theme="space"] .sw-btn-site:hover {
+    border-color: rgba(162, 123, 255, 0.5);
+    color: #C4B8FF;
+  }
+  html[data-theme="space"] .sw-dl-save:hover {
+    background: #5BB882;
+    border-color: #5BB882;
+  }
+
+  html[data-theme="space"] .sw-note {
+    border-color: rgba(251, 191, 36, 0.35);
+    background: rgba(251, 191, 36, 0.10);
+    color: #FCD34D;
+  }
+
+  html[data-theme="space"] .sw-dl-status {
+    background: #2B2747;
+  }
+  html[data-theme="space"] .sw-dl-status-track {
+    background: rgba(255, 255, 255, 0.10);
+  }
+  html[data-theme="space"] .sw-dl-status.is-err .sw-dl-status-text { color: #F87171; }
+  html[data-theme="space"] .sw-dl-status.is-ok .sw-dl-status-text { color: #6FCF97; }
+
   @media (max-width: 640px) {
     .sw-page { padding: 22px 16px 70px; }
     .sw-header { flex-direction: column; }
@@ -285,22 +502,21 @@
 </style>
 </head>
 <body>
-<header class="topbar">
-  <nav id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/myfiles/">My Files</a>
-    <span class="sep">&#8250;</span>
-    <a href="/myfiles/softwares/">Softwares</a>
-    <span class="sep">&#8250;</span>
-    <span class="current" data-i18n="pageTitle">Windows Software Downloads</span>
-  </nav>
-</header>
-
 <main class="sw-page">
   <section class="sw-header">
     <div>
-      <h1 data-i18n="heroTitle">Windows Software Downloads</h1>
-      <p data-i18n="heroDesc">Official download links for the Windows software I use, organized by category.</p>
+      <h1 data-i18n="heroTitle">Software</h1>
     </div>
+  </section>
+
+  <section class="sw-dl-config" id="swDlConfig" hidden>
+    <label data-i18n="dlDir">下载目录</label>
+    <input type="text" id="swDlDir" class="sw-dl-dir" placeholder="D:\Downloads">
+    <label>
+      <input type="checkbox" id="swFdm">
+      <span data-i18n="dlFdm">使用 Free Download Manager</span>
+    </label>
+    <button type="button" class="sw-dl-save" id="swDlSave" data-i18n="dlSave">保存</button>
   </section>
 
   <section class="sw-toolbar">
@@ -315,6 +531,11 @@
 
 <footer class="footer">Helloxiaolaodi &#183; My Files</footer>
 
+<div class="sw-dl-status" id="swDlStatus" hidden>
+  <div class="sw-dl-status-text" id="swDlStatusText"></div>
+  <div class="sw-dl-status-track"><div class="sw-dl-status-bar" id="swDlStatusBar"></div></div>
+</div>
+
 <script>
 (function () {
   let CATEGORIES = [];
@@ -323,31 +544,47 @@
 
   const I18N = {
     en: {
-      pageTitle: 'Windows Software Downloads',
-      heroTitle: 'Windows Software Downloads',
-      heroDesc: 'Official download links for the Windows software I use, organized by category.',
+      pageTitle: 'Software',
+      heroTitle: 'Software',
       searchPlaceholder: 'Search software...',
       all: 'All',
       download: 'Download',
       site: 'Official Site',
       note: 'Links point to official websites or official download pages. If a direct download link is unavailable, open the official site and choose the version that matches your system.',
-      empty: 'No software matches your search.'
+      empty: 'No software matches your search.',
+      dlDir: 'Download folder',
+      dlFdm: 'Use Free Download Manager',
+      dlSave: 'Save',
+      dlConfigSaved: 'Download settings saved.',
+      dlSaveFailed: 'Failed to save download settings.',
+      dlDownloading: 'Downloading',
+      dlDone: 'Downloaded to',
+      dlFailed: 'Download failed:',
+      dlHandedToFdm: 'Sent to Free Download Manager.'
     },
     zh: {
-      pageTitle: 'Windows 软件下载',
-      heroTitle: 'Windows 软件下载',
-      heroDesc: '我常用的 Windows 软件官方下载地址，按功能分类整理。',
+      pageTitle: '软件',
+      heroTitle: '软件',
       searchPlaceholder: '搜索软件...',
       all: '全部',
       download: '下载',
       site: '官网',
       note: '链接均指向官方网站或官方下载页面。如果没有直接下载链接，请打开官网后选择适合自己系统的版本。',
-      empty: '没有找到匹配的软件。'
+      empty: '没有找到匹配的软件。',
+      dlDir: '下载目录',
+      dlFdm: '使用 Free Download Manager',
+      dlSave: '保存',
+      dlConfigSaved: '下载设置已保存。',
+      dlSaveFailed: '下载设置保存失败：',
+      dlDownloading: '正在下载',
+      dlDone: '已下载到',
+      dlFailed: '下载失败：',
+      dlHandedToFdm: '已交给 Free Download Manager。'
     }
   };
 
   const state = {
-    lang: 'en',
+    lang: (navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en',
     category: 'all',
     term: ''
   };
@@ -355,6 +592,25 @@
   const contentEl = document.getElementById('swContent');
   const catsEl = document.getElementById('swCats');
   const searchEl = document.getElementById('swSearch');
+
+  /* ---- 跟随主应用主题（space=深色） ---- */
+  function applyParentTheme() {
+    let dark = false;
+    try {
+      if (window.parent && window.parent !== window && window.parent.document) {
+        dark = window.parent.document.documentElement.dataset.theme === 'space';
+      }
+    } catch (e) { /* 独立打开时无父页面，保持浅色 */ }
+    document.documentElement.dataset.theme = dark ? 'space' : '';
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'alpehuez-theme') {
+      document.documentElement.dataset.theme = event.data.theme === 'dark' ? 'space' : '';
+    }
+  });
+
+  applyParentTheme();
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -440,6 +696,134 @@
     state.term = searchEl.value;
     render();
   });
+
+  /* ---- 桌面端：下载配置 + 内置下载 / FDM ---- */
+  const isDesktop = !!(window.__TAURI__ && window.__TAURI__.core);
+
+  let dlConfig = { dir: '', useFdm: false };
+  let dlStatusTimer = null;
+
+  function showDlStatus(message, kind) {
+    const box = document.getElementById('swDlStatus');
+    const text = document.getElementById('swDlStatusText');
+    if (!box || !text) return;
+    box.hidden = false;
+    box.classList.remove('is-err', 'is-ok');
+    if (kind) box.classList.add('is-' + kind);
+    text.textContent = message;
+    if (dlStatusTimer) clearTimeout(dlStatusTimer);
+    if (kind === 'ok' || kind === 'err') {
+      dlStatusTimer = setTimeout(() => { box.hidden = true; }, 6000);
+    }
+  }
+
+  // Tauri 命令错误以字符串 reject，需转成可读信息。
+  function errText(e) {
+    if (typeof e === 'string') return e;
+    if (e && typeof e === 'object') return e.message || String(e);
+    return String(e);
+  }
+
+  // 前缀已带「：/:」时不再加空格。
+  function dlErrorLabel(prefix, e) {
+    const msg = errText(e);
+    const sep = /[：:]\s*$/.test(prefix) ? '' : ' ';
+    return prefix + sep + msg;
+  }
+
+  function showDlProgress(p) {
+    const box = document.getElementById('swDlStatus');
+    const text = document.getElementById('swDlStatusText');
+    const fill = document.getElementById('swDlStatusBar');
+    if (!box || !text || !fill) return;
+    box.hidden = false;
+    box.classList.remove('is-err', 'is-ok');
+    const pct = p.total > 0 ? Math.min(100, Math.round((p.received || 0) / p.total * 100)) : null;
+    text.textContent = I18N[state.lang].dlDownloading + ' ' + (p.name || '') + (pct !== null ? ' · ' + pct + '%' : '');
+    fill.style.width = (pct !== null ? pct : 30) + '%';
+  }
+
+  async function initDownloadConfig() {
+    if (!isDesktop) return;
+    try {
+      const cfg = await window.__TAURI__.core.invoke('get_download_config');
+      dlConfig = { dir: (cfg && cfg.dir) || '', useFdm: !!(cfg && cfg.useFdm) };
+    } catch (e) {
+      console.error('load download config failed:', e);
+    }
+    const bar = document.getElementById('swDlConfig');
+    const dirInput = document.getElementById('swDlDir');
+    const fdmCheck = document.getElementById('swFdm');
+    if (bar) bar.hidden = false;
+    if (dirInput) dirInput.value = dlConfig.dir;
+    if (fdmCheck) fdmCheck.checked = dlConfig.useFdm;
+    if (dirInput) dirInput.addEventListener('change', () => { dlConfig.dir = dirInput.value.trim(); });
+    if (fdmCheck) fdmCheck.addEventListener('change', () => { dlConfig.useFdm = fdmCheck.checked; });
+  }
+
+  const saveDlBtn = document.getElementById('swDlSave');
+  if (saveDlBtn) {
+    saveDlBtn.addEventListener('click', async () => {
+      if (!isDesktop) return;
+      const dirInput = document.getElementById('swDlDir');
+      const fdmCheck = document.getElementById('swFdm');
+      const dir = (dirInput ? dirInput.value.trim() : dlConfig.dir);
+      const useFdm = fdmCheck ? fdmCheck.checked : dlConfig.useFdm;
+      try {
+        await window.__TAURI__.core.invoke('set_download_config', { dir, useFdm });
+        dlConfig = { dir, useFdm };
+        showDlStatus(I18N[state.lang].dlConfigSaved, 'ok');
+      } catch (e) {
+        showDlStatus(dlErrorLabel(I18N[state.lang].dlSaveFailed, e), 'err');
+      }
+    });
+  }
+
+  if (isDesktop) {
+    window.__TAURI__.event.listen('download-progress', (event) => {
+      const p = event.payload || {};
+      if (p.phase === 'start' || p.phase === 'progress') {
+        showDlProgress(p);
+      } else if (p.phase === 'done') {
+        showDlStatus(I18N[state.lang].dlDone + ' ' + (p.target || ''), 'ok');
+      } else if (p.phase === 'error') {
+        showDlStatus(I18N[state.lang].dlFailed + ' ' + (p.error || ''), 'err');
+      }
+    });
+  }
+
+  contentEl.addEventListener('click', (event) => {
+    const dlBtn = event.target.closest('.sw-btn-download');
+    if (dlBtn) {
+      if (!isDesktop) return;
+      event.preventDefault();
+      const url = dlBtn.getAttribute('href');
+      if (dlConfig.useFdm) {
+        window.__TAURI__.core.invoke('open_in_fdm', { url })
+          .then(() => showDlStatus(I18N[state.lang].dlHandedToFdm, 'ok'))
+          .catch((e) => showDlStatus(dlErrorLabel(I18N[state.lang].dlFailed, e), 'err'));
+      } else {
+        window.__TAURI__.core.invoke('download_file', { url, dir: dlConfig.dir })
+          .catch((e) => showDlStatus(dlErrorLabel(I18N[state.lang].dlFailed, e), 'err'));
+      }
+      return;
+    }
+    const siteBtn = event.target.closest('.sw-btn-site');
+    if (siteBtn) {
+      if (!isDesktop) return;
+      event.preventDefault();
+      const url = siteBtn.getAttribute('href');
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'alpehuez-open-url', url, title: document.title }, '*');
+        }
+      } catch (e) {
+        console.error('open site failed:', e);
+      }
+    }
+  });
+
+  initDownloadConfig();
 
   async function loadData() {
     try {

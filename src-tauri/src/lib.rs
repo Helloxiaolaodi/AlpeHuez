@@ -18,8 +18,11 @@ use tauri_plugin_global_shortcut::ShortcutState;
 static ROOT: OnceLock<PathBuf> = OnceLock::new();
 
 /// 设置仓库根目录（Android 上由 setup 指向应用私有 webroot，桌面版无需调用）。
+/// 统一 canonicalize：Windows 上 fs::canonicalize 会补 `\\?\` 前缀，若根目录不规范化，
+/// preview::handler 的 `normalized.starts_with(root)` 前缀判断会误判为越权（403）。
 pub fn init_repo_root(path: PathBuf) {
-    let _ = ROOT.set(path);
+    let canonical = path.canonicalize().unwrap_or_else(|_| path);
+    let _ = ROOT.set(canonical);
 }
 
 /// 仓库根目录：src-tauri 的上一级（编译期常量，本机构建本机运行）。
@@ -80,6 +83,19 @@ pub fn run() {
             commands::run_script,
             commands::verify_password,
             commands::change_password,
+            commands::get_myfiles_password,
+            commands::set_myfiles_password,
+            commands::has_access_password,
+            commands::get_access_email,
+            commands::set_access_email,
+            commands::setup_access,
+            commands::request_password_recovery,
+            commands::verify_recovery_code,
+            commands::reset_password,
+            commands::get_download_config,
+            commands::set_download_config,
+            commands::download_file,
+            commands::open_in_fdm,
             commands::save_bg_image,
             commands::get_bg_config,
             commands::set_bg_config,
@@ -168,6 +184,21 @@ pub fn run() {
             {
                 if let Ok(dir) = app.path().app_data_dir() {
                     init_repo_root(dir.join("webroot"));
+                }
+            }
+            // 桌面打包版（本机没有仓库目录）：把嵌入的网页资源播种到 app_data_dir/webroot
+            // 并作为仓库根。开发模式（仓库在磁盘上）保持编译期路径，支持网页资源实时编辑。
+            #[cfg(not(target_os = "android"))]
+            {
+                let disk_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .parent()
+                    .expect("src-tauri 应有父目录");
+                if !disk_root.join("index.html").exists() {
+                    if let Ok(dir) = app.path().app_data_dir() {
+                        let webroot = dir.join("webroot");
+                        preview::materialize(&webroot);
+                        init_repo_root(webroot);
+                    }
                 }
             }
             velometer::spawn(app.handle().clone());

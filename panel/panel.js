@@ -87,11 +87,30 @@ const LOCALES = {
     loginHint: '请输入密码进入开发者面板', passwordPlaceholder: '密码', wrongPassword: '密码错误', enter: '进入',
     changePwd: '修改密码', changePwdTitle: '修改密码', oldPassword: '旧密码', newPassword: '新密码', confirmPassword: '确认新密码',
     pwdChanged: '密码已修改', pwdMismatch: '两次输入的新密码不一致', pwdTooShort: '新密码至少 4 位', oldPwdWrong: '旧密码错误',
+    pwdFillBoth: '请同时填写旧密码和新密码（或只填写找回邮箱）',
+    recoverEmailHint: '忘记密码时用于找回；留空则保持当前邮箱',
+    myfilesPwd: '修改访问密码', myfilesPwdTitle: '修改 My Files 访问密码',
+    myfilesPwdCurrent: '当前已存密码（本机）', myfilesPwdSaved: '已保存到本机，请在 Cloudflare 后台同步',
+    myfilesPwdFailed: '保存失败：', myfilesPwdCopy: '新密码（复制到 Cloudflare 后台）',
+    myfilesPwdHint: '密码只保存在本机，不会上传仓库。修改后开发者面板登录密码同步更新。',
+    myfilesPwdNextTitle: '下一步：同步到 Cloudflare',
+    myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → 选择项目\n2. Settings → Environment variables → Production\n3. 将 ALPEHUZ_ACCESS_PASSWORD 改为：{pwd}\n4. 点 Save，Cloudflare 自动重新部署，新密码生效。',
+    forgotPassword: '忘记密码？',
+    recoverTitle: '找回密码',
+    recoverEmail: '找回邮箱',
+    recoverStep2Title: '重置密码',
+    recoverCode: '6 位验证码',
+    recoverMailOpened: '已打开邮件客户端，请发送后从邮箱查看验证码。',
+    recoverMailFailed: '无法打开邮件客户端，验证码：{code}',
+    recoverFailed: '找回失败：',
+    recoverMailSubject: 'AlpeHuez 找回密码验证码',
+    recoverMailBody: '你的 AlpeHuez 找回密码验证码是：',
     manageSoftware: '管理软件', softwareManager: '软件下载管理', addSoftware: '新增软件', editSoftware: '编辑软件',
     softwareSearch: '搜索软件…', softwareEmpty: '没有匹配的软件。', done: '完成', all: '全部',
     softwareName: '软件名称', softwareCat: '分类', softwareEn: '英文描述', softwareZh: '中文描述',
     softwareUrl: '下载链接', softwareExtraLabelEn: '附加按钮文字（EN）', softwareExtraLabelZh: '附加按钮文字（ZH）',
     softwareExtraUrl: '附加按钮链接', softwareSaved: '软件数据已保存', softwareLoadFailed: '加载软件数据失败：',
+    softwareSaveLocalHint: '已保存到本地，公开网站需在「部署」中推送后更新。',
     confirmDeleteSoftware: (n) => `确定删除软件「${n}」？`,
     wsRoleLeader: '主将', wsRoleDomestique: '副将', wsRiderNo: '车手号',
     wsEdit: '编辑', wsLinksJson: '链接 JSON', wsDelete: '删除',
@@ -147,11 +166,30 @@ const LOCALES = {
     loginHint: 'Enter password to open the developer panel', passwordPlaceholder: 'Password', wrongPassword: 'Wrong password', enter: 'Enter',
     changePwd: 'Change Password', changePwdTitle: 'Change Password', oldPassword: 'Old Password', newPassword: 'New Password', confirmPassword: 'Confirm New Password',
     pwdChanged: 'Password updated', pwdMismatch: 'New passwords do not match', pwdTooShort: 'New password must be at least 4 characters', oldPwdWrong: 'Old password is wrong',
+    pwdFillBoth: 'Fill in both old and new password (or only the recovery email)',
+    recoverEmailHint: 'Used to recover your password; leave empty to keep the current email',
+    myfilesPwd: 'Change Access Password', myfilesPwdTitle: 'Change My Files Access Password',
+    myfilesPwdCurrent: 'Current saved password (local)', myfilesPwdSaved: 'Saved locally — sync it in Cloudflare dashboard',
+    myfilesPwdFailed: 'Save failed: ', myfilesPwdCopy: 'New password (copy to Cloudflare dashboard)',
+    myfilesPwdHint: 'Stored locally only — never uploaded to the repo. The Developer Panel login password updates together.',
+    myfilesPwdNextTitle: 'Next: Sync to Cloudflare',
+    myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → select your project\n2. Settings → Environment variables → Production\n3. Set ALPEHUZ_ACCESS_PASSWORD to: {pwd}\n4. Click Save — Cloudflare redeploys automatically.',
+    forgotPassword: 'Forgot password?',
+    recoverTitle: 'Recover password',
+    recoverEmail: 'Recovery email',
+    recoverStep2Title: 'Reset password',
+    recoverCode: '6-digit code',
+    recoverMailOpened: 'Mail client opened — send the email and read the code from it.',
+    recoverMailFailed: 'Could not open mail client. Code: {code}',
+    recoverFailed: 'Recovery failed: ',
+    recoverMailSubject: 'AlpeHuez password recovery code',
+    recoverMailBody: 'Your AlpeHuez recovery code is: ',
     manageSoftware: 'Manage Software', softwareManager: 'Software Manager', addSoftware: 'Add Software', editSoftware: 'Edit Software',
     softwareSearch: 'Search software…', softwareEmpty: 'No matching software.', done: 'Done', all: 'All',
     softwareName: 'Name', softwareCat: 'Category', softwareEn: 'English description', softwareZh: 'Chinese description',
     softwareUrl: 'Download URL', softwareExtraLabelEn: 'Extra button label (EN)', softwareExtraLabelZh: 'Extra button label (ZH)',
     softwareExtraUrl: 'Extra button URL', softwareSaved: 'Software data saved', softwareLoadFailed: 'Failed to load software data: ',
+    softwareSaveLocalHint: 'Saved locally — push via Deploy to update the public site.',
     confirmDeleteSoftware: (n) => `Delete software "${n}"?`,
     wsRoleLeader: 'Leader', wsRoleDomestique: 'Domestique', wsRiderNo: 'Rider No.',
     wsEdit: 'Edit', wsLinksJson: 'Links JSON', wsDelete: 'Delete',
@@ -352,6 +390,11 @@ async function api(path, opts = {}) {
       await invoke('write_json', { path: 'myfiles/data.json', data: body.data });
       return { ok: true };
     }
+    if (path === '/api/myfiles-password') {
+      if (method === 'GET') return { ok: true, password: await invoke('get_myfiles_password') };
+      await invoke('set_myfiles_password', { password: body.password });
+      return { ok: true };
+    }
     if (path === '/api/software') {
       if (method === 'GET') return { ok: true, data: await invoke('read_software') };
       await invoke('write_software', { data: body.data });
@@ -383,6 +426,13 @@ function toast(msg, type = '') {
   el.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+}
+
+// Tauri 命令错误以字符串 reject，需转成可读信息。
+function errText(e) {
+  if (typeof e === 'string') return e;
+  if (e && typeof e === 'object') return e.message || String(e);
+  return String(e);
 }
 
 function appendLog(text) {
@@ -742,6 +792,10 @@ async function saveSoftware() {
   try {
     await api('/api/software', { method: 'POST', body: JSON.stringify({ data: softwareData }) });
     toast(t('softwareSaved'), 'success');
+    // 保存只写入本地仓库；公开网站（Cloudflare Pages）需在「部署」中推送后才会更新。
+    if (isDesktop && !document.getElementById('tab-deploy')?.classList.contains('active')) {
+      toast(t('softwareSaveLocalHint'), 'info');
+    }
   } catch (e) {
     toast(e.message, 'error');
   }
@@ -1380,6 +1434,8 @@ $('#fileList').addEventListener('click', async (e) => {
 $('#btnNewFile').onclick = () => openFileModal({ name: '', kind: 'report', size: '', url: '', source: {} }, null);
 $('#btnNewFileEmpty').onclick = () => openFileModal({ name: '', kind: 'report', size: '', url: '', source: {} }, null);
 
+$('#btnSoftwareManager').onclick = openSoftwareManager;
+
 $('#btnSaveMyfiles').onclick = async () => {
   const btn = $('#btnSaveMyfiles');
   btn.disabled = true;
@@ -1483,6 +1539,18 @@ async function initAuth() {
   const backdrop = $('#loginBackdrop');
   const errorEl = $('#loginError');
   const pwdInput = $('#loginPassword');
+
+  // 尚未配置访问密码（首次运行主应用向导前）：免密进入，不弹登录框。
+  let hasPwd = true;
+  try {
+    hasPwd = await window.__TAURI__.core.invoke('has_access_password');
+  } catch (e) { /* 查询失败则按有密码处理 */ }
+  if (!hasPwd) {
+    $('#btnChangePwd').hidden = true;
+    init();
+    return;
+  }
+
   backdrop.hidden = false;
   document.body.classList.add('login-active');
   // 登录前只刷新登录框文案，不触发后台数据加载，避免进入面板时出现一闪而过的内容/弹层。
@@ -1515,24 +1583,121 @@ async function initAuth() {
   }
   $('#btnLogin').onclick = tryLogin;
   pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+  // 忘记密码：邮箱验证码 → 重置密码（验证码通过 mailto 交给用户的邮件客户端）。
+  async function recover() {
+    openModal(t('recoverTitle'), [
+      { key: 'email', label: t('recoverEmail'), type: 'text', required: true },
+    ], async (values) => {
+      const email = values.email.trim();
+      let code;
+      try {
+        code = await window.__TAURI__.core.invoke('request_password_recovery', { email });
+      } catch (e) {
+        toast(errText(e) || t('recoverFailed'), 'error');
+        return;
+      }
+      try {
+        const subject = encodeURIComponent(t('recoverMailSubject'));
+        const body = encodeURIComponent(t('recoverMailBody') + ' ' + code);
+        await window.__TAURI__.core.invoke('open_url_scheme', { url: `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}` });
+        toast(t('recoverMailOpened'), 'success');
+      } catch (e) {
+        toast(t('recoverMailFailed').replace('{code}', code), 'error');
+      }
+      openModal(t('recoverStep2Title'), [
+        { key: 'code', label: t('recoverCode'), type: 'text', required: true },
+        { key: 'new', label: t('newPassword'), type: 'password', required: true },
+        { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
+      ], async (v2) => {
+        if (v2.new !== v2.confirm) {
+          toast(t('pwdMismatch'), 'error');
+          return;
+        }
+        try {
+          await window.__TAURI__.core.invoke('reset_password', { code: v2.code.trim(), new: v2.new });
+          toast(t('pwdChanged'), 'success');
+          // 新密码已知，直接放行进入面板。
+          backdrop.hidden = true;
+          document.body.classList.remove('login-active');
+          $('#btnChangePwd').hidden = false;
+          init();
+        } catch (e) {
+          toast(errText(e) || t('recoverFailed'), 'error');
+        }
+      });
+    });
+  }
+  const forgotBtn = $('#btnForgot');
+  if (forgotBtn) forgotBtn.addEventListener('click', recover);
 }
 
-/* ---------- 修改密码（仅桌面应用） ---------- */
-$('#btnChangePwd').addEventListener('click', () => {
+/* ---------- 修改密码 / 设置找回邮箱（仅桌面应用） ---------- */
+$('#btnChangePwd').addEventListener('click', async () => {
+  let currentEmail = '';
+  try {
+    currentEmail = await window.__TAURI__.core.invoke('get_access_email');
+  } catch (e) { /* 读取失败按空处理 */ }
   openModal(t('changePwdTitle'), [
-    { key: 'old', label: t('oldPassword'), type: 'password', required: true },
+    { key: 'old', label: t('oldPassword'), type: 'password', required: false },
+    { key: 'new', label: t('newPassword'), type: 'password', required: false },
+    { key: 'confirm', label: t('confirmPassword'), type: 'password', required: false },
+    { key: 'email', label: t('recoverEmail'), type: 'text', value: currentEmail, required: false, hint: t('recoverEmailHint') },
+  ], async (values) => {
+    const hasOld = !!(values.old && values.old.trim());
+    const hasNew = !!(values.new && values.new.trim());
+    const email = (values.email || '').trim();
+    if ((hasOld || hasNew) && !(hasOld && hasNew)) {
+      toast(t('pwdFillBoth'), 'error');
+      return;
+    }
+    if (!hasOld && !hasNew && !email) {
+      toast(t('pwdFillBoth'), 'error');
+      return;
+    }
+    if (hasNew && values.new !== values.confirm) {
+      toast(t('pwdMismatch'), 'error');
+      return;
+    }
+    try {
+      if (hasOld && hasNew) {
+        await window.__TAURI__.core.invoke('change_password', { old: values.old, new: values.new });
+      }
+      if (email) {
+        await window.__TAURI__.core.invoke('set_access_email', { email });
+      }
+      toast(t('pwdChanged'), 'success');
+    } catch (e) {
+      toast(errText(e) || t('oldPwdWrong'), 'error');
+    }
+  });
+});
+
+/* ---------- My Files 网页访问密码（本地保存 + Cloudflare 后台手动同步） ---------- */
+$('#btnMyfilesPassword').addEventListener('click', async () => {
+  let current = '';
+  try {
+    const res = await api('/api/myfiles-password');
+    current = (res && res.password) || '';
+  } catch (e) { /* 读取失败不阻塞 */ }
+  openModal(t('myfilesPwdTitle'), [
+    { key: 'current', label: t('myfilesPwdCurrent'), type: 'text', value: current, required: false },
     { key: 'new', label: t('newPassword'), type: 'password', required: true },
-    { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
+    { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true, hint: t('myfilesPwdHint') },
   ], async (values) => {
     if (values.new !== values.confirm) {
       toast(t('pwdMismatch'), 'error');
       return;
     }
     try {
-      await window.__TAURI__.core.invoke('change_password', { old: values.old, new: values.new });
-      toast(t('pwdChanged'), 'success');
+      await api('/api/myfiles-password', { method: 'POST', body: JSON.stringify({ password: values.new }) });
+      toast(t('myfilesPwdSaved'), 'success');
+      openModal(t('myfilesPwdNextTitle'), [
+        { key: 'copy', label: t('myfilesPwdCopy'), type: 'text', value: values.new },
+        { key: 'steps', label: '', type: 'textarea', rows: 8, value: t('myfilesPwdSteps').replace('{pwd}', values.new), required: false },
+      ], async () => {});
     } catch (e) {
-      toast(e.message || t('oldPwdWrong'), 'error');
+      toast(e.message || t('myfilesPwdFailed'), 'error');
     }
   });
 });
