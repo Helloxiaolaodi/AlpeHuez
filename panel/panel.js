@@ -157,10 +157,15 @@ try {
   const storedPanel = localStorage.getItem('panel-theme');
   if (storedPanel) {
     theme = storedPanel;
-  } else if (localStorage.getItem('nav_theme') === 'space') {
-    theme = 'dark';
   } else {
-    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const navTheme = localStorage.getItem('nav_theme');
+    if (navTheme === 'space') {
+      theme = 'dark';
+    } else if (navTheme === 'gradient') {
+      theme = 'light';
+    } else {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
   }
 } catch (e) {}
 let statusDirty = false;
@@ -869,8 +874,18 @@ if (!embedded) {
 
 window.addEventListener('message', (event) => {
   const message = event.data;
-  if (!message || message.type !== 'alpehuez-dev-tab') return;
-  activatePanelTab(message.tab, false);
+  if (!message) return;
+  if (message.type === 'alpehuez-dev-tab') {
+    activatePanelTab(message.tab, false);
+    return;
+  }
+  if (message.type === 'alpehuez-theme' && (message.theme === 'dark' || message.theme === 'light')) {
+    try {
+      if (localStorage.getItem('panel-theme')) return;
+    } catch (e) {}
+    theme = message.theme;
+    applyTheme();
+  }
 });
 
 $('#btnLang').onclick = () => {

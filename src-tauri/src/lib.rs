@@ -43,8 +43,12 @@ pub fn run() {
                 let app = window.app_handle().clone();
                 let win = window.clone();
                 std::thread::spawn(move || {
-                    commands::auto_backup_on_close(&app);
+                    // 先隐藏窗口给用户即时反馈，备份完成后退出进程。
+                    // 不能 hide 后驻留：隐藏的进程不会被用户察觉，再次双击 exe 启动新实例会
+                    // 与它争抢全局快捷键和 WebView2 数据目录，导致新窗口无法显示。
                     let _ = win.hide();
+                    commands::auto_backup_on_close(&app);
+                    app.exit(0);
                 });
             }
         })
@@ -95,6 +99,7 @@ pub fn run() {
             commands::set_app_config,
             commands::hf_backup,
             commands::hf_test_connection,
+            commands::save_daily_note,
         ]);
 
     // Alt+A 全局召唤：隐藏时显示并聚焦，可见时隐藏。Android 无全局快捷键，且该插件在移动端为空壳。
@@ -122,6 +127,24 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .register_uri_scheme_protocol("nav", preview::handler)
         .setup(|app| {
+            // 单实例：第二次启动直接退出，避免双进程争抢全局快捷键与 WebView2 数据目录
+            // 导致窗口无法显示（用户曾因此看到"启动无界面，只能 Alt+A 唤出"）。
+            #[cfg(not(target_os = "android"))]
+            {
+                if let Ok(dir) = app.path().app_data_dir() {
+                    if let Ok(lock_file) = std::fs::OpenOptions::new()
+                        .create(true)
+                        .write(true)
+                        .open(dir.join("instance.lock"))
+                    {
+                        if lock_file.try_lock().is_err() {
+                            std::process::exit(0);
+                        }
+                        // 保持文件打开以持锁整个进程生命周期
+                        let _ = Box::leak(Box::new(lock_file));
+                    }
+                }
+            }
             // Android：repo_root 指向应用私有 webroot（编译期 Windows 路径在移动端不存在）。
             #[cfg(target_os = "android")]
             {

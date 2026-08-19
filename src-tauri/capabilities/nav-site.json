@@ -54,6 +54,7 @@
     "allow-set-app-config",
     "allow-hf-backup",
     "allow-hf-test-connection",
+    "allow-save-daily-note",
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",

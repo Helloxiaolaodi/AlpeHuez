@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlpeHuez v0.4.0</title>
+    <title>AlpeHuez v0.5.0</title>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
         const savedTheme = storedTheme === 'space' ? 'space' : 'gradient';
@@ -456,7 +456,8 @@
         html[data-theme="space"] .vm-proc-icon { background: rgba(162, 123, 255, 0.14); }
         .vm-proc-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
         .vm-proc-bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
-        .vm-proc-bar-fill { display: block; height: 100%; border-radius: 2px; background: var(--brand-primary); transition: width 0.4s ease; }
+        html[data-theme="space"] .vm-proc-bar { background: rgba(255, 255, 255, 0.07); }
+        .vm-proc-bar-fill { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--brand-secondary), var(--brand-primary)); transition: width 0.4s ease; }
         .workspace-add-btn {
             display: inline-flex;
             align-items: center;
@@ -1199,7 +1200,7 @@
         .page-loading-overlay[hidden] { display: none; }
         .page-loading-overlay.hide { opacity: 0; visibility: hidden; }
         .load-bike {
-            width: 110px;
+            width: 130px;
             height: auto;
             color: var(--brand-primary);
             animation: bike-bob 1.6s ease-in-out infinite;
@@ -1207,6 +1208,15 @@
         }
         html[data-theme="space"] .load-bike {
             filter: drop-shadow(0 0 14px rgba(162, 123, 255, 0.55));
+        }
+        .load-bike .wheel,
+        .load-bike .crank {
+            transform-origin: center;
+            transform-box: fill-box;
+            animation: bike-wheel-spin 0.7s linear infinite;
+        }
+        @keyframes bike-wheel-spin {
+            to { transform: rotate(360deg); }
         }
         @keyframes bike-bob {
             0%, 100% { transform: translateY(0); }
@@ -2257,8 +2267,12 @@
         .cp-input-row input { flex: 1; border: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 15px; outline: none; }
         .cp-search-icon { width: 18px; height: 18px; color: var(--text-muted); flex: 0 0 auto; }
         .cp-results { max-height: 46vh; overflow-y: auto; padding: 6px; }
-        .cp-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px; }
-        .cp-item.active, .cp-item:hover { background: var(--bg-card); }
+        .cp-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px; }
+        .cp-item.active, .cp-item:hover { background: rgba(0, 135, 235, 0.10); color: var(--text-main); }
+        html[data-theme="space"] .cp-item.active, html[data-theme="space"] .cp-item:hover { background: rgba(162, 123, 255, 0.16); }
+        .cp-item.active::before, .cp-item:hover::before { content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2.5px; border-radius: 3px; background: #0087EB; }
+        html[data-theme="space"] .cp-item.active::before, html[data-theme="space"] .cp-item:hover::before { background: var(--brand-primary); }
+        .cp-item.active .cp-kind, .cp-item:hover .cp-kind { color: var(--text-muted); }
         .cp-item .cp-kind { margin-left: auto; font-size: 11px; color: var(--text-muted); }
         .cp-actionbar { display: flex; align-items: center; gap: 16px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--text-muted); }
         .cp-hint { display: inline-flex; align-items: center; gap: 5px; }
@@ -2386,6 +2400,13 @@
         .nav-card.alpehuez-widget:hover {
             border-color: #FFE0AE;
             box-shadow: 0 16px 32px -14px rgba(255, 224, 174, 0.35), var(--shadow);
+        }
+        /* v0.5.0: space 下卡片微边框 + 顶部内高光，弱化外阴影 */
+        html[data-theme="space"] .nav-card,
+        html[data-theme="space"] .stat-tile,
+        html[data-theme="space"] .about-card {
+            border-color: rgba(255, 255, 255, 0.07);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 0.5px rgba(255, 255, 255, 0.04), 0 10px 26px -6px rgba(0, 0, 0, 0.32);
         }
         .nav-card .card-actions {
             opacity: 0;
@@ -3184,6 +3205,110 @@
             border-color: rgba(255, 255, 255, 0.08);
         }
 
+        .about-actions {
+            display: flex;
+            gap: 10px;
+            max-width: 1100px;
+            margin: 0 auto 22px;
+        }
+
+        .about-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        .about-action-btn svg { width: 15px; height: 15px; color: var(--brand-primary); }
+
+        .about-action-btn:hover {
+            border-color: var(--brand-primary);
+            box-shadow: var(--glow);
+            transform: translateY(-1px);
+        }
+
+        /* 通用弹窗 */
+        .app-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(5, 8, 13, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: app-modal-fade 0.18s ease;
+        }
+
+        .app-modal-backdrop[hidden] { display: none; }
+
+        .app-modal {
+            width: 100%;
+            max-width: 560px;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+            border: 1px solid var(--line-strong);
+            border-radius: 16px;
+            box-shadow: var(--shadow-float);
+            animation: app-modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html[data-theme="space"] .app-modal {
+            background: #2D283A;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -8px rgba(0, 0, 0, 0.6);
+        }
+        html[data-theme="space"] .cp-panel {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -8px rgba(0, 0, 0, 0.6);
+        }
+
+        .app-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .app-modal-head h3 { margin: 0; font-size: 14px; letter-spacing: -0.01em; }
+        .app-modal-actions { display: flex; align-items: center; gap: 8px; }
+
+        .app-modal-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .app-modal-btn:hover { color: var(--text-main); border-color: var(--brand-primary); }
+
+        .app-modal-body { padding: 16px 18px; overflow-y: auto; }
+
+        .activity-modal .tl-list { padding-left: 18px; }
+
+        @keyframes app-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes app-modal-pop { from { transform: translateY(10px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+
         /* PCS 风格车手面板：左侧车手卡 + 右侧能力彩色长条 */
         .rider-panel {
             display: grid;
@@ -3338,16 +3463,8 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .ability-rings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 4px 0; }
-        .ability-ring { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .ability-ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
-        .ability-ring .ring-track { fill: none; stroke: var(--line); stroke-width: 7; }
-        .ability-ring .ring-fill { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 0.8s var(--spring); }
-        .ability-ring .ring-glow { filter: drop-shadow(0 0 6px currentColor); }
-        html[data-theme="space"] .ability-ring .ring-track { stroke: rgba(162, 123, 255,0.14); }
-        html[data-theme="space"] .ability-ring .ring-glow { filter: drop-shadow(0 0 10px currentColor); }
-        .ability-ring .ring-label { font-size: 12px; font-weight: 600; }
-        .ability-ring .ring-val { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .ability-bars { display: flex; flex-direction: column; gap: 14px; padding: 4px 0; }
+        .ability-row-head strong { min-width: 30px; text-align: right; }
 
         .ability-track {
             height: 10px;
@@ -3370,6 +3487,8 @@
         .ability-bar.climber { background: linear-gradient(90deg, #FCA5A5, #DC2626); }
         .ability-bar.sprint { background: linear-gradient(90deg, #86EFAC, #16A34A); }
         .ability-bar.tt { background: linear-gradient(90deg, #93C5FD, #2563EB); }
+        .ability-bar.onedayraces { background: linear-gradient(90deg, #F9A8D4, #DB2777); }
+        .ability-bar.hills { background: linear-gradient(90deg, #5EEAD4, #0D9488); }
 
         .about-meta label {
             display: block;
@@ -3597,6 +3716,142 @@
             text-transform: uppercase;
             color: var(--text-muted);
         }
+        .tp-note-section { position: relative; }
+        .tp-note-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .tp-note-head h3 { margin: 0; }
+        .tp-note-nav { display: flex; align-items: center; gap: 5px; }
+        .tp-nav-btn {
+            width: 22px; height: 22px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid var(--line); border-radius: 6px;
+            background: transparent; color: var(--text-muted);
+            cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+            transition: color .15s, border-color .15s;
+        }
+        .tp-nav-btn:hover { color: var(--brand-primary); border-color: var(--brand-primary); }
+        .tp-note-day { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 66px; text-align: center; }
+        .tp-note { display: flex; flex-direction: column; gap: 10px; }
+        .tp-note-input {
+            width: 100%; min-height: 120px; resize: vertical;
+            padding: 10px 12px;
+            font-size: 12.5px; line-height: 1.6;
+            font-family: inherit;
+            color: var(--text-main);
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .tp-note-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12); }
+        html[data-theme="space"] .tp-note-input:focus { box-shadow: 0 0 0 3px rgba(162, 123, 255, 0.14); }
+        .tp-note-preview {
+            display: flex; flex-direction: column; gap: 8px;
+            padding: 2px; font-size: 12.5px; line-height: 1.65;
+            color: var(--text-main);
+        }
+        .tp-note-preview:empty::after { content: "preview"; color: var(--text-3); font-size: 11px; }
+        .md-h1 { margin: 2px 0 0; font-size: 17px; font-weight: 700; }
+        .md-h2 { margin: 2px 0 0; font-size: 13.5px; font-weight: 700; }
+        .md-p { margin: 0; }
+        .md-list { margin: 0; padding-left: 18px; }
+        .md-list li { margin: 2px 0; }
+        .md-quote { margin: 0; padding: 6px 12px; border-left: 3px solid var(--brand-primary); color: var(--text-muted); background: rgba(0, 135, 235, 0.06); border-radius: 0 8px 8px 0; }
+        html[data-theme="space"] .md-quote { background: rgba(162, 123, 255, 0.08); }
+        .md-hr { border: none; height: 1px; background: var(--line); margin: 6px 0; }
+        .md-code { padding: 1px 5px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--line); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; color: var(--brand-primary); }
+        .md-link { color: var(--brand-primary); text-decoration: none; }
+        .md-link:hover { text-decoration: underline; }
+        .tp-note-status { font-size: 10.5px; color: var(--text-3); text-align: right; min-height: 13px; }
+
+        /* slash 命令菜单 */
+        .slash-menu {
+            position: absolute;
+            left: 12px; right: 12px; bottom: 46px; z-index: 20;
+            display: flex; flex-direction: column; gap: 2px;
+            padding: 6px;
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+        }
+        .slash-menu[hidden] { display: none; }
+        .slash-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 10px;
+            border: none; border-radius: 8px;
+            background: none; color: var(--text-main);
+            font-size: 12.5px; cursor: pointer; text-align: left;
+            transition: background .15s;
+        }
+        .slash-item:hover { background: rgba(0, 135, 235, 0.09); }
+        html[data-theme="space"] .slash-item:hover { background: rgba(162, 123, 255, 0.1); }
+        .slash-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 20px; height: 20px; flex: 0 0 20px;
+            border-radius: 6px; font-size: 11px; font-weight: 800;
+            background: rgba(0, 135, 235, 0.12); color: var(--brand-primary);
+        }
+        html[data-theme="space"] .slash-icon { background: rgba(162, 123, 255, 0.16); color: #C084FC; }
+        .slash-item kbd { margin-left: auto; font-size: 10px; color: var(--text-3); font-family: inherit; }
+
+        /* 微型代码胶囊：一行 36px，点击进浮层 */
+        .snippet-capsule {
+            display: flex; align-items: center; gap: 10px;
+            height: 36px; padding: 0 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            cursor: pointer;
+            transition: background .2s, border-color .2s, transform .2s;
+        }
+        html:not([data-theme="space"]) .snippet-capsule { background: rgba(15, 23, 42, 0.03); border-color: rgba(15, 23, 42, 0.09); }
+        .snippet-capsule:hover { background: rgba(94, 106, 210, 0.08); border-color: rgba(94, 106, 210, 0.3); transform: translateY(-1px); }
+        .sc-lang {
+            flex: 0 0 auto;
+            font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em;
+            padding: 2px 7px; border-radius: 5px;
+            background: var(--brand-primary); color: #fff;
+        }
+        .sc-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main); font-size: 12.5px; }
+        .sc-expand { flex: 0 0 auto; color: var(--text-muted); font-size: 13px; }
+
+        /* 代码只读浮层 */
+        .code-modal { max-width: 800px; }
+        .code-modal-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .code-modal-lang {
+            flex: 0 0 auto;
+            font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+            padding: 2px 8px; border-radius: 6px;
+            background: rgba(0, 135, 235, 0.14); color: var(--brand-primary);
+        }
+        html[data-theme="space"] .code-modal-lang { background: rgba(162, 124, 255, 0.18); color: #C084FC; }
+        .code-modal-head-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .code-modal-body { padding: 0; }
+        .code-highlight {
+            margin: 0; padding: 14px 0;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 12.5px; line-height: 1.7;
+            color: var(--text-main);
+        }
+        .hl-line { display: flex; }
+        .hl-num {
+            flex: 0 0 40px; text-align: right; padding-right: 14px;
+            color: var(--text-3); user-select: none;
+        }
+        .hl-code { white-space: pre; }
+        .hl-kw { color: var(--brand-primary); font-weight: 600; }
+        .hl-str { color: #34D399; }
+        html:not([data-theme="space"]) .hl-str { color: #059669; }
+        .hl-com { color: var(--text-muted); font-style: italic; }
+        .hl-numeral { color: #FBBF24; }
+        html:not([data-theme="space"]) .hl-numeral { color: #B45309; }
+        .hl-fn { color: #38BDF8; }
+        html:not([data-theme="space"]) .hl-fn { color: #0369A1; }
+
         .tp-dock {
             flex: 0 0 auto;
             display: flex;
@@ -4370,14 +4625,14 @@
                 <div class="context-label"><span>App</span></div>
                 <div class="context-about-card">
                     <label>Version</label>
-                    <strong id="contextAboutVersion">v0.4.0</strong>
+                    <strong id="contextAboutVersion">v0.5.0</strong>
                     <label>Developer</label>
                     <strong>Helloxiaolaodi</strong>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <span class="version-chip" id="versionChip">v0.4.0</span>
+                <span class="version-chip" id="versionChip">v0.5.0</span>
                 <span class="legend-item" title="Internal pages share a persistent WebView session">
                     <span class="legend-dot green"></span>
                     AlpeHuez
@@ -4386,12 +4641,40 @@
         </aside>
 
         <div id="pageLoadingOverlay" class="page-loading-overlay" hidden>
-            <svg class="load-bike" viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="40" cy="60" r="14"/><circle cx="80" cy="60" r="14"/>
-                <path d="M40 60h40M40 60l-6-18h14l6 18M80 60l-6-18H54"/>
-                <path d="M34 42h52M40 60l-8-18M80 60l8-18" opacity="0.45"/>
-                <circle cx="40" cy="60" r="2" fill="currentColor"/>
-                <circle cx="80" cy="60" r="2" fill="currentColor"/>
+            <svg class="load-bike" viewBox="0 0 180 120" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M100 88L84 62"/>
+                <path d="M84 56L124 52"/>
+                <path d="M100 88L128 68"/>
+                <path d="M84 62L80 88"/>
+                <path d="M100 88L80 88"/>
+                <path d="M128 68c-2 8 0 12 12 20"/>
+                <path d="M124 52c9 1 14 6 12 13"/>
+                <path d="M124 52l-6 5"/>
+                <rect x="64" y="52" width="28" height="8" rx="4" stroke-width="2.2"/>
+                <g class="wheel">
+                    <circle cx="80" cy="88" r="28"/>
+                    <g stroke-width="1.3" opacity="0.7">
+                        <line x1="80" y1="60" x2="80" y2="116"/>
+                        <line x1="52" y1="88" x2="108" y2="88"/>
+                        <line x1="60" y1="68" x2="100" y2="108"/>
+                        <line x1="100" y1="68" x2="60" y2="108"/>
+                    </g>
+                    <circle cx="80" cy="88" r="5" fill="currentColor" stroke="none"/>
+                </g>
+                <g class="wheel">
+                    <circle cx="140" cy="88" r="28"/>
+                    <g stroke-width="1.3" opacity="0.7">
+                        <line x1="140" y1="60" x2="140" y2="116"/>
+                        <line x1="112" y1="88" x2="168" y2="88"/>
+                        <line x1="120" y1="68" x2="160" y2="108"/>
+                        <line x1="160" y1="68" x2="120" y2="108"/>
+                    </g>
+                    <circle cx="140" cy="88" r="5" fill="currentColor" stroke="none"/>
+                </g>
+                <g class="crank">
+                    <circle cx="100" cy="88" r="5.5"/>
+                    <line x1="100" y1="82" x2="100" y2="73"/><line x1="100" y1="94" x2="100" y2="103"/>
+                </g>
             </svg>
             <span class="page-loading-text">AlpeHuez 破风加载中…</span>
         </div>
@@ -4410,7 +4693,7 @@
                 <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
                     <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
                     <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
-                    <span class="vm-cell"><span class="vm-label">DISK</span><span id="vmDiskVal" class="vm-val">--%</span></span>
+                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmDiskRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmDiskVal">--%</span></span>
                 </button>
                 <div class="topbar-actions">
                     <button id="btnBack" class="icon-btn topbar-back-btn" title="Back (Alt+Left)" aria-label="Back (Alt+Left)">
@@ -4493,31 +4776,35 @@
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
-                                <h1>AlpeHuez <span id="aboutVersion">v0.4.0</span></h1>
+                                <h1>AlpeHuez <span id="aboutVersion">v0.5.0</span></h1>
                                 <p>A workspace browser for Helloxiaolaodi. It combines the portal dashboard, vertical browser tabs, persistent sessions, local achievements, and the developer console in one desktop shell.</p>
                             </div>
                         </div>
+                        <div class="about-actions">
+                            <button type="button" id="btnOpenTimeline" class="about-action-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                Activity Timeline
+                            </button>
+                        </div>
                         <div class="about-grid">
                             <div class="about-card">
-                                <h2>v0.4.0 Update Notes</h2>
+                                <h2>v0.5.0 Update Notes</h2>
                                 <ul>
-                                    <li>Unified AlpeHuez workspace shell: Portal, My Files, Dev Panel, Achievements, and About sit in the Activity Bar with contextual sidebar panels.</li>
-                                    <li>Zen-style vertical tabs replace the crowded top tab strip; link cards, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews.</li>
-                                    <li>Internal WebViews add an auto-hiding command bar with back navigation and fullscreen/exit-fullscreen controls, plus persistent sessions and ad blocking injection.</li>
-                                    <li>The Portal sidebar is auto-hidden with an edge handle and keeps its page tabs in the sidebar instead of the content area.</li>
-                                    <li>My Files uses an auto-hidden sidebar with collapsible main folders, and the report pages are password-gated without committed secrets.</li>
-                                    <li>Dev Panel requires a password on every entry with no remembered access, and its Deploy/default screens no longer trigger transient popups.</li>
-                                    <li>Launch mode configures internal AlpeHuez startup or an external browser selected from a dropdown.</li>
-                                    <li>Interface config adds local background upload, background blur, shortcut settings, feedback, Ko-fi, WeChat QR support, and language selection.</li>
-                                    <li>Dark mode uses the blurred AlpeHuez space background, search dropdown width is restored, and the timeline row aligns with the search box.</li>
-                                    <li>Glassmorphism styling, foldable tag groups, and the preserved light SaaS palette complete the v0.2.0 visual refresh.</li>
+                                    <li>Telemetry Pod adds a Markdown daily note: slash commands (#, ##, -, &gt;, **, code), instant preview, and one-click code capsules.</li>
+                                    <li>Code snippets open a focused reader with syntax highlighting, line numbers, and one-click copy.</li>
+                                    <li>Rider Abilities grows to six disciplines — One Day classics and Hills join GC, Climber, Sprint, TT — displayed as long power bars.</li>
+                                    <li>Embedded WebViews load behind a hand-drawn road bike animation instead of a black screen.</li>
+                                    <li>VeloMeter pill gains a DISK ring, and the process list draws mini CPU bars for at-a-glance health.</li>
+                                    <li>Command Palette matches Portal card names and URLs when you type without a slash.</li>
+                                    <li>Cards, modals, and the palette get crisper micro-borders, physical depth, and cleaner selection states.</li>
+                                    <li>Dev Panel light mode follows the app theme; data sync targets the correct ApleHuez repository.</li>
                                 </ul>
                             </div>
                             <div class="about-card">
                                 <h2>Developer &amp; Links</h2>
                                 <div class="about-meta">
                                     <div><label>Developer</label><strong>Helloxiaolaodi</strong></div>
-                                    <div><label>Version</label><strong id="aboutVersionMeta">0.4.0</strong></div>
+                                    <div><label>Version</label><strong id="aboutVersionMeta">0.5.0</strong></div>
                                     <div><label>GitHub</label><strong>Helloxiaolaodi/AlpeHuez</strong></div>
                                     <div><label>AlpeHuez</label><strong>Persistent WebView</strong></div>
                                 </div>
@@ -4683,7 +4970,7 @@
                 <h3 data-i18n-settings="sync">Sync</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="syncRepo">HF backup repo</label>
-                    <input id="hfRepo" class="settings-input" type="text" value="Helloxiaolaodi/alpehuez-backup">
+                    <input id="hfRepo" class="settings-input" type="text" value="Helloxiaolaodi/AlpeHuez">
                 </div>
                 <div class="settings-row">
                     <label data-i18n-settings="autoBackup">Auto backup on exit</label>
@@ -5237,6 +5524,7 @@
                 saveStats(stats);
                 recordUsage();
                 addAbilityXp('gc', ABILITY_XP.gcDaily);
+                addAbilityXp('onedayraces', ABILITY_XP.onedayracesDaily);
             }
         }
 
@@ -5341,11 +5629,15 @@
             return `${Math.floor(hours / 24)}d ago`;
         }
 
-        function renderActivityTimeline() {
-            const el = $('tpTimeline');
+        function renderActivityTimeline(el) {
+            if (!el) el = $('activityTimelineContainer');
             if (!el) return;
+            el.hidden = false;
             const log = readTimeline();
-            if (!log.length) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
+            if (!log.length) {
+                el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.');
+                return;
+            }
             const rows = log.slice().reverse().map((entry) => `
                 <div class="tl-item">
                     <span class="tl-icon">${TL_ICONS[entry.type] || TL_ICONS.legacy}</span>
@@ -5354,20 +5646,283 @@
                     <span class="tl-when">${relativeTime(entry.t)}</span>
                 </div>
             `).join('');
-            el.innerHTML = `
-                <div class="activity-timeline-head">
-                    <h3>Activity Timeline</h3>
-                    <button type="button" id="tlClearBtn">Clear</button>
-                </div>
-                <div class="tl-list">${rows}</div>
-            `;
-            el.hidden = false;
-            const clearBtn = $('tlClearBtn');
+            el.innerHTML = `<div class="tl-list">${rows}</div>`;
+        }
+
+        function initActivityTimelineModal() {
+            const backdrop = $('activityModal');
+            if (!backdrop) return;
+            const openBtn = $('btnOpenTimeline');
+            const closeBtn = $('activityModalClose');
+            const clearBtn = $('activityClearBtn');
+            if (openBtn) openBtn.addEventListener('click', () => {
+                renderActivityTimeline($('activityTimelineContainer'));
+                backdrop.hidden = false;
+            });
+            if (closeBtn) closeBtn.addEventListener('click', () => { backdrop.hidden = true; });
             if (clearBtn) clearBtn.addEventListener('click', () => {
                 localStorage.removeItem('alpehuez_timeline');
-                renderActivityTimeline();
+                renderActivityTimeline($('activityTimelineContainer'));
+            });
+            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.hidden = true; });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !backdrop.hidden) backdrop.hidden = true;
             });
         }
+
+        // ---------- Telemetry Pod 每日笔记（Markdown + 代码胶囊）----------
+        const NOTES_KEY = 'alpehuez_notes';
+        const HIGHLIGHT_KEYWORDS = {
+            r: ['function', 'if', 'else', 'for', 'while', 'repeat', 'return', 'library', 'require', 'source', 'TRUE', 'FALSE', 'NULL', 'NA', 'Inf', 'filter', 'mutate', 'select', 'summarize', 'group_by', 'arrange', 'ggplot', 'aes', 'grepl', 'ifelse', 'paste0', 'read.csv', 'write.csv', 'install.packages', 'data.frame', 'list', 'c'],
+            python: ['def', 'if', 'elif', 'else', 'for', 'while', 'import', 'from', 'as', 'return', 'class', 'with', 'try', 'except', 'raise', 'lambda', 'True', 'False', 'None', 'and', 'or', 'not', 'in', 'is', 'print', 'range', 'len', 'enumerate', 'self'],
+            bash: ['if', 'then', 'else', 'fi', 'for', 'while', 'do', 'done', 'function', 'echo', 'export', 'source', 'sudo', 'apt', 'yum', 'cd', 'ls', 'cp', 'mv', 'rm', 'mkdir', 'chmod', 'chown', 'grep', 'sed', 'awk', 'wc', 'cat', 'tail', 'head', 'curl', 'wget', 'git', 'sbatch', 'srun', 'module', 'job', 'seq', 'xargs', 'exit', 'local'],
+            json: ['true', 'false', 'null'],
+            js: ['const', 'let', 'var', 'function', 'if', 'else', 'for', 'while', 'return', 'import', 'export', 'from', 'default', 'new', 'class', 'extends', 'try', 'catch', 'finally', 'throw', 'await', 'async', 'true', 'false', 'null', 'undefined', 'this', 'typeof', 'instanceof', 'of', 'in'],
+            plain: []
+        };
+        const HIGHLIGHT_ALIAS = { py: 'python', js: 'javascript', sh: 'bash', shell: 'bash', rb: 'ruby', yml: 'plain', yaml: 'plain', txt: 'plain', plaintext: 'plain', text: 'plain', r: 'r', sql: 'sql', json: 'plain' };
+        const NOTE_GLYPHS = { r: 'R', python: 'PY', bash: 'SH', sql: 'SQL', js: 'JS', javascript: 'JS', plain: 'CODE', text: 'CODE', txt: 'CODE', json: '{}' };
+
+        let noteDate = null;
+        const noteSnippets = [];
+
+        function todayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function shiftNoteDate(delta) {
+            const parts = noteDate.split('-').map(Number);
+            const d = new Date(parts[0], parts[1] - 1, parts[2] + delta);
+            noteDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function getNoteMarkdown(date) {
+            try { return (JSON.parse(localStorage.getItem(NOTES_KEY) || '{}')[date] || ''); }
+            catch (e) { return ''; }
+        }
+
+        function storeNoteMarkdown(date, md) {
+            let all = {};
+            try { all = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch (e) {}
+            all[date] = md;
+            try { localStorage.setItem(NOTES_KEY, JSON.stringify(all)); } catch (e) {}
+        }
+
+        function inlineMarkdown(text) {
+            let out = escapeHtml(text);
+            out = out
+                .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+                .replace(/`([^`\n]+)`/g, '<code class="md-code">$1</code>')
+                .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
+            return out;
+        }
+
+        function snippetCapsule(lang, title, code) {
+            const alias = HIGHLIGHT_ALIAS[(lang || '').toLowerCase()] || 'plain';
+            const index = noteSnippets.length;
+            noteSnippets.push({ lang: alias, title: title || (lang || 'code snippet'), code });
+            const glyph = NOTE_GLYPHS[alias] || (lang || 'CODE').slice(0, 3).toUpperCase();
+            return '<div class="snippet-capsule" data-snippet-index="' + index + '">'
+                + '<span class="sc-lang">' + escapeHtml(glyph) + '</span>'
+                + '<span class="sc-title">' + escapeHtml(title || (lang || 'code snippet')) + '</span>'
+                + '<span class="sc-expand" title="Expand code">&#8673;</span>'
+                + '</div>';
+        }
+
+        function mdToHtml(markdown) {
+            if (!markdown || !markdown.trim()) return '';
+            const lines = markdown.split('\n');
+            const out = [];
+            let i = 0;
+            while (i < lines.length) {
+                const line = lines[i];
+                const fence = line.match(/^```(\w+)?\s*(.*)$/);
+                if (fence) {
+                    const codeLines = [];
+                    i++;
+                    while (i < lines.length && !/^```\s*$/.test(lines[i])) { codeLines.push(lines[i]); i++; }
+                    i++;
+                    out.push(snippetCapsule(fence[1], fence[2], codeLines.join('\n')));
+                    continue;
+                }
+                const heading = line.match(/^(#{1,3})\s+(.*)$/);
+                if (heading) {
+                    const level = heading[1].length;
+                    out.push('<h' + level + ' class="md-h' + level + '">' + inlineMarkdown(heading[2]) + '</h' + level + '>');
+                    i++;
+                    continue;
+                }
+                if (/^\s*---+\s*$/.test(line)) { out.push('<hr class="md-hr">'); i++; continue; }
+                if (/^\s*>\s?/.test(line)) {
+                    const quotes = [];
+                    while (i < lines.length && /^\s*>\s?/.test(lines[i])) { quotes.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+                    out.push('<blockquote class="md-quote">' + quotes.map((q) => inlineMarkdown(q)).join('<br>') + '</blockquote>');
+                    continue;
+                }
+                const listMatch = line.match(/^\s*([-*+]|\d+[.)])\s+(.*)$/);
+                if (listMatch) {
+                    const ordered = /^\d+[.)]$/.test(listMatch[1]);
+                    const items = [listMatch[2]];
+                    i++;
+                    while (i < lines.length) {
+                        const m = lines[i].match(/^\s*([-*+]|\d+[.)])\s+(.*)$/);
+                        if (m && /^\d+[.)]$/.test(m[1]) === ordered) { items.push(m[2]); i++; }
+                        else break;
+                    }
+                    const tag = ordered ? 'ol' : 'ul';
+                    out.push('<' + tag + ' class="md-list">' + items.map((it) => '<li>' + inlineMarkdown(it) + '</li>').join('') + '</' + tag + '>');
+                    continue;
+                }
+                if (!line.trim()) { i++; continue; }
+                out.push('<p class="md-p">' + inlineMarkdown(line.trim()) + '</p>');
+                i++;
+            }
+            return out.join('\n');
+        }
+
+        function highlightCode(code, lang) {
+            const alias = HIGHLIGHT_ALIAS[(lang || '').toLowerCase()] || 'plain';
+            const kws = HIGHLIGHT_KEYWORDS[alias] || [];
+            const kwPart = kws.length ? '|\\b(?:' + kws.join('|') + ')\\b' : '';
+            const re = new RegExp('(\\/\\/[^\\n]*|#[^\\n]*|"(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\'|\\b\\d+(?:\\.\\d+)?\\b' + kwPart + '|\\b[A-Za-z_][A-Za-z0-9_]*(?=\\())', 'g');
+            return code.replace(re, (m) => {
+                if (m.charAt(0) === '/' || m.charAt(0) === '#') return '<span class="hl-com">' + escapeHtml(m) + '</span>';
+                if (m.charAt(0) === '"' || m.charAt(0) === "'") return '<span class="hl-str">' + escapeHtml(m) + '</span>';
+                if (/^\d/.test(m)) return '<span class="hl-numeral">' + m + '</span>';
+                if (/^[A-Za-z_][A-Za-z0-9_]*\($/.test(m)) return '<span class="hl-fn">' + escapeHtml(m) + '</span>';
+                return '<span class="hl-kw">' + escapeHtml(m) + '</span>';
+            });
+        }
+
+        function renderCodeLines(code, lang) {
+            const rows = highlightCode(code, lang).split('\n').map((line, index) =>
+                '<div class="hl-line"><span class="hl-num">' + (index + 1) + '</span><code class="hl-code">' + (line || '​') + '</code></div>'
+            );
+            return rows.join('');
+        }
+
+        function renderNotePreview() {
+            const preview = $('tpNotePreview');
+            if (!preview) return;
+            noteSnippets.length = 0;
+            preview.innerHTML = mdToHtml(getNoteMarkdown(noteDate));
+            preview.querySelectorAll('.snippet-capsule').forEach((cap) => {
+                cap.addEventListener('click', () => openSnippetModal(Number(cap.dataset.snippetIndex)));
+            });
+        }
+
+        function openSnippetModal(index) {
+            const snippet = noteSnippets[index];
+            if (!snippet) return;
+            $('codeModalTitle').textContent = snippet.title;
+            $('codeModalLang').textContent = (snippet.lang === 'plain' ? 'CODE' : snippet.lang).toUpperCase();
+            $('codeModalBody').innerHTML = renderCodeLines(snippet.code, snippet.lang);
+            $('codeModal').hidden = false;
+            window._activeSnippet = snippet.code;
+        }
+
+        function closeCodeModal() { $('codeModal').hidden = true; }
+
+        function renderNote() {
+            const input = $('tpNoteInput');
+            if (!input) return;
+            input.value = getNoteMarkdown(noteDate);
+            renderNotePreview();
+            $('tpNoteDayLabel').textContent = noteDate === todayStr() ? 'Today' : noteDate;
+            const status = $('tpNoteStatus');
+            if (status) status.textContent = noteDate === todayStr() ? '' : 'archive';
+        }
+
+        function openSlashMenu() {
+            const menu = $('tpSlashMenu');
+            if (menu) menu.hidden = false;
+        }
+
+        function closeSlashMenu() {
+            const menu = $('tpSlashMenu');
+            if (menu) menu.hidden = true;
+        }
+
+        function applySlashCommand(cmd) {
+            const input = $('tpNoteInput');
+            if (!input) return;
+            const pos = input.selectionStart;
+            const before = input.value.slice(0, pos);
+            const after = input.value.slice(pos);
+            const lastSlash = before.lastIndexOf('/');
+            const newBefore = before.slice(0, lastSlash);
+            let insert = '';
+            let caret = 0;
+            if (cmd === '#') { insert = '# '; caret = insert.length; }
+            else if (cmd === '##') { insert = '## '; caret = insert.length; }
+            else if (cmd === '-') { insert = '- '; caret = insert.length; }
+            else if (cmd === '>') { insert = '> '; caret = insert.length; }
+            else if (cmd === '**') { insert = '****'; caret = 2; }
+            else if (cmd === 'code') { insert = '```\n\n```'; caret = 3; }
+            input.value = newBefore + insert + after;
+            const caretPos = newBefore.length + caret;
+            input.setSelectionRange(caretPos, caretPos);
+            closeSlashMenu();
+            input.focus();
+            scheduleNoteSave();
+        }
+
+        let noteSaveTimer = null;
+        function scheduleNoteSave() {
+            const input = $('tpNoteInput');
+            const status = $('tpNoteStatus');
+            if (!input) return;
+            if (status) status.textContent = '…';
+            if (noteSaveTimer) clearTimeout(noteSaveTimer);
+            noteSaveTimer = setTimeout(() => {
+                const md = input.value;
+                storeNoteMarkdown(noteDate, md);
+                if (isDesktop) {
+                    invoke('save_daily_note', { date: noteDate, notes: md }).catch(() => {});
+                }
+                renderNotePreview();
+                if (status) status.textContent = 'saved';
+            }, 400);
+        }
+
+        function initDailyNotes() {
+            const input = $('tpNoteInput');
+            if (!input) return;
+            noteDate = todayStr();
+            renderNote();
+            input.addEventListener('input', () => {
+                const pos = input.selectionStart;
+                const val = input.value;
+                const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+                if (val.slice(lineStart, pos) === '/') openSlashMenu();
+                else closeSlashMenu();
+                scheduleNoteSave();
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSlashMenu();
+            });
+            document.querySelectorAll('#tpSlashMenu .slash-item').forEach((item) => {
+                item.addEventListener('click', () => applySlashCommand(item.dataset.cmd));
+            });
+            $('tpNotePrev').addEventListener('click', () => { shiftNoteDate(-1); renderNote(); });
+            $('tpNoteNext').addEventListener('click', () => { shiftNoteDate(1); renderNote(); });
+            const codeModal = $('codeModal');
+            if (codeModal) {
+                $('codeModalClose').addEventListener('click', closeCodeModal);
+                codeModal.addEventListener('click', (e) => { if (e.target === codeModal) closeCodeModal(); });
+                $('codeModalCopy').addEventListener('click', () => {
+                    if (window._activeSnippet) {
+                        navigator.clipboard.writeText(window._activeSnippet).then(() => showToast('Code copied to clipboard')).catch(() => {});
+                    }
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !codeModal.hidden) closeCodeModal();
+                });
+            }
+        }
+
 
         function totalClicks(stats) {
             const source = stats || getStats();
@@ -5410,15 +5965,18 @@
             gcDaily: 4, gcClick: 0.3, gcTodo: 0.5,
             climberMinute: 0.05, climberDeepMinutes: 45, climberDeepBonus: 15,
             sprintBurstThreshold: 10, sprintBurstXp: 1.5, sprintTodo: 1,
-            ttMinute: 0.1
+            ttMinute: 0.1,
+            onedayracesDaily: 2, onedayracesTodo: 0.5,
+            hillsMinute: 0.1
         };
-        const ABILITY_CURVES = { gc: { a: 40, b: 0.05 }, climber: { a: 40, b: 0.05 }, sprint: { a: 40, b: 0.05 }, tt: { a: 40, b: 0.05 } };
+        const ABILITY_CURVES = { gc: { a: 40, b: 0.05 }, climber: { a: 40, b: 0.05 }, sprint: { a: 40, b: 0.05 }, tt: { a: 40, b: 0.05 }, onedayraces: { a: 40, b: 0.05 }, hills: { a: 40, b: 0.05 } };
+        const ABILITY_KEYS = ['gc', 'climber', 'sprint', 'tt', 'onedayraces', 'hills'];
         const ABILITY_DECAY_GRACE_DAYS = 2;
         const ABILITY_DECAY_RATE = 0.92;
         const ABILITIES_KEY = 'alpehuez_abilities';
 
         function emptyAbilities() {
-            return { xp: { gc: 0, climber: 0, sprint: 0, tt: 0 }, lastActivity: todayKey(), lastDecay: todayKey() };
+            return { xp: { gc: 0, climber: 0, sprint: 0, tt: 0, onedayraces: 0, hills: 0 }, lastActivity: todayKey(), lastDecay: todayKey() };
         }
         function getAbilities() {
             try {
@@ -5459,7 +6017,7 @@
             while (cursor <= todayDate) {
                 const daysSinceActivity = Math.round((cursor - lastActivityDate) / 86400000);
                 if (daysSinceActivity > ABILITY_DECAY_GRACE_DAYS) {
-                    for (const k of ['gc', 'climber', 'sprint', 'tt']) {
+                    for (const k of ABILITY_KEYS) {
                         abilities.xp[k] = Math.max(0, (abilities.xp[k] || 0) * ABILITY_DECAY_RATE);
                     }
                     changed = true;
@@ -5474,14 +6032,11 @@
         function updateAbilityBars() {
             const panel = $('riderPanel');
             if (!panel || panel.hidden) return;
-            ['gc', 'climber', 'sprint', 'tt'].forEach((key) => {
+            ABILITY_KEYS.forEach((key) => {
                 const score = scoreFor(key);
-                const fill = panel.querySelector(`.ability-ring .ring-fill[data-key="${key}"]`);
-                const val = panel.querySelector(`.ability-ring[data-key="${key}"] .ring-val`);
-                if (fill) {
-                    const r = 30, c = 2 * Math.PI * r;
-                    fill.style.strokeDashoffset = String(c * (1 - score / 100));
-                }
+                const fill = panel.querySelector(`.ability-row[data-key="${key}"] .ability-bar`);
+                const val = panel.querySelector(`.ability-row[data-key="${key}"] .ability-row-head strong`);
+                if (fill) fill.style.width = score + '%';
                 if (val) val.textContent = String(score);
             });
         }
@@ -5500,7 +6055,10 @@
                 if (focusSessionStart) {
                     const minutes = (now - focusSessionStart) / 60000;
                     focusSessionStart = null;
-                    if (minutes >= 1) addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
+                    if (minutes >= 1) {
+                        addAbilityXp('climber', minutes * ABILITY_XP.climberMinute);
+                        addAbilityXp('hills', minutes * ABILITY_XP.hillsMinute);
+                    }
                     if (minutes >= ABILITY_XP.climberDeepMinutes) addAbilityXp('climber', ABILITY_XP.climberDeepBonus);
                 }
                 settleBrowserDwell();
@@ -5541,7 +6099,10 @@
             log.forEach((entry) => {
                 if (entry && entry.t > cutoff && /^Completed todo:/i.test(String(entry.a))) count++;
             });
-            if (count) addAbilityXp('sprint', count * ABILITY_XP.sprintTodo);
+            if (count) {
+                addAbilityXp('sprint', count * ABILITY_XP.sprintTodo);
+                addAbilityXp('onedayraces', count * ABILITY_XP.onedayracesTodo);
+            }
         }
 
         function generateLetterAvatar(imgElement, title) {
@@ -6142,7 +6703,7 @@
 
         function renderContextAbout() {
             const version = $('aboutVersionMeta');
-            const label = version && version.textContent ? 'v' + version.textContent : 'v0.4.0';
+            const label = version && version.textContent ? 'v' + version.textContent : 'v0.5.0';
             $('contextAboutVersion').textContent = label;
         }
 
@@ -6321,6 +6882,7 @@
             if (frame && frame.contentWindow) {
                 frame.contentWindow.postMessage({ type: 'alpehuez-dev-tab', tab: devActiveTab }, '*');
             }
+            pushThemeToDevFrame();
         }
 
         function activateDevTab(tab) {
@@ -6394,18 +6956,15 @@
             }
         }
 
-        const RING_TONES = { gc: '#F59E0B', climber: '#DC2626', sprint: '#16A34A', tt: '#2563EB' };
-        const RING_LABELS = { gc: 'GC', climber: 'Climber', sprint: 'Sprint', tt: 'TT' };
-        function ringSvg(key, score) {
-            const r = 30, c = 2 * Math.PI * r;
-            const color = RING_TONES[key] || '#0087EB';
-            return `<div class="ability-ring" data-key="${key}">
-                <svg viewBox="0 0 72 72" aria-hidden="true">
-                    <circle class="ring-track" cx="36" cy="36" r="${r}"/>
-                    <circle class="ring-fill ring-glow" data-key="${key}" cx="36" cy="36" r="${r}" stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - score / 100)}"/>
-                </svg>
-                <span class="ring-label">${RING_LABELS[key]}</span>
-                <span class="ring-val">${score}</span>
+        const ABILITY_LABELS = { gc: 'GC', climber: 'Climber', sprint: 'Sprint', tt: 'TT', onedayraces: 'One Day', hills: 'Hills' };
+        const ABILITY_SUBS = { gc: 'General Classification', climber: 'Mountain / KOM', sprint: 'Flat-out finale', tt: 'Against the clock', onedayraces: 'Classics / Monuments', hills: 'Rolling terrain' };
+        function abilityBar(key, score) {
+            return `<div class="ability-row" data-key="${key}">
+                <div class="ability-row-head">
+                    <span title="${ABILITY_SUBS[key]}">${ABILITY_LABELS[key]}</span>
+                    <strong>${score}</strong>
+                </div>
+                <div class="ability-track"><div class="ability-bar ${key}" data-key="${key}" style="width:${score}%"></div></div>
             </div>`;
         }
         function renderRiderPanel() {
@@ -6415,12 +6974,6 @@
             const leader = workspaces.find((w) => w.role === 'leader') || workspaces.find((w) => w.id === currentWorkspaceId) || workspaces[0];
             const rider = leader || { name: 'AlpeHuez', riderType: 'GC Contender', riderName: 'AlpeHuez', riderNumber: 1, role: 'leader', specialties: {} };
             const roles = { leader: 'Team Leader', domestique: 'Domestique' };
-            const abilityRows = [
-                { key: 'gc', label: 'GC', sub: 'General Classification', tone: 'gc' },
-                { key: 'climber', label: 'Climber', sub: 'Mountain / KOM', tone: 'climber' },
-                { key: 'sprint', label: 'Sprint', sub: 'Flat-out finale', tone: 'sprint' },
-                { key: 'tt', label: 'Time Trial', sub: 'Against the clock', tone: 'tt' }
-            ];
             const value = (k) => scoreFor(k);
             panel.innerHTML = `
                 <div class="rider-card">
@@ -6441,15 +6994,15 @@
                 <div class="ability-card">
                     <h2>Rider Abilities</h2>
                     <p>Live power profile computed from your AlpeHuez usage.</p>
-                    <div class="ability-rings">
-                        ${abilityRows.map((row) => ringSvg(row.key, value(row.key))).join('')}
+                    <div class="ability-bars">
+                        ${ABILITY_KEYS.map((key) => abilityBar(key, value(key))).join('')}
                     </div>
                 </div>
             `;
         }
 
         async function loadAbout() {
-            const fallbackVersion = '0.4.0';
+            const fallbackVersion = '0.5.0';
             renderRiderPanel();
             if (!isDesktop) return;
             try {
@@ -6468,12 +7021,23 @@
             $('themeIcon').innerHTML = theme === 'space' ? ICONS.sun : ICONS.moon;
         }
 
+        function pushThemeToDevFrame() {
+            const frame = $('devFrame');
+            if (frame && frame.contentWindow) {
+                frame.contentWindow.postMessage({
+                    type: 'alpehuez-theme',
+                    theme: document.documentElement.dataset.theme === 'space' ? 'dark' : 'light'
+                }, '*');
+            }
+        }
+
         function setTheme(theme) {
             const next = theme === 'space' ? 'space' : 'gradient';
             document.documentElement.dataset.theme = next;
             localStorage.setItem(THEME_KEY, next);
             updateThemeUI(next);
             trackAction('theme', next === 'space' ? 'Switched to dark mode' : 'Switched to light mode');
+            pushThemeToDevFrame();
         }
 
         function toggleTheme() {
@@ -6671,11 +7235,21 @@
             const overlay = $('pageLoadingOverlay');
             if (!overlay || !isDesktop) return;
             let timer = null;
+            let failTimer = null;
             const loadingTabs = new Set();
             function show() {
                 if (timer) clearTimeout(timer);
                 overlay.hidden = false;
                 overlay.classList.remove('hide');
+                if (failTimer) clearTimeout(failTimer);
+                failTimer = setTimeout(() => {
+                    failTimer = null;
+                    loadingTabs.delete(activeBrowserLabel);
+                    hide();
+                    if (activeBrowserLabel) {
+                        invoke('activate_internal_page', { label: activeBrowserLabel }).catch(() => {});
+                    }
+                }, 20000);
             }
             function hide() {
                 overlay.classList.add('hide');
@@ -6683,6 +7257,7 @@
             }
             // 加载遮罩只跟随当前激活标签：后台标签的加载、peek 加载都不会误触发，
             // 新标签打开时 activateBrowserTab 通过 syncLoadingOverlay 补一次同步。
+            // Rust 侧加载期间会隐藏子 webview，Finished 后这里重新激活显示。
             listen('browser-load-started', (event) => {
                 const label = event.payload && event.payload.label;
                 if (label) loadingTabs.add(label);
@@ -6691,7 +7266,11 @@
             listen('browser-load-finished', (event) => {
                 const label = event.payload && event.payload.label;
                 if (label) loadingTabs.delete(label);
-                if (label === activeBrowserLabel) hide();
+                if (failTimer) { clearTimeout(failTimer); failTimer = null; }
+                if (label === activeBrowserLabel) {
+                    hide();
+                    invoke('activate_internal_page', { label }).catch(() => {});
+                }
             });
             window.syncLoadingOverlay = () => {
                 if (loadingTabs.has(activeBrowserLabel)) show();
@@ -6805,7 +7384,15 @@
                 const cmds = COMMANDS.filter((c) => !c.quick && (!query || c.label.toLowerCase().includes(query.toLowerCase())));
                 cmds.forEach((c) => items.push({ kind: 'command', title: c.label, sub: c.desc, run: () => { runCommand(c); closeCommandPalette(); } }));
             } else {
-                COMMANDS.filter((c) => c.quick).forEach((c) => items.push({ kind: 'command', title: c.label, sub: c.desc, run: () => { runCommand(c); closeCommandPalette(); } }));
+                const ql = query.toLowerCase();
+                const cards = ql
+                    ? allItems
+                          .filter((it) => (it.title || '').toLowerCase().includes(ql) || (it.url || '').toLowerCase().includes(ql) || (it.tags || []).join(' ').toLowerCase().includes(ql))
+                          .slice(0, 12)
+                          .map((it) => ({ kind: 'link', title: it.title || it.url, sub: it.url, run: () => { openLink(it); closeCommandPalette(); } }))
+                    : [];
+                items.unshift(...cards);
+                COMMANDS.filter((c) => c.quick && (!ql || c.label.toLowerCase().includes(ql))).forEach((c) => items.push({ kind: 'command', title: c.label, sub: c.desc, run: () => { runCommand(c); closeCommandPalette(); } }));
             }
             cpResults.innerHTML = items.length ? items.map((it, i) => `
                 <div class="cp-item ${i === 0 ? 'active' : ''}" data-i="${i}">
@@ -7512,6 +8099,7 @@
                 $('vmDiskVal').textContent = diskPct + '%';
                 setMiniRing($('vmCpuRing'), cpuPct);
                 setMiniRing($('vmMemRing'), memPct);
+                setMiniRing($('vmDiskRing'), diskPct);
                 setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct);
                 setRing($('vmRingMem'), $('vmRingMemVal'), memPct);
                 setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct);
@@ -7583,6 +8171,8 @@
             await initWorkspaceTabs();
             initVelometer();
             initPageLoadingOverlay();
+            initActivityTimelineModal();
+            initDailyNotes();
             loadPortalLinks();
         }
 
@@ -7825,7 +8415,6 @@
             pod.hidden = false;
             requestAnimationFrame(() => pod.classList.add('open'));
             renderUsageHeatmap();
-            renderActivityTimeline();
             const icon = $('floatBallIcon');
             if (icon) icon.innerHTML = ICONS.close;
             trackAction('pod', 'Opened Telemetry Pod');
@@ -8047,7 +8636,29 @@
         </div>
         <div class="tp-scroll">
             <div class="tp-section"><h3>Focus Heatmap</h3><div id="tpHeatmap"></div></div>
-            <div class="tp-section"><h3>Activity Timeline</h3><div id="tpTimeline"></div></div>
+            <div class="tp-section tp-note-section">
+                <div class="tp-note-head">
+                    <h3>Daily Note</h3>
+                    <div class="tp-note-nav">
+                        <button type="button" id="tpNotePrev" class="tp-nav-btn" aria-label="Previous day">&lsaquo;</button>
+                        <span id="tpNoteDayLabel" class="tp-note-day">Today</span>
+                        <button type="button" id="tpNoteNext" class="tp-nav-btn" aria-label="Next day">&rsaquo;</button>
+                    </div>
+                </div>
+                <div id="tpNoteWrap" class="tp-note">
+                    <textarea id="tpNoteInput" class="tp-note-input" placeholder="记录今天的骑行与想法… 行首输入 / 打开命令" spellcheck="false"></textarea>
+                    <div class="tp-note-preview" id="tpNotePreview"></div>
+                    <div class="tp-note-status" id="tpNoteStatus">saved</div>
+                </div>
+                <div id="tpSlashMenu" class="slash-menu" hidden>
+                    <button type="button" class="slash-item" data-cmd="#"><span class="slash-icon">#</span><span>Heading 1</span><kbd>/#</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="##"><span class="slash-icon">##</span><span>Heading 2</span><kbd>/##</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="code"><span class="slash-icon">&lt;/&gt;</span><span>Code Block</span><kbd>/code</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="-"><span class="slash-icon">&bull;</span><span>List Item</span><kbd>/-</kbd></button>
+                    <button type="button" class="slash-item" data-cmd=">"><span class="slash-icon">&rsaquo;</span><span>Quote</span><kbd>/&gt;</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="**"><span class="slash-icon">B</span><span>Bold</span><kbd>/**</kbd></button>
+                </div>
+            </div>
         </div>
         <div class="tp-dock" role="toolbar" aria-label="Quick actions">
             <button type="button" id="tpZen" class="tp-dock-btn" aria-label="Zen Mode" title="Zen Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
@@ -8056,6 +8667,34 @@
             <button type="button" class="tp-dock-btn" data-fbmode="fullscreen" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/></svg></button>
             <button type="button" class="tp-dock-btn" data-fbmode="window" aria-label="Window mode" title="Window Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
             <button type="button" class="tp-dock-btn" data-fbmode="vertical" aria-label="Vertical dashboard" title="Vertical Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
+        </div>
+    </div>
+    <div id="activityModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal activity-modal" role="dialog" aria-modal="true" aria-label="Activity Timeline">
+            <div class="app-modal-head">
+                <h3>Activity Timeline</h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="activityClearBtn" class="app-modal-btn" aria-label="Clear timeline">Clear</button>
+                    <button type="button" id="activityModalClose" class="icon-btn" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body">
+                <div id="activityTimelineContainer"></div>
+            </div>
+        </div>
+    </div>
+    <div id="codeModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal code-modal" role="dialog" aria-modal="true">
+            <div class="app-modal-head">
+                <h3 class="code-modal-title"><span id="codeModalLang" class="code-modal-lang"></span><span id="codeModalTitle" class="code-modal-head-title"></span></h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="codeModalCopy" class="app-modal-btn">Copy</button>
+                    <button type="button" id="codeModalClose" class="icon-btn" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body code-modal-body">
+                <pre class="code-highlight" id="codeModalBody"></pre>
+            </div>
         </div>
     </div>
     <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">

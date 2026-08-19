@@ -723,3 +723,22 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
   white-space: pre;
   resize: vertical;
 }
+
+/* ---------- 浅色模式补丁 ---------- */
+[data-theme="light"] .log {
+  color: #3B4654;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+[data-theme="light"] .deploy-block {
+  background: rgba(255, 255, 255, 0.65);
+}
+[data-theme="light"] .modal-backdrop {
+  background: rgba(237, 241, 245, 0.6);
+}
+[data-theme="light"] .confirm-backdrop {
+  background: rgba(237, 241, 245, 0.55);
+}
+[data-theme="light"] .progress {
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.1);
+}

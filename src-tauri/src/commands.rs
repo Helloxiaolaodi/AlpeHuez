@@ -1029,13 +1029,15 @@ fn open_internal_page_impl(
         .data_directory(session_dir)
         .background_color(tauri::window::Color(11, 17, 32, 255))
         .initialization_script(child_script.as_str())
-        .on_page_load(move |_webview, payload| {
+        .on_page_load(move |webview, payload| {
             if payload.url().as_str() == "about:blank" {
                 return;
             }
             let current_url = payload.url().to_string();
             let current_label = page_label.clone();
             if payload.event() == PageLoadEvent::Started {
+                // 加载期间隐藏 webview，由前端自行车 loading overlay 代替黑屏。
+                let _ = webview.hide();
                 let _ = page_app.emit(
                     "browser-load-started",
                     InternalPageInfo {
@@ -1085,9 +1087,12 @@ fn open_internal_page_impl(
             tauri::webview::NewWindowResponse::Deny
         });
 
-    main_window
+    // 创建后立即隐藏，由前端自行车 loading overlay 代替黑屏；加载完成后经
+    // activate_internal_page 才显示。WebviewBuilder 无 visible()，只能建好再 hide。
+    let child = main_window
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;
+    let _ = child.hide();
 
     Ok(InternalPageInfo {
         label,
@@ -1405,7 +1410,7 @@ fn hf_repo(conn: &rusqlite::Connection) -> String {
         .ok()
         .and_then(|v| v.as_str().map(|s| s.to_string()))
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| "Helloxiaolaodi/alpehuez-backup".to_string())
+        .unwrap_or_else(|| "Helloxiaolaodi/AlpeHuez".to_string())
 }
 
 fn hf_remote_url(repo: &str, token: &str) -> String {
@@ -1433,6 +1438,41 @@ fn hf_backup_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?.join("hf-backup");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     Ok(dir)
+}
+
+fn copy_dir_all(src: &std::path::Path, dst: &std::path::Path) -> std::io::Result<()> {
+    fs::create_dir_all(dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let from = entry.path();
+        let to = dst.join(entry.file_name());
+        if from.is_dir() {
+            copy_dir_all(&from, &to)?;
+        } else {
+            fs::copy(&from, &to)?;
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn save_daily_note(app: tauri::AppHandle, date: String, notes: String) -> Result<(), String> {
+    if date.is_empty()
+        || !date
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-')
+    {
+        return Err("无效的日期".into());
+    }
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("daily-notes");
+    fs::create_dir_all(&dir).map_err(|e| format!("创建每日笔记目录失败: {e}"))?;
+    fs::write(dir.join(format!("{date}.json")), notes)
+        .map_err(|e| format!("保存每日笔记失败: {e}"))?;
+    Ok(())
 }
 
 /// 执行一次 HF 备份（手动按钮与退出时自动备份共用）。
@@ -1478,11 +1518,22 @@ pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
     if links.exists() {
         fs::copy(&links, dir.join("links.json")).map_err(|e| format!("复制 links.json 失败: {e}"))?;
     }
+    // 每日笔记随备份一并上传（覆盖式同步整个 daily-notes 目录）
+    let notes_src = data_dir.join("daily-notes");
+    if notes_src.exists() {
+        let notes_dst = dir.join("daily-notes");
+        if notes_dst.exists() {
+            let _ = fs::remove_dir_all(&notes_dst);
+        }
+        if let Err(e) = copy_dir_all(&notes_src, &notes_dst) {
+            return Err(format!("复制 daily-notes 失败: {e}"));
+        }
+    }
 
     let manifest = serde_json::json!({
         "timestamp": ts,
         "app": "AlpeHuez",
-        "files": ["alpehuez.db", "config.json", "links.json", "backup-manifest.json"]
+        "files": ["alpehuez.db", "config.json", "links.json", "daily-notes", "backup-manifest.json"]
     });
     fs::write(
         dir.join("backup-manifest.json"),
