@@ -51,6 +51,15 @@ fn db_conn(app: &tauri::AppHandle) -> Result<rusqlite::Connection, String> {
     Ok(conn)
 }
 
+/// 主应用语言设置（zh/en），供托盘菜单等系统级 UI 使用，默认中文。
+pub fn app_lang(app: &tauri::AppHandle) -> String {
+    db_conn(app)
+        .ok()
+        .and_then(|conn| db::get_config(&conn, "app_lang").ok())
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .unwrap_or_else(|| "zh".into())
+}
+
 const ADBLOCK_JS: &str = r#"(function () {
   var SELECTORS = [
     '#ad', '.ad-banner', '.ad-container', '.ad-content', '.ad-footer', '.ad-header',
@@ -888,12 +897,21 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
     }
     #[cfg(not(target_os = "android"))]
     {
+        // 面板语言跟随主应用：从配置库读 app_lang，经 ?lang= 传给面板窗口
+        // （独立面板窗口与主窗口不同 origin，无法直读主窗口 localStorage）。
+        let panel_lang = db_conn(&app)
+            .ok()
+            .and_then(|conn| db::get_config(&conn, "app_lang").ok())
+            .and_then(|v| v.as_str().map(|s| s.to_string()))
+            .filter(|s| s == "zh" || s == "en")
+            .unwrap_or_else(|| "en".into());
+
         if let Some(win) = app.get_webview_window("panel") {
         let nonce = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|e| e.to_string())?
             .as_millis();
-        let _ = win.eval(&format!("location.search = 'embedded=1&auth={nonce}'"));
+        let _ = win.eval(&format!("location.search = 'embedded=1&auth={nonce}&lang={panel_lang}'"));
         win.show().map_err(|e| e.to_string())?;
         win.set_focus().map_err(|e| e.to_string())?;
         return Ok(());
@@ -908,7 +926,11 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
 
     let shown = Arc::new(AtomicBool::new(false));
     let route_app = app.clone();
-    let result = WebviewWindowBuilder::new(&app, "panel", WebviewUrl::App("index.html".into()))
+    let result = WebviewWindowBuilder::new(
+        &app,
+        "panel",
+        WebviewUrl::App(format!("index.html?lang={panel_lang}").into()),
+    )
         .title("AlpeHuez 开发者面板")
         .inner_size(1280.0, 800.0)
         .min_inner_size(960.0, 640.0)
@@ -1582,15 +1604,38 @@ pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
 
 #[cfg(not(target_os = "android"))]
 /// 退出时自动备份：读取 hf_auto_backup 配置，为 true 则执行备份。
-pub fn auto_backup_on_close(app: &tauri::AppHandle) {
+/// 退出时写入"待备份"标记（仅当开启自动备份）。退出立即结束，
+/// 实际备份推迟到下次启动的后台线程执行，避免网络 push 阻塞退出。
+pub fn mark_backup_for_launch(app: &tauri::AppHandle) {
     let auto = db_conn(app)
         .ok()
         .and_then(|conn| db::get_config(&conn, "hf_auto_backup").ok())
         .and_then(|v| v.as_bool())
         .unwrap_or(false);
-    if auto {
-        let _ = run_hf_backup(app);
+    if !auto {
+        return;
     }
+    if let Ok(dir) = app.path().app_data_dir() {
+        let bdir = dir.join("hf-backup");
+        let _ = std::fs::create_dir_all(&bdir);
+        let _ = std::fs::write(bdir.join("pending_backup"), b"1");
+    }
+}
+
+/// 启动时若有待备份标记，在后台线程执行备份并清除标记（不阻塞启动）。
+/// 备份失败时保留标记，下次启动继续重试。
+pub fn run_pending_backup_at_launch(app: &tauri::AppHandle) {
+    let handle = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(600));
+        if let Ok(dir) = handle.path().app_data_dir() {
+            let marker = dir.join("hf-backup").join("pending_backup");
+            if marker.exists() {
+                let _ = run_hf_backup(&handle);
+                let _ = std::fs::remove_file(&marker);
+            }
+        }
+    });
 }
 
 #[tauri::command]
@@ -1598,19 +1643,26 @@ pub async fn hf_backup(app: tauri::AppHandle) -> Result<String, String> {
     run_hf_backup(&app)
 }
 
+#[derive(serde::Serialize)]
+pub struct HfTestResult {
+    ok: bool,
+    repo: String,
+    detail: Option<String>,
+}
+
 #[tauri::command]
-pub async fn hf_test_connection(app: tauri::AppHandle) -> Result<String, String> {
+pub async fn hf_test_connection(app: tauri::AppHandle) -> Result<HfTestResult, String> {
     let token = hf_token()?;
     let conn = db_conn(&app)?;
     let repo = hf_repo(&conn);
     let url = hf_remote_url(&repo, &token);
     let dir = hf_backup_dir(&app)?;
     let (c, o) = run_git_proxy(&["ls-remote", &url, "HEAD"], &dir);
-    if c == 0 {
-        Ok(format!("连接成功，仓库 {repo} 可访问"))
-    } else {
-        Err(format!("连接失败: {o}"))
-    }
+    Ok(HfTestResult {
+        ok: c == 0,
+        repo,
+        detail: (c != 0).then_some(o),
+    })
 }
 
 #[cfg(test)]

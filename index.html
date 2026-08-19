@@ -24,6 +24,7 @@
             --brand-mint-soft: #C5FDCB;
             --brand-cyan: #9AFDFF;
             --bg-body: #F5FAFF;
+            --bg-body-solid: #F5FAFF;
             --bg-card: #FFFFFF;
             --text-main: #111827;
             --text-muted: #6B7280;
@@ -50,28 +51,32 @@
         }
 
         html[data-theme="space"] {
-            --brand-primary: #A27BFF;
-            --brand-light: rgba(162, 123, 255, 0.15);
+            color-scheme: dark;
+            --brand-primary: #7985FF;
+            --brand-light: rgba(121, 133, 255, 0.15);
             --brand-warm: rgba(255, 183, 77, 0.16);
-            --bg-body: #14121A;
-            --bg-card: #221E2C;
-            --text-main: #FFFFFF;
-            --text-muted: #9B94AD;
-            --line: rgba(255, 255, 255, 0.04);
-            --line-strong: rgba(255, 255, 255, 0.08);
-            --panel: rgba(20, 18, 26, 0.5);
-            --panel-solid: #221E2C;
+            --bg-body: linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+            --bg-body-solid: #3E3A65;
+            --bg-card: #362F54;
+            --text-main: #fcfcfc;
+            --text-muted: #e0e0e0;
+            --line: #3F375F;
+            --line-strong: #504373;
+            --panel: rgba(54, 47, 84, 0.55);
+            --panel-solid: #362F54;
             --shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 12px 24px rgba(0, 0, 0, 0.4);
             --shadow-float: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 18px 48px -18px rgba(0, 0, 0, 0.5);
             --success: #6FCF97;
             --danger: #F87171;
             --warning: #FFB74D;
-            --bg-sidebar: #16131D;
-            --glass-bg: rgba(20, 18, 26, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.04);
-            --bg-elevated: #2D283A;
-            --brand-secondary: #8B5CF6;
-            --accent-gradient: linear-gradient(135deg, #A27BFF, #8B5CF6);
+            --bg-sidebar: linear-gradient(180deg, #343155 0%, #3B2E58 100%);
+            --glass-bg: rgba(54, 47, 84, 0.55);
+            --glass-border: #3F375F;
+            --bg-elevated: #3F375F;
+            --brand-secondary: #9D85FA;
+            --accent-gradient: linear-gradient(135deg, #9D85FA 0%, #C77AFF 100%);
+            --brand-gradient: linear-gradient(180deg, #D489FF 0%, #7985FF 50%, #6AD8FD 100%);
+            --brand-gradient-x: linear-gradient(90deg, #D489FF 0%, #7985FF 50%, #6AD8FD 100%);
         }
 
         * {
@@ -79,10 +84,11 @@
         }
 
         html,
-        body {
+        html, body {
             width: 100%;
             height: 100%;
             margin: 0;
+            overflow: hidden;
         }
 
         body {
@@ -96,15 +102,16 @@
 
         html[data-theme="space"] .workspace-tab.active,
         html[data-theme="space"] .workspace-tab:hover {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(54, 47, 84, 0.7);
             backdrop-filter: blur(12px);
         }
 
         html[data-theme="space"] body {
-            background-color: #14121A;
+            background-color: #3E3A65;
             background-image:
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>');
-            background-blend-mode: overlay;
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'),
+                linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+            background-blend-mode: overlay, normal;
             background-attachment: fixed;
         }
         html[data-theme="space"] body::before {
@@ -113,11 +120,11 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            background: radial-gradient(circle at 50% -20%, rgba(162, 123, 255, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% -20%, rgba(121, 133, 255, 0.15) 0%, transparent 60%);
             filter: blur(var(--space-bg-blur, 0px));
         }
         html[data-theme="space"].noise-off body {
-            background-image: none;
+            background-image: linear-gradient(180deg, #3E3A65 0%, #473765 100%);
         }
 
         /* 浅色模式：液态玻璃与晨曦 */
@@ -171,13 +178,47 @@
         }
 
         html[data-theme="space"] #loadingScreen {
-            background: #14121A;
+            background: linear-gradient(180deg, #3E3A65 0%, #473765 100%);
         }
 
         #loadingScreen.fade-out {
             opacity: 0;
             visibility: hidden;
         }
+
+        /* 启动渐显（晨雾褪去）：加载屏淡出时门户内容从雾中浮现 */
+        #view-home .home-scroll {
+            opacity: 0;
+            transform: translateY(12px);
+            filter: blur(8px);
+            transition:
+                opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.6s ease-out;
+        }
+        body.launched #view-home .home-scroll {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+        @keyframes card-rise {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        body.launched #view-home .card-grid .nav-card {
+            animation: card-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+        /* 卡片错落：依次 45ms 递进，第 10 张起封顶 */
+        body.launched #view-home .card-grid .nav-card:nth-child(1) { animation-delay: 0.05s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(2) { animation-delay: 0.10s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(3) { animation-delay: 0.15s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(4) { animation-delay: 0.20s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(5) { animation-delay: 0.25s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(6) { animation-delay: 0.30s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(7) { animation-delay: 0.35s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(8) { animation-delay: 0.40s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(9) { animation-delay: 0.45s; }
+        body.launched #view-home .card-grid .nav-card:nth-child(n+10) { animation-delay: 0.50s; }
 
         .spinner {
             width: 46px;
@@ -189,8 +230,8 @@
         }
 
         html[data-theme="space"] .spinner {
-            border-color: rgba(162, 123, 255,0.18);
-            border-top-color: #A27BFF;
+            border-color: rgba(121, 133, 255, 0.18);
+            border-top-color: #7985FF;
         }
 
         @keyframes spin {
@@ -208,7 +249,7 @@
         }
 
         html[data-theme="space"] .loading-text {
-            color: #A27BFF;
+            color: #7985FF;
         }
 
         .workspace-tabs {
@@ -305,7 +346,7 @@
             background: var(--bg-card);
         }
         html[data-theme="space"] .ws-nav-btn:hover {
-            background: rgba(162, 123, 255, 0.12);
+            background: rgba(121, 133, 255, 0.12);
         }
         .workspace-tab {
             display: inline-flex;
@@ -351,8 +392,8 @@
         }
         .velometer-pill:hover { border-color: var(--line-strong); }
         html[data-theme="space"] .velometer-pill {
-            background: linear-gradient(135deg, rgba(162, 123, 255,0.18), rgba(255, 183, 77,0.12));
-            border-color: rgba(162, 123, 255,0.2);
+            background: linear-gradient(135deg, rgba(121, 133, 255, 0.18), rgba(255, 183, 77, 0.12));
+            border-color: rgba(121, 133, 255, 0.2);
         }
         .vm-cell { display: inline-flex; align-items: center; gap: 4px; }
         .vm-label { color: var(--text-muted); }
@@ -360,7 +401,7 @@
         .velometer-pill .vm-ring { position: relative; display: inline-flex; width: 40px; height: 40px; transform: none; }
         .velometer-pill .vm-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .vm-track { fill: none; stroke: var(--line); stroke-width: 4; }
-        .vm-fill { fill: none; stroke: url(#vmGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 4px rgba(162, 123, 255, 0.6)); }
+        .vm-fill { fill: none; stroke: url(#vmGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 4px rgba(121, 133, 255, 0.6)); }
         html:not([data-theme="space"]) .vm-fill { filter: drop-shadow(0 0 4px rgba(0, 135, 235, 0.4)); }
         .vm-ring-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
         .velometer-drawer {
@@ -383,8 +424,8 @@
         }
         .velometer-drawer[hidden] { display: none; }
         html[data-theme="space"] .velometer-drawer {
-            background: rgba(45, 40, 58, 0.72);
-            border-left: 1px solid rgba(162, 123, 255, 0.2);
+            background: rgba(63, 55, 95, 0.72);
+            border-left: 1px solid rgba(121, 133, 255, 0.2);
         }
         .peek-panel {
             position: absolute;
@@ -426,14 +467,26 @@
         .vm-ring { width: 80px; height: 80px; transform: rotate(-90deg); }
         .vm-ring-bg { fill: none; stroke: var(--line); stroke-width: 7; }
         .vm-ring-fg { fill: none; stroke: url(#vmGrad); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 213.6; stroke-dashoffset: 213.6; transition: stroke-dashoffset 0.4s ease; filter: drop-shadow(0 0 8px rgba(0, 135, 235, 0.4)); }
-        html[data-theme="space"] .vm-ring-fg { stroke: url(#vmGrad); filter: drop-shadow(0 0 8px rgba(162, 123, 255, 0.55)); }
+        html[data-theme="space"] .vm-ring-fg { stroke: url(#vmGrad); filter: drop-shadow(0 0 8px rgba(121, 133, 255, 0.55)); }
         .vm-grad-stop-a { stop-color: #00B8E6; }
         .vm-grad-stop-b { stop-color: #0087EB; }
-        html[data-theme="space"] .vm-grad-stop-a { stop-color: #C084FC; }
-        html[data-theme="space"] .vm-grad-stop-b { stop-color: #A27BFF; }
+        html[data-theme="space"] .vm-grad-stop-a { stop-color: #D489FF; }
+        html[data-theme="space"] .vm-grad-stop-b { stop-color: #7985FF; }
         .vm-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .vm-ring-center strong { font-size: 15px; font-variant-numeric: tabular-nums; }
         .vm-ring-center span { font-size: 10px; color: var(--text-muted); }
+        .vm-net-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+        .vm-net { display: flex; flex-direction: column; gap: 4px; }
+        .vm-net-row { display: flex; align-items: center; gap: 5px; font-size: 12px; font-variant-numeric: tabular-nums; }
+        .vm-net-row.up { color: #34C77B; }
+        .vm-net-row.down { color: #38BDF8; }
+        html[data-theme="space"] .vm-net-row.up { color: #6FCF97; }
+        html[data-theme="space"] .vm-net-row.down { color: #7DD3FC; }
+        .vm-net-arrow { font-size: 11px; line-height: 1; }
+        .vm-net-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; }
+        .vm-net-pill { flex-direction: column; align-items: flex-start; gap: 1px; }
+        .vm-net-pill .vm-net-row { font-size: 10px; gap: 3px; }
+        .vm-net-pill .vm-net-arrow { font-size: 9px; }
         .vm-procs-label { font-size: 12px; color: var(--text-muted); }
         .vm-proc-list { display: flex; flex-direction: column; gap: 6px; }
         .vm-proc { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -453,7 +506,7 @@
             font-size: 11px;
             font-weight: 700;
         }
-        html[data-theme="space"] .vm-proc-icon { background: rgba(162, 123, 255, 0.14); }
+        html[data-theme="space"] .vm-proc-icon { background: rgba(121, 133, 255, 0.14); }
         .vm-proc-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
         .vm-proc-bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
         html[data-theme="space"] .vm-proc-bar { background: rgba(255, 255, 255, 0.07); }
@@ -559,7 +612,7 @@
         }
 
         html[data-theme="space"] .action-rail {
-            background: rgba(10, 15, 30, 0.52);
+            background: rgba(54, 47, 84, 0.55);
         }
 
         .sidebar-toggle-handle {
@@ -676,18 +729,18 @@
         }
 
         html[data-theme="space"] .rail-btn:hover {
-            background: rgba(162, 123, 255,0.18);
-            color: #A27BFF;
+            background: rgba(121, 133, 255, 0.18);
+            color: #7985FF;
         }
 
         html[data-theme="space"] .rail-btn.active {
             color: #FFFFFF;
-            background: rgba(162, 123, 255,0.2);
-            border-color: rgba(162, 123, 255,0.24);
+            background: rgba(121, 133, 255, 0.2);
+            border-color: rgba(121, 133, 255, 0.24);
         }
 
         html[data-theme="space"] .rail-btn.active::before {
-            background: #A27BFF;
+            background: #7985FF;
         }
 
         .tab-sidebar {
@@ -708,7 +761,7 @@
             -webkit-backdrop-filter: blur(24px) saturate(150%);
         }
 
-        /* 液态玻璃：浅色卡片半透明 + 背景模糊（深色卡片为实色 #221E2C，不加 blur） */
+        /* 液态玻璃：浅色卡片半透明 + 背景模糊（深色卡片为实色 #362F54，不加 blur） */
         html:not([data-theme="space"]) .kom-card,
         html:not([data-theme="space"]) .nav-card,
         html:not([data-theme="space"]) .stat-tile,
@@ -735,7 +788,7 @@
         html[data-theme="space"] .ability-card,
         html[data-theme="space"] .myfiles-item,
         html[data-theme="space"] .menu-panel {
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid #504373;
         }
 
         html[data-theme="space"] .nav-card::before,
@@ -747,7 +800,7 @@
             border-radius: inherit;
             opacity: 0;
             transition: opacity 0.25s ease;
-            background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(162, 123, 255,0.12), transparent 60%);
+            background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(121, 133, 255, 0.12), transparent 60%);
             pointer-events: none;
         }
         html[data-theme="space"] .nav-card:hover::before,
@@ -756,13 +809,13 @@
 
         /* 品牌色状态点：保持高饱和警示感，深色下叠加柔光呼吸 */
         html[data-theme="space"] .nav-card-status.green {
-            box-shadow: 0 0 7px rgba(162, 123, 255,0.85);
+            box-shadow: 0 0 7px rgba(121, 133, 255, 0.85);
         }
         html[data-theme="space"] .nav-card-status.red {
             box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
         }
         html[data-theme="space"] .service-dot.online {
-            box-shadow: 0 0 6px rgba(162, 123, 255,0.8);
+            box-shadow: 0 0 6px rgba(121, 133, 255, 0.8);
         }
         html[data-theme="space"] .service-dot.offline {
             box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
@@ -1003,7 +1056,7 @@
         }
 
         html[data-theme="space"] .portal-nav::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.25);
+            background: rgba(80, 67, 115, 0.6);
         }
 
         html[data-theme="space"] .portal-category-link:hover,
@@ -1014,8 +1067,8 @@
 
         html[data-theme="space"] .portal-category-link.active,
         html[data-theme="space"] .tag-chip.active {
-            background: rgba(162, 123, 255, 0.12);
-            border-color: rgba(162, 123, 255, 0.2);
+            background: rgba(121, 133, 255, 0.12);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .context-empty {
@@ -1094,8 +1147,8 @@
 
         html[data-theme="space"] .browser-tab.active {
             color: #FFFFFF;
-            background: rgba(162, 123, 255, 0.12);
-            border-color: rgba(162, 123, 255, 0.2);
+            background: rgba(121, 133, 255, 0.12);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .tab-icon {
@@ -1115,7 +1168,7 @@
         }
 
         html[data-theme="space"] .tab-icon {
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(26, 25, 46, 0.5);
         }
 
         .tab-title {
@@ -1192,7 +1245,7 @@
             pointer-events: none;
         }
         html[data-theme="space"] .page-loading-overlay {
-            background: rgba(20, 18, 26, 0.6);
+            background: rgba(54, 47, 84, 0.6);
             backdrop-filter: blur(20px) saturate(140%);
             -webkit-backdrop-filter: blur(20px) saturate(140%);
             border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -1207,7 +1260,7 @@
             filter: drop-shadow(0 0 12px rgba(0, 135, 235, 0.4));
         }
         html[data-theme="space"] .load-bike {
-            filter: drop-shadow(0 0 14px rgba(162, 123, 255, 0.55));
+            filter: drop-shadow(0 0 14px rgba(121, 133, 255, 0.55));
         }
         .load-bike .wheel,
         .load-bike .crank {
@@ -1230,7 +1283,7 @@
             animation: load-text-breathe 2s ease-in-out infinite;
         }
         html[data-theme="space"] .page-loading-text {
-            color: #9B94AD;
+            color: #e0e0e0;
         }
         @keyframes load-text-breathe {
             0%, 100% { opacity: 0.45; }
@@ -1389,7 +1442,7 @@
 
         html[data-theme="space"] .workspace-body.drop-ready,
         html[data-theme="space"] .browser-tabs.drop-ready {
-            box-shadow: inset 0 0 0 2px rgba(162, 123, 255,0.48);
+            box-shadow: inset 0 0 0 2px rgba(121, 133, 255, 0.48);
         }
 
         .file-folder svg,
@@ -1490,8 +1543,8 @@
 
         html[data-theme="space"] .dev-tool-btn.active {
             color: #FFFFFF;
-            background: rgba(162, 123, 255, 0.12);
-            border-color: rgba(162, 123, 255, 0.2);
+            background: rgba(121, 133, 255, 0.12);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .git-context {
@@ -1632,9 +1685,9 @@
         }
 
         html[data-theme="space"] .version-chip {
-            color: #A27BFF;
-            background: rgba(162, 123, 255,0.16);
-            border-color: rgba(162, 123, 255,0.18);
+            color: #7985FF;
+            background: rgba(121, 133, 255, 0.16);
+            border-color: rgba(121, 133, 255, 0.18);
         }
 
         .workspace {
@@ -1656,13 +1709,18 @@
             justify-content: space-between;
             gap: 16px;
             padding: 0 22px;
-            background: var(--panel);
+            /* 实体背景挡住下方滚动内容（Z 轴穿模修复）：
+               不用半透明 --panel，也不用 backdrop-filter —— WebView2 的 backdrop-filter
+               采样不可靠，半透明会让滚动内容透出标题栏 */
+            background: var(--bg-elevated);
             border-bottom: 1px solid var(--line);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
+        }
+        /* 浅色主题 --bg-elevated 是半透明，topbar 单独用实体色防穿模 */
+        html:not([data-theme="space"]) .topbar {
+            background: var(--bg-body-solid);
         }
 
-        .title-bar { position: fixed; top: 0; left: 0; right: 0; height: 32px; z-index: 13000; display: flex; align-items: center; justify-content: space-between; padding-left: 12px; background: var(--bg-body); border-bottom: 1px solid var(--line); user-select: none; -webkit-user-select: none; }
+        .title-bar { position: fixed; top: 0; left: 0; right: 0; height: 32px; z-index: 13000; display: flex; align-items: center; justify-content: space-between; padding-left: 12px; background-color: var(--bg-body-solid); border-bottom: 1px solid var(--line); user-select: none; -webkit-user-select: none; }
         html.no-titlebar .title-bar { display: none; }
         body.is-fullscreen .title-bar { display: none; }
         .title-bar-brand { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-muted); }
@@ -1757,9 +1815,9 @@
 
         html[data-theme="space"] .icon-btn:hover,
         html[data-theme="space"] .ghost-btn:hover {
-            color: #A27BFF;
-            background: rgba(162, 123, 255,0.14);
-            border-color: rgba(162, 123, 255,0.2);
+            color: #7985FF;
+            background: rgba(121, 133, 255, 0.14);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .workspace-body {
@@ -1896,7 +1954,7 @@
             pointer-events: none;
         }
 
-        html[data-theme="space"] .webview-stage { background: #14121A; }
+        html[data-theme="space"] .webview-stage { background: #3E3A65; }
 
         .page-load-bar {
             position: absolute;
@@ -1989,7 +2047,7 @@
         }
 
         html[data-theme="space"] .eyebrow {
-            color: #A27BFF;
+            color: #7985FF;
         }
 
         .hero-copy h1 {
@@ -2051,6 +2109,7 @@
             border: 1px solid rgba(0, 135, 235,0.18);
             border-radius: 6px;
             padding: 3px 6px;
+            margin-right: 4px;
             font-size: 9px;
             font-weight: 800;
             letter-spacing: 0.1em;
@@ -2108,7 +2167,7 @@
         }
 
         .status-dot.queued { background: #F5C518; box-shadow: 0 0 6px rgba(245, 197, 24, 0.7); }
-        .status-dot.running { background: #A27BFF; box-shadow: 0 0 6px rgba(162, 123, 255,0.7); }
+        .status-dot.running { background: #7985FF; box-shadow: 0 0 6px rgba(121, 133, 255, 0.7); }
         .status-dot.done { background: #22C55E; box-shadow: 0 0 6px rgba(34, 197, 94, 0.7); }
         .status-dot.error { background: #EF4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.7); }
 
@@ -2150,7 +2209,7 @@
         }
 
         html[data-theme="space"] .quote-icon {
-            color: #A27BFF;
+            color: #7985FF;
         }
 
         .quote-text {
@@ -2206,8 +2265,8 @@
         }
 
         html[data-theme="space"] #searchInput:focus {
-            border-color: rgba(162, 123, 255,0.55);
-            box-shadow: 0 0 0 3px rgba(162, 123, 255,0.16);
+            border-color: rgba(121, 133, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.16);
         }
 
         .engine-btn {
@@ -2278,8 +2337,8 @@
             box-shadow: 0 0 0 3px rgba(0, 135, 235,0.12), var(--shadow);
         }
         html[data-theme="space"] .search-trigger:hover {
-            border-color: rgba(162, 123, 255,0.55);
-            box-shadow: 0 0 0 3px rgba(162, 123, 255,0.16);
+            border-color: rgba(121, 133, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.16);
         }
         .search-trigger .kbd-badge {
             position: static;
@@ -2297,14 +2356,14 @@
         .cp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
         html[data-theme="space"] .cp-backdrop { background: rgba(0, 0, 0, 0.6); }
         .cp-panel { position: relative; width: min(700px, 92vw); background: var(--bg-elevated); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-float); overflow: hidden; }
-        html[data-theme="space"] .cp-panel { border-color: rgba(162, 123, 255,0.2); }
+        html[data-theme="space"] .cp-panel { border-color: rgba(121, 133, 255, 0.2); }
         .cp-input-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
         .cp-input-row input { flex: 1; border: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 15px; outline: none; }
         .cp-search-icon { width: 18px; height: 18px; color: var(--text-muted); flex: 0 0 auto; }
         .cp-results { max-height: 46vh; overflow-y: auto; padding: 6px; }
         .cp-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px; }
         .cp-item.active, .cp-item:hover { background: rgba(0, 135, 235, 0.10); color: var(--text-main); }
-        html[data-theme="space"] .cp-item.active, html[data-theme="space"] .cp-item:hover { background: rgba(162, 123, 255, 0.16); }
+        html[data-theme="space"] .cp-item.active, html[data-theme="space"] .cp-item:hover { background: rgba(121, 133, 255, 0.16); }
         .cp-item.active::before, .cp-item:hover::before { content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2.5px; border-radius: 3px; background: #0087EB; }
         html[data-theme="space"] .cp-item.active::before, html[data-theme="space"] .cp-item:hover::before { background: var(--brand-primary); }
         .cp-item.active .cp-kind, .cp-item:hover .cp-kind { color: var(--text-muted); }
@@ -2422,8 +2481,8 @@
             box-shadow: 0 16px 32px -14px rgba(0, 135, 235,0.2), var(--shadow);
         }
         html[data-theme="space"] .nav-card:hover {
-            border-color: rgba(162, 123, 255,0.5);
-            box-shadow: 0 16px 32px -14px rgba(162, 123, 255,0.18), var(--shadow);
+            border-color: rgba(121, 133, 255, 0.5);
+            box-shadow: 0 16px 32px -14px rgba(121, 133, 255, 0.18), var(--shadow);
         }
         .nav-card.alpehuez-widget {
             background: var(--glass-bg);
@@ -2440,7 +2499,7 @@
         html[data-theme="space"] .nav-card,
         html[data-theme="space"] .stat-tile,
         html[data-theme="space"] .about-card {
-            border-color: rgba(255, 255, 255, 0.07);
+            border-color: #504373;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 0.5px rgba(255, 255, 255, 0.04), 0 10px 26px -6px rgba(0, 0, 0, 0.32);
         }
         .nav-card .card-actions {
@@ -2525,14 +2584,17 @@
         }
 
         html[data-theme="space"] .card-icon {
-            color: #A27BFF;
-            background: rgba(162, 123, 255,0.16);
-            border-color: rgba(162, 123, 255,0.2);
+            color: #7985FF;
+            background: rgba(121, 133, 255, 0.16);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .card-copy {
             min-width: 0;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .card-title {
@@ -2578,10 +2640,11 @@
             align-items: center;
             gap: 12px;
             margin: 0 0 14px;
-            color: var(--text-main);
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         .section-heading::after {
@@ -2597,7 +2660,7 @@
         html:not([data-theme="space"]) .stat-tile {
             border: 1px solid rgba(15, 23, 42, 0.05);
         }
-        html:not([data-theme="space"]) .section-heading { font-weight: 700; color: #111827; }
+        html:not([data-theme="space"]) .section-heading { font-weight: 600; color: #475569; }
 
         .usage-heatmap {
             max-width: 1240px;
@@ -2615,27 +2678,6 @@
             display: none;
         }
 
-        .usage-heatmap-head {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .usage-heatmap-head h3 {
-            margin: 0;
-            color: var(--text-main);
-            font-size: 13px;
-            letter-spacing: -0.01em;
-        }
-
-        .usage-heatmap-head p {
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-
         .usage-grid {
             display: grid;
             grid-template-rows: repeat(7, 10px);
@@ -2648,19 +2690,19 @@
             width: 10px;
             height: 10px;
             border-radius: 2px;
-            background: rgba(148, 163, 184, 0.18);
+            background: #f1f5f9;
         }
 
-        .usage-cell.l1 { background: rgba(99, 102, 241, 0.45); }
-        .usage-cell.l2 { background: rgba(168, 85, 247, 0.6); }
-        .usage-cell.l3 { background: rgba(236, 72, 153, 0.75); }
-        .usage-cell.l4 { background: rgba(251, 146, 60, 0.95); }
+        .usage-cell.l1 { background: #bae6fd; }
+        .usage-cell.l2 { background: #7dd3fc; }
+        .usage-cell.l3 { background: #38bdf8; }
+        .usage-cell.l4 { background: #0284c7; }
 
-        html[data-theme="space"] .usage-cell { background: rgba(255, 255, 255, 0.08); }
-        html[data-theme="space"] .usage-cell.l1 { background: rgba(129, 140, 248, 0.4); }
-        html[data-theme="space"] .usage-cell.l2 { background: rgba(192, 132, 252, 0.55); }
-        html[data-theme="space"] .usage-cell.l3 { background: rgba(244, 114, 182, 0.7); }
-        html[data-theme="space"] .usage-cell.l4 { background: rgba(251, 191, 36, 0.95); }
+        html[data-theme="space"] .usage-cell { background: rgba(255, 255, 255, 0.04); }
+        html[data-theme="space"] .usage-cell.l1 { background: #3C315B; }
+        html[data-theme="space"] .usage-cell.l2 { background: #6A5CD6; }
+        html[data-theme="space"] .usage-cell.l3 { background: #7985FF; }
+        html[data-theme="space"] .usage-cell.l4 { background: #D489FF; }
 
         .usage-legend {
             display: flex;
@@ -2919,7 +2961,15 @@
             box-shadow: var(--shadow);
         }
         html[data-theme="space"] .myfiles-item:hover {
-            background: #22242B;
+            background: #3F375F;
+        }
+
+        /* 浅色模式：微边框 + 弱光晕，避免 16px 大阴影显得脏 */
+        html:not([data-theme="space"]) .myfiles-item {
+            box-shadow: 0 1px 2px rgba(0, 135, 235, 0.05), 0 4px 10px rgba(0, 135, 235, 0.04);
+        }
+        html:not([data-theme="space"]) .myfiles-item:hover {
+            box-shadow: 0 2px 4px rgba(0, 135, 235, 0.06), 0 6px 14px rgba(0, 135, 235, 0.06);
         }
 
         .myfiles-item svg {
@@ -3302,12 +3352,12 @@
         }
 
         html[data-theme="space"] .app-modal {
-            background: #2D283A;
-            border-color: rgba(255, 255, 255, 0.1);
+            background: #3F375F;
+            border-color: #504373;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -8px rgba(0, 0, 0, 0.6);
         }
         html[data-theme="space"] .cp-panel {
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: #504373;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -8px rgba(0, 0, 0, 0.6);
         }
 
@@ -3338,6 +3388,72 @@
         .app-modal-btn:hover { color: var(--text-main); border-color: var(--brand-primary); }
 
         .app-modal-body { padding: 16px 18px; overflow-y: auto; }
+
+        .app-modal-btn.primary {
+            color: #fff;
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .app-modal-btn.primary:hover { color: #fff; border-color: var(--brand-primary); }
+        .app-modal-btn.primary:disabled { opacity: 0.6; cursor: default; }
+        html[data-theme="space"] .app-modal-btn.primary {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+
+        .update-modal { max-width: 420px; }
+        .update-versions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .update-ver {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+        .update-ver label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .update-ver strong { font-size: 15px; color: var(--text-main); }
+        .update-arrow { color: var(--text-muted); font-size: 16px; }
+        .update-notes {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .update-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+        .version-chip.has-update {
+            color: #fff;
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.18);
+            animation: chip-pulse 2s ease-in-out infinite;
+        }
+        html[data-theme="space"] .version-chip.has-update {
+            color: #fff;
+            background: #7985FF;
+            border-color: #7985FF;
+            box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.22);
+        }
+        @keyframes chip-pulse {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.18); }
+            50% { box-shadow: 0 0 0 6px rgba(0, 135, 235, 0.05); }
+        }
 
         .activity-modal .tl-list { padding-left: 18px; }
 
@@ -3375,7 +3491,7 @@
         }
 
         html[data-theme="space"] .rider-card::after {
-            background: radial-gradient(circle, rgba(162, 123, 255,0.25) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(121, 133, 255, 0.25) 0%, transparent 70%);
         }
 
         .rider-head {
@@ -3483,7 +3599,7 @@
 
         .ability-row-head {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             justify-content: space-between;
             margin-bottom: 6px;
         }
@@ -3506,6 +3622,7 @@
             background: rgba(0, 135, 235,0.22);
             border-radius: 999px;
             overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
         }
 
         html[data-theme="space"] .ability-track {
@@ -3612,7 +3729,7 @@
 
         html[data-theme="space"] #view-dev .dev-frame,
         html[data-theme="space"] #view-dev .dev-frame iframe {
-            background: #14121A;
+            background: #3E3A65;
         }
 
         .settings-drawer {
@@ -3668,7 +3785,7 @@
         }
 
         html[data-theme="space"] .settings-drawer-panel {
-            border-color: rgba(162, 123, 255,0.2);
+            border-color: rgba(121, 133, 255, 0.2);
         }
 
         .telemetry-pod {
@@ -3692,7 +3809,7 @@
         .telemetry-pod[hidden] { display: none; }
         html[data-theme="space"] .telemetry-pod {
             background: var(--bg-elevated);
-            border-left: 1px solid rgba(162, 123, 255,0.2);
+            border-left: 1px solid rgba(121, 133, 255, 0.2);
         }
         .toast-stack {
             position: fixed;
@@ -3720,9 +3837,9 @@
             animation: toast-in 0.3s var(--spring);
         }
         html[data-theme="space"] .toast {
-            background: rgba(20, 18, 26, 0.9);
-            border-color: rgba(162, 123, 255, 0.35);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(162, 123, 255, 0.15);
+            background: rgba(54, 47, 84, 0.9);
+            border-color: rgba(121, 133, 255, 0.35);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(121, 133, 255, 0.15);
         }
         html[data-theme="space"] .toast--success { border-color: var(--success); }
         html[data-theme="space"] .toast--warn { border-color: var(--warning); }
@@ -3784,32 +3901,46 @@
             font-size: 12.5px; line-height: 1.6;
             font-family: inherit;
             color: var(--text-main);
-            background: var(--bg-card);
-            border: 1px solid var(--line);
+            background: rgba(0, 0, 0, 0.025);
+            border: 1px solid transparent;
+            border-left: 2px solid transparent;
             border-radius: 10px;
             outline: none;
-            transition: border-color .15s, box-shadow .15s;
+            transition: border-color .15s, box-shadow .15s, background .15s;
         }
-        .tp-note-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12); }
-        html[data-theme="space"] .tp-note-input:focus { box-shadow: 0 0 0 3px rgba(162, 123, 255, 0.14); }
+        html[data-theme="space"] .tp-note-input { background: rgba(255, 255, 255, 0.03); }
+        .tp-note-input:focus {
+            background: var(--bg-card);
+            border-color: var(--line);
+            border-left: 2px solid var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.10);
+        }
+        html[data-theme="space"] .tp-note-input:focus { box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.12); }
         .tp-note-preview {
             display: flex; flex-direction: column; gap: 8px;
             padding: 2px; font-size: 12.5px; line-height: 1.65;
             color: var(--text-main);
         }
-        .tp-note-preview:empty::after { content: "preview"; color: var(--text-3); font-size: 11px; }
+        .tp-note-preview:empty::after { content: ""; }
         .md-h1 { margin: 2px 0 0; font-size: 17px; font-weight: 700; }
         .md-h2 { margin: 2px 0 0; font-size: 13.5px; font-weight: 700; }
         .md-p { margin: 0; }
         .md-list { margin: 0; padding-left: 18px; }
         .md-list li { margin: 2px 0; }
         .md-quote { margin: 0; padding: 6px 12px; border-left: 3px solid var(--brand-primary); color: var(--text-muted); background: rgba(0, 135, 235, 0.06); border-radius: 0 8px 8px 0; }
-        html[data-theme="space"] .md-quote { background: rgba(162, 123, 255, 0.08); }
+        html[data-theme="space"] .md-quote { background: rgba(121, 133, 255, 0.08); }
         .md-hr { border: none; height: 1px; background: var(--line); margin: 6px 0; }
         .md-code { padding: 1px 5px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--line); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; color: var(--brand-primary); }
         .md-link { color: var(--brand-primary); text-decoration: none; }
         .md-link:hover { text-decoration: underline; }
-        .tp-note-status { font-size: 10.5px; color: var(--text-3); text-align: right; min-height: 13px; }
+        .tp-note-status {
+            display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+            font-size: 10.5px; color: var(--text-3); text-align: right; min-height: 13px;
+        }
+        .tp-note-status::before {
+            content: ""; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--success, #6FCF97); flex-shrink: 0;
+        }
 
         /* slash 命令菜单 */
         .slash-menu {
@@ -3834,14 +3965,14 @@
             transition: background .15s;
         }
         .slash-item:hover { background: rgba(0, 135, 235, 0.09); }
-        html[data-theme="space"] .slash-item:hover { background: rgba(162, 123, 255, 0.1); }
+        html[data-theme="space"] .slash-item:hover { background: rgba(121, 133, 255, 0.1); }
         .slash-icon {
             display: inline-flex; align-items: center; justify-content: center;
             width: 20px; height: 20px; flex: 0 0 20px;
             border-radius: 6px; font-size: 11px; font-weight: 800;
             background: rgba(0, 135, 235, 0.12); color: var(--brand-primary);
         }
-        html[data-theme="space"] .slash-icon { background: rgba(162, 123, 255, 0.16); color: #C084FC; }
+        html[data-theme="space"] .slash-icon { background: rgba(121, 133, 255, 0.16); color: #D489FF; }
         .slash-item kbd { margin-left: auto; font-size: 10px; color: var(--text-3); font-family: inherit; }
 
         /* 微型代码胶囊：一行 36px，点击进浮层 */
@@ -3874,7 +4005,7 @@
             padding: 2px 8px; border-radius: 6px;
             background: rgba(0, 135, 235, 0.14); color: var(--brand-primary);
         }
-        html[data-theme="space"] .code-modal-lang { background: rgba(162, 124, 255, 0.18); color: #C084FC; }
+        html[data-theme="space"] .code-modal-lang { background: rgba(121, 133, 255, 0.18); color: #D489FF; }
         .code-modal-head-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .code-modal-body { padding: 0; }
         .code-highlight {
@@ -3947,11 +4078,11 @@
         }
 
         html[data-theme="space"] .tp-dock-btn:hover {
-            background: rgba(162, 123, 255, 0.12);
+            background: rgba(121, 133, 255, 0.12);
         }
 
         html[data-theme="space"] .tp-dock-btn.zen-on {
-            background: rgba(162, 123, 255, 0.15);
+            background: rgba(121, 133, 255, 0.15);
         }
 
         .tp-dock-sep {
@@ -4050,9 +4181,9 @@
         }
 
         html[data-theme="space"] .settings-tab.active {
-            color: #A27BFF;
-            background: rgba(162, 123, 255,0.16);
-            border-color: rgba(162, 123, 255,0.18);
+            color: #7985FF;
+            background: rgba(121, 133, 255, 0.16);
+            border-color: rgba(121, 133, 255, 0.18);
         }
 
         .settings-content {
@@ -4130,6 +4261,22 @@
             font: inherit;
         }
 
+        .settings-textarea {
+            border: 1px solid transparent;
+            background: rgba(0, 0, 0, 0.04);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+        html[data-theme="space"] .settings-textarea {
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+        .settings-textarea:focus {
+            border-color: var(--brand-primary);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 0 0 3px rgba(0, 135, 235, 0.10);
+            outline: none;
+        }
+        html[data-theme="space"] .settings-textarea:focus { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(121, 133, 255, 0.12); }
+
         .settings-input,
         .settings-select {
             height: 34px;
@@ -4137,11 +4284,34 @@
         }
 
         .settings-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 38px;
+            height: 22px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.4);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            outline: none;
+            flex-shrink: 0;
+        }
+        .settings-checkbox::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
             width: 18px;
             height: 18px;
-            accent-color: var(--brand-primary);
-            cursor: pointer;
+            border-radius: 50%;
+            background: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .settings-checkbox:checked { background: var(--brand-primary); }
+        .settings-checkbox:checked::after { transform: translateX(16px); }
+        html[data-theme="space"] .settings-checkbox:checked { background: #7985FF; }
+        .settings-checkbox:focus-visible { box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.2); }
 
         .settings-textarea {
             min-height: 90px;
@@ -4159,7 +4329,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 12px;
         }
 
         .settings-action-btn {
@@ -4176,7 +4346,22 @@
         }
 
         .settings-action-btn.primary {
-            color: #fff;
+            color: #FFFFFF;
+            background: linear-gradient(145deg, #2E7BFF, #1557E0);
+            border-color: transparent;
+        }
+
+        .btn-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            vertical-align: -2px;
+            animation: spin 0.7s linear infinite;
+        }            color: #fff;
             background: var(--accent-gradient);
             border-color: transparent;
         }
@@ -4740,7 +4925,10 @@
                 <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
                     <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
                     <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
-                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmDiskRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmDiskVal">--%</span></span>
+                    <span class="vm-cell vm-net-pill">
+                        <span class="vm-net-row up"><span class="vm-net-arrow">↑</span><span id="vmPillNetUp">0.0K</span></span>
+                        <span class="vm-net-row down"><span class="vm-net-arrow">↓</span><span id="vmPillNetDown">0.0K</span></span>
+                    </span>
                 </button>
                 <div class="topbar-actions">
                     <button id="btnBack" class="icon-btn topbar-back-btn" title="Back (Alt+Left)" aria-label="Back (Alt+Left)">
@@ -4834,6 +5022,10 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                                 Activity Timeline
                             </button>
+                            <button type="button" id="btnCheckUpdate" class="about-action-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                                <span data-i18n-settings="checkUpdate">Check for Updates</span>
+                            </button>
                         </div>
                         <div class="about-grid">
                             <div class="about-card">
@@ -4892,7 +5084,7 @@
         </div>
         <div id="velometerDrawer" class="velometer-drawer" hidden>
             <div class="vm-drawer-head">
-                <strong>VeloMeter</strong>
+                <strong data-i18n-settings="velometer">VeloMeter</strong>
                 <button id="vmCloseBtn" class="icon-btn" type="button" title="Close" aria-label="Close">&times;</button>
             </div>
             <div class="vm-rings">
@@ -4916,16 +5108,16 @@
                     </svg>
                     <div class="vm-ring-center"><strong id="vmRingMemVal">--%</strong><span>RAM</span></div>
                 </div>
-                <div class="vm-ring-wrap">
-                    <svg class="vm-ring" viewBox="0 0 80 80">
-                        <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
-                        <circle class="vm-ring-fg" id="vmRingDisk" cx="40" cy="40" r="34"/>
-                    </svg>
-                    <div class="vm-ring-center"><strong id="vmRingDiskVal">--%</strong><span>DISK</span></div>
+                <div class="vm-ring-wrap vm-net-wrap">
+                    <div class="vm-net">
+                        <div class="vm-net-row up"><span class="vm-net-arrow">↑</span><span id="vmNetUp">0.0 KB/s</span></div>
+                        <div class="vm-net-row down"><span class="vm-net-arrow">↓</span><span id="vmNetDown">0.0 KB/s</span></div>
+                    </div>
+                    <span class="vm-net-label">NET</span>
                 </div>
             </div>
             <div class="vm-procs">
-                <div class="vm-procs-label">Top 5 Processes</div>
+                <div class="vm-procs-label" data-i18n-settings="topProcesses">Top 5 Processes</div>
                 <div id="vmProcList" class="vm-proc-list"></div>
             </div>
         </div>
@@ -5147,9 +5339,12 @@
                 testConnection: 'Test connection',
                 backingUp: 'Backing up...',
                 testingConn: 'Testing connection...',
+                testingShort: 'Testing…',
+                hfConnOk: 'Connected — repository {repo} reachable',
+                hfConnFail: 'Connection failed: {detail}',
                 telemetry: 'Telemetry',
                 zenMode: 'Zen Mode (pause scoring)',
-                clearTelemetry: 'Clear abilities &amp; heatmap',
+                clearTelemetry: 'Clear abilities & heatmap',
                 supportAuthor: 'Support',
                 supportBlurb: 'Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.',
                 koFi: 'Ko-fi (overseas)',
@@ -5205,7 +5400,23 @@
                 year: 'Year',
                 month: 'Month',
                 week: 'Week',
-                weatherPlaceholder: 'Weather widget placeholder — bring your own API key.'
+                weatherPlaceholder: 'Weather widget placeholder — bring your own API key.',
+                velometer: 'VeloMeter',
+                topProcesses: 'Top 5 Processes',
+                checkUpdate: 'Check for Updates',
+                checkingUpdate: 'Checking for updates…',
+                updateAvailable: 'AlpeHuez {version} is available',
+                upToDate: 'You are up to date',
+                updateTitle: 'Update Available',
+                updateCurrent: 'Current version',
+                updateLatest: 'Latest version',
+                downloadInstall: 'Download & Install',
+                later: 'Later',
+                updateFailed: 'Update failed: {detail}',
+                updateDownloading: 'Downloading update…',
+                updateInstalling: 'Installing update…',
+                updateManual: 'Manual download',
+                updateManualHint: 'This build is portable — download the installer manually.'
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -5231,6 +5442,9 @@
                 testConnection: '\u6d4b\u8bd5\u8fde\u63a5',
                 backingUp: '\u5907\u4efd\u4e2d\u2026',
                 testingConn: '\u6b63\u5728\u6d4b\u8bd5\u8fde\u63a5\u2026',
+                testingShort: '\u6d4b\u8bd5\u4e2d\u2026',
+                hfConnOk: '\u8fde\u63a5\u6210\u529f\uff0c\u4ed3\u5e93 {repo} \u53ef\u8bbf\u95ee',
+                hfConnFail: '\u8fde\u63a5\u5931\u8d25\uff1a{detail}',
                 telemetry: '\u8fd0\u52a8\u8f68\u8ff9',
                 zenMode: '\u7985\u5fc3\u6a21\u5f0f\uff08\u6682\u505c\u8ba1\u5206\uff09',
                 clearTelemetry: '\u6e05\u9664\u80fd\u529b\u4e0e\u70ed\u529b\u56fe',
@@ -5289,7 +5503,23 @@
                 year: '\u5e74',
                 month: '\u6708',
                 week: '\u5468',
-                weatherPlaceholder: '\u5929\u6c14\u7ec4\u4ef6\u5360\u4f4d \u2014 \u8bf7\u81ea\u5e26 API \u5bc6\u94a5\u3002'
+                weatherPlaceholder: '\u5929\u6c14\u7ec4\u4ef6\u5360\u4f4d \u2014 \u8bf7\u81ea\u5e26 API \u5bc6\u94a5\u3002',
+                velometer: 'VeloMeter',
+                topProcesses: 'Top 5 \u8fdb\u7a0b',
+                checkUpdate: '\u68c0\u67e5\u66f4\u65b0',
+                checkingUpdate: '\u6b63\u5728\u68c0\u67e5\u66f4\u65b0\u2026',
+                updateAvailable: 'AlpeHuez {version} \u53ef\u7528',
+                upToDate: '\u5df2\u662f\u6700\u65b0\u7248\u672c',
+                updateTitle: '\u53d1\u73b0\u65b0\u7248\u672c',
+                updateCurrent: '\u5f53\u524d\u7248\u672c',
+                updateLatest: '\u6700\u65b0\u7248\u672c',
+                downloadInstall: '\u4e0b\u8f7d\u5e76\u5b89\u88c5',
+                later: '\u7a0d\u540e',
+                updateFailed: '\u66f4\u65b0\u5931\u8d25\uff1a{detail}',
+                updateDownloading: '\u6b63\u5728\u4e0b\u8f7d\u66f4\u65b0\u2026',
+                updateInstalling: '\u6b63\u5728\u5b89\u88c5\u66f4\u65b0\u2026',
+                updateManual: '\u624b\u52a8\u4e0b\u8f7d',
+                updateManualHint: '\u5f53\u524d\u4e3a\u4fbf\u643a\u7248\uff0c\u8bf7\u624b\u52a8\u4e0b\u8f7d\u5b89\u88c5\u5305\u3002'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -5707,7 +5937,6 @@
             let map = {};
             try { map = JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'); } catch (error) { map = {}; }
             const activeDays = Object.keys(map).filter((key) => Number(map[key]) > 0).length;
-            const totalHits = Object.keys(map).reduce((sum, key) => sum + Number(map[key]), 0);
             if (activeDays === 0) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
             const cells = [];
             for (let i = DAYS - 1; i >= 0; i--) {
@@ -5718,10 +5947,6 @@
                 cells.push(`<div class="usage-cell l${level}" data-key="${key}" data-count="${count}" role="img" aria-label="${key} · ${count} interactions"></div>`);
             }
             el.innerHTML = `
-                <div class="usage-heatmap-head">
-                    <h3>Focus Heatmap</h3>
-                    <p>${activeDays} active days · ${totalHits} recorded interactions</p>
-                </div>
                 <div class="usage-grid">${cells.join('')}</div>
                 <div class="usage-legend">
                     Less
@@ -5822,6 +6047,94 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && !backdrop.hidden) backdrop.hidden = true;
             });
+        }
+
+        // ---------- 更新检查（Tauri updater 插件）----------
+        let pendingUpdate = null;
+
+        function openUpdateModal(update) {
+            pendingUpdate = update;
+            $('updateCurrentVer').textContent = 'v' + (update.currentVersion || '');
+            $('updateLatestVer').textContent = 'v' + update.version;
+            const notes = $('updateNotes');
+            notes.textContent = update.body || '';
+            notes.hidden = !update.body;
+            const installBtn = $('updateInstallBtn');
+            installBtn.disabled = false;
+            installBtn.textContent = settingsText('downloadInstall', 'Download & Install');
+            $('updateModal').hidden = false;
+        }
+
+        function closeUpdateModal() {
+            $('updateModal').hidden = true;
+        }
+
+        async function checkForUpdates(manual) {
+            if (!isDesktop || !window.__TAURI__.updater) {
+                if (manual) showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', 'updater unavailable'), 'error');
+                return null;
+            }
+            try {
+                const update = await window.__TAURI__.updater.check();
+                if (!update) {
+                    if (manual) showToast(settingsText('upToDate', 'You are up to date'), 'success');
+                    return null;
+                }
+                if (manual) {
+                    openUpdateModal(update);
+                } else {
+                    showToast(settingsText('updateAvailable', 'AlpeHuez {version} is available').replace('{version}', 'v' + update.version), 'info');
+                    const chip = $('versionChip');
+                    if (chip) chip.classList.add('has-update');
+                }
+                return update;
+            } catch (error) {
+                console.error('checkForUpdates failed:', error);
+                if (manual) showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', String((error && error.message) || error)), 'error');
+                return null;
+            }
+        }
+
+        async function installUpdate() {
+            if (!pendingUpdate) return;
+            const installBtn = $('updateInstallBtn');
+            installBtn.disabled = true;
+            installBtn.textContent = settingsText('updateDownloading', 'Downloading update…');
+            try {
+                await pendingUpdate.downloadAndInstall();
+                installBtn.textContent = settingsText('updateInstalling', 'Installing update…');
+                setTimeout(() => {
+                    if (window.__TAURI__.process && window.__TAURI__.process.relaunch) {
+                        window.__TAURI__.process.relaunch();
+                    }
+                }, 800);
+            } catch (error) {
+                console.error('downloadAndInstall failed:', error);
+                installBtn.disabled = false;
+                installBtn.textContent = settingsText('downloadInstall', 'Download & Install');
+                showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', String((error && error.message) || error)), 'error');
+                // 便携 exe 兜底：打开 GitHub Release 页手动下载
+                if (invoke) invoke('open_url', { url: 'https://github.com/Helloxiaolaodi/AlpeHuez/releases/latest' }).catch(() => {});
+            }
+        }
+
+        function initUpdateModal() {
+            const backdrop = $('updateModal');
+            if (!backdrop) return;
+            const openBtn = $('btnCheckUpdate');
+            const closeBtn = $('updateModalClose');
+            const installBtn = $('updateInstallBtn');
+            const laterBtn = $('updateLaterBtn');
+            if (openBtn) openBtn.addEventListener('click', () => checkForUpdates(true));
+            if (closeBtn) closeBtn.addEventListener('click', closeUpdateModal);
+            if (laterBtn) laterBtn.addEventListener('click', closeUpdateModal);
+            if (installBtn) installBtn.addEventListener('click', installUpdate);
+            backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeUpdateModal(); });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !backdrop.hidden) closeUpdateModal();
+            });
+            // 启动静默检查：loadAbout 完成后延迟 ~3s，有新版 → toast + 版本 chip 高亮
+            setTimeout(() => checkForUpdates(false), 3000);
         }
 
         // ---------- Telemetry Pod 每日笔记（Markdown + 代码胶囊）----------
@@ -7233,6 +7546,8 @@
         function dismissLoadingScreen() {
             const screen = $('loadingScreen');
             if (!screen) return;
+            // 触发「晨雾褪去」：内容区 blur→清晰、卡片错落浮现，与加载屏淡出同步。
+            document.body.classList.add('launched');
             screen.classList.add('fade-out');
             setTimeout(() => screen.remove(), 500);
         }
@@ -7791,6 +8106,10 @@
                 settingsLang = $('languageSelect').value;
                 try {
                     localStorage.setItem(SETTINGS_LANG_KEY, settingsLang);
+                    // 开发者面板跟随应用语言：写共享 localStorage（内嵌 iframe 同 origin）
+                    // 并持久化到配置库（独立面板窗口经 ?lang= 读取）。
+                    localStorage.setItem('panel-lang', settingsLang);
+                    window.__TAURI__?.core.invoke('set_app_config', { key: 'app_lang', value: settingsLang }).catch(() => {});
                 } catch (error) {
                     console.error('save language failed:', error);
                 }
@@ -7825,14 +8144,25 @@
                 }
             });
             $('hfTestBtn').addEventListener('click', async () => {
+                const btn = $('hfTestBtn');
                 const status = $('hfStatus');
-                if (!status) return;
+                if (!status || !btn) return;
+                const origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-spinner"></span>' + settingsText('testingShort', 'Testing…');
                 status.textContent = settingsText('testingConn', 'Testing connection...');
                 try {
-                    const msg = await invoke('hf_test_connection');
-                    status.textContent = String(msg);
+                    const res = await invoke('hf_test_connection');
+                    if (res.ok) {
+                        status.textContent = settingsText('hfConnOk', 'Connected — repository {repo} reachable').replace('{repo}', res.repo);
+                    } else {
+                        status.textContent = settingsText('hfConnFail', 'Connection failed: {detail}').replace('{detail}', res.detail || '');
+                    }
                 } catch (error) {
                     status.textContent = String(error);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
                 }
             });
             $('hfRepo').addEventListener('change', async () => {
@@ -8279,6 +8609,11 @@
                 listen('alpehuez-fullscreen-exit', () => {
                     if (isFullscreen()) exitFullscreen();
                 });
+                // My Files 资源管理器：文件链接请求新建内部标签（和 Portal 卡片一致）。
+                listen('alpehuez-open-tab', (event) => {
+                    const p = event.payload || {};
+                    if (p.url) openInternalUrl(p.url, p.title || '');
+                });
             }
         }
 
@@ -8354,16 +8689,23 @@
                 const d = e.payload;
                 const cpuPct = Math.round(d.cpu);
                 const memPct = Math.round((d.memUsed / d.memTotal) * 100);
-                const diskPct = Math.round((d.diskUsed / d.diskTotal) * 100);
                 $('vmCpuVal').textContent = cpuPct + '%';
                 $('vmMemVal').textContent = memPct + '%';
-                $('vmDiskVal').textContent = diskPct + '%';
                 setMiniRing($('vmCpuRing'), cpuPct);
                 setMiniRing($('vmMemRing'), memPct);
-                setMiniRing($('vmDiskRing'), diskPct);
                 setRing($('vmRingCpu'), $('vmRingCpuVal'), cpuPct);
                 setRing($('vmRingMem'), $('vmRingMemVal'), memPct);
-                setRing($('vmRingDisk'), $('vmRingDiskVal'), diskPct);
+                // 悬停 Tooltip：CPU 频率 / RAM 绝对值
+                const cpuWrap = $('vmRingCpu').closest('.vm-ring-wrap');
+                if (cpuWrap) cpuWrap.title = d.cpuFreqMhz ? (d.cpuFreqMhz / 1000).toFixed(2) + ' GHz' : '';
+                const memWrap = $('vmRingMem').closest('.vm-ring-wrap');
+                if (memWrap) memWrap.title = fmtMem(d.memUsed / (1024 * 1024)) + ' / ' + fmtMem(d.memTotal / (1024 * 1024));
+                // 网络上下行速率
+                const up = fmtSpeed(d.netUpBps), down = fmtSpeed(d.netDownBps);
+                $('vmNetUp').textContent = up;
+                $('vmNetDown').textContent = down;
+                $('vmPillNetUp').textContent = fmtSpeedShort(d.netUpBps);
+                $('vmPillNetDown').textContent = fmtSpeedShort(d.netDownBps);
                 renderProcList(d.processes || []);
             });
             const pill = $('velometerPill');
@@ -8403,20 +8745,40 @@
             return (mb / 1024).toFixed(1) + ' GB';
         }
 
+        function fmtSpeed(bps) {
+            if (bps >= 1024 * 1024) return (bps / (1024 * 1024)).toFixed(1) + ' MB/s';
+            if (bps >= 1024) return (bps / 1024).toFixed(1) + ' KB/s';
+            return bps.toFixed(0) + ' B/s';
+        }
+
+        function fmtSpeedShort(bps) {
+            if (bps >= 1024 * 1024) return (bps / (1024 * 1024)).toFixed(1) + 'M';
+            if (bps >= 1024) return (bps / 1024).toFixed(1) + 'K';
+            return bps.toFixed(0) + 'B';
+        }
+
+        function procLabel(name) {
+            return (name || '?').replace(/\.exe$/i, '');
+        }
+
         function renderProcList(procs) {
             const list = $('vmProcList');
             if (!list) return;
+            const maxCpu = Math.max(0.1, ...procs.map((p) => p.cpu));
             list.innerHTML = procs.map((p) => {
-                const icon = escapeHtml((p.name || '?').charAt(0).toUpperCase());
+                const label = procLabel(p.name);
+                const icon = escapeHtml(label.charAt(0).toUpperCase());
                 const cpu = Math.min(100, Math.max(0, p.cpu));
+                // 条形图按列表内最大进程相对缩放（数值保持归一化后的真实百分比）
+                const barPct = Math.min(100, (cpu / maxCpu) * 100);
                 return `
                 <div class="vm-proc">
                     <span class="vm-proc-icon">${icon}</span>
                     <span class="vm-proc-main">
-                        <span class="vm-proc-name">${escapeHtml(p.name)}</span>
-                        <span class="vm-proc-bar"><span class="vm-proc-bar-fill" style="width:${cpu.toFixed(0)}%"></span></span>
+                        <span class="vm-proc-name" title="${escapeHtml(p.name)}">${escapeHtml(label)}</span>
+                        <span class="vm-proc-bar"><span class="vm-proc-bar-fill" style="width:${barPct.toFixed(0)}%"></span></span>
                     </span>
-                    <span class="vm-proc-cpu">${p.cpu.toFixed(1)}%</span>
+                    <span class="vm-proc-cpu">${cpu.toFixed(1)}%</span>
                     <span class="vm-proc-mem">${fmtMem(p.memMb)}</span>
                 </div>`;
             }).join('');
@@ -8441,6 +8803,7 @@
             initVelometer();
             initPageLoadingOverlay();
             initActivityTimelineModal();
+            initUpdateModal();
             initDailyNotes();
             startQuoteRotation();
             loadPortalLinks();
@@ -8965,6 +9328,28 @@
             </div>
             <div class="app-modal-body code-modal-body">
                 <pre class="code-highlight" id="codeModalBody"></pre>
+            </div>
+        </div>
+    </div>
+    <div id="updateModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal update-modal" role="dialog" aria-modal="true">
+            <div class="app-modal-head">
+                <h3 data-i18n-settings="updateTitle">Update Available</h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="updateModalClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body">
+                <div class="update-versions">
+                    <div class="update-ver"><label data-i18n-settings="updateCurrent">Current version</label><strong id="updateCurrentVer">—</strong></div>
+                    <div class="update-arrow">→</div>
+                    <div class="update-ver"><label data-i18n-settings="updateLatest">Latest version</label><strong id="updateLatestVer">—</strong></div>
+                </div>
+                <div class="update-notes" id="updateNotes"></div>
+                <div class="update-actions">
+                    <button type="button" id="updateInstallBtn" class="app-modal-btn primary" data-i18n-settings="downloadInstall">Download &amp; Install</button>
+                    <button type="button" id="updateLaterBtn" class="app-modal-btn" data-i18n-settings="later">Later</button>
+                </div>
             </div>
         </div>
     </div>

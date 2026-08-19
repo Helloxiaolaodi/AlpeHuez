@@ -181,6 +181,18 @@
         filesEl.querySelectorAll('.source-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
       }
     });
+    // 桌面端：文件链接改为通知主窗口新建内部标签（与 Portal 卡片一致，带自行车加载页），
+    // 不再在同一标签页内原地跳转。纯浏览器环境（无 Tauri）或下载链接保持默认行为。
+    document.addEventListener('click', (event) => {
+      const link = event.target.closest ? event.target.closest('a.row-main:not([download])') : null;
+      if (!link) return;
+      const tauriEvent = window.__TAURI__ && window.__TAURI__.event;
+      if (!tauriEvent || typeof tauriEvent.emitTo !== 'function') return;
+      event.preventDefault();
+      const url = new URL(link.getAttribute('href'), location.href).href;
+      const title = (link.querySelector('.name') || {}).textContent || document.title;
+      tauriEvent.emitTo('main', 'alpehuez-open-tab', { url, title });
+    });
 
     render();
   }

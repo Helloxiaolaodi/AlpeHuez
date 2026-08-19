@@ -22,7 +22,7 @@ if (embedded) {
 /* 全局错误捕获：任何 JS 错误显示在页面顶部，避免无声白屏 */
 window.addEventListener('error', (e) => {
   try {
-    const msg = 'JS 错误: ' + (e.message || 'unknown') + ' @ ' + (e.filename || '').split('/').pop() + ':' + (e.lineno || '?');
+    const msg = (lang === 'zh' ? 'JS 错误: ' : 'JS error: ') + (e.message || 'unknown') + ' @ ' + (e.filename || '').split('/').pop() + ':' + (e.lineno || '?');
     const existing = document.getElementById('js-error');
     if (existing) { existing.textContent = msg; existing.hidden = false; return; }
     const div = document.createElement('div');
@@ -93,6 +93,12 @@ const LOCALES = {
     softwareUrl: '下载链接', softwareExtraLabelEn: '附加按钮文字（EN）', softwareExtraLabelZh: '附加按钮文字（ZH）',
     softwareExtraUrl: '附加按钮链接', softwareSaved: '软件数据已保存', softwareLoadFailed: '加载软件数据失败：',
     confirmDeleteSoftware: (n) => `确定删除软件「${n}」？`,
+    wsRoleLeader: '主将', wsRoleDomestique: '副将', wsRiderNo: '车手号',
+    wsEdit: '编辑', wsLinksJson: '链接 JSON', wsDelete: '删除',
+    wsConfirmDelete: '确定删除该工作台？',
+    wsNamePrompt: '工作台名称', wsNewSub: '新副将', wsRiderNamePrompt: '车手名', wsRiderNoPrompt: '车手号',
+    wsLinksTitle: '工作台链接 JSON', wsReadFailed: '读取链接失败: ',
+    wsJsonFailed: 'JSON 解析失败: ', wsSaved: '已保存', wsSaveFailed: '保存失败: ',
   },
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
@@ -147,11 +153,23 @@ const LOCALES = {
     softwareUrl: 'Download URL', softwareExtraLabelEn: 'Extra button label (EN)', softwareExtraLabelZh: 'Extra button label (ZH)',
     softwareExtraUrl: 'Extra button URL', softwareSaved: 'Software data saved', softwareLoadFailed: 'Failed to load software data: ',
     confirmDeleteSoftware: (n) => `Delete software "${n}"?`,
+    wsRoleLeader: 'Leader', wsRoleDomestique: 'Domestique', wsRiderNo: 'Rider No.',
+    wsEdit: 'Edit', wsLinksJson: 'Links JSON', wsDelete: 'Delete',
+    wsConfirmDelete: 'Delete this workspace?',
+    wsNamePrompt: 'Workspace name', wsNewSub: 'New domestique', wsRiderNamePrompt: 'Rider name', wsRiderNoPrompt: 'Rider no.',
+    wsLinksTitle: 'Workspace Links JSON', wsReadFailed: 'Failed to read links: ',
+    wsJsonFailed: 'JSON parse failed: ', wsSaved: 'Saved', wsSaveFailed: 'Save failed: ',
   },
 };
 
-let lang = 'zh';
-try { lang = localStorage.getItem('panel-lang') || 'zh'; } catch (e) {}
+// 语言跟随主应用（alpehuez_lang 共享 origin 直读；独立面板窗口由 Rust 以 ?lang= 传入），
+// panel-lang 仅为独立窗口手动切换的兜底。
+let lang = 'en';
+try {
+  const q = new URLSearchParams(location.search).get('lang');
+  lang = q || localStorage.getItem('alpehuez_lang') || localStorage.getItem('panel-lang') || 'en';
+  if (lang !== 'zh' && lang !== 'en') lang = 'en';
+} catch (e) {}
 let theme = 'dark';
 try {
   const storedPanel = localStorage.getItem('panel-theme');
@@ -199,6 +217,107 @@ function applyTheme() {
 function setStatusLabel() {
   const label = $('#serverStatus').querySelector('[data-i18n]');
   if (label) label.textContent = statusDirty ? t('uncommitted') : t('connected');
+}
+
+/* ---------- 自定义下拉（液态玻璃）：替换原生 <select>，杜绝深色模式白块 ---------- */
+function enhanceSelect(selectEl) {
+  if (!selectEl) return;
+  let wrap = selectEl.closest('.c-dd');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'c-dd';
+    selectEl.parentNode.insertBefore(wrap, selectEl);
+    wrap.appendChild(selectEl);
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target)) {
+        wrap.classList.remove('open');
+        const menu = wrap.querySelector('.c-dd-menu');
+        if (menu) menu.hidden = true;
+      }
+    });
+  }
+  selectEl.classList.add('c-dd-native');
+  wrap.querySelectorAll('.c-dd-trigger, .c-dd-menu').forEach((n) => n.remove());
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'c-dd-trigger';
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-expanded', 'false');
+  const valueSpan = document.createElement('span');
+  valueSpan.className = 'c-dd-value';
+  const chev = document.createElement('span');
+  chev.className = 'c-dd-chev';
+  chev.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+  trigger.append(valueSpan, chev);
+
+  const menu = document.createElement('div');
+  menu.className = 'c-dd-menu';
+  menu.hidden = true;
+  menu.setAttribute('role', 'listbox');
+
+  const open = () => {
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    wrap.classList.add('open');
+  };
+  const close = () => {
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    wrap.classList.remove('open');
+  };
+  const focusIndex = (i) => {
+    const items = menu.querySelectorAll('.c-dd-option');
+    if (!items.length) return;
+    if (i < 0) i = items.length - 1;
+    if (i >= items.length) i = 0;
+    items[i].focus();
+  };
+
+  Array.from(selectEl.options).forEach((opt) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'c-dd-option';
+    item.textContent = opt.textContent;
+    item.dataset.value = opt.value;
+    item.setAttribute('role', 'option');
+    if (opt.value === selectEl.value) {
+      item.classList.add('selected');
+      valueSpan.textContent = opt.textContent;
+    }
+    item.addEventListener('click', () => {
+      selectEl.value = opt.value;
+      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+      close();
+    });
+    menu.appendChild(item);
+  });
+  if (!valueSpan.textContent) {
+    const sel = Array.from(selectEl.options).find((o) => o.selected) || selectEl.options[0];
+    if (sel) valueSpan.textContent = sel.textContent;
+  }
+  wrap.append(trigger, menu);
+
+  trigger.addEventListener('click', () => {
+    if (menu.hidden) { open(); focusIndex(0); }
+    else close();
+  });
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      open();
+      focusIndex(0);
+    }
+  });
+  menu.addEventListener('keydown', (e) => {
+    const items = Array.from(menu.querySelectorAll('.c-dd-option'));
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIndex(idx + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); focusIndex(idx - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); focusIndex(0); }
+    else if (e.key === 'End') { e.preventDefault(); focusIndex(items.length - 1); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); trigger.focus(); }
+  });
 }
 
 let links = null;
@@ -321,16 +440,29 @@ function buildForm(fields) {
 
 function openModal(title, fields, onOk) {
   $('#modalBody').innerHTML = buildForm(fields);
+  $('#modalBody').querySelectorAll('select').forEach(enhanceSelect);
   $('#modalTitle').textContent = title;
   $('#modalBackdrop').hidden = false;
   const okBtn = $('#modalOk');
+  // 键盘守卫：弹窗打开期间，按键先在输入框正常生效（删除字符/输入文本），
+  // 然后在弹窗元素上阻止冒泡——任何按键都不会传到父文档/主窗口，
+  // 也就不会触发 WebView2 或主应用的快捷键/重绘导致弹窗消失。
+  const modalEl = $('#modal');
+  const guard = (event) => { event.stopPropagation(); };
+  modalEl.addEventListener('keydown', guard);
+  modalEl.addEventListener('keyup', guard);
   const cleanup = () => {
     $('#modalBackdrop').hidden = true;
     okBtn.onclick = null;
     $('#modalCancel').onclick = null;
     $('#modalClose').onclick = null;
     $('#modalBackdrop').onclick = null;
+    modalEl.removeEventListener('keydown', guard);
+    modalEl.removeEventListener('keyup', guard);
   };
+  // 焦点拉进弹窗第一个可输入控件，避免焦点停留在弹窗背后的按钮上。
+  const firstInput = $('#modalBody input, #modalBody textarea, #modalBody select:not(.c-dd-native), #modalBody .c-dd-trigger');
+  if (firstInput) firstInput.focus();
   okBtn.onclick = () => {
     const values = {};
     for (const f of fields) {
@@ -379,11 +511,21 @@ function confirmDialog(message) {
 }
 
 /* ---------- 导航卡片 ---------- */
+async function saveLinksNow() {
+  try {
+    await api('/api/links', { method: 'POST', body: JSON.stringify({ data: links }) });
+    toast(t('savedLinks'), 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
 function renderGroups() {
   const sel = $('#groupSelect');
   sel.innerHTML = ((links && links.icons) || []).map((g, i) =>
     `<option value="${i}">${escapeHtml(g.title)} (${(g.children || []).length})</option>`).join('');
   sel.value = currentGroup;
+  enhanceSelect(sel);
   renderCards();
 }
 
@@ -443,7 +585,7 @@ function openCardModal(item, index) {
     { key: 'description', label: t('description'), value: item.description || '' },
     { key: 'tags', label: t('tags'), value: (item.tags || []).join(', ') },
     { key: 'vpn', label: t('vpnRequired'), type: 'checkbox', value: !!item.isVpnRequired },
-  ], (values) => {
+  ], async (values) => {
     const card = {
       icon: { text: '', itemType: 2, src: values.icon, backgroundColor: '' },
       sort: item.sort ?? 99999,
@@ -461,7 +603,7 @@ function openCardModal(item, index) {
     else group.children[index] = card;
     renderCards();
     renderGroups();
-    toast(t('modified'));
+    saveLinksNow();
   });
 }
 
@@ -535,7 +677,7 @@ function openFileModal(file, index) {
     { key: 'url', label: t('fileUrl'), value: file.url || '' },
     { key: 'qmd', label: t('qmd'), value: (file.source && file.source.qmd) || '' },
     { key: 'figures', label: t('figures'), value: (file.source && file.source.figures) || '' },
-  ], (values) => {
+  ], async (values) => {
     const f = { name: values.name, kind: values.kind };
     if (values.size) f.size = values.size;
     if (values.url) f.url = values.url;
@@ -550,7 +692,12 @@ function openFileModal(file, index) {
     else folder.files[index] = f;
     renderFiles();
     renderFolders();
-    toast(t('modified'));
+    try {
+      await api('/api/myfiles', { method: 'POST', body: JSON.stringify({ data: myfiles }) });
+      toast(t('savedMyfiles'), 'success');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   });
 }
 
@@ -642,6 +789,7 @@ async function openSoftwareManager() {
     </div>
     <div id="swList" class="sw-list"></div>`;
   $('#modalBackdrop').hidden = false;
+  enhanceSelect($('#swCat'));
   renderSoftwareList();
   $('#swSearch').addEventListener('input', renderSoftwareList);
   $('#swCat').addEventListener('change', renderSoftwareList);
@@ -691,26 +839,64 @@ async function loadSysStats() {
   } catch (e) { /* 静默：桌面模式才可用 */ }
 }
 
+const TL_PAGE_SIZE = 6;
+let tlCommits = [];
+let tlPage = 0;
+
 async function loadGitTimeline() {
   const el = $('#gitTimeline');
   try {
     const res = await api('/api/git-log');
     if (!res || !res.length) {
       el.innerHTML = `<div class="muted">${t('timelineEmpty')}</div>`;
+      $('#tlPager').innerHTML = '';
       return;
     }
-    el.innerHTML = res.map((c, i) => `
-      <div class="tl-item ${i === 0 ? 'latest' : ''}">
-        <div class="tl-node"></div>
-        <div class="tl-body">
-          <div class="tl-msg">${escapeHtml(c.message)}</div>
-          <div class="tl-meta"><code>${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
-        </div>
-      </div>`).join('');
+    tlCommits = res;
+    tlPage = 0;
+    renderTimelinePage();
   } catch (e) {
     el.innerHTML = `<div class="muted">${t('timelineError')}${escapeHtml(e.message)}</div>`;
+    $('#tlPager').innerHTML = '';
   }
 }
+
+function renderTimelinePage() {
+  const el = $('#gitTimeline');
+  const total = tlCommits.length;
+  const pages = Math.max(1, Math.ceil(total / TL_PAGE_SIZE));
+  tlPage = Math.min(tlPage, pages - 1);
+  const start = tlPage * TL_PAGE_SIZE;
+  const slice = tlCommits.slice(start, start + TL_PAGE_SIZE);
+  el.innerHTML = slice.map((c, i) => `
+    <div class="tl-item ${start + i === 0 ? 'latest' : ''}">
+      <div class="tl-node"></div>
+      <div class="tl-body">
+        <div class="tl-msg">${escapeHtml(c.message)}</div>
+        <div class="tl-meta"><code>${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
+      </div>
+    </div>`).join('');
+  renderTlPager(pages);
+}
+
+function renderTlPager(pages) {
+  const pager = $('#tlPager');
+  if (pages <= 1) { pager.innerHTML = ''; return; }
+  const btns = [];
+  btns.push(`<button class="tl-pg" data-pg="${tlPage - 1}" ${tlPage === 0 ? 'disabled' : ''}>‹</button>`);
+  for (let p = 0; p < pages; p++) {
+    btns.push(`<button class="tl-pg ${p === tlPage ? 'active' : ''}" data-pg="${p}">${p + 1}</button>`);
+  }
+  btns.push(`<button class="tl-pg" data-pg="${tlPage + 1}" ${tlPage === pages - 1 ? 'disabled' : ''}>›</button>`);
+  pager.innerHTML = btns.join('');
+}
+
+$('#tlPager').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tl-pg');
+  if (!btn || btn.disabled) return;
+  tlPage = Number(btn.dataset.pg);
+  renderTimelinePage();
+});
 
 async function loadGitStatus() {
   try {
@@ -747,9 +933,9 @@ async function renderWorkspaces() {
     <div class="ws-card" data-id="${w.id}">
       <div class="ws-card-head">
         <strong>${escapeHtml(w.name)}</strong>
-        <span class="ws-role">${w.role === 'leader' ? '主将' : '副将'}</span>
+        <span class="ws-role">${w.role === 'leader' ? t('wsRoleLeader') : t('wsRoleDomestique')}</span>
       </div>
-      <div class="ws-card-meta">${escapeHtml(w.riderType)} · 车手号 ${w.riderNumber}</div>
+      <div class="ws-card-meta">${escapeHtml(w.riderType)} · ${t('wsRiderNo')} ${w.riderNumber}</div>
       <div class="ws-specialties">
         ${['gc', 'climber', 'sprint', 'tt'].map((k) => `
           <label>${k.toUpperCase()}
@@ -758,9 +944,9 @@ async function renderWorkspaces() {
           </label>`).join('')}
       </div>
       <div class="ws-card-actions">
-        <button type="button" class="btn" data-edit="${w.id}">编辑</button>
-        <button type="button" class="btn" data-links="${w.id}">链接 JSON</button>
-        ${w.role !== 'leader' ? `<button type="button" class="btn btn-danger" data-del="${w.id}">删除</button>` : ''}
+        <button type="button" class="btn" data-edit="${w.id}">${t('wsEdit')}</button>
+        <button type="button" class="btn" data-links="${w.id}">${t('wsLinksJson')}</button>
+        ${w.role !== 'leader' ? `<button type="button" class="btn btn-danger" data-del="${w.id}">${t('wsDelete')}</button>` : ''}
       </div>
     </div>`).join('');
   list.querySelectorAll('input[type="range"]').forEach((input) => {
@@ -778,7 +964,7 @@ async function renderWorkspaces() {
   });
   list.querySelectorAll('[data-del]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('确定删除该工作台？')) return;
+      if (!confirm(t('wsConfirmDelete'))) return;
       await invoke('delete_workspace', { id: Number(btn.dataset.del) });
       renderWorkspaces();
     });
@@ -796,11 +982,11 @@ async function editWorkspace(id) {
   const ws = await invoke('list_workspaces');
   const w = ws.find((x) => x.id === id);
   if (!w) return;
-  const name = prompt('工作台名称', w.name);
+  const name = prompt(t('wsNamePrompt'), w.name);
   if (!name) return;
   const riderType = prompt('Rider Type', w.riderType) || w.riderType;
-  const riderName = prompt('车手名', w.riderName) || w.riderName;
-  const riderNumber = Number(prompt('车手号', String(w.riderNumber))) || 0;
+  const riderName = prompt(t('wsRiderNamePrompt'), w.riderName) || w.riderName;
+  const riderNumber = Number(prompt(t('wsRiderNoPrompt'), String(w.riderNumber))) || 0;
   await invoke('update_workspace', { id, name, role: w.role, riderType, riderName, riderNumber, specialties: w.specialties });
   renderWorkspaces();
 }
@@ -811,25 +997,25 @@ async function editWorkspaceLinks(id) {
   try {
     data = await invoke('get_workspace_links', { id });
   } catch (e) {
-    toast('读取链接失败: ' + e.message, 'error');
+    toast(t('wsReadFailed') + e.message, 'error');
     return;
   }
   const text = JSON.stringify(data, null, 2);
-  openModal('工作台链接 JSON', [
+  openModal(t('wsLinksTitle'), [
     { key: 'json', label: 'JSON', type: 'textarea', rows: 18, value: '' }
   ], async (values) => {
     let parsed;
     try {
       parsed = JSON.parse(values.json);
     } catch (e) {
-      toast('JSON 解析失败: ' + e.message, 'error');
+      toast(t('wsJsonFailed') + e.message, 'error');
       return;
     }
     try {
       await invoke('save_workspace_links', { id, data: parsed });
-      toast('已保存');
+      toast(t('wsSaved'));
     } catch (e) {
-      toast('保存失败: ' + e.message, 'error');
+      toast(t('wsSaveFailed') + e.message, 'error');
     }
   });
   const ta = document.getElementById('f_json');
@@ -840,11 +1026,11 @@ function initWorkspacesTab() {
   const addBtn = document.getElementById('wsAddBtn');
   if (addBtn) addBtn.addEventListener('click', async () => {
     const { invoke } = window.__TAURI__.core;
-    const name = prompt('工作台名称', '新副将');
+    const name = prompt(t('wsNamePrompt'), t('wsNewSub'));
     if (!name) return;
     const riderType = prompt('Rider Type', 'Rouleur') || 'Rouleur';
-    const riderName = prompt('车手名', name) || name;
-    const riderNumber = Number(prompt('车手号', '6')) || 0;
+    const riderName = prompt(t('wsRiderNamePrompt'), name) || name;
+    const riderNumber = Number(prompt(t('wsRiderNoPrompt'), '6')) || 0;
     await invoke('create_workspace', { name, role: 'domestique', riderType, riderName, riderNumber });
     renderWorkspaces();
   });
@@ -890,7 +1076,13 @@ window.addEventListener('message', (event) => {
 
 $('#btnLang').onclick = () => {
   lang = lang === 'zh' ? 'en' : 'zh';
-  localStorage.setItem('panel-lang', lang);
+  try {
+    localStorage.setItem('panel-lang', lang);
+    localStorage.setItem('alpehuez_lang', lang);
+    if (isDesktop && window.__TAURI__) {
+      window.__TAURI__.core.invoke('set_app_config', { key: 'app_lang', value: lang }).catch(() => {});
+    }
+  } catch (e) {}
   applyLang();
 };
 
@@ -1022,7 +1214,7 @@ $('#btnNewGroup').onclick = () => {
     links.icons.push({ title: v.title, sort: 0, children: [] });
     currentGroup = links.icons.length - 1;
     renderGroups();
-    toast(t('groupCreated'));
+    saveLinksNow();
   });
 };
 
@@ -1031,7 +1223,7 @@ $('#btnRenameGroup').onclick = () => {
   openModal(t('renameGroup'), [{ key: 'title', label: t('groupName'), value: g.title, required: true }], (v) => {
     g.title = v.title;
     renderGroups();
-    toast(t('groupRenamed'));
+    saveLinksNow();
   });
 };
 
@@ -1041,7 +1233,7 @@ $('#btnDeleteGroup').onclick = async () => {
   links.icons.splice(currentGroup, 1);
   currentGroup = Math.max(0, currentGroup - 1);
   renderGroups();
-  toast(t('groupDeleted'));
+  saveLinksNow();
 };
 
 $('#btnNewCardEmpty').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
@@ -1242,6 +1434,7 @@ async function loadLinks() {
     renderGroups();
   } catch (e) {
     $('#groupSelect').innerHTML = `<option>${escapeHtml(t('loadFailed'))}</option>`;
+    enhanceSelect($('#groupSelect'));
     $('#cardList').innerHTML = `<div class="empty-state"><p class="muted">${escapeHtml(t('loadFailed'))}${escapeHtml(e.message || '')}</p><button class="btn btn-primary" onclick="loadLinks()">${escapeHtml(t('retry'))}</button></div>`;
     $('#cardEmpty').hidden = true;
   }

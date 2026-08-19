@@ -10,7 +10,9 @@ This repository contains a static homepage that renders links from `links.json`,
 - Search across link titles, URLs, and tags
 - Slash commands for theme and common destinations
 - Google, Bing, and GitHub search engine switcher
-- Light gradient and dark space themes with a background image
+- Light gradient and dark space themes with a background image (dark mode uses the "Emotional Dark" deep-violet palette)
+- System tray resident daemon: close/minimize hides to tray, Chinese tray menu (show / hide / quit), `Alt+A` global summon
+- Auto-update: checks GitHub releases on launch, manual check in About, one-click download & install (NSIS installer, signed)
 - Local click-frequency tracking with most-used-first sorting
 - My Files explorer with folder and file metadata from `myfiles/data.json`
 - Password-protected report folders backed by Cloudflare Pages Functions and `ALPEHUZ_ACCESS_PASSWORD`
@@ -116,6 +118,8 @@ Panel features:
 
 - Main window loads the site via the custom `nav://` protocol (`http://nav.localhost/index.html`), serving repository files locally.
 - The **Dev Panel** button on the homepage opens the embedded panel view inside the main window; authentication is required on every entry.
+- **System tray resident daemon**: closing or minimizing hides to the tray instead of quitting; the tray menu (显示 / 隐藏 / 退出) is always Chinese, and `Alt+A` summons the window from anywhere.
+- **Auto-update**: on launch the app checks GitHub releases for a newer version (toast + highlighted version chip); About has a manual **Check for Updates** button with a one-click download & install flow. Updates are signed and only work for the NSIS installer build.
 - Requires Rust toolchain + VS Build Tools (C++ desktop workload) on Windows.
 - Website links, GitHub, cnblogs, and Ko-fi open inside AlpeHuez WebViews by default; the configured external browser is used when launch mode is set to external.
 - Internal WebViews include fullscreen, exit-fullscreen, back navigation, session persistence, and ad blocking injection.
@@ -130,11 +134,15 @@ node /c/Users/Lenovo/AppData/Roaming/npm/node_modules/@tauri-apps/cli/tauri.js b
 # NSIS installer: src-tauri/target/release/bundle/nsis/AlpeHuez_<version>_x64-setup.exe
 ```
 
-To automate a version bump, build, and archive:
+The NSIS installer uses a custom **Liquid Glass** skin (white-to-`#E8F4FD` sidebar with a 3D logo, white header with a right-aligned horizontal logo), installs per-user (`currentUser`, no UAC prompt), and hides the language selector.
+
+To automate a version bump, build, sign, and archive:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.2.0
+powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.5.0
 ```
+
+The script reads the updater signing key from `~/.tauri/alpehuez.key` (or `TAURI_SIGNING_PRIVATE_KEY`), produces the signed installer, and writes both `releases/latest.json` and the Tauri-format `releases/updater-latest.json` (signature + download URL) that the in-app updater polls.
 
 Each release is archived under `releases/v<version>/`; `releases/latest.json`
 points to the newest archived version.

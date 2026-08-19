@@ -1,9 +1,8 @@
 {
-    "latest":  "0.4.0",
-    "updatedAt":  "2026-08-19 00:34:48",
+    "latest":  "0.5.0",
+    "updatedAt":  "2026-08-19 17:24:18",
     "artifacts":  [
-                      "AlpeHuez_0.4.0_arm64.apk",
-                      "AlpeHuez_0.4.0_x64-setup.exe",
+                      "AlpeHuez_0.5.0_x64-setup.exe",
                       "my-nav-panel.exe"
                   ]
 }

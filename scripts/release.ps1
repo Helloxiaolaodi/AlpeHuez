@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 [CmdletBinding()]
 param(
     [string]$Version = "",
@@ -55,7 +55,7 @@ function Set-AppVersion {
     $cargoText = Get-Content -Raw -LiteralPath $cargoTomlPath
     $cargoUpdated = $cargoText -replace
         '(?m)^(version\s*=\s*")[^"]+(")',
-        ('$1' + $NextVersion + '$2')
+        ('${1}' + $NextVersion + '${2}')
     if ($cargoUpdated -eq $cargoText) {
         throw 'Could not update version in Cargo.toml.'
     }
@@ -64,7 +64,7 @@ function Set-AppVersion {
     $lockText = Get-Content -Raw -LiteralPath $cargoLockPath
     $lockUpdated = $lockText -replace
         '(?m)(\[\[package\]\]\r?\nname = "my-nav-panel"\r?\nversion = ")[^"]+(")',
-        ('$1' + $NextVersion + '$2')
+        ('${1}' + $NextVersion + '${2}')
     if ($lockUpdated -eq $lockText) {
         throw 'Could not update the my-nav-panel version in Cargo.lock.'
     }
@@ -102,6 +102,19 @@ if ($lockVersion -ne $versionToRelease) {
 }
 
 if (-not $NoBuild) {
+    # 签名密钥：tauri-cli 只认 TAURI_SIGNING_PRIVATE_KEY（内容）。未设置时从 ~/.tauri/alpehuez.key 读取。
+    if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
+        $defaultKey = Join-Path $HOME '.tauri\alpehuez.key'
+        if (Test-Path -LiteralPath $defaultKey) {
+            $env:TAURI_SIGNING_PRIVATE_KEY = (Get-Content -Raw -LiteralPath $defaultKey).Trim()
+            if (-not $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD) {
+                Write-Warning 'TAURI_SIGNING_PRIVATE_KEY_PASSWORD 未设置，签名会失败。'
+            }
+        }
+        else {
+            Write-Warning '未找到签名密钥（TAURI_SIGNING_PRIVATE_KEY 或 ~/.tauri/alpehuez.key），createUpdaterArtifacts 构建会失败。'
+        }
+    }
     Push-Location $root
     try {
         & tauri build --bundles nsis
@@ -161,5 +174,42 @@ $manifestText = $manifest | ConvertTo-Json
     $manifestText,
     $utf8NoBom
 )
+
+# Tauri 官方 updater 清单（NSIS 安装版签名；便携 exe 无签名则跳过）
+$sigPath = Join-Path $nsisDir ($setupName + '.sig')
+if (Test-Path -LiteralPath $sigPath) {
+    $signature = (Get-Content -Raw -LiteralPath $sigPath).Trim()
+    # git 输出是 UTF-8，PowerShell 5.1 默认按系统代码页解码会乱码，先切到 UTF-8。
+    $prevOut = [Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    try {
+        $notes = (git -C $root log -5 --oneline) -join "`n"
+    }
+    finally {
+        [Console]::OutputEncoding = $prevOut
+    }
+    $pubDate = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+    $updaterManifest = [ordered]@{
+        version   = $versionToRelease
+        notes     = $notes
+        pub_date  = $pubDate
+        platforms = [ordered]@{
+            'windows-x86_64' = [ordered]@{
+                signature = $signature
+                url       = "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v$versionToRelease/$setupName"
+            }
+        }
+    }
+    $updaterText = $updaterManifest | ConvertTo-Json -Depth 5
+    [System.IO.File]::WriteAllText(
+        (Join-Path $releasesDir 'updater-latest.json'),
+        $updaterText,
+        $utf8NoBom
+    )
+    Write-Host "Wrote updater-latest.json (signed installer)."
+}
+else {
+    Write-Warning "No .sig at $sigPath — skipping updater-latest.json (portable-only release)."
+}
 
 Write-Host "Release v$versionToRelease archived at: $releaseDir"

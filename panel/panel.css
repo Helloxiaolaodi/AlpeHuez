@@ -20,6 +20,10 @@
   --glass-blur: blur(20px) saturate(150%);
 }
 
+/* 原生控件（select 下拉、滚动条等）强制跟随主题配色，杜绝深色模式下的「白块闪光弹」 */
+html { color-scheme: dark; }
+html[data-theme="light"] { color-scheme: light; }
+
 /* 深色（默认主打）：暗黑极客 + 骑行爬坡 */
 [data-theme="dark"] {
   --bg-0: #14121A;
@@ -323,6 +327,37 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .input { width: 100%; }
 .input::placeholder { color: var(--text-3); }
 
+/* ---------- 自定义下拉（液态玻璃） ---------- */
+.c-dd { position: relative; min-width: 0; }
+.c-dd .c-dd-native { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; border: 0; padding: 0; margin: 0; }
+.c-dd-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; min-width: 200px; padding: 8px 12px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 13px;
+  cursor: pointer; text-align: left; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.c-dd-trigger:hover { border-color: var(--accent); }
+.c-dd-chev { display: inline-flex; color: var(--text-3); transition: transform 0.18s; flex-shrink: 0; }
+.c-dd.open .c-dd-chev { transform: rotate(180deg); }
+.c-dd-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-dd-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 80;
+  min-width: 100%; max-height: 260px; overflow-y: auto; padding: 6px;
+  background: var(--glass-bg-solid);
+  backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--border-strong); border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+}
+.c-dd-menu[hidden] { display: none; }
+.c-dd-option {
+  display: flex; align-items: center; width: 100%; text-align: left;
+  padding: 8px 10px; margin: 2px 0; border: none; border-radius: 6px;
+  background: transparent; color: var(--text-2); font-size: 13px; cursor: pointer;
+}
+.c-dd-option:hover, .c-dd-option.selected { background: var(--accent-soft); color: var(--text); }
+.sw-toolbar .c-dd { flex: 0 0 220px; }
+
 /* ---------- Card list ---------- */
 .card-list { display: flex; flex-direction: column; gap: 8px; }
 .card-item {
@@ -469,6 +504,22 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .tl-meta { font-size: 11.5px; color: var(--text-3); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .tl-meta code { font-family: var(--mono); background: var(--hover); padding: 1px 6px; border-radius: 4px; color: var(--text-2); }
 
+.tl-pager { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.tl-pg {
+  min-width: 24px; height: 24px; padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: var(--text-2);
+  font-size: 12px; font-family: var(--mono); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.tl-pg:hover:not(:disabled) { background: var(--hover); color: var(--text); }
+.tl-pg.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+  box-shadow: 0 2px 8px var(--accent-soft);
+}
+.tl-pg:disabled { opacity: 0.35; cursor: default; }
+
 /* ---------- 系统资源（分段胶囊进度条） ---------- */
 .sys-card { margin-bottom: 16px; }
 .sys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -535,6 +586,9 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
   display: flex; align-items: center; justify-content: center; z-index: 100;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  /* 强制独立合成器图层：避免 WebView2 在按键/重绘时把带 backdrop-filter 的全屏层错误抬升或掉层，导致弹窗整块消失 */
+  transform: translateZ(0);
+  will-change: transform;
 }
 .confirm-backdrop {
   position: fixed; inset: 0; z-index: 250;
@@ -571,6 +625,7 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
   animation: modal-in 0.16s ease-out;
+  will-change: transform;
 }
 @keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }

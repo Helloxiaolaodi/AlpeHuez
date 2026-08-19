@@ -140,6 +140,7 @@ pub fn run() {
 
     let builder = builder
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .register_uri_scheme_protocol("nav", preview::handler)
         .setup(|app| {
             // 单实例：第二次启动直接退出，避免双进程争抢全局快捷键与 WebView2 数据目录
@@ -171,6 +172,8 @@ pub fn run() {
             }
             velometer::spawn(app.handle().clone());
             status::spawn(app.handle().clone());
+            // 上次退出遗留的自动备份推迟到启动后台线程执行（不阻塞启动）。
+            commands::run_pending_backup_at_launch(app.handle());
             // 窗口 visible:true 启动即显示；关闭窗口驻留后台（CloseRequested → hide），Alt+A 呼出。
             // Android 无全局快捷键可唤回，窗口必须始终显示。
             #[cfg(target_os = "android")]
@@ -217,6 +220,7 @@ pub fn run() {
             // 退出时才执行自动备份，关闭窗口只隐藏不备份（用户可能只是暂时收起）。
             #[cfg(not(target_os = "android"))]
             {
+                // 托盘菜单固定中文（用户偏好；不跟随 app_lang，避免配置库与前端语言不同步时变英文）。
                 let show_i = MenuItem::with_id(app, "show", "显示 AlpeHuez", true, None::<&str>)?;
                 let hide_i = MenuItem::with_id(app, "hide", "隐藏窗口", true, None::<&str>)?;
                 let quit_i = MenuItem::with_id(app, "quit", "退出 AlpeHuez", true, None::<&str>)?;
@@ -238,11 +242,10 @@ pub fn run() {
                     "quit" => {
                         let handle = app.clone();
                         std::thread::spawn(move || {
-                            if let Some(win) = handle.get_webview_window("main") {
-                                let _ = win.hide();
-                            }
-                            commands::auto_backup_on_close(&handle);
-                            handle.exit(0);
+                            // 只写待备份标记，立即硬退出（避免网络 push 与 WebView2 优雅销毁阻塞退出）；
+                            // 备份推迟到下次启动。
+                            commands::mark_backup_for_launch(&handle);
+                            std::process::exit(0);
                         });
                     }
                     _ => {}
