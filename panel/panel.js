@@ -1045,6 +1045,7 @@ $('#btnDeleteGroup').onclick = async () => {
 };
 
 $('#btnNewCardEmpty').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
+$('#btnNewCard').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
 
 $('#cardList').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit]');
