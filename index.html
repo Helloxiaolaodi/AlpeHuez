@@ -2132,6 +2132,41 @@
             width: min(100%, 330px);
         }
 
+        .quote-rotator {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+
+        .quote-icon {
+            flex: 0 0 auto;
+            color: var(--brand-primary);
+            font-size: 11px;
+        }
+
+        html[data-theme="space"] .quote-icon {
+            color: #A27BFF;
+        }
+
+        .quote-text {
+            max-width: 420px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+        }
+
+        .quote-text.quote-swap {
+            opacity: 0;
+            transform: translateY(6px);
+            filter: blur(3px);
+        }
+
         .search-shell {
             position: relative;
         }
@@ -3729,7 +3764,19 @@
             transition: color .15s, border-color .15s;
         }
         .tp-nav-btn:hover { color: var(--brand-primary); border-color: var(--brand-primary); }
-        .tp-note-day { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 66px; text-align: center; }
+        .tp-note-day {
+            font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+            min-width: 66px; text-align: center;
+            background: transparent; border: 1px solid transparent; border-radius: 6px;
+            padding: 2px 6px; cursor: pointer; line-height: 1.4;
+            transition: color .15s, border-color .15s;
+        }
+        .tp-note-day:hover { color: var(--brand-primary); border-color: var(--line); }
+        .tp-note-datepicker {
+            font-size: 11px; color: var(--text-main);
+            background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+            padding: 2px 4px; max-width: 130px;
+        }
         .tp-note { display: flex; flex-direction: column; gap: 10px; }
         .tp-note-input {
             width: 100%; min-height: 120px; resize: vertical;
@@ -4710,9 +4757,7 @@
                     <div class="home-scroll">
                         <div class="home-header">
                             <div class="hero-copy">
-                                <div class="eyebrow">Personal Digital Workspace</div>
                                 <h1>Stay lucky, stay curious</h1>
-                                <p>Open your portal cards inside AlpeHuez as persistent browser tabs. Your website sessions stay in this workspace without storing account passwords.</p>
                             </div>
                         </div>
 
@@ -4722,6 +4767,10 @@
                                 <span>Search</span>
                                 <span class="kbd-badge">Ctrl K</span>
                             </button>
+                            <div id="quoteRotator" class="quote-rotator" title="Daily quote">
+                                <span class="quote-icon">✦</span>
+                                <span id="quoteText" class="quote-text">Stay lucky, stay curious</span>
+                            </div>
                             <div id="appflowyKomPill" class="kom-card" title="Initializing..." hidden>
                                 <div class="kom-header">
                                     <div class="kom-title">
@@ -4966,6 +5015,19 @@
                 </div>
             </section>
 
+            <section class="settings-section">
+                <h3 data-i18n-settings="personalization">Personalization</h3>
+                <div class="settings-row">
+                    <label data-i18n-settings="quoteLibrary">Daily quote library</label>
+                    <textarea id="quoteLibrary" class="settings-textarea" data-i18n-placeholder-settings="quoteLibraryPlaceholder" placeholder="One quote per line"></textarea>
+                    <span class="settings-hint" data-i18n-settings="quoteLibraryHint">One quote per line; rotates every 6 seconds.</span>
+                </div>
+                <div class="settings-actions">
+                    <button id="quoteSave" class="settings-action-btn primary" type="button" data-i18n-settings="saveQuotes">Save quotes</button>
+                    <span class="settings-hint" id="quoteStatus"></span>
+                </div>
+            </section>
+
             <section class="settings-section" id="syncSection">
                 <h3 data-i18n-settings="sync">Sync</h3>
                 <div class="settings-row">
@@ -5103,7 +5165,47 @@
                 shortcutSaved: 'Shortcut saved',
                 shortcutEmpty: 'Shortcut cannot be empty',
                 languageSaved: 'Language saved',
-                lastBackup: 'Last backup: '
+                lastBackup: 'Last backup: ',
+                personalization: 'Personalization',
+                quoteLibrary: 'Daily quote library',
+                quoteLibraryPlaceholder: 'One quote per line',
+                quoteLibraryHint: 'One quote per line; rotates every 6 seconds.',
+                saveQuotes: 'Save quotes',
+                quotesSaved: 'Quotes saved',
+                notePlaceholder: 'Record today\'s thoughts',
+                focusHeatmap: 'Focus Heatmap',
+                dailyNote: 'Daily Note',
+                today: 'Today',
+                noteSaved: 'saved',
+                noteArchive: 'archive',
+                heading1: 'Heading 1',
+                heading2: 'Heading 2',
+                codeBlock: 'Code Block',
+                listItem: 'List Item',
+                quote: 'Quote',
+                bold: 'Bold',
+                telemetryPod: 'Telemetry Pod',
+                close: 'Close',
+                previousDay: 'Previous day',
+                nextDay: 'Next day',
+                jumpToDate: 'Jump to date',
+                quickActions: 'Quick actions',
+                zenMode: 'Zen Mode',
+                exportReport: 'Export Report',
+                windowMode: 'Window mode',
+                verticalDashboard: 'Vertical dashboard',
+                activityTimeline: 'Activity Timeline',
+                clear: 'Clear',
+                clearTimeline: 'Clear timeline',
+                copy: 'Copy',
+                floatBallTitle: 'AlpeHuez Ball · left-click telemetry pod · right-click modes',
+                countdown: 'Countdown',
+                quoteOfDay: 'Quote of the day',
+                localTime: 'Local time',
+                year: 'Year',
+                month: 'Month',
+                week: 'Week',
+                weatherPlaceholder: 'Weather widget placeholder — bring your own API key.'
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -5147,7 +5249,47 @@
                 shortcutSaved: '\u5feb\u6377\u952e\u5df2\u4fdd\u5b58',
                 shortcutEmpty: '\u5feb\u6377\u952e\u4e0d\u80fd\u4e3a\u7a7a',
                 languageSaved: '\u8bed\u8a00\u5df2\u4fdd\u5b58',
-                lastBackup: '\u4e0a\u6b21\u5907\u4efd\uff1a'
+                lastBackup: '\u4e0a\u6b21\u5907\u4efd\uff1a',
+                personalization: '\u4e2a\u6027\u5316',
+                quoteLibrary: '\u6bcf\u65e5\u4e00\u8a00\u56fe\u5e93',
+                quoteLibraryPlaceholder: '\u6bcf\u884c\u8f93\u5165\u4e00\u53e5\u8bdd',
+                quoteLibraryHint: '\u6bcf\u884c\u4e00\u53e5\u8bdd\uff0c\u6bcf 6 \u79d2\u987a\u5e8f\u8f6e\u6362\u3002',
+                saveQuotes: '\u4fdd\u5b58',
+                quotesSaved: '\u5df2\u4fdd\u5b58',
+                notePlaceholder: '\u8bb0\u5f55\u4eca\u5929\u60f3\u6cd5',
+                focusHeatmap: '\u4e13\u6ce8\u70ed\u529b\u56fe',
+                dailyNote: '\u6bcf\u65e5\u7b14\u8bb0',
+                today: '\u4eca\u5929',
+                noteSaved: '\u5df2\u4fdd\u5b58',
+                noteArchive: '\u5386\u53f2',
+                heading1: '\u4e00\u7ea7\u6807\u9898',
+                heading2: '\u4e8c\u7ea7\u6807\u9898',
+                codeBlock: '\u4ee3\u7801\u5757',
+                listItem: '\u5217\u8868\u9879',
+                quote: '\u5f15\u7528',
+                bold: '\u52a0\u7c97',
+                telemetryPod: '\u9065\u6d4b\u8231',
+                close: '\u5173\u95ed',
+                previousDay: '\u524d\u4e00\u5929',
+                nextDay: '\u540e\u4e00\u5929',
+                jumpToDate: '\u8df3\u8f6c\u5230\u65e5\u671f',
+                quickActions: '\u5feb\u6377\u64cd\u4f5c',
+                zenMode: '\u7985\u5fc3\u6a21\u5f0f',
+                exportReport: '\u5bfc\u51fa\u62a5\u544a',
+                windowMode: '\u7a97\u53e3\u6a21\u5f0f',
+                verticalDashboard: '\u5782\u76f4\u4eea\u8868\u76d8',
+                activityTimeline: '\u6d3b\u52a8\u65f6\u95f4\u7ebf',
+                clear: '\u6e05\u9664',
+                clearTimeline: '\u6e05\u9664\u65f6\u95f4\u7ebf',
+                copy: '\u590d\u5236',
+                floatBallTitle: 'AlpeHuez \u60ac\u6d6e\u7403 \u00b7 \u5de6\u952e\u9065\u6d4b\u8231 \u00b7 \u53f3\u952e\u6a21\u5f0f',
+                countdown: '\u5012\u8ba1\u65f6',
+                quoteOfDay: '\u4eca\u65e5\u4e00\u8a00',
+                localTime: '\u5f53\u5730\u65f6\u95f4',
+                year: '\u5e74',
+                month: '\u6708',
+                week: '\u5468',
+                weatherPlaceholder: '\u5929\u6c14\u7ec4\u4ef6\u5360\u4f4d \u2014 \u8bf7\u81ea\u5e26 API \u5bc6\u94a5\u3002'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -5186,6 +5328,7 @@
                 ['feedback', 'feedback'],
                 ['supportAuthor', 'supportAuthor'],
                 ['language', 'language'],
+                ['personalization', 'personalization'],
                 ['sync', 'sync'],
                 ['telemetry', 'telemetry']
             ];
@@ -5226,6 +5369,8 @@
             document.documentElement.lang = settingsLang === 'zh' ? 'zh-CN' : 'en';
             const select = $('languageSelect');
             if (select) select.value = settingsLang;
+            const loadingText = document.querySelector('.page-loading-text');
+            if (loadingText) loadingText.textContent = settingsLang === 'zh' ? 'AlpeHuez 破风加载中…' : 'AlpeHuez setting the pace…';
             document.querySelectorAll('[data-i18n-settings]').forEach((element) => {
                 const key = element.dataset.i18nSettings;
                 if (key && SETTINGS_STRINGS.en[key]) element.textContent = settingsText(key);
@@ -5233,6 +5378,14 @@
             document.querySelectorAll('[data-i18n-placeholder-settings]').forEach((element) => {
                 const key = element.dataset.i18nPlaceholderSettings;
                 if (key && SETTINGS_STRINGS.en[key]) element.placeholder = settingsText(key);
+            });
+            document.querySelectorAll('[data-i18n-title-settings]').forEach((element) => {
+                const key = element.dataset.i18nTitleSettings;
+                if (key && SETTINGS_STRINGS.en[key]) element.title = settingsText(key);
+            });
+            document.querySelectorAll('[data-i18n-aria-settings]').forEach((element) => {
+                const key = element.dataset.i18nAriaSettings;
+                if (key && SETTINGS_STRINGS.en[key]) element.setAttribute('aria-label', settingsText(key));
             });
         }
 
@@ -5437,6 +5590,7 @@
             loadBackgroundBlur();
             loadFeedbackSettings();
             loadSyncState();
+            loadQuoteLibraryInput();
             modal.classList.add('open');
         }
 
@@ -5830,9 +5984,9 @@
             if (!input) return;
             input.value = getNoteMarkdown(noteDate);
             renderNotePreview();
-            $('tpNoteDayLabel').textContent = noteDate === todayStr() ? 'Today' : noteDate;
+            $('tpNoteDayLabel').textContent = noteDate === todayStr() ? settingsText('today', 'Today') : noteDate;
             const status = $('tpNoteStatus');
-            if (status) status.textContent = noteDate === todayStr() ? '' : 'archive';
+            if (status) status.textContent = noteDate === todayStr() ? '' : settingsText('noteArchive', 'archive');
         }
 
         function openSlashMenu() {
@@ -5883,7 +6037,7 @@
                     invoke('save_daily_note', { date: noteDate, notes: md }).catch(() => {});
                 }
                 renderNotePreview();
-                if (status) status.textContent = 'saved';
+                if (status) status.textContent = settingsText('noteSaved', 'saved');
             }, 400);
         }
 
@@ -5908,6 +6062,20 @@
             });
             $('tpNotePrev').addEventListener('click', () => { shiftNoteDate(-1); renderNote(); });
             $('tpNoteNext').addEventListener('click', () => { shiftNoteDate(1); renderNote(); });
+            const dayLabel = $('tpNoteDayLabel');
+            const datePicker = $('tpNoteDatePicker');
+            if (dayLabel && datePicker) {
+                dayLabel.addEventListener('click', () => {
+                    datePicker.value = noteDate;
+                    datePicker.hidden = !datePicker.hidden;
+                    if (!datePicker.hidden) datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
+                });
+                datePicker.addEventListener('change', () => {
+                    if (datePicker.value) { noteDate = datePicker.value; renderNote(); }
+                    datePicker.hidden = true;
+                });
+                datePicker.addEventListener('blur', () => { datePicker.hidden = true; });
+            }
             const codeModal = $('codeModal');
             if (codeModal) {
                 $('codeModalClose').addEventListener('click', closeCodeModal);
@@ -6180,16 +6348,30 @@
             if (isDesktop) {
                 await requestLayoutInternalPages();
                 const bounds = getStageBounds();
-                const info = await invoke('open_internal_page', {
-                    url,
-                    title,
-                    x: bounds.x,
-                    y: bounds.y,
-                    width: bounds.width,
-                    height: bounds.height
-                });
+                // 先画遮罩再创建 webview：WebView2 创建瞬间会先露出引擎默认底色（黑），
+                // 若等 browser-load-started 事件回来再显示遮罩，中间那几帧黑屏就暴露了。
+                // 这里先显示自行车遮罩并等一帧渲染，确保遮罩先于 webview 出现在屏幕上。
+                if (window.showLoadingOverlay) window.showLoadingOverlay();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                let info;
+                try {
+                    info = await invoke('open_internal_page', {
+                        url,
+                        title,
+                        x: bounds.x,
+                        y: bounds.y,
+                        width: bounds.width,
+                        height: bounds.height
+                    });
+                } catch (error) {
+                    if (window.hideLoadingOverlay) window.hideLoadingOverlay();
+                    throw error;
+                }
                 browserTabs.set(info.label, { label: info.label, title: info.title || title, url: info.url || url });
                 renderBrowserTabs();
+                // 标记为加载中：activateBrowserTab 会据此跳过 activate_internal_page，
+                // 避免把还没加载完的 webview 提前显示出来（旧深色底色下就是黑屏）。
+                if (window.markTabLoading) window.markTabLoading(info.label);
                 await activateBrowserTab(info.label);
             } else {
                 await openExternal(url);
@@ -6676,7 +6858,11 @@
             if (window.syncLoadingOverlay) window.syncLoadingOverlay();
             if (isDesktop) {
                 try {
-                    await invoke('activate_internal_page', { label });
+                    // 正在加载的标签不提前显示：等 browser-load-finished 后由遮罩逻辑统一显示，
+                    // 否则未加载完的 webview 会露出引擎底色（旧深色底色下就是黑屏）。
+                    if (!window.isTabLoading || !window.isTabLoading(label)) {
+                        await invoke('activate_internal_page', { label });
+                    }
                 } catch (error) {
                     console.error('activate_internal_page failed:', error);
                 }
@@ -7237,6 +7423,9 @@
             let timer = null;
             let failTimer = null;
             const loadingTabs = new Set();
+            // label -> 'loading' | 'loaded'：区分"正在加载"与"已加载"，避免把未加载完的
+            // webview 提前显示出来（旧深色底色下就是黑屏）。
+            const tabStates = new Map();
             function show() {
                 if (timer) clearTimeout(timer);
                 overlay.hidden = false;
@@ -7245,6 +7434,7 @@
                 failTimer = setTimeout(() => {
                     failTimer = null;
                     loadingTabs.delete(activeBrowserLabel);
+                    tabStates.set(activeBrowserLabel, 'loaded');
                     hide();
                     if (activeBrowserLabel) {
                         invoke('activate_internal_page', { label: activeBrowserLabel }).catch(() => {});
@@ -7260,12 +7450,12 @@
             // Rust 侧加载期间会隐藏子 webview，Finished 后这里重新激活显示。
             listen('browser-load-started', (event) => {
                 const label = event.payload && event.payload.label;
-                if (label) loadingTabs.add(label);
+                if (label) { loadingTabs.add(label); tabStates.set(label, 'loading'); }
                 if (label === activeBrowserLabel) show();
             });
             listen('browser-load-finished', (event) => {
                 const label = event.payload && event.payload.label;
-                if (label) loadingTabs.delete(label);
+                if (label) { loadingTabs.delete(label); tabStates.set(label, 'loaded'); }
                 if (failTimer) { clearTimeout(failTimer); failTimer = null; }
                 if (label === activeBrowserLabel) {
                     hide();
@@ -7273,9 +7463,67 @@
                 }
             });
             window.syncLoadingOverlay = () => {
-                if (loadingTabs.has(activeBrowserLabel)) show();
+                if (tabStates.get(activeBrowserLabel) === 'loading') show();
                 else hide();
             };
+            window.showLoadingOverlay = () => { if (overlay) show(); };
+            window.hideLoadingOverlay = () => { if (overlay) hide(); };
+            window.isTabLoading = (label) => tabStates.get(label) === 'loading';
+            window.markTabLoading = (label) => {
+                if (tabStates.get(label) !== 'loaded') tabStates.set(label, 'loading');
+            };
+        }
+
+        const QUOTES_KEY = 'alpehuez_quotes';
+        const DEFAULT_QUOTES = [
+            'Stay lucky, stay curious',
+            'Cracking codes and microbes, mile by mile.',
+            'Stay hungry, stay foolish.',
+            '代码是写给机器执行的，更是写给人看的。',
+            '不要重复造轮子，除非你在学习造轮子。'
+        ];
+        let quoteList = [];
+        let quoteIndex = 0;
+        let quoteTimer = null;
+
+        function loadQuotes() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(QUOTES_KEY) || 'null');
+                quoteList = Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_QUOTES;
+            } catch (error) {
+                quoteList = DEFAULT_QUOTES;
+            }
+            quoteIndex = 0;
+        }
+
+        function renderQuote() {
+            const el = $('quoteText');
+            if (!el || !quoteList.length) return;
+            el.textContent = quoteList[quoteIndex % quoteList.length];
+        }
+
+        function swapQuote() {
+            const el = $('quoteText');
+            if (!el || !quoteList.length) return;
+            el.classList.add('quote-swap');
+            setTimeout(() => {
+                quoteIndex = (quoteIndex + 1) % quoteList.length;
+                el.textContent = quoteList[quoteIndex];
+                el.classList.remove('quote-swap');
+            }, 500);
+        }
+
+        function startQuoteRotation() {
+            loadQuotes();
+            renderQuote();
+            if (quoteTimer) clearInterval(quoteTimer);
+            quoteTimer = setInterval(swapQuote, 6000);
+        }
+
+        function loadQuoteLibraryInput() {
+            const ta = $('quoteLibrary');
+            if (!ta) return;
+            ta.value = quoteList.join('\n');
         }
 
         const ENGINES = {
@@ -7291,7 +7539,6 @@
             { match: 'myfiles', label: 'My Files', desc: 'Open file sharing workspace', action: 'myfiles', icon: ICONS.files },
             { match: 'badges', label: 'Achievements', desc: 'Open the achievement gallery', view: 'badges', icon: ICONS.badge },
             { match: 'dev', label: 'Developer Panel', desc: 'Open the developer console', view: 'dev', icon: ICONS.code },
-            { match: 'blog', label: 'Blog', desc: 'Open cnblogs in a tab', url: 'https://www.cnblogs.com/Helloxiaolaodi', icon: ICONS.blog },
             { match: 'github', label: 'GitHub', desc: 'Open GitHub in a tab', url: 'https://github.com/Helloxiaolaodi', icon: ICONS.github, quick: true },
             { match: 'google', label: 'Google', desc: 'Open Google in a tab', url: 'https://www.google.com', icon: ICONS.search, quick: true },
             { match: 'bing', label: 'Bing', desc: 'Open Bing in a tab', url: 'https://www.bing.com', icon: ICONS.search, quick: true }
@@ -7550,6 +7797,20 @@
                 applySettingsLanguage();
                 const status = $('languageStatus');
                 if (status) status.textContent = settingsText('languageSaved', 'Language saved');
+            });
+            $('quoteSave').addEventListener('click', () => {
+                const ta = $('quoteLibrary');
+                const lines = ta ? ta.value.split('\n').map((s) => s.trim()).filter(Boolean) : [];
+                quoteList = lines.length ? lines : DEFAULT_QUOTES;
+                try {
+                    localStorage.setItem(QUOTES_KEY, JSON.stringify(quoteList));
+                } catch (error) {
+                    console.error('save quotes failed:', error);
+                }
+                quoteIndex = 0;
+                renderQuote();
+                const status = $('quoteStatus');
+                if (status) status.textContent = settingsText('quotesSaved', 'Quotes saved');
             });
             $('hfBackupBtn').addEventListener('click', async () => {
                 const status = $('hfStatus');
@@ -8111,6 +8372,14 @@
                 pill.addEventListener('click', () => { drawer.hidden = !drawer.hidden; });
                 const close = $('vmCloseBtn');
                 if (close) close.addEventListener('click', () => { drawer.hidden = true; });
+                document.addEventListener('click', (e) => {
+                    if (!drawer.hidden && !drawer.contains(e.target) && !pill.contains(e.target)) {
+                        drawer.hidden = true;
+                    }
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !drawer.hidden) drawer.hidden = true;
+                });
             }
         }
 
@@ -8173,6 +8442,7 @@
             initPageLoadingOverlay();
             initActivityTimelineModal();
             initDailyNotes();
+            startQuoteRotation();
             loadPortalLinks();
         }
 
@@ -8631,51 +8901,52 @@
     <div id="toastStack" class="toast-stack" aria-live="polite"></div>
     <div id="telemetryPod" class="telemetry-pod" hidden>
         <div class="tp-head">
-            <strong>Telemetry Pod</strong>
-            <button type="button" id="tpClose" class="icon-btn" aria-label="Close">&times;</button>
+            <strong data-i18n-settings="telemetryPod">Telemetry Pod</strong>
+            <button type="button" id="tpClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
         </div>
         <div class="tp-scroll">
-            <div class="tp-section"><h3>Focus Heatmap</h3><div id="tpHeatmap"></div></div>
+            <div class="tp-section"><h3 data-i18n-settings="focusHeatmap">Focus Heatmap</h3><div id="tpHeatmap"></div></div>
             <div class="tp-section tp-note-section">
                 <div class="tp-note-head">
-                    <h3>Daily Note</h3>
+                    <h3 data-i18n-settings="dailyNote">Daily Note</h3>
                     <div class="tp-note-nav">
-                        <button type="button" id="tpNotePrev" class="tp-nav-btn" aria-label="Previous day">&lsaquo;</button>
-                        <span id="tpNoteDayLabel" class="tp-note-day">Today</span>
-                        <button type="button" id="tpNoteNext" class="tp-nav-btn" aria-label="Next day">&rsaquo;</button>
+                        <button type="button" id="tpNotePrev" class="tp-nav-btn" data-i18n-aria-settings="previousDay" aria-label="Previous day">&lsaquo;</button>
+                        <button type="button" id="tpNoteDayLabel" class="tp-note-day" data-i18n-title-settings="jumpToDate" title="Jump to date">Today</button>
+                        <input type="date" id="tpNoteDatePicker" class="tp-note-datepicker" hidden>
+                        <button type="button" id="tpNoteNext" class="tp-nav-btn" data-i18n-aria-settings="nextDay" aria-label="Next day">&rsaquo;</button>
                     </div>
                 </div>
                 <div id="tpNoteWrap" class="tp-note">
-                    <textarea id="tpNoteInput" class="tp-note-input" placeholder="记录今天的骑行与想法… 行首输入 / 打开命令" spellcheck="false"></textarea>
+                    <textarea id="tpNoteInput" class="tp-note-input" data-i18n-placeholder-settings="notePlaceholder" placeholder="Record today's thoughts" spellcheck="false"></textarea>
                     <div class="tp-note-preview" id="tpNotePreview"></div>
                     <div class="tp-note-status" id="tpNoteStatus">saved</div>
                 </div>
                 <div id="tpSlashMenu" class="slash-menu" hidden>
-                    <button type="button" class="slash-item" data-cmd="#"><span class="slash-icon">#</span><span>Heading 1</span><kbd>/#</kbd></button>
-                    <button type="button" class="slash-item" data-cmd="##"><span class="slash-icon">##</span><span>Heading 2</span><kbd>/##</kbd></button>
-                    <button type="button" class="slash-item" data-cmd="code"><span class="slash-icon">&lt;/&gt;</span><span>Code Block</span><kbd>/code</kbd></button>
-                    <button type="button" class="slash-item" data-cmd="-"><span class="slash-icon">&bull;</span><span>List Item</span><kbd>/-</kbd></button>
-                    <button type="button" class="slash-item" data-cmd=">"><span class="slash-icon">&rsaquo;</span><span>Quote</span><kbd>/&gt;</kbd></button>
-                    <button type="button" class="slash-item" data-cmd="**"><span class="slash-icon">B</span><span>Bold</span><kbd>/**</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="#"><span class="slash-icon">#</span><span data-i18n-settings="heading1">Heading 1</span><kbd>/#</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="##"><span class="slash-icon">##</span><span data-i18n-settings="heading2">Heading 2</span><kbd>/##</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="code"><span class="slash-icon">&lt;/&gt;</span><span data-i18n-settings="codeBlock">Code Block</span><kbd>/code</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="-"><span class="slash-icon">&bull;</span><span data-i18n-settings="listItem">List Item</span><kbd>/-</kbd></button>
+                    <button type="button" class="slash-item" data-cmd=">"><span class="slash-icon">&rsaquo;</span><span data-i18n-settings="quote">Quote</span><kbd>/&gt;</kbd></button>
+                    <button type="button" class="slash-item" data-cmd="**"><span class="slash-icon">B</span><span data-i18n-settings="bold">Bold</span><kbd>/**</kbd></button>
                 </div>
             </div>
         </div>
-        <div class="tp-dock" role="toolbar" aria-label="Quick actions">
-            <button type="button" id="tpZen" class="tp-dock-btn" aria-label="Zen Mode" title="Zen Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-            <button type="button" id="tpExport" class="tp-dock-btn" aria-label="Export Report" title="Export Report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <div class="tp-dock" role="toolbar" data-i18n-aria-settings="quickActions" aria-label="Quick actions">
+            <button type="button" id="tpZen" class="tp-dock-btn" data-i18n-aria-settings="zenMode" data-i18n-title-settings="zenMode" aria-label="Zen Mode" title="Zen Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button type="button" id="tpExport" class="tp-dock-btn" data-i18n-aria-settings="exportReport" data-i18n-title-settings="exportReport" aria-label="Export Report" title="Export Report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
             <span class="tp-dock-sep"></span>
-            <button type="button" class="tp-dock-btn" data-fbmode="fullscreen" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/></svg></button>
-            <button type="button" class="tp-dock-btn" data-fbmode="window" aria-label="Window mode" title="Window Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
-            <button type="button" class="tp-dock-btn" data-fbmode="vertical" aria-label="Vertical dashboard" title="Vertical Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
+            <button type="button" class="tp-dock-btn" data-fbmode="fullscreen" data-i18n-aria-settings="fullscreen" data-i18n-title-settings="fullscreen" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/></svg></button>
+            <button type="button" class="tp-dock-btn" data-fbmode="window" data-i18n-aria-settings="windowMode" data-i18n-title-settings="windowMode" aria-label="Window mode" title="Window Mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+            <button type="button" class="tp-dock-btn" data-fbmode="vertical" data-i18n-aria-settings="verticalDashboard" data-i18n-title-settings="verticalDashboard" aria-label="Vertical dashboard" title="Vertical Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
         </div>
     </div>
     <div id="activityModal" class="app-modal-backdrop" hidden>
-        <div class="app-modal activity-modal" role="dialog" aria-modal="true" aria-label="Activity Timeline">
+        <div class="app-modal activity-modal" role="dialog" aria-modal="true" data-i18n-aria-settings="activityTimeline" aria-label="Activity Timeline">
             <div class="app-modal-head">
-                <h3>Activity Timeline</h3>
+                <h3 data-i18n-settings="activityTimeline">Activity Timeline</h3>
                 <div class="app-modal-actions">
-                    <button type="button" id="activityClearBtn" class="app-modal-btn" aria-label="Clear timeline">Clear</button>
-                    <button type="button" id="activityModalClose" class="icon-btn" aria-label="Close">&times;</button>
+                    <button type="button" id="activityClearBtn" class="app-modal-btn" data-i18n-settings="clear" data-i18n-aria-settings="clearTimeline" aria-label="Clear timeline">Clear</button>
+                    <button type="button" id="activityModalClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
                 </div>
             </div>
             <div class="app-modal-body">
@@ -8688,8 +8959,8 @@
             <div class="app-modal-head">
                 <h3 class="code-modal-title"><span id="codeModalLang" class="code-modal-lang"></span><span id="codeModalTitle" class="code-modal-head-title"></span></h3>
                 <div class="app-modal-actions">
-                    <button type="button" id="codeModalCopy" class="app-modal-btn">Copy</button>
-                    <button type="button" id="codeModalClose" class="icon-btn" aria-label="Close">&times;</button>
+                    <button type="button" id="codeModalCopy" class="app-modal-btn" data-i18n-settings="copy">Copy</button>
+                    <button type="button" id="codeModalClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
                 </div>
             </div>
             <div class="app-modal-body code-modal-body">
@@ -8697,36 +8968,36 @@
             </div>
         </div>
     </div>
-    <div id="floatBall" class="float-ball" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">
+    <div id="floatBall" class="float-ball" data-i18n-title-settings="floatBallTitle" title="AlpeHuez Ball · left-click telemetry pod · right-click modes">
         <svg id="floatBallIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/></svg>
     </div>
     <div id="floatBallMenu" class="float-ball-menu" hidden>
-        <button type="button" data-fbmode="fullscreen">Fullscreen</button>
-        <button type="button" data-fbmode="window">Window</button>
-        <button type="button" data-fbmode="vertical">Vertical dashboard</button>
+        <button type="button" data-fbmode="fullscreen" data-i18n-settings="fullscreen">Fullscreen</button>
+        <button type="button" data-fbmode="window" data-i18n-settings="windowMode">Window</button>
+        <button type="button" data-fbmode="vertical" data-i18n-settings="verticalDashboard">Vertical dashboard</button>
     </div>
     <aside id="vDashboard" class="vertical-dashboard" hidden>
         <div class="vd-head">
-            <strong>Vertical Dashboard</strong>
-            <button id="vdCloseBtn" class="icon-btn" type="button" title="Close" aria-label="Close">&times;</button>
+            <strong data-i18n-settings="verticalDashboard">Vertical Dashboard</strong>
+            <button id="vdCloseBtn" class="icon-btn" type="button" data-i18n-title-settings="close" data-i18n-aria-settings="close" title="Close" aria-label="Close">&times;</button>
         </div>
         <div class="vd-scroll">
             <div class="vd-card">
-                <h4>Countdown</h4>
-                <div class="vd-progress-row"><span>Year</span><div class="vd-track"><div class="vd-bar year" id="vdYearBar"></div></div><strong id="vdYearPct">0%</strong></div>
-                <div class="vd-progress-row"><span>Month</span><div class="vd-track"><div class="vd-bar month" id="vdMonthBar"></div></div><strong id="vdMonthPct">0%</strong></div>
-                <div class="vd-progress-row"><span>Week</span><div class="vd-track"><div class="vd-bar week" id="vdWeekBar"></div></div><strong id="vdWeekPct">0%</strong></div>
+                <h4 data-i18n-settings="countdown">Countdown</h4>
+                <div class="vd-progress-row"><span data-i18n-settings="year">Year</span><div class="vd-track"><div class="vd-bar year" id="vdYearBar"></div></div><strong id="vdYearPct">0%</strong></div>
+                <div class="vd-progress-row"><span data-i18n-settings="month">Month</span><div class="vd-track"><div class="vd-bar month" id="vdMonthBar"></div></div><strong id="vdMonthPct">0%</strong></div>
+                <div class="vd-progress-row"><span data-i18n-settings="week">Week</span><div class="vd-track"><div class="vd-bar week" id="vdWeekBar"></div></div><strong id="vdWeekPct">0%</strong></div>
                 <p class="vd-sub" id="vdCountdownSub"></p>
             </div>
             <div class="vd-card">
-                <h4>Quote of the day</h4>
+                <h4 data-i18n-settings="quoteOfDay">Quote of the day</h4>
                 <p class="vd-quote" id="vdQuoteText"></p>
             </div>
             <div class="vd-card">
-                <h4>Local time</h4>
+                <h4 data-i18n-settings="localTime">Local time</h4>
                 <div class="vd-clock" id="vdClock"></div>
                 <div class="vd-clock-sub" id="vdClockSub"></div>
-                <p class="vd-sub">Weather widget placeholder — bring your own API key.</p>
+                <p class="vd-sub" data-i18n-settings="weatherPlaceholder">Weather widget placeholder — bring your own API key.</p>
             </div>
             <div class="vd-card">
                 <h4>Meeting</h4>
