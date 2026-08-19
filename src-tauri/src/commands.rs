@@ -8,7 +8,13 @@ use std::process::{Command, ExitStatus, Stdio};
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 use std::sync::atomic::AtomicBool;
+use std::sync::{LazyLock, Mutex};
+use std::collections::HashSet;
 use std::time::{Duration, Instant};
+
+/// 正在加载的浏览器标签 label 集合：加载期间不显示子 webview，避免露出引擎底色（黑屏）。
+#[cfg(not(target_os = "android"))]
+static LOADING_LABELS: LazyLock<Mutex<HashSet<String>>> = LazyLock::new(|| Mutex::new(HashSet::new()));
 
 #[cfg(not(target_os = "android"))]
 use std::sync::atomic::Ordering;
@@ -995,8 +1001,11 @@ fn open_internal_page_impl(
                 size: PhysicalSize::new(width, height).into(),
             });
         }
-        webview.show().map_err(|e| e.to_string())?;
-        webview.set_focus().map_err(|e| e.to_string())?;
+        // 正在加载的标签不提前显示，等 browser-load-finished 后由前端统一显示。
+        if !LOADING_LABELS.lock().unwrap().contains(&label) {
+            webview.show().map_err(|e| e.to_string())?;
+            webview.set_focus().map_err(|e| e.to_string())?;
+        }
         return Ok(InternalPageInfo {
             label,
             url,
@@ -1027,7 +1036,9 @@ fn open_internal_page_impl(
 
     let builder = WebviewBuilder::new(label.clone(), WebviewUrl::External(parsed))
         .data_directory(session_dir)
-        .background_color(tauri::window::Color(11, 17, 32, 255))
+        // 引擎默认底色用白色而非深色：创建瞬间若有一帧漏出，浅色主题下是白不是黑。
+        // 加载期间 webview 会被 hide + 前端自行车遮罩覆盖，此色仅作兜底。
+        .background_color(tauri::window::Color(255, 255, 255, 255))
         .initialization_script(child_script.as_str())
         .on_page_load(move |webview, payload| {
             if payload.url().as_str() == "about:blank" {
@@ -1038,6 +1049,7 @@ fn open_internal_page_impl(
             if payload.event() == PageLoadEvent::Started {
                 // 加载期间隐藏 webview，由前端自行车 loading overlay 代替黑屏。
                 let _ = webview.hide();
+                LOADING_LABELS.lock().unwrap().insert(current_label.clone());
                 let _ = page_app.emit(
                     "browser-load-started",
                     InternalPageInfo {
@@ -1047,6 +1059,7 @@ fn open_internal_page_impl(
                     },
                 );
             } else if payload.event() == PageLoadEvent::Finished {
+                LOADING_LABELS.lock().unwrap().remove(&current_label);
                 let _ = page_app.emit(
                     "browser-tab-updated",
                     InternalPageInfo {
@@ -1120,8 +1133,11 @@ pub async fn activate_internal_page(
             continue;
         }
         if label.as_deref() == Some(candidate.as_str()) {
-            webview.show().map_err(|e| e.to_string())?;
-            webview.set_focus().map_err(|e| e.to_string())?;
+            // 正在加载的标签不显示，等 browser-load-finished 后前端再调用本命令显示。
+            if !LOADING_LABELS.lock().unwrap().contains(&candidate) {
+                webview.show().map_err(|e| e.to_string())?;
+                webview.set_focus().map_err(|e| e.to_string())?;
+            }
         } else {
             webview.hide().map_err(|e| e.to_string())?;
         }
