@@ -217,3 +217,13 @@ The repository follows a layered background strategy. The rule is driven by **pa
 - Shared report access in Cloudflare Pages is configured through the `ALPEHUZ_ACCESS_PASSWORD` environment variable.
 - The developer panel password is stored in the local desktop app config and is not committed.
 - Do not place private data inside `/myfiles/` unless it is password protected or removed from the public deployment.
+
+Additional community link:
+
+- [LINUX DO](https://linux.do/) - A next-generation Linux community
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+[Back to top](#readme-top)
