@@ -23,7 +23,9 @@ const PUBLIC_PATHS = new Set([
 export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
-  const path = url.pathname;
+  // pathname 是百分号编码形式（如 Windows%20Software），需解码后才能与含空格的公开路径匹配。
+  let path = url.pathname;
+  try { path = decodeURIComponent(path); } catch { /* 非法编码时保留原样 */ }
 
   // 登录页与登录接口必须绕过，否则会无限重定向。
   if (path.endsWith('/login.html') || path.endsWith('/login')) return next();
