@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-reload-internal-page"
+description = "Enables the reload_internal_page command without any pre-configured scope."
+commands.allow = ["reload_internal_page"]
+
+[[permission]]
+identifier = "deny-reload-internal-page"
+description = "Denies the reload_internal_page command without any pre-configured scope."
+commands.deny = ["reload_internal_page"]

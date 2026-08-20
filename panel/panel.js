@@ -4,6 +4,8 @@ const $ = (sel) => document.querySelector(sel);
 // Tauri 注入脚本定义 window.isTauri（不可配置），顶层不能声明同名 const，否则整脚本 SyntaxError 白屏
 const isDesktop = typeof window !== 'undefined' && !!window.__TAURI__;
 const embedded = isDesktop && new URLSearchParams(location.search).get('embedded') === '1';
+// 本地浏览器面板（server.mjs 127.0.0.1）保持完整功能；公网展示版只显示私有锁定空状态。
+const isLocalPanelHost = !location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 if (embedded) {
   document.body.classList.add('dev-embedded');
   const oldSidebar = document.querySelector('.sidebar');
@@ -45,6 +47,10 @@ const LOCALES = {
     preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
     navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
     recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
+    importBookmarks: '导入书签 HTML', exportBookmarks: '导出书签 HTML',
+    noBookmarks: '未找到可导入的书签链接', importedCount: '已导入 {n} 个书签（跳过 {dup} 个重复）', importFailed: '导入失败：',
+    importedGroup: '导入的书签', noLinksToExport: '没有可导出的网址卡片',
+    bookmarksExported: '已导出书签 HTML：', exportFailed: '导出失败：',
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
     noCards: '该分组还没有卡片', noMatch: '没有匹配的卡片', newCard: '新建卡片',
     myfilesDesc: '管理文件浏览器中的文件夹与文件，保存后自动写入 data.json',
@@ -96,19 +102,14 @@ const LOCALES = {
     myfilesPwdNextTitle: '下一步：同步到 Cloudflare',
     myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → 选择项目\n2. Settings → Environment variables → Production\n3. 将 ALPEHUZ_ACCESS_PASSWORD 改为：{pwd}\n4. 点 Save，Cloudflare 自动重新部署，新密码生效。',
     forgotPassword: '忘记密码？',
-    recoverTitle: '找回密码',
+    webLockTitle: '私人本地工作区', webLockDesc: '不可用于线上展示版。',
     recoverEmail: '找回邮箱',
-    recoverSentTitle: '验证码已发送',
-    recoverSentText: '验证码已发送到 {email}，请前往邮箱查看。',
-    recoverCodeText: '如果收不到邮件，可直接使用此验证码：{code}',
-    recoverStep2Title: '重置密码',
-    recoverCode: '6 位验证码',
     recoverFailed: '找回失败：',
-    recoverMailSubject: 'AlpeHuez 找回密码验证码',
-    recoverMailBody: '你的 AlpeHuez 找回密码验证码是：',
     manageSoftware: '管理软件', softwareManager: '软件下载管理', addSoftware: '新增软件', editSoftware: '编辑软件',
     softwareSearch: '搜索软件…', softwareEmpty: '没有匹配的软件。', done: '完成', all: '全部',
     softwareName: '软件名称', softwareCat: '分类', softwareEn: '英文描述', softwareZh: '中文描述',
+    softwareTab: '软件', softwareTabDesc: '管理软件下载页中的软件卡片，保存后自动写入 myfiles/softwares/software-data.json',
+    softwareDownload: '下载',
     softwareUrl: '下载链接', softwareExtraLabelEn: '附加按钮文字（EN）', softwareExtraLabelZh: '附加按钮文字（ZH）',
     softwareExtraUrl: '附加按钮链接', softwareSaved: '软件数据已保存', softwareLoadFailed: '加载软件数据失败：',
     softwareSaveLocalHint: '已保存到本地，公开网站需在「部署」中推送后更新。',
@@ -125,6 +126,10 @@ const LOCALES = {
     preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
     navDesc: 'Manage nav cards & groups. Saved to links.json',
     recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
+    importBookmarks: 'Import bookmarks', exportBookmarks: 'Export bookmarks',
+    noBookmarks: 'No valid bookmark links found', importedCount: 'Imported {n} bookmarks (skipped {dup} duplicates)', importFailed: 'Import failed: ',
+    importedGroup: 'Imported Bookmarks', noLinksToExport: 'Nothing to export',
+    bookmarksExported: 'Bookmarks exported: ', exportFailed: 'Export failed: ',
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
     noCards: 'No cards in this group yet', noMatch: 'No matching cards', newCard: 'New Card',
     myfilesDesc: 'Manage folders & files in the file explorer. Saved to data.json',
@@ -176,19 +181,14 @@ const LOCALES = {
     myfilesPwdNextTitle: 'Next: Sync to Cloudflare',
     myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → select your project\n2. Settings → Environment variables → Production\n3. Set ALPEHUZ_ACCESS_PASSWORD to: {pwd}\n4. Click Save — Cloudflare redeploys automatically.',
     forgotPassword: 'Forgot password?',
-    recoverTitle: 'Recover password',
+    webLockTitle: 'Private local workspace', webLockDesc: 'Not available on the web preview.',
     recoverEmail: 'Recovery email',
-    recoverSentTitle: 'Code sent',
-    recoverSentText: 'A recovery code was sent to {email}. Check your inbox.',
-    recoverCodeText: 'If the email doesn\'t arrive, use this code directly: {code}',
-    recoverStep2Title: 'Reset password',
-    recoverCode: '6-digit code',
     recoverFailed: 'Recovery failed: ',
-    recoverMailSubject: 'AlpeHuez password recovery code',
-    recoverMailBody: 'Your AlpeHuez recovery code is: ',
     manageSoftware: 'Manage Software', softwareManager: 'Software Manager', addSoftware: 'Add Software', editSoftware: 'Edit Software',
     softwareSearch: 'Search software…', softwareEmpty: 'No matching software.', done: 'Done', all: 'All',
     softwareName: 'Name', softwareCat: 'Category', softwareEn: 'English description', softwareZh: 'Chinese description',
+    softwareTab: 'Software', softwareTabDesc: 'Manage software cards on the Downloads page. Save writes to myfiles/softwares/software-data.json',
+    softwareDownload: 'Download',
     softwareUrl: 'Download URL', softwareExtraLabelEn: 'Extra button label (EN)', softwareExtraLabelZh: 'Extra button label (ZH)',
     softwareExtraUrl: 'Extra button URL', softwareSaved: 'Software data saved', softwareLoadFailed: 'Failed to load software data: ',
     softwareSaveLocalHint: 'Saved locally — push via Deploy to update the public site.',
@@ -396,6 +396,9 @@ async function api(path, opts = {}) {
       if (method === 'GET') return { ok: true, password: await invoke('get_myfiles_password') };
       await invoke('set_myfiles_password', { password: body.password });
       return { ok: true };
+    }
+    if (path === '/api/export-bookmarks') {
+      return await invoke('save_bookmarks_export', { filename: body.filename, content: body.content });
     }
     if (path === '/api/software') {
       if (method === 'GET') return { ok: true, data: await invoke('read_software') };
@@ -822,8 +825,101 @@ function openSoftwareForm(item, index) {
     if (index === null) softwareData.software.push(s);
     else softwareData.software[index] = s;
     await saveSoftware();
-    openSoftwareManager();
+    // 从软件管理弹窗进入时重开弹窗；从侧边栏「软件」选项卡进入时刷新卡片。
+    if (!$('#modalBackdrop').hidden) openSoftwareManager();
+    else renderSoftwareGrid();
   });
+}
+
+/* ---------- 软件选项卡（对应主应用 Software 界面） ---------- */
+async function renderSoftwareTab() {
+  if (!softwareData) {
+    try {
+      const res = await api('/api/software', { method: 'GET' });
+      softwareData = res.data || { categories: [], software: [] };
+    } catch (e) {
+      toast(e.message, 'error');
+      return;
+    }
+  }
+  const catSelect = $('#softwareCat');
+  if (catSelect && !catSelect.dataset.bound) {
+    catSelect.dataset.bound = '1';
+    catSelect.innerHTML = `<option value="all">${escapeHtml(t('all'))}</option>` +
+      (softwareData.categories || []).map((c) => `<option value="${escapeAttr(c.id)}">${escapeHtml(c[lang] || c.en || c.zh || c.id)}</option>`).join('');
+    catSelect.addEventListener('change', renderSoftwareGrid);
+    enhanceSelect(catSelect);
+  }
+  bindSoftwareTabEvents();
+  renderSoftwareGrid();
+}
+
+function renderSoftwareGrid() {
+  const grid = $('#softwareGrid');
+  if (!grid) return;
+  const term = ($('#softwareSearch').value || '').toLowerCase();
+  const cat = $('#softwareCat').value;
+  const catName = (id) => {
+    const c = (softwareData.categories || []).find((c) => c.id === id);
+    return c ? (c[lang] || c.en || c.zh || id) : id;
+  };
+  const visible = (softwareData.software || []).map((s, idx) => ({ s, idx })).filter(({ s }) => {
+    if (cat !== 'all' && s.cat !== cat) return false;
+    if (!term) return true;
+    return (s.name + ' ' + (s.en || '') + ' ' + (s.zh || '')).toLowerCase().includes(term);
+  });
+  grid.innerHTML = visible.length ? visible.map(({ s, idx }) => {
+    const desc = s[lang] || s.zh || s.en || '';
+    const extra = s.extra && s.extra.url
+      ? `<a class="btn btn-ghost btn-sm" href="${escapeHtml(s.extra.url)}" target="_blank" rel="noopener">${escapeHtml(s.extra[lang] || s.extra.en || s.extra.zh || 'GitHub')}</a>`
+      : '';
+    return `
+      <article class="software-card">
+        <div class="software-card-top">
+          <div class="software-card-name">${escapeHtml(s.name)}<span class="software-card-cat">${escapeHtml(catName(s.cat))}</span></div>
+          <div class="software-card-actions">
+            <button class="icon-btn" data-swed="${idx}" title="${t('edit')}">${ICON_EDIT}</button>
+            <button class="icon-btn danger" data-swsdel="${idx}" title="${t('delete')}">${ICON_DEL}</button>
+          </div>
+        </div>
+        <p class="software-card-desc">${escapeHtml(desc)}</p>
+        <div class="software-card-foot">
+          <a class="btn btn-ghost btn-sm" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(t('softwareDownload'))}</a>
+          ${extra}
+        </div>
+      </article>`;
+  }).join('') : `<div class="sw-empty">${escapeHtml(t('softwareEmpty'))}</div>`;
+}
+
+function bindSoftwareTabEvents() {
+  const grid = $('#softwareGrid');
+  if (grid && !grid.dataset.bound) {
+    grid.dataset.bound = '1';
+    grid.addEventListener('click', async (e) => {
+      const editBtn = e.target.closest('[data-swed]');
+      const delBtn = e.target.closest('[data-swsdel]');
+      if (editBtn) openSoftwareForm(softwareData.software[Number(editBtn.dataset.swed)], Number(editBtn.dataset.swed));
+      if (delBtn) {
+        const idx = Number(delBtn.dataset.swsdel);
+        const s = softwareData.software[idx];
+        if (await confirmDialog(t('confirmDeleteSoftware', s.name))) {
+          softwareData.software.splice(idx, 1);
+          await saveSoftware();
+          renderSoftwareGrid();
+        }
+      }
+    });
+  }
+  const search = $('#softwareSearch');
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = '1';
+    search.addEventListener('input', renderSoftwareGrid);
+  }
+  const add = $('#btnSoftwareAdd');
+  if (add && !add.dataset.bound) {
+    add.dataset.bound = '1';
+    add.addEventListener('click', () => openSoftwareForm(null, null));
+  }
 }
 
 async function openSoftwareManager() {
@@ -1106,6 +1202,7 @@ function activatePanelTab(tab, notifyParent = false) {
   panel.classList.add('active');
   if (tab === 'deploy') { loadGitStatus(); loadGitTimeline(); loadSysStats(); }
   if (tab === 'workspaces') { renderWorkspaces(); }
+  if (tab === 'software') { renderSoftwareTab(); }
   if (notifyParent && embedded && window.parent && window.parent !== window) {
     window.parent.postMessage({ type: 'alpehuez-dev-tab', tab }, '*');
   }
@@ -1297,6 +1394,118 @@ $('#btnDeleteGroup').onclick = async () => {
 
 $('#btnNewCardEmpty').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
 $('#btnNewCard').onclick = () => openCardModal({ title: '', url: '', icon: {}, description: '', tags: [], isVpnRequired: false }, null);
+
+/* ---------- 书签 HTML 导入 / 导出 ---------- */
+function collectBookmarks(dlEl, folderPath, out) {
+  for (let i = 0; i < dlEl.children.length; i++) {
+    const dt = dlEl.children[i];
+    if (dt.tagName !== 'DT') continue;
+    const a = dt.querySelector(':scope > a');
+    const h3 = dt.querySelector(':scope > h3');
+    const sub = dt.querySelector(':scope > dl');
+    if (a) {
+      const url = (a.getAttribute('href') || '').trim();
+      if (/^https?:\/\//i.test(url)) {
+        out.push({ title: (a.textContent || '').trim() || url, url, folder: folderPath.length ? folderPath[folderPath.length - 1] : '' });
+      }
+    }
+    if (h3 && sub) collectBookmarks(sub, folderPath.concat((h3.textContent || '').trim() || t('importedGroup')), out);
+  }
+}
+
+$('#btnImportBookmarks').onclick = () => $('#bookmarkFileInput').click();
+
+$('#bookmarkFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const found = [];
+    collectBookmarks(doc.querySelector('dl') || doc.body, [], found);
+    if (!found.length) { toast(t('noBookmarks'), 'error'); return; }
+
+    const norm = (u) => String(u).toLowerCase().replace(/\/+$/, '');
+    const existing = new Set();
+    (links.icons || []).forEach((g) => (g.children || []).forEach((c) => { if (c.url) existing.add(norm(c.url)); }));
+
+    const byFolder = new Map();
+    let added = 0;
+    let dup = 0;
+    found.forEach((b) => {
+      const key = norm(b.url);
+      if (existing.has(key)) { dup++; return; }
+      existing.add(key);
+      added++;
+      const name = b.folder || t('importedGroup');
+      if (!byFolder.has(name)) byFolder.set(name, []);
+      byFolder.get(name).push(b);
+    });
+    if (!added) { toast(t('importedCount').replace('{n}', 0).replace('{dup}', dup), 'error'); return; }
+
+    byFolder.forEach((children, name) => {
+      links.icons.push({
+        title: name,
+        sort: 0,
+        children: children.map((b) => ({
+          icon: { text: '', itemType: 2, src: '', backgroundColor: '' },
+          sort: 99999,
+          title: b.title,
+          url: b.url,
+          openMethod: 1,
+          lanUrl: '',
+          description: '',
+          tags: [],
+          isVpnRequired: false,
+          clickCount: 0,
+        })),
+      });
+    });
+    currentGroup = links.icons.length - 1;
+    renderGroups();
+    saveLinksNow();
+    toast(t('importedCount').replace('{n}', added).replace('{dup}', dup), 'success');
+  } catch (err) {
+    toast(t('importFailed') + (err.message || err), 'error');
+  }
+});
+
+$('#btnExportBookmarks').onclick = async () => {
+  if (!links || !Array.isArray(links.icons) || !links.icons.length) { toast(t('noLinksToExport'), 'error'); return; }
+  const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const epoch = Math.floor(Date.now() / 1000);
+  let groupsHtml = '';
+  let exported = 0;
+  links.icons.forEach((g) => {
+    const children = (g.children || []).filter((c) => c && c.url && c.title);
+    if (!children.length) return;
+    groupsHtml += `    <DT><H3 ADD_DATE="${epoch}" LAST_MODIFIED="${epoch}">${esc(g.title || t('importedGroup'))}</H3>\n    <DL><p>\n`;
+    children.forEach((c) => {
+      groupsHtml += `        <DT><A HREF="${esc(c.url)}" ADD_DATE="${epoch}">${esc(c.title)}</A>\n`;
+      exported++;
+    });
+    groupsHtml += '    </DL><p>\n';
+  });
+  if (!exported) { toast(t('noLinksToExport'), 'error'); return; }
+  const html =
+    '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n' +
+    '<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     Do not edit. -->\n' +
+    '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n' +
+    '<TITLE>Bookmarks</TITLE>\n' +
+    '<H1>Bookmarks</H1>\n' +
+    '<DL><p>\n' +
+    groupsHtml +
+    '</DL><p>\n';
+  const dateStr = today().replace(/-/g, '');
+  try {
+    const res = await api('/api/export-bookmarks', { method: 'POST', body: JSON.stringify({ filename: `alpehuez-bookmarks-${dateStr}.html`, content: html }) });
+    if (res && res.path) toast(t('bookmarksExported') + res.path, 'success');
+    else toast(t('exportFailed'), 'error');
+  } catch (e) {
+    toast(t('exportFailed') + (e.message || ''), 'error');
+  }
+};
 
 $('#cardList').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit]');
@@ -1589,56 +1798,19 @@ async function initAuth() {
   $('#btnLogin').onclick = tryLogin;
   pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
 
-  // 忘记密码：邮箱验证码 → 重置密码（验证码通过 mailto 交给用户的邮件客户端）。
-  async function recover() {
-    openModal(t('recoverTitle'), [
-      { key: 'email', label: t('recoverEmail'), type: 'text', required: true },
-    ], async (values) => {
-      const email = values.email.trim();
-      let code;
-      try {
-        code = await window.__TAURI__.core.invoke('request_password_recovery', { email });
-      } catch (e) {
-        toast(errText(e) || t('recoverFailed'), 'error');
-        return;
-      }
-      // 尽力打开邮件客户端，失败不阻断（验证码会在下方弹窗里直接展示）。
-      try {
-        const subject = encodeURIComponent(t('recoverMailSubject'));
-        const body = encodeURIComponent(t('recoverMailBody') + ' ' + code);
-        await window.__TAURI__.core.invoke('open_url_scheme', { url: `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}` });
-      } catch (e) { /* 无邮件客户端时忽略 */ }
-      // 可见的「验证码已发送」确认窗口。
-      openModal(t('recoverSentTitle'), [
-        { key: 'sentInfo', type: 'info', label: t('recoverSentText').replace('{email}', email) },
-        { key: 'codeInfo', type: 'info', label: t('recoverCodeText').replace('{code}', code) },
-      ], async () => {
-        openModal(t('recoverStep2Title'), [
-          { key: 'code', label: t('recoverCode'), type: 'text', required: true },
-          { key: 'new', label: t('newPassword'), type: 'password', required: true },
-          { key: 'confirm', label: t('confirmPassword'), type: 'password', required: true },
-        ], async (v2) => {
-          if (v2.new !== v2.confirm) {
-            toast(t('pwdMismatch'), 'error');
-            return;
-          }
-          try {
-            await window.__TAURI__.core.invoke('reset_password', { code: v2.code.trim(), new: v2.new });
-            toast(t('pwdChanged'), 'success');
-            // 新密码已知，直接放行进入面板。
-            backdrop.hidden = true;
-            document.body.classList.remove('login-active');
-            $('#btnChangePwd').hidden = false;
-            init();
-          } catch (e) {
-            toast(errText(e) || t('recoverFailed'), 'error');
-          }
-        });
-      });
-    });
-  }
+  // 忘记密码：跳转到主应用的「设置 → 账户 → 找回密码」弹窗，验证码由主应用通过邮件发送。
   const forgotBtn = $('#btnForgot');
-  if (forgotBtn) forgotBtn.addEventListener('click', recover);
+  if (forgotBtn) forgotBtn.addEventListener('click', async () => {
+    if (!(window.__TAURI__ && window.__TAURI__.core)) {
+      toast(t('recoverFailed') + '主应用不可用', 'error');
+      return;
+    }
+    try {
+      await window.__TAURI__.core.invoke('open_password_recovery');
+    } catch (e) {
+      toast(errText(e) || t('recoverFailed'), 'error');
+    }
+  });
 }
 
 /* ---------- 修改密码 / 设置找回邮箱（仅桌面应用） ---------- */
@@ -1711,8 +1883,25 @@ $('#btnMyfilesPassword').addEventListener('click', async () => {
   });
 });
 
+/* 公网展示版：面板为开发者私有工具，不加载任何数据，只显示锁定空状态。 */
+function showWebLock() {
+  document.body.classList.add('web-locked');
+  const backdrop = $('#loginBackdrop');
+  if (backdrop) backdrop.hidden = true;
+  const app = document.querySelector('.app');
+  if (app) app.style.display = 'none';
+  const lock = document.createElement('div');
+  lock.className = 'web-lock';
+  lock.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="42" height="42"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+    + '<p class="web-lock-title">' + t('webLockTitle') + '</p>'
+    + '<p class="web-lock-sub">' + t('webLockDesc') + '</p>';
+  document.body.appendChild(lock);
+}
+
 if (isDesktop) {
   initAuth();
-} else {
+} else if (isLocalPanelHost) {
   init();
+} else {
+  showWebLock();
 }

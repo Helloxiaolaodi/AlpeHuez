@@ -15,4 +15,4 @@ src-tauri/android-webroot/
 src-tauri/webroot/
 
 # 便携版 exe 体积大且非安装版，不上传 GitHub（仅保留本地）
-releases/v0.5.0/my-nav-panel.exe
+releases/v*/my-nav-panel.exe

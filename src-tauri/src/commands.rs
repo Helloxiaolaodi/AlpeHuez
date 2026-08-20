@@ -1,6 +1,7 @@
 use base64::Engine;
 use serde::Serialize;
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::Path;
@@ -696,16 +697,70 @@ fn make_recovery_code(email: &str) -> String {
     code
 }
 
-/// 校验找回邮箱并生成 6 位验证码；返回验证码供 mailto 邮件填写。
-/// 本机应用无法真正发送邮件，验证码随 mailto 内容交给用户的邮件客户端。
+/// 通过 Resend API 发送验证码邮件。API Key 由开发者构建时注入（RESEND_API_KEY / RESEND_FROM
+/// 环境变量，编译期固化进二进制），最终用户无需任何邮件配置。
+fn send_recovery_email(api_key: &str, from: &str, to: &str, code: &str) -> Result<(), String> {
+    let subject = "找回密码验证码";
+    let body = format!(
+        "你的 AlpeHuez 找回密码验证码是：{}\n验证码 10 分钟内有效。如果不是你本人操作，请忽略本邮件。",
+        code
+    );
+    let payload = serde_json::json!({
+        "from": from,
+        "to": [to],
+        "subject": subject,
+        "text": body,
+    });
+    let agent = ureq::AgentBuilder::new()
+        .timeout_connect(Duration::from_secs(15))
+        .timeout(Duration::from_secs(30))
+        .build();
+    let resp = agent
+        .post("https://api.resend.com/emails")
+        .set("Authorization", &format!("Bearer {}", api_key))
+        .set("Content-Type", "application/json")
+        .send_bytes(&payload.to_string().into_bytes())
+        .map_err(|e| format!("{}", e))?;
+    if !(200..300).contains(&resp.status()) {
+        let detail = resp.into_string().unwrap_or_default();
+        return Err(format!("HTTP {}", detail));
+    }
+    Ok(())
+}
+
+/// 开发者面板「忘记密码」：唤出主窗口，通知其打开「设置 → 账户 → 找回密码」弹窗。
+/// 找回密码的完整流程（验证码邮件发送）只存在于主应用，面板不再重复实现。
 #[tauri::command]
-pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> Result<String, String> {
+pub fn open_password_recovery(app: tauri::AppHandle) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = app;
+        Err("开发者面板仅桌面版可用".into())
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        if let Some(win) = app.get_webview_window("main") {
+            let _ = win.show();
+            let _ = win.unminimize();
+            let _ = win.set_focus();
+            let _ = win.emit("alpehuez-open-recovery", ());
+            Ok(())
+        } else {
+            Err("主窗口未就绪".into())
+        }
+    }
+}
+
+/// 校验找回邮箱并生成 6 位验证码，通过 Resend 真实发送到该邮箱。
+/// 发送成功才返回 Ok；未配置/发送失败只报错，验证码不暴露给前端。
+#[tauri::command]
+pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> Result<(), String> {
     let email = email.trim().to_string();
     let file = config_file(&app)?;
     let v = read_config_value(&file);
     let stored = v.get("recovery_email").and_then(|e| e.as_str()).unwrap_or("");
     if stored.is_empty() {
-        return Err("尚未设置找回邮箱，无法找回密码。请在面板「修改密码」中填写找回邮箱".into());
+        return Err("尚未设置找回邮箱，无法找回密码。请在设置中填写找回邮箱".into());
     }
     if stored != email {
         return Err("邮箱与预留的找回邮箱不一致".into());
@@ -723,7 +778,16 @@ pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> 
             ("recovery_code_expires", expires.to_string()),
         ],
     )?;
-    Ok(code)
+    tauri::async_runtime::spawn_blocking(move || {
+        let key = option_env!("RESEND_API_KEY").map(str::trim).filter(|s| !s.is_empty());
+        let from = option_env!("RESEND_FROM").map(str::trim).filter(|s| !s.is_empty());
+        match (key, from) {
+            (Some(k), Some(f)) => send_recovery_email(k, f, &email, &code),
+            _ => Err("邮件发送尚未配置（构建时需设置 RESEND_API_KEY / RESEND_FROM）".into()),
+        }
+    })
+    .await
+    .map_err(|e| format!("邮件发送任务失败：{}", e))?
 }
 
 /// 校验验证码是否匹配且未过期。
@@ -1101,6 +1165,25 @@ pub async fn get_bg_config(app: tauri::AppHandle) -> Result<Value, String> {
     } else {
         Ok(serde_json::json!({}))
     }
+}
+
+/// 把导出的书签 HTML 写到系统下载目录（供外部浏览器一键导入），返回完整路径。
+#[tauri::command]
+pub async fn save_bookmarks_export(app: tauri::AppHandle, filename: String, content: String) -> Result<Value, String> {
+    let name = if filename.trim().is_empty() || filename.contains(['/', '\\', ':', '*', '?', '"', '<', '>', '|']) {
+        "alpehuez-bookmarks.html".to_string()
+    } else {
+        filename.trim().to_string()
+    };
+    let dir = app
+        .path()
+        .download_dir()
+        .or_else(|_| app.path().home_dir().map(|h| h.join("Downloads")))
+        .map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let full = dir.join(&name);
+    fs::write(&full, content).map_err(|e| e.to_string())?;
+    Ok(serde_json::json!({ "name": name, "path": full.to_string_lossy().to_string() }))
 }
 
 #[tauri::command]
@@ -1730,6 +1813,28 @@ pub async fn set_internal_page_visible(app: tauri::AppHandle, label: String, vis
     }
 }
 
+/// 真实休眠（Discard）：不活跃标签的 webview 被真正 close() 掉以释放
+/// WebView2 renderer 进程内存，但不广播 browser-tab-closed——前端保留标签
+/// 条目并标记 discarded，点击时按原 URL 重建（label 是 URL 哈希，重开不变）。
+#[tauri::command]
+pub async fn discard_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+    if !label.starts_with("browser-") {
+        return Err("无效的网页标签".into());
+    }
+    if let Some(webview) = app.get_webview(&label) {
+        webview.close().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+    }
+}
+
 #[tauri::command]
 pub fn mark_first_run(app: tauri::AppHandle) -> bool {
     let marker = app
@@ -1782,6 +1887,30 @@ pub fn go_forward_internal_page(app: tauri::AppHandle, label: String) -> Result<
         .ok_or_else(|| "browser tab is closed".to_string())?;
     webview
         .eval("window.history.forward()")
+        .map_err(|e| e.to_string())
+    }
+}
+
+/// 方案 B「唤醒式静默刷新」：切回距上次查看超过 10 分钟的标签时，静默刷新一次。
+/// reload 会走 on_page_load 事件链（Started → 隐藏 webview + 前端遮罩 → Finished 重新显示），
+/// 与新建标签的加载状态机完全一致，无需额外处理。
+#[tauri::command]
+pub fn reload_internal_page(app: tauri::AppHandle, label: String) -> Result<(), String> {
+    #[cfg(target_os = "android")]
+    {
+        let _ = (app, label);
+        return Err("网页标签仅桌面版可用".into());
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+    if !label.starts_with("browser-") {
+        return Err("invalid browser tab label".into());
+    }
+    let webview = app
+        .get_webview(&label)
+        .ok_or_else(|| "browser tab is closed".to_string())?;
+    webview
+        .eval("window.location.reload()")
         .map_err(|e| e.to_string())
     }
 }
@@ -1921,17 +2050,30 @@ fn hf_repo(conn: &rusqlite::Connection) -> String {
         .unwrap_or_else(|| "Helloxiaolaodi/AlpeHuez".to_string())
 }
 
+/// 备份代理：Settings 里填写的 http://host:port。为空表示直连——
+/// 不强制设置任何代理环境变量（尊重用户本机已有的系统代理 / git 全局代理配置）。
+fn hf_proxy(conn: &rusqlite::Connection) -> Option<String> {
+    db::get_config(conn, "hf_proxy")
+        .ok()
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
 fn hf_remote_url(repo: &str, token: &str) -> String {
     format!("https://user:{token}@huggingface.co/datasets/{repo}.git")
 }
 
-fn run_git_proxy(args: &[&str], cwd: &Path) -> (i32, String) {
+fn run_git_proxy(proxy: &Option<String>, args: &[&str], cwd: &Path) -> (i32, String) {
     let mut c = Command::new("git");
     silent(&mut c);
     let mut full = vec!["-c", "http.lowSpeedLimit=1", "-c", "http.lowSpeedTime=45"];
     full.extend_from_slice(args);
-    c.env("https_proxy", "http://127.0.0.1:7897")
-        .env("http_proxy", "http://127.0.0.1:7897");
+    // 仅在用户配置了代理时才设置 http_proxy/https_proxy；
+    // 留空时完全不设，普通用户开箱即直连。
+    if let Some(p) = proxy {
+        c.env("https_proxy", p).env("http_proxy", p);
+    }
     match c.args(&full).current_dir(cwd).output() {
         Ok(out) => {
             let mut s = String::from_utf8_lossy(&out.stdout).to_string();
@@ -1952,28 +2094,212 @@ fn hf_backup_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
 /// 失败（网络中断等），会在 .git 下留下 rebase-merge 目录，导致后续备份
 /// 一律报 "already a rebase-merge directory"。这里全部容忍失败：能 abort 就
 /// abort，不能就删目录，最后强制回到 main 分支。
-fn cleanup_hf_git_state(dir: &Path) {
-    let _ = run_git_proxy(&["rebase", "--abort"], dir);
-    let _ = run_git_proxy(&["am", "--abort"], dir);
+fn cleanup_hf_git_state(dir: &Path, proxy: &Option<String>) {
+    let _ = run_git_proxy(proxy, &["rebase", "--abort"], dir);
+    let _ = run_git_proxy(proxy, &["am", "--abort"], dir);
     let _ = fs::remove_dir_all(dir.join(".git").join("rebase-merge"));
     let _ = fs::remove_dir_all(dir.join(".git").join("rebase-apply"));
-    let _ = run_git_proxy(&["checkout", "-f", "main"], dir);
-    let _ = run_git_proxy(&["reset", "--hard", "main"], dir);
+    let _ = run_git_proxy(proxy, &["checkout", "-f", "main"], dir);
+    let _ = run_git_proxy(proxy, &["reset", "--hard", "main"], dir);
 }
 
-fn copy_dir_all(src: &std::path::Path, dst: &std::path::Path) -> std::io::Result<()> {
-    fs::create_dir_all(dst)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_dir_all(&from, &to)?;
-        } else {
-            fs::copy(&from, &to)?;
+/// 备份元数据目录（与 hf-backup git 仓库目录分离）：pending_backup 标记、
+/// 备份历史、前端移交的 localStorage 状态都放这里，绝不进入云端仓库。
+fn backup_meta_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?.join("backup-meta");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir)
+}
+
+/// 备份文件集中一项：相对路径 + 字节。
+struct BackupFile {
+    rel: String,
+    bytes: Vec<u8>,
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(bytes);
+    let digest = hasher.finalize();
+    digest.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// 组装备份文件集（严格白名单，写死）：config.json / links.json /
+/// software-data.json / database.json / achievements.json / telemetry.json /
+/// daily-notes/ / backup-manifest.json。pending_backup、*.tmp、二进制 db
+/// 一律不进入。database.json 由 SQLite 三个表序列化而来。
+fn build_backup_files(app: &tauri::AppHandle) -> Result<Vec<BackupFile>, String> {
+    let mut files: Vec<BackupFile> = Vec::new();
+
+    // config.json（开发者配置）
+    if let Ok(cfg_dir) = app.path().app_config_dir() {
+        let src = cfg_dir.join("config.json");
+        if src.exists() {
+            files.push(BackupFile {
+                rel: "config.json".into(),
+                bytes: fs::read(&src).map_err(|e| format!("读取 config.json 失败: {e}"))?,
+            });
         }
     }
-    Ok(())
+
+    // links.json（Portal 书签）
+    let links = repo_root().join("links.json");
+    if links.exists() {
+        files.push(BackupFile {
+            rel: "links.json".into(),
+            bytes: fs::read(&links).map_err(|e| format!("读取 links.json 失败: {e}"))?,
+        });
+    }
+
+    // software-data.json（Software 卡片）
+    let soft = repo_root().join("myfiles/softwares/software-data.json");
+    if soft.exists() {
+        files.push(BackupFile {
+            rel: "software-data.json".into(),
+            bytes: fs::read(&soft).map_err(|e| format!("读取 software-data.json 失败: {e}"))?,
+        });
+    }
+
+    // database.json（SQLite 三表序列化，替代二进制 db 上传）
+    {
+        let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+        let conn = db::open(&data_dir.join("alpehuez.db"))?;
+        db::init(&conn)?;
+        let json = db::export_all(&conn)?;
+        let bytes = serde_json::to_vec_pretty(&json).map_err(|e| e.to_string())?;
+        files.push(BackupFile {
+            rel: "database.json".into(),
+            bytes,
+        });
+    }
+
+    // 前端移交的 localStorage 状态（achievements / telemetry）
+    if let Ok(meta) = backup_meta_dir(app) {
+        let ls = meta.join("local-state.json");
+        if ls.exists() {
+            if let Ok(text) = fs::read_to_string(&ls) {
+                if let Ok(v) = serde_json::from_str::<Value>(&text) {
+                    if let Some(ach) = v.get("achievements").cloned() {
+                        if !ach.is_null() {
+                            files.push(BackupFile {
+                                rel: "achievements.json".into(),
+                                bytes: serde_json::to_vec_pretty(&ach).map_err(|e| e.to_string())?,
+                            });
+                        }
+                    }
+                    if let Some(tel) = v.get("telemetry").cloned() {
+                        if !tel.is_null() {
+                            files.push(BackupFile {
+                                rel: "telemetry.json".into(),
+                                bytes: serde_json::to_vec_pretty(&tel).map_err(|e| e.to_string())?,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // daily-notes/
+    if let Ok(data_dir) = app.path().app_data_dir() {
+        let notes = data_dir.join("daily-notes");
+        if notes.exists() {
+            if let Ok(entries) = fs::read_dir(&notes) {
+                for entry in entries.flatten() {
+                    if entry.path().is_file() {
+                        let name = entry.file_name().to_string_lossy().into_owned();
+                        let bytes = fs::read(entry.path())
+                            .map_err(|e| format!("读取 daily-notes/{name} 失败: {e}"))?;
+                        files.push(BackupFile {
+                            rel: format!("daily-notes/{name}"),
+                            bytes,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    // backup-manifest.json：版本 + 每文件 sha256
+    let version = app.package_info().version.to_string();
+    let file_entries: Vec<Value> = files
+        .iter()
+        .map(|f| {
+            serde_json::json!({
+                "path": f.rel,
+                "sha256": sha256_hex(&f.bytes),
+            })
+        })
+        .collect();
+    let manifest = serde_json::json!({
+        "version": version,
+        "timestamp": std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0),
+        "app": "AlpeHuez",
+        "files": file_entries,
+    });
+    let mbytes = serde_json::to_vec_pretty(&manifest).map_err(|e| e.to_string())?;
+    files.push(BackupFile {
+        rel: "backup-manifest.json".into(),
+        bytes: mbytes,
+    });
+    Ok(files)
+}
+
+/// 前端移交 localStorage 状态（achievements/telemetry）落盘，供备份读取。
+/// 写入 backup-meta/local-state.json，绝不放进云端仓库目录。
+#[tauri::command]
+pub async fn backup_set_local_state(
+    app: tauri::AppHandle,
+    achievements: String,
+    telemetry: String,
+) -> Result<(), String> {
+    let meta = backup_meta_dir(&app)?;
+    let v = serde_json::json!({
+        "achievements": serde_json::from_str(&achievements).unwrap_or(Value::Null),
+        "telemetry": serde_json::from_str(&telemetry).unwrap_or(Value::Null),
+    });
+    fs::write(
+        meta.join("local-state.json"),
+        serde_json::to_string_pretty(&v).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("保存本地状态失败: {e}"))
+}
+
+/// 把白名单文件集打包成 zip 字节（WebDAV 原子化上传用）。
+fn zip_backup_files(files: &[BackupFile]) -> Result<Vec<u8>, String> {
+    use zip::write::SimpleFileOptions;
+    let cursor = std::io::Cursor::new(Vec::new());
+    let mut zw = zip::ZipWriter::new(cursor);
+    for f in files {
+        zw.start_file(&f.rel, SimpleFileOptions::default())
+            .map_err(|e| format!("写 zip 失败（{}）: {e}", f.rel))?;
+        zw.write_all(&f.bytes).map_err(|e| format!("写 zip 失败（{}）: {e}", f.rel))?;
+    }
+    let inner = zw.finish().map_err(|e| format!("打包失败: {e}"))?;
+    Ok(inner.into_inner())
+}
+
+/// 从 zip 字节还原文件集（恢复流程用）。跳过目录项。
+fn read_zip_files(bytes: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let cursor = std::io::Cursor::new(bytes);
+    let mut archive = zip::ZipArchive::new(cursor).map_err(|e| format!("解压失败: {e}"))?;
+    let mut out = Vec::new();
+    for i in 0..archive.len() {
+        let mut entry = archive
+            .by_index(i)
+            .map_err(|e| format!("读取 zip 项失败: {e}"))?;
+        if entry.is_dir() {
+            continue;
+        }
+        let name = entry.name().to_string();
+        let mut buf = Vec::new();
+        entry.read_to_end(&mut buf).map_err(|e| format!("解压 {name} 失败: {e}"))?;
+        out.push((name, buf));
+    }
+    Ok(out)
 }
 
 #[tauri::command]
@@ -1996,14 +2322,15 @@ pub async fn save_daily_note(app: tauri::AppHandle, date: String, notes: String)
     Ok(())
 }
 
-/// 执行一次 HF 备份（手动按钮与退出时自动备份共用）。
-pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
-    use rusqlite::backup::Backup;
+/// 执行一次 HF 备份（手动按钮与退出时自动备份共用）的实际逻辑。
+/// v0.6.0：严格白名单——只用 build_backup_files 组装的文件集，
+/// git add 逐个白名单路径（不再 `-A`），pending_backup / *.tmp / 二进制 db 绝不入仓。
+fn run_hf_backup_impl(app: &tauri::AppHandle) -> Result<String, String> {
     let conn = db_conn(app)?;
+    let proxy = hf_proxy(&conn);
     let repo = hf_repo(&conn);
     let token = hf_token()?;
     let url = hf_remote_url(&repo, &token);
-    let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     let dir = hf_backup_dir(app)?;
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -2011,81 +2338,513 @@ pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
         .unwrap_or(0);
 
     if !dir.join(".git").exists() {
-        let (c, o) = run_git_proxy(&["init", "-b", "main"], &dir);
+        let (c, o) = run_git_proxy(&proxy, &["init", "-b", "main"], &dir);
         if c != 0 { return Err(format!("git init 失败: {o}")); }
         for (k, v) in [("user.name", "AlpeHuez Backup"), ("user.email", "alpehuez@localhost")] {
-            let (c, o) = run_git_proxy(&["config", k, v], &dir);
+            let (c, o) = run_git_proxy(&proxy, &["config", k, v], &dir);
             if c != 0 { return Err(format!("git config {k} 失败: {o}")); }
         }
     }
 
-    // 先清除上一次可能残留的 rebase 状态，再重写全部快照文件。
-    cleanup_hf_git_state(&dir);
+    // 先清除上一次可能残留的 rebase 状态。
+    cleanup_hf_git_state(&dir, &proxy);
 
-    // SQLite 在线备份（一致性快照，正确处理 journal）
-    {
-        let src = db::open(&data_dir.join("alpehuez.db"))?;
-        let mut dest = rusqlite::Connection::open(dir.join("alpehuez.db")).map_err(|e| e.to_string())?;
-        let backup = Backup::new(&src, &mut dest).map_err(|e| format!("备份 SQLite 失败: {e}"))?;
-        backup
-            .run_to_completion(8, std::time::Duration::from_millis(50), None)
-            .map_err(|e| format!("备份 SQLite 失败: {e}"))?;
+    // 组装白名单文件集并写入 hf-backup 目录（本目录即 git 仓库工作区）。
+    let files = build_backup_files(app)?;
+    for f in &files {
+        let dst = dir.join(&f.rel);
+        if let Some(parent) = dst.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        fs::write(&dst, &f.bytes).map_err(|e| format!("写备份文件 {} 失败: {e}", f.rel))?;
     }
-
-    if let Ok(cfg_dir) = app.path().app_config_dir() {
-        let src = cfg_dir.join("config.json");
-        if src.exists() {
-            fs::copy(&src, dir.join("config.json")).map_err(|e| format!("复制 config.json 失败: {e}"))?;
+    // 物理清理可能残留的旧二进制 db / 本地状态文件（历史遗留，防止再次被 add）。
+    let stale = ["alpehuez.db", "pending_backup", "history.json"];
+    for s in stale {
+        let p = dir.join(s);
+        if p.exists() {
+            let _ = fs::remove_file(&p);
         }
     }
-    let links = repo_root().join("links.json");
-    if links.exists() {
-        fs::copy(&links, dir.join("links.json")).map_err(|e| format!("复制 links.json 失败: {e}"))?;
-    }
-    // 每日笔记随备份一并上传（覆盖式同步整个 daily-notes 目录）
-    let notes_src = data_dir.join("daily-notes");
-    if notes_src.exists() {
-        let notes_dst = dir.join("daily-notes");
-        if notes_dst.exists() {
-            let _ = fs::remove_dir_all(&notes_dst);
-        }
-        if let Err(e) = copy_dir_all(&notes_src, &notes_dst) {
-            return Err(format!("复制 daily-notes 失败: {e}"));
+    let _ = fs::remove_dir_all(dir.join("daily-notes.tmp"));
+
+    // 显式白名单 git add（绝不 add -A）。README 等非白名单文件不被跟踪。
+    // 只 add 实际存在的白名单文件，避免 git 对不存在的 pathspec 报错。
+    let mut add_args = vec!["add", "--"];
+    for rel in ["config.json", "links.json", "software-data.json", "database.json", "achievements.json", "telemetry.json", "backup-manifest.json"] {
+        if dir.join(rel).exists() {
+            add_args.push(rel);
         }
     }
-
-    let manifest = serde_json::json!({
-        "timestamp": ts,
-        "app": "AlpeHuez",
-        "files": ["alpehuez.db", "config.json", "links.json", "daily-notes", "backup-manifest.json"]
-    });
-    fs::write(
-        dir.join("backup-manifest.json"),
-        serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| format!("写备份清单失败: {e}"))?;
-
-    let (c1, o1) = run_git_proxy(&["add", "-A"], &dir);
+    if dir.join("daily-notes").exists() {
+        add_args.push("daily-notes");
+    }
+    let (c1, o1) = run_git_proxy(&proxy, &add_args, &dir);
     if c1 != 0 { return Err(format!("git add 失败: {o1}")); }
-    let (c2, o2) = run_git_proxy(&["commit", "-m", &format!("backup: {ts}")], &dir);
+    let (c2, o2) = run_git_proxy(&proxy, &["commit", "-m", &format!("backup: {ts}")], &dir);
     if c2 != 0 && !o2.contains("nothing to commit") {
         return Err(format!("git commit 失败: {o2}"));
     }
     if c2 == 0 {
-        let (c3, o3) = run_git_proxy(&["push", &url, "HEAD:main"], &dir);
+        let (c3, o3) = run_git_proxy(&proxy, &["push", &url, "HEAD:main"], &dir);
         if c3 != 0 {
-            let (_, fo) = run_git_proxy(&["fetch", &url], &dir);
-            let (c4, o4) = run_git_proxy(&["rebase", "FETCH_HEAD"], &dir);
+            let (_, fo) = run_git_proxy(&proxy, &["fetch", &url], &dir);
+            let (c4, o4) = run_git_proxy(&proxy, &["rebase", "FETCH_HEAD"], &dir);
             if c4 != 0 {
                 return Err(format!("推送失败: {o3}；rebase 远端失败: {o4}（{fo}）"));
             }
-            let (c5, o5) = run_git_proxy(&["push", &url, "HEAD:main"], &dir);
+            let (c5, o5) = run_git_proxy(&proxy, &["push", &url, "HEAD:main"], &dir);
             if c5 != 0 { return Err(o5); }
         }
     }
 
     db::set_config(&conn, "hf_last_backup", &serde_json::json!(ts)).map_err(|e| e.to_string())?;
     Ok(format!("备份完成（{ts}）"))
+}
+
+/// 记录一次备份结果到本地历史（最近 7 天），供 Sync 设置页的热力图读取。
+/// provider 标记来源（"hf"/"webdav"），热力图按当前 provider 过滤。
+/// detail 截断到 200 字符，避免 git 错误输出撑大历史文件。
+fn record_backup_history(app: &tauri::AppHandle, provider: &str, ok: bool, detail: &str) {
+    let Ok(dir) = backup_meta_dir(app) else { return };
+    let path = dir.join("history.json");
+    let records: Vec<serde_json::Value> = fs::read_to_string(&path)
+        .ok()
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+        .and_then(|v| v["records"].as_array().cloned())
+        .unwrap_or_default();
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let mut records = records;
+    records.push(serde_json::json!({
+        "ts": now,
+        "provider": provider,
+        "ok": ok,
+        "detail": detail.chars().take(200).collect::<String>()
+    }));
+    let cutoff = now.saturating_sub(7 * 24 * 3600);
+    records.retain(|r| r["ts"].as_i64().unwrap_or(0) as u64 >= cutoff);
+    if let Ok(json) = serde_json::to_string_pretty(&serde_json::json!({ "records": records })) {
+        let _ = fs::write(&path, json);
+    }
+}
+
+/// 执行一次 HF 备份（手动按钮与退出时自动备份共用），并把结果写入历史供热力图展示。
+pub fn run_hf_backup(app: &tauri::AppHandle) -> Result<String, String> {
+    match run_hf_backup_impl(app) {
+        Ok(msg) => {
+            record_backup_history(app, "hf", true, "");
+            Ok(msg)
+        }
+        Err(e) => {
+            record_backup_history(app, "hf", false, &e);
+            Err(e)
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct HfBackupHistory {
+    records: Vec<serde_json::Value>,
+}
+
+/// 读取最近 7 天的备份历史（ts/provider/ok/detail 记录），按 provider 过滤，
+/// 供 Sync 设置页热力图渲染。旧记录没有 provider 字段时按 "hf" 处理。
+#[tauri::command]
+pub fn backup_history(app: tauri::AppHandle, provider: String) -> Result<HfBackupHistory, String> {
+    let path = backup_meta_dir(&app)?.join("history.json");
+    let records = fs::read_to_string(&path)
+        .ok()
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+        .and_then(|v| v["records"].as_array().cloned())
+        .unwrap_or_default();
+    let records: Vec<serde_json::Value> = records
+        .into_iter()
+        .filter(|r| {
+            provider.is_empty() || r["provider"].as_str().unwrap_or("hf") == provider
+        })
+        .collect();
+    Ok(HfBackupHistory { records })
+}
+
+/// WebDAV 凭据：URL/用户名存配置库，密码存系统凭据管理器（Windows Credential Manager）。
+fn webdav_creds(app: &tauri::AppHandle) -> Result<(String, String, String), String> {
+    let conn = db_conn(app)?;
+    let url = db::get_config(&conn, "webdav_url")
+        .ok()
+        .and_then(|v| v.as_str().map(String::from))
+        .filter(|s| !s.trim().is_empty())
+        .ok_or_else(|| "未配置 WebDAV 服务器地址".to_string())?;
+    let user = db::get_config(&conn, "webdav_user")
+        .ok()
+        .and_then(|v| v.as_str().map(String::from))
+        .filter(|s| !s.trim().is_empty())
+        .ok_or_else(|| "未配置 WebDAV 用户名".to_string())?;
+    let entry = keyring::Entry::new("AlpeHuez", "WebDAV")
+        .map_err(|e| format!("系统凭据管理器不可用: {e}"))?;
+    let pass = entry
+        .get_password()
+        .map_err(|_| "未设置 WebDAV 密码（请在设置中保存）".to_string())?;
+    Ok((url, user, pass))
+}
+
+fn webdav_basic_auth(user: &str, pass: &str) -> String {
+    format!(
+        "Basic {}",
+        base64::engine::general_purpose::STANDARD.encode(format!("{user}:{pass}"))
+    )
+}
+
+/// 执行一次 WebDAV 备份的实际逻辑：与 HF 备份同一份白名单文件集，
+/// 打包成单个 AlpeHuez_Backup.zip 后一次 PUT（原子化，最少请求）。
+fn run_webdav_backup_impl(app: &tauri::AppHandle) -> Result<String, String> {
+    let (url, user, pass) = webdav_creds(app)?;
+    let auth = webdav_basic_auth(&user, &pass);
+    let conn = db_conn(app)?;
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+
+    let files = build_backup_files(app)?;
+    let zip_bytes = zip_backup_files(&files)?;
+
+    let agent = ureq::AgentBuilder::new()
+        .timeout(std::time::Duration::from_secs(60))
+        .build();
+
+    // 先确保目标目录存在（MKCOL，201 新建成功 / 405 已存在均视为成功）
+    let base = url.trim().trim_end_matches('/');
+    match agent
+        .request("MKCOL", base)
+        .set("Authorization", &auth)
+        .send_bytes(&[])
+    {
+        Ok(_) => {}
+        Err(ureq::Error::Status(s, _)) => {
+            if s != 405 && s != 301 {
+                return Err(format!("WebDAV 目录不可用: HTTP {s}"));
+            }
+        }
+        Err(e) => return Err(format!("WebDAV 目录不可用: {e}")),
+    }
+
+    let full = format!("{base}/AlpeHuez_Backup.zip");
+    let res = agent
+        .request("PUT", &full)
+        .set("Authorization", &auth)
+        .send_bytes(&zip_bytes)
+        .map_err(|e| format!("上传 AlpeHuez_Backup.zip 失败: {e}"))?;
+    let s = res.status();
+    if s != 200 && s != 201 && s != 204 {
+        return Err(format!("上传 AlpeHuez_Backup.zip 失败: HTTP {s}"));
+    }
+
+    db::set_config(&conn, "hf_last_backup", &serde_json::json!(ts)).map_err(|e| e.to_string())?;
+    Ok(format!("WebDAV 备份完成（{ts}）"))
+}
+
+/// 执行一次 WebDAV 备份（手动按钮与退出时自动备份共用），结果写入历史供热力图。
+pub fn run_webdav_backup(app: &tauri::AppHandle) -> Result<String, String> {
+    match run_webdav_backup_impl(app) {
+        Ok(msg) => {
+            record_backup_history(app, "webdav", true, "");
+            Ok(msg)
+        }
+        Err(e) => {
+            record_backup_history(app, "webdav", false, &e);
+            Err(e)
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn webdav_backup(app: tauri::AppHandle) -> Result<String, String> {
+    run_webdav_backup(&app)
+}
+
+#[derive(serde::Serialize)]
+pub struct WebdavTestResult {
+    ok: bool,
+    url: String,
+    detail: Option<String>,
+}
+
+/// 测试 WebDAV 连通性：对 base URL 发 PROPFIND，返回 200/207 即视为可连接。
+#[tauri::command]
+pub async fn webdav_test_connection(app: tauri::AppHandle) -> Result<WebdavTestResult, String> {
+    let (url, user, pass) = webdav_creds(&app)?;
+    let auth = webdav_basic_auth(&user, &pass);
+    let agent = ureq::AgentBuilder::new()
+        .timeout(std::time::Duration::from_secs(15))
+        .build();
+    let res = agent
+        .request("PROPFIND", &url.trim().trim_end_matches('/'))
+        .set("Authorization", &auth)
+        .set("Depth", "0")
+        .send_bytes(&[]);
+    match res {
+        Ok(r) => {
+            let s = r.status();
+            let ok = s == 200 || s == 207;
+            Ok(WebdavTestResult {
+                ok,
+                url: url.clone(),
+                detail: (!ok).then(|| format!("HTTP {s}")),
+            })
+        }
+        Err(e) => Ok(WebdavTestResult {
+            ok: false,
+            url: url.clone(),
+            detail: Some(format!("{e}")),
+        }),
+    }
+}
+
+/// 把 WebDAV 密码写入系统凭据管理器（Windows Credential Manager）。
+/// 绝不写入配置库，避免随 alpehuez.db 一起被备份上传而泄漏。
+#[tauri::command]
+pub async fn set_webdav_password(app: tauri::AppHandle, password: String) -> Result<(), String> {
+    let _ = app;
+    if password.trim().len() < 4 {
+        return Err("密码至少 4 个字符".into());
+    }
+    let entry = keyring::Entry::new("AlpeHuez", "WebDAV")
+        .map_err(|e| format!("系统凭据管理器不可用: {e}"))?;
+    entry
+        .set_password(&password)
+        .map_err(|e| format!("保存凭据失败: {e}"))
+}
+
+/// 是否已保存 WebDAV 密码（前端只显示"已保存"状态，不回读密码本身）。
+#[tauri::command]
+pub async fn webdav_password_set(app: tauri::AppHandle) -> Result<bool, String> {
+    let _ = app;
+    let entry = keyring::Entry::new("AlpeHuez", "WebDAV")
+        .map_err(|e| format!("系统凭据管理器不可用: {e}"))?;
+    Ok(entry.get_password().is_ok())
+}
+
+/// 恢复结果：message + 需要写回 localStorage 的状态（achievements/telemetry，JSON 字符串）。
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RestoreResult {
+    ok: bool,
+    message: String,
+    achievements: Option<String>,
+    telemetry: Option<String>,
+    daily_notes: Option<String>,
+}
+
+/// 按清单校验文件 sha256；返回 (文件相对路径, 字节)。
+fn verify_manifest_files(
+    manifest: &Value,
+    files: &[(String, Vec<u8>)],
+) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let listed = manifest["files"].as_array().cloned().unwrap_or_default();
+    let mut map: Vec<(String, String)> = Vec::new();
+    for f in listed {
+        let path = f["path"].as_str().unwrap_or("").to_string();
+        let sha = f["sha256"].as_str().unwrap_or("").to_string();
+        if !path.is_empty() {
+            map.push((path, sha));
+        }
+    }
+    if map.is_empty() {
+        return Err("备份清单缺少 files 列表".into());
+    }
+    let mut matched = Vec::new();
+    for (path, bytes) in files {
+        let want = map.iter().find(|(p, _)| p == path).map(|(_, s)| s.clone());
+        if let Some(want) = want {
+            let got = sha256_hex(bytes);
+            if got != want {
+                return Err(format!("文件校验失败（{path}）：期望 {want}，实际 {got}"));
+            }
+            matched.push((path.clone(), bytes.clone()));
+        }
+    }
+    if matched.is_empty() {
+        return Err("备份中没有匹配清单的文件".into());
+    }
+    Ok(matched)
+}
+
+/// 从 HF 拉取最新备份文件集（git fetch + 读取白名单文件）。
+fn fetch_hf_restore_set(app: &tauri::AppHandle) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let conn = db_conn(app)?;
+    let proxy = hf_proxy(&conn);
+    let repo = hf_repo(&conn);
+    let token = hf_token()?;
+    let url = hf_remote_url(&repo, &token);
+    let dir = hf_backup_dir(app)?;
+
+    if !dir.join(".git").exists() {
+        let (c, o) = run_git_proxy(&proxy, &["init", "-b", "main"], &dir);
+        if c != 0 { return Err(format!("git init 失败: {o}")); }
+        for (k, v) in [("user.name", "AlpeHuez Backup"), ("user.email", "alpehuez@localhost")] {
+            let _ = run_git_proxy(&proxy, &["config", k, v], &dir);
+        }
+    }
+    // 取远端最新提交，把工作区重置到它
+    let (c1, o1) = run_git_proxy(&proxy, &["fetch", &url], &dir);
+    if c1 != 0 { return Err(format!("拉取备份失败: {o1}")); }
+    let (c2, o2) = run_git_proxy(&proxy, &["reset", "--hard", "FETCH_HEAD"], &dir);
+    if c2 != 0 { return Err(format!("重置到最新备份失败: {o2}")); }
+
+    let mut out = Vec::new();
+    let whitelist = ["config.json", "links.json", "software-data.json", "database.json", "achievements.json", "telemetry.json", "backup-manifest.json"];
+    for rel in whitelist {
+        let p = dir.join(rel);
+        if p.exists() {
+            out.push((rel.to_string(), fs::read(&p).map_err(|e| format!("读取 {rel} 失败: {e}"))?));
+        }
+    }
+    let notes_dir = dir.join("daily-notes");
+    if notes_dir.exists() {
+        if let Ok(entries) = fs::read_dir(&notes_dir) {
+            for entry in entries.flatten() {
+                if entry.path().is_file() {
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    let bytes = fs::read(entry.path()).map_err(|e| format!("读取 daily-notes/{name} 失败: {e}"))?;
+                    out.push((format!("daily-notes/{name}"), bytes));
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// 从 WebDAV 下载 AlpeHuez_Backup.zip 并解压为文件集。
+fn fetch_webdav_restore_set(app: &tauri::AppHandle) -> Result<Vec<(String, Vec<u8>)>, String> {
+    let (url, user, pass) = webdav_creds(app)?;
+    let auth = webdav_basic_auth(&user, &pass);
+    let agent = ureq::AgentBuilder::new()
+        .timeout(std::time::Duration::from_secs(60))
+        .build();
+    let full = format!("{}/AlpeHuez_Backup.zip", url.trim().trim_end_matches('/'));
+    let resp = agent
+        .request("GET", &full)
+        .set("Authorization", &auth)
+        .send_bytes(&[])
+        .map_err(|e| format!("下载 AlpeHuez_Backup.zip 失败: {e}"))?;
+    if resp.status() != 200 {
+        return Err(format!("下载 AlpeHuez_Backup.zip 失败: HTTP {}", resp.status()));
+    }
+    let mut bytes = Vec::new();
+    resp.into_reader()
+        .read_to_end(&mut bytes)
+        .map_err(|e| format!("读取备份文件失败: {e}"))?;
+    read_zip_files(&bytes)
+}
+
+/// 恢复备份：从当前 provider（HF 或 WebDAV）拉取最新白名单文件集，
+/// 校验 sha256 后写回：database.json→SQLite、config/links/software 落盘、
+/// daily-notes 落盘；achievements/telemetry 返回给前端写 localStorage。
+#[tauri::command]
+pub async fn restore_backup(app: tauri::AppHandle) -> Result<RestoreResult, String> {
+    let conn = db_conn(&app)?;
+    let provider = db::get_config(&conn, "sync_provider")
+        .ok()
+        .and_then(|v| v.as_str().map(String::from))
+        .unwrap_or_else(|| "hf".to_string());
+
+    let files = if provider == "webdav" {
+        fetch_webdav_restore_set(&app)?
+    } else {
+        fetch_hf_restore_set(&app)?
+    };
+
+    // 取清单做校验
+    let manifest = files
+        .iter()
+        .find(|(rel, _)| rel == "backup-manifest.json")
+        .map(|(_, b)| serde_json::from_slice::<Value>(b).map_err(|e| e.to_string()))
+        .transpose()?
+        .ok_or_else(|| "备份中没有 backup-manifest.json".to_string())?;
+    let verified = verify_manifest_files(&manifest, &files)?;
+
+    let mut applied: Vec<String> = Vec::new();
+    let mut achievements = None;
+    let mut telemetry = None;
+    let mut daily: serde_json::Map<String, Value> = serde_json::Map::new();
+
+    for (rel, bytes) in &verified {
+        match rel.as_str() {
+            "database.json" => {
+                let v: Value = serde_json::from_slice(bytes).map_err(|e| format!("解析 database.json 失败: {e}"))?;
+                let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+                let mut conn = db::open(&data_dir.join("alpehuez.db"))?;
+                db::init(&conn)?;
+                db::import_all(&mut conn, &v)?;
+                applied.push("database.json → SQLite".into());
+            }
+            "config.json" => {
+                if let Ok(cfg_dir) = app.path().app_config_dir() {
+                    fs::create_dir_all(&cfg_dir).map_err(|e| e.to_string())?;
+                    fs::write(cfg_dir.join("config.json"), bytes).map_err(|e| format!("写回 config.json 失败: {e}"))?;
+                    applied.push("config.json".into());
+                }
+            }
+            "links.json" => {
+                fs::write(repo_root().join("links.json"), bytes).map_err(|e| format!("写回 links.json 失败: {e}"))?;
+                applied.push("links.json".into());
+            }
+            "software-data.json" => {
+                let dst = repo_root().join("myfiles/softwares/software-data.json");
+                if let Some(parent) = dst.parent() {
+                    fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+                }
+                fs::write(dst, bytes).map_err(|e| format!("写回 software-data.json 失败: {e}"))?;
+                applied.push("software-data.json".into());
+            }
+            "achievements.json" => {
+                achievements = serde_json::from_slice::<Value>(bytes).ok().map(|v| serde_json::to_string(&v).unwrap_or_default());
+                applied.push("achievements.json".into());
+            }
+            "telemetry.json" => {
+                telemetry = serde_json::from_slice::<Value>(bytes).ok().map(|v| serde_json::to_string(&v).unwrap_or_default());
+                applied.push("telemetry.json".into());
+            }
+            rel if rel.starts_with("daily-notes/") => {
+                let name = rel.trim_start_matches("daily-notes/");
+                let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+                let dst = data_dir.join("daily-notes").join(name);
+                if let Some(parent) = dst.parent() {
+                    fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+                }
+                fs::write(dst, bytes).map_err(|e| format!("写回 {rel} 失败: {e}"))?;
+                // daily-notes/*.json 存的是纯文本 markdown（非 JSON），回传前端写 localStorage。
+                let text = String::from_utf8_lossy(bytes).into_owned();
+                daily.insert(name.trim_end_matches(".json").to_string(), Value::String(text));
+                applied.push(rel.to_string());
+            }
+            _ => {}
+        }
+    }
+
+    let daily_notes = if daily.is_empty() {
+        None
+    } else {
+        Some(
+            serde_json::to_string(&Value::Object(daily)).map_err(|e| e.to_string())?,
+        )
+    };
+    let message = format!(
+        "已从 {} 恢复 {} 项：{}",
+        if provider == "webdav" { "WebDAV" } else { "Hugging Face" },
+        applied.len(),
+        applied.join(", ")
+    );
+    Ok(RestoreResult {
+        ok: true,
+        message,
+        achievements,
+        telemetry,
+        daily_notes,
+    })
 }
 
 #[cfg(not(target_os = "android"))]
@@ -2101,24 +2860,33 @@ pub fn mark_backup_for_launch(app: &tauri::AppHandle) {
     if !auto {
         return;
     }
-    if let Ok(dir) = app.path().app_data_dir() {
-        let bdir = dir.join("hf-backup");
-        let _ = std::fs::create_dir_all(&bdir);
-        let _ = std::fs::write(bdir.join("pending_backup"), b"1");
+    if let Ok(dir) = backup_meta_dir(app) {
+        let _ = std::fs::write(dir.join("pending_backup"), b"1");
     }
 }
 
-/// 启动时若有待备份标记，在后台线程执行备份并清除标记（不阻塞启动）。
-/// 备份失败时保留标记，下次启动继续重试。
+/// 启动时若有待备份标记，则按 Sync 面板选择的备份方式在后台线程执行一次并清除标记
+/// （不阻塞启动）。备份失败时保留标记，下次启动继续重试。
 pub fn run_pending_backup_at_launch(app: &tauri::AppHandle) {
     let handle = app.clone();
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_millis(600));
-        if let Ok(dir) = handle.path().app_data_dir() {
-            let marker = dir.join("hf-backup").join("pending_backup");
+        if let Ok(dir) = backup_meta_dir(&handle) {
+            let marker = dir.join("pending_backup");
             if marker.exists() {
-                let _ = run_hf_backup(&handle);
-                let _ = std::fs::remove_file(&marker);
+                let provider = db_conn(&handle)
+                    .ok()
+                    .and_then(|conn| db::get_config(&conn, "sync_provider").ok())
+                    .and_then(|v| v.as_str().map(String::from))
+                    .unwrap_or_else(|| "hf".to_string());
+                let result = if provider == "webdav" {
+                    run_webdav_backup(&handle)
+                } else {
+                    run_hf_backup(&handle)
+                };
+                if result.is_ok() {
+                    let _ = std::fs::remove_file(&marker);
+                }
             }
         }
     });
@@ -2140,10 +2908,11 @@ pub struct HfTestResult {
 pub async fn hf_test_connection(app: tauri::AppHandle) -> Result<HfTestResult, String> {
     let token = hf_token()?;
     let conn = db_conn(&app)?;
+    let proxy = hf_proxy(&conn);
     let repo = hf_repo(&conn);
     let url = hf_remote_url(&repo, &token);
     let dir = hf_backup_dir(&app)?;
-    let (c, o) = run_git_proxy(&["ls-remote", &url, "HEAD"], &dir);
+    let (c, o) = run_git_proxy(&proxy, &["ls-remote", &url, "HEAD"], &dir);
     Ok(HfTestResult {
         ok: c == 0,
         repo,
@@ -2163,5 +2932,41 @@ mod tests {
         let links: Value = serde_json::from_str(&content).expect("解析 links.json");
         let md5 = recompute_links_md5(&links);
         assert_eq!(md5, "e404e869fdcdaf46d617ff5bc31418d0");
+    }
+
+    /// 白名单文件集 → zip → 解压 往返一致。
+    #[test]
+    fn zip_backup_roundtrip() {
+        let files = [
+            BackupFile { rel: "links.json".into(), bytes: br#"{"icons":[]}"#.to_vec() },
+            BackupFile { rel: "daily-notes/2026-08-20.json".into(), bytes: "# 训练日志".to_string().into_bytes() },
+            BackupFile { rel: "backup-manifest.json".into(), bytes: br#"{"version":"0.6.0"}"#.to_vec() },
+        ];
+        let zipped = zip_backup_files(&files).expect("zip");
+        let unzipped = read_zip_files(&zipped).expect("unzip");
+        assert_eq!(unzipped.len(), 3);
+        for (rel, bytes) in unzipped {
+            let src = files.iter().find(|f| f.rel == rel).expect("找到原文件");
+            assert_eq!(src.bytes, bytes, "{rel} 内容一致");
+        }
+    }
+
+    /// manifest 校验：sha256 匹配时全部通过，篡改一字节则报错。
+    #[test]
+    fn verify_manifest_checks_sha256() {
+        let data = b"hello backup".to_vec();
+        let manifest = serde_json::json!({
+            "version": "0.6.0",
+            "files": [{ "path": "links.json", "sha256": sha256_hex(&data) }]
+        });
+        let files = vec![("links.json".to_string(), data.clone())];
+        let ok = verify_manifest_files(&manifest, &files).expect("校验通过");
+        assert_eq!(ok.len(), 1);
+
+        let tampered = vec![("links.json".to_string(), b"hello backup!".to_vec())];
+        assert!(verify_manifest_files(&manifest, &tampered).is_err());
+
+        let missing = vec![("database.json".to_string(), data)];
+        assert!(verify_manifest_files(&manifest, &missing).is_err());
     }
 }

@@ -436,7 +436,7 @@
   };
 
   const state = {
-    lang: (navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en',
+    lang: new URLSearchParams(location.search).get('lang') || ((navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en'),
     category: 'all',
     term: ''
   };
@@ -457,8 +457,23 @@
   }
 
   window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'alpehuez-theme') {
-      document.documentElement.dataset.theme = event.data.theme === 'dark' ? 'space' : '';
+    const d = event.data;
+    if (!d) return;
+    if (d.type === 'alpehuez-theme') {
+      document.documentElement.dataset.theme = d.theme === 'dark' ? 'space' : '';
+    } else if (d.type === 'alpehuez-lang' && (d.lang === 'zh' || d.lang === 'en')) {
+      state.lang = d.lang;
+      applyLang();
+    } else if (d.type === 'alpehuez-sw-category') {
+      state.category = d.cat || 'all';
+      state.term = '';
+      if (searchEl) searchEl.value = '';
+      renderCats();
+      render();
+      const section = document.getElementById('cat-' + state.category);
+      if (section && section.scrollIntoView) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   });
 
@@ -499,7 +514,19 @@
         </div>
         <div class="sw-grid">
           ${items.map((s) => {
-            const extra = s.extra ? `<a class="sw-btn sw-btn-site" href="${escapeHtml(s.extra.url)}">${escapeHtml(s.extra[state.lang])}</a>` : '';
+            // 三个按钮去重：URL 相同的只保留第一个按钮，避免 Download / Official Site / GitHub 出现重复。
+            const norm = (u) => String(u || '').toLowerCase().replace(/\/+$/, '').replace(/^https?:/, '');
+            const seen = new Set();
+            const btns = [];
+            const pushBtn = (url, label, cls) => {
+              const key = norm(url);
+              if (!url || seen.has(key)) return;
+              seen.add(key);
+              btns.push(`<a class="sw-btn ${cls}" href="${escapeHtml(url)}">${escapeHtml(label)}</a>`);
+            };
+            pushBtn(s.url, t.download, 'sw-btn-download');
+            pushBtn(s.url, t.site, 'sw-btn-site');
+            if (s.extra && s.extra.url) pushBtn(s.extra.url, s.extra[state.lang] || t.site, 'sw-btn-site');
             return `<article class="sw-card">
               <div class="sw-card-top">
                 <div class="sw-logo" aria-hidden="true">${escapeHtml(initials(s.name))}</div>
@@ -509,9 +536,7 @@
                 </div>
               </div>
               <div class="sw-card-actions">
-                <a class="sw-btn sw-btn-download" href="${escapeHtml(s.url)}">${t.download}</a>
-                <a class="sw-btn sw-btn-site" href="${escapeHtml(s.url)}">${t.site}</a>
-                ${extra}
+                ${btns.join('')}
               </div>
             </article>`;
           }).join('')}

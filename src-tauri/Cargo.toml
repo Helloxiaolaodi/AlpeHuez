@@ -1,6 +1,6 @@
 [package]
 name = "my-nav-panel"
-version = "0.5.0"
+version = "0.6.0"
 description = "AlpeHuez developer panel desktop app"
 edition = "2021"
 
@@ -22,10 +22,15 @@ percent-encoding = "2"
 rusqlite = { version = "0.31", features = ["bundled", "backup"] }
 ureq = "2"
 include_dir = "0.7"
+keyring = "3"
+sha2 = "0.10"
+zip = "4"
+window-vibrancy = "0.8.0"
+raw-window-handle = "0.6"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52"
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Dwm"] }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
 arboard = "3"

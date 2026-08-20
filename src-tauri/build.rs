@@ -47,9 +47,11 @@ fn main() {
                 "close_internal_page",
                 "go_back_internal_page",
                 "go_forward_internal_page",
+                "reload_internal_page",
                 "get_app_version",
                 "list_internal_pages",
                 "set_internal_page_visible",
+                "discard_internal_page",
                 "mark_first_run",
                 "list_workspaces",
                 "get_active_workspace",
@@ -62,7 +64,14 @@ fn main() {
                 "get_app_config",
                 "set_app_config",
                 "hf_backup",
+                "backup_history",
                 "hf_test_connection",
+                "webdav_backup",
+                "webdav_test_connection",
+                "set_webdav_password",
+                "webdav_password_set",
+                "backup_set_local_state",
+                "restore_backup",
                 "save_daily_note",
             ]),
         ),
@@ -76,6 +85,7 @@ fn main() {
     } else {
         stage_webroot("webroot", &desktop_files());
         trim_myfiles_data("webroot");
+        blank_webroot_content("webroot");
     }
 }
 
@@ -96,15 +106,23 @@ fn android_files() -> Vec<&'static str> {
 }
 
 fn desktop_files() -> Vec<&'static str> {
-    let mut list = android_files();
-    list.extend([
-        "panel",
+    // 打包版不携带开发者任何个人内容：仅应用外壳 + 空白启动数据。
+    // 个人内容（Portal 书签、软件清单、github-profile 头像、favicon 缓存、
+    // 个人报告目录 galibierhub/lucuro 等）一律不进包，stage 后由
+    // trim_myfiles_data / blank_webroot_content 写为空白启动数据。
+    vec![
+        "index.html",
+        "links.json",
+        "tailwind.min.js",
+        "fonts",
+        "myfiles/data.json",
+        "myfiles/index.html",
+        "myfiles/explorer.js",
+        "myfiles/explorer.css",
+        "myfiles/softwares",
         "myfiles/login.html",
-        // 小而必要的公开内容目录；targetc/global-oral 等个人大报告不打包。
-        "myfiles/galibierhub",
-        "myfiles/lucuro",
-    ]);
-    list
+        "panel",
+    ]
 }
 
 fn stage_webroot(out_name: &str, files: &[&str]) {
@@ -143,6 +161,29 @@ fn trim_myfiles_data(out_name: &str) {
         obj.insert("folders".into(), Value::Array(vec![]));
     }
     let _ = std::fs::write(&dst, serde_json::to_string_pretty(&v).expect("序列化 data.json") + "\n");
+}
+
+/// 打包版不携带开发者现有内容：Portal 链接与软件清单置为空白启动数据。
+fn blank_webroot_content(out_name: &str) {
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let out = manifest.join(out_name);
+
+    let links_blank = r#"{
+    "version": 1,
+    "appName": "AlpeHuez",
+    "exportTime": "",
+    "appVersion": "",
+    "icons": []
+}
+"#;
+    let _ = std::fs::write(out.join("links.json"), links_blank);
+
+    let soft_blank = r#"{
+    "categories": [],
+    "software": []
+}
+"#;
+    let _ = std::fs::write(out.join("myfiles").join("softwares").join("software-data.json"), soft_blank);
 }
 
 fn copy_dir(src: &Path, dst: &Path) {

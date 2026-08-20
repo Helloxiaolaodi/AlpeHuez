@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-webdav-test-connection"
+description = "Enables the webdav_test_connection command without any pre-configured scope."
+commands.allow = ["webdav_test_connection"]
+
+[[permission]]
+identifier = "deny-webdav-test-connection"
+description = "Denies the webdav_test_connection command without any pre-configured scope."
+commands.deny = ["webdav_test_connection"]

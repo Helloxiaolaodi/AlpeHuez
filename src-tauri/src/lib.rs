@@ -6,6 +6,8 @@ mod velometer;
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
 
 use tauri::Manager;
 #[cfg(not(target_os = "android"))]
@@ -16,6 +18,15 @@ use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 use tauri_plugin_global_shortcut::ShortcutState;
 
 static ROOT: OnceLock<PathBuf> = OnceLock::new();
+
+/// 启动时间：启动初期 Windows 可能把上次会话的最小化状态恢复给新实例，
+/// 这时 Resized→最小化→hide 会把窗口藏进托盘，表现为"只有托盘图标没有界面"。
+/// 前 8 秒内的最小化事件只还原窗口，不隐藏。
+static STARTED_AT: OnceLock<Instant> = OnceLock::new();
+
+/// 用户主动隐藏到托盘标记：关闭按钮 / 最小化 / 托盘「隐藏」都会置位，
+/// 启动 watchdog 依据它区分"用户想隐藏"与"窗口本该显示却没显示"，避免对抗。
+static USER_HIDDEN: AtomicBool = AtomicBool::new(false);
 
 /// 设置仓库根目录（Android 上由 setup 指向应用私有 webroot，桌面版无需调用）。
 /// 统一 canonicalize：Windows 上 fs::canonicalize 会补 `\\?\` 前缀，若根目录不规范化，
@@ -38,10 +49,60 @@ pub fn repo_root() -> &'static Path {
 /// 显示并聚焦主窗口。Windows 上直接 show() 有时不置顶，需 unminimize + set_focus 兜底。
 #[cfg(not(target_os = "android"))]
 fn show_main(app: &tauri::AppHandle) {
+    USER_HIDDEN.store(false, Ordering::Relaxed);
     if let Some(win) = app.get_webview_window("main") {
         let _ = win.show();
         let _ = win.unminimize();
         let _ = win.set_focus();
+        // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
+        // 微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
+        let size = win.outer_size().unwrap_or_default();
+        if size.width > 0 && size.height > 0 {
+            let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize::new(size.width + 1, size.height)));
+            let _ = win.set_size(tauri::Size::Physical(size));
+        }
+    }
+}
+
+/// 隐藏到系统托盘并记录"用户主动隐藏"，避免启动 watchdog 把窗口拉回来。
+/// 事件闭包拿到的是 &Window，快捷键/托盘拿到的是 WebviewWindow，用 trait 统一。
+#[cfg(not(target_os = "android"))]
+trait Hideable {
+    fn hide_window(&self);
+}
+#[cfg(not(target_os = "android"))]
+impl Hideable for tauri::Window {
+    fn hide_window(&self) {
+        let _ = self.hide();
+    }
+}
+#[cfg(not(target_os = "android"))]
+impl Hideable for tauri::WebviewWindow {
+    fn hide_window(&self) {
+        let _ = self.hide();
+    }
+}
+#[cfg(not(target_os = "android"))]
+fn hide_to_tray(win: &impl Hideable) {
+    USER_HIDDEN.store(true, Ordering::Relaxed);
+    win.hide_window();
+}
+
+/// 无边框透明窗口失去系统阴影，用 DwmExtendFrameIntoClientArea 找回（1px 玻璃边即可触发阴影/圆角）。
+/// 等价于旧 crate window-shadows 的实现，但它停留在 raw-window-handle 0.5，与 Tauri v2（0.6）不兼容。
+#[cfg(target_os = "windows")]
+fn enable_window_shadow(win: &tauri::WebviewWindow) {
+    use raw_window_handle::HasWindowHandle;
+    let Ok(handle) = win.window_handle() else { return; };
+    let raw_window_handle::RawWindowHandle::Win32(h) = handle.as_raw() else { return; };
+    let margins = windows_sys::Win32::UI::Controls::MARGINS {
+        cxLeftWidth: 1,
+        cxRightWidth: 1,
+        cyTopHeight: 1,
+        cyBottomHeight: 1,
+    };
+    unsafe {
+        let _ = windows_sys::Win32::Graphics::Dwm::DwmExtendFrameIntoClientArea(h.hwnd.get() as _, &margins);
     }
 }
 
@@ -59,14 +120,24 @@ pub fn run() {
                 // 关闭按钮 → 隐藏到系统托盘，进程驻留为常驻守护（托盘「退出」才真正退出）。
                 // 备份动作移到托盘菜单 quit 分支统一执行。
                 api.prevent_close();
-                let _ = window.hide();
+                hide_to_tray(window);
             }
             // 最小化按钮 → 同样隐藏到系统托盘（驻留后台继续运行）。
             // Resized 在最小化/还原时都会触发，按 is_minimized 状态区分。
             #[cfg(not(target_os = "android"))]
             if let tauri::WindowEvent::Resized(_) = event {
                 if window.is_minimized().unwrap_or(false) {
-                    let _ = window.hide();
+                    let startup = STARTED_AT
+                        .get()
+                        .map(|t| t.elapsed() < Duration::from_secs(8))
+                        .unwrap_or(false);
+                    if startup {
+                        // 启动初期：Windows 会恢复上次会话的最小化状态，直接隐藏会把窗口
+                        // 藏进托盘，表现为"启动后看不到界面"。改为还原显示。
+                        let _ = window.unminimize();
+                    } else {
+                        hide_to_tray(window);
+                    }
                 }
             }
         })
@@ -90,6 +161,7 @@ pub fn run() {
             commands::set_access_email,
             commands::setup_access,
             commands::request_password_recovery,
+            commands::open_password_recovery,
             commands::verify_recovery_code,
             commands::reset_password,
             commands::get_download_config,
@@ -99,6 +171,7 @@ pub fn run() {
             commands::save_bg_image,
             commands::get_bg_config,
             commands::set_bg_config,
+            commands::save_bookmarks_export,
             commands::save_feedback,
             commands::get_feedback,
             commands::get_wechat_qr,
@@ -114,9 +187,11 @@ pub fn run() {
             commands::close_internal_page,
             commands::go_back_internal_page,
             commands::go_forward_internal_page,
+            commands::reload_internal_page,
             commands::get_app_version,
             commands::list_internal_pages,
             commands::set_internal_page_visible,
+            commands::discard_internal_page,
             commands::mark_first_run,
             commands::list_workspaces,
             commands::get_active_workspace,
@@ -129,7 +204,14 @@ pub fn run() {
             commands::get_app_config,
             commands::set_app_config,
             commands::hf_backup,
+            commands::backup_history,
             commands::hf_test_connection,
+            commands::webdav_backup,
+            commands::webdav_test_connection,
+            commands::set_webdav_password,
+            commands::webdav_password_set,
+            commands::backup_set_local_state,
+            commands::restore_backup,
             commands::save_daily_note,
         ]);
 
@@ -143,10 +225,9 @@ pub fn run() {
                 if event.state == ShortcutState::Pressed {
                     if let Some(window) = app.get_webview_window("main") {
                         if window.is_visible().unwrap_or(true) {
-                            let _ = window.hide();
+                            hide_to_tray(&window);
                         } else {
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            show_main(app);
                         }
                     }
                 }
@@ -159,6 +240,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .register_uri_scheme_protocol("nav", preview::handler)
         .setup(|app| {
+            let _ = STARTED_AT.set(Instant::now());
             // 单实例：第二次启动直接退出，避免双进程争抢全局快捷键与 WebView2 数据目录
             // 导致窗口无法显示（用户曾因此看到"启动无界面，只能 Alt+A 唤出"）。
             #[cfg(not(target_os = "android"))]
@@ -177,6 +259,14 @@ pub fn run() {
                         // 保持文件打开以持锁整个进程生命周期
                         let _ = Box::leak(Box::new(lock_file));
                     }
+                }
+            }
+            // 磨砂玻璃（Windows）：Acrylic 让桌面壁纸透出；找回无边框透明窗口的系统阴影。
+            #[cfg(target_os = "windows")]
+            {
+                if let Some(win) = app.get_webview_window("main") {
+                    let _ = window_vibrancy::apply_acrylic(&win, Some((35, 35, 50, 96)));
+                    enable_window_shadow(&win);
                 }
             }
             // Android：repo_root 指向应用私有 webroot（编译期 Windows 路径在移动端不存在）。
@@ -214,19 +304,31 @@ pub fn run() {
                 }
             }
             // 启动后把焦点交给主 webview，避免首次使用 F11 前必须点击窗口内容（仅桌面）。
-            // 若窗口启动时不可见（如残留 WebView2 进程干扰初始化），强制 show() 兜底。
+            // 启动 watchdog：前 12 秒内若用户未主动隐藏但窗口不可见或仍是最小化
+            // （WebView2 初始化失败、启动被最小化状态干扰等），强制还原显示并聚焦。
             #[cfg(not(target_os = "android"))]
             {
                 let handle = app.handle().clone();
                 std::thread::spawn(move || {
-                    std::thread::sleep(std::time::Duration::from_millis(500));
-                    if let Some(win) = handle.get_webview_window("main") {
-                        if !win.is_visible().unwrap_or(false) {
-                            let _ = win.show();
+                    let deadline = Instant::now() + Duration::from_secs(12);
+                    loop {
+                        let now = Instant::now();
+                        if now >= deadline {
+                            break;
                         }
-                    }
-                    if let Some(webview) = handle.get_webview("main") {
-                        let _ = webview.set_focus();
+                        std::thread::sleep(Duration::from_millis(1200));
+                        if let Some(win) = handle.get_webview_window("main") {
+                            let visible = win.is_visible().unwrap_or(false);
+                            let minimized = win.is_minimized().unwrap_or(false);
+                            if !USER_HIDDEN.load(Ordering::Relaxed) && (!visible || minimized) {
+                                let _ = win.unminimize();
+                                let _ = win.show();
+                                let _ = win.set_focus();
+                            }
+                        }
+                        if let Some(webview) = handle.get_webview("main") {
+                            let _ = webview.set_focus();
+                        }
                     }
                 });
             }
@@ -267,16 +369,18 @@ pub fn run() {
                     "show" => show_main(app),
                     "hide" => {
                         if let Some(win) = app.get_webview_window("main") {
-                            let _ = win.hide();
+                            hide_to_tray(&win);
                         }
                     }
                     "quit" => {
                         let handle = app.clone();
                         std::thread::spawn(move || {
-                            // 只写待备份标记，立即硬退出（避免网络 push 与 WebView2 优雅销毁阻塞退出）；
-                            // 备份推迟到下次启动。
+                            // 只写待备份标记，立即退出（备份推迟到下次启动执行）。
+                            // 用 app.exit 而非 process::exit：优雅销毁 WebView2，
+                            // 避免残留 msedgewebview2 子进程锁住 profile 数据目录，
+                            // 否则下次启动窗口可能空白/不显示。
                             commands::mark_backup_for_launch(&handle);
-                            std::process::exit(0);
+                            handle.exit(0);
                         });
                     }
                     _ => {}

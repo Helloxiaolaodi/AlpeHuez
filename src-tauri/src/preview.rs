@@ -216,7 +216,6 @@ mod tests {
             "myfiles/index.html",
             "myfiles/login.html",
             "myfiles/softwares/Windows Software Downloads.html",
-            "myfiles/galibierhub/index.html",
         ];
         for rel in expect_exists {
             assert!(
@@ -224,9 +223,13 @@ mod tests {
                 "嵌入资源缺失: {rel}（build.rs 是否已暂存 webroot？）"
             );
         }
-        // 个人大报告目录不打包
+        // 个人大报告目录与个人内容不打包
         assert!(!dest.join("myfiles/targetc").exists());
         assert!(!dest.join("myfiles/global-oral").exists());
+        assert!(!dest.join("myfiles/galibierhub").exists());
+        assert!(!dest.join("myfiles/lucuro").exists());
+        assert!(!dest.join("github-profile.jpg").exists());
+        assert!(!dest.join("icons").exists());
 
         // 打包版 data.json 不公开任何文件夹（个人报告不进包，softwares 已移出 My Files 界面）
         let data: serde_json::Value = serde_json::from_str(
@@ -237,6 +240,26 @@ mod tests {
             .as_array()
             .expect("folders 应为数组");
         assert!(folders.is_empty(), "打包版 My Files 不应列出文件夹");
+
+        // 打包版 Portal 与软件清单为空白启动数据（不携带开发者个人内容）
+        let links: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(dest.join("links.json")).expect("读取 links.json"),
+        )
+        .expect("解析 links.json");
+        assert!(
+            links["icons"].as_array().expect("icons 应为数组").is_empty(),
+            "打包版 Portal 不应包含卡片"
+        );
+
+        let software: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(dest.join("myfiles/softwares/software-data.json"))
+                .expect("读取 software-data.json"),
+        )
+        .expect("解析 software-data.json");
+        assert!(
+            software["software"].as_array().expect("software 应为数组").is_empty(),
+            "打包版软件清单应为空"
+        );
 
         // 播种不应覆盖已存在的文件（用户数据保护）
         std::fs::write(dest.join("links.json"), b"user-modified").expect("写入 links.json");

@@ -16,7 +16,6 @@ const PUBLIC_PATHS = new Set([
   '/myfiles/login',
   '/myfiles/explorer.css',
   '/myfiles/explorer.js',
-  '/myfiles/data.json',
   '/myfiles/softwares/Windows Software Downloads.html',
   '/myfiles/softwares/software-data.json',
 ]);

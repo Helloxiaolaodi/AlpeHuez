@@ -222,6 +222,138 @@ pub fn set_config(conn: &Connection, key: &str, value: &Value) -> Result<(), Str
     Ok(())
 }
 
+/// 备份用：把三个核心表序列化为单个 JSON（替代上传二进制 db）。
+/// 结构：{"workspaces":[...], "workspace_links":[...], "app_config":{key:value,...}}
+pub fn export_all(conn: &Connection) -> Result<Value, String> {
+    let mut ws = Vec::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT id, name, role, rider_type, rider_name, rider_number, specialties, sort_order, created_at FROM workspaces ORDER BY id")
+            .map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map([], |r| {
+                let id: i64 = r.get(0)?;
+                let name: String = r.get(1)?;
+                let role: String = r.get(2)?;
+                let rider_type: String = r.get(3)?;
+                let rider_name: String = r.get(4)?;
+                let rider_number: i64 = r.get(5)?;
+                let specialties: String = r.get(6)?;
+                let sort_order: i64 = r.get(7)?;
+                let created_at: String = r.get(8)?;
+                Ok(serde_json::json!({
+                    "id": id, "name": name, "role": role,
+                    "riderType": rider_type, "riderName": rider_name,
+                    "riderNumber": rider_number,
+                    "specialties": serde_json::from_str::<Value>(&specialties).unwrap_or(serde_json::json!({})),
+                    "sortOrder": sort_order, "createdAt": created_at
+                }))
+            })
+            .map_err(|e| e.to_string())?;
+        for row in rows {
+            ws.push(row.map_err(|e| e.to_string())?);
+        }
+    }
+    let mut links = Vec::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT workspace_id, links_json FROM workspace_links ORDER BY workspace_id")
+            .map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map([], |r| {
+                let wid: i64 = r.get(0)?;
+                let lj: String = r.get(1)?;
+                Ok(serde_json::json!({
+                    "workspaceId": wid,
+                    "linksJson": serde_json::from_str::<Value>(&lj).unwrap_or(serde_json::json!({}))
+                }))
+            })
+            .map_err(|e| e.to_string())?;
+        for row in rows {
+            links.push(row.map_err(|e| e.to_string())?);
+        }
+    }
+    let mut cfg = Vec::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT key, value FROM app_config ORDER BY key")
+            .map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map([], |r| {
+                let k: String = r.get(0)?;
+                let v: String = r.get(1)?;
+                Ok(serde_json::json!({
+                    "key": k,
+                    "value": serde_json::from_str::<Value>(&v).unwrap_or(serde_json::Value::String(v))
+                }))
+            })
+            .map_err(|e| e.to_string())?;
+        for row in rows {
+            cfg.push(row.map_err(|e| e.to_string())?);
+        }
+    }
+    Ok(serde_json::json!({
+        "version": 1,
+        "workspaces": ws,
+        "workspace_links": links,
+        "app_config": cfg
+    }))
+}
+
+/// 恢复：清空现有数据后把 JSON 灌回三个表。
+pub fn import_all(conn: &mut Connection, data: &Value) -> Result<(), String> {
+    let tx = conn.transaction().map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM workspace_links", []).map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM workspaces", []).map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM app_config", []).map_err(|e| e.to_string())?;
+
+    let ws = data["workspaces"].as_array().cloned().unwrap_or_default();
+    for w in ws {
+        let id = w["id"].as_i64().unwrap_or(0);
+        let name = w["name"].as_str().unwrap_or("").to_string();
+        let role = w["role"].as_str().unwrap_or("").to_string();
+        let rider_type = w["riderType"].as_str().unwrap_or("").to_string();
+        let rider_name = w["riderName"].as_str().unwrap_or("").to_string();
+        let rider_number = w["riderNumber"].as_i64().unwrap_or(0);
+        let specialties = serde_json::to_string(&w["specialties"]).unwrap_or_else(|_| "{}".to_string());
+        let sort_order = w["sortOrder"].as_i64().unwrap_or(0);
+        let created_at = w["createdAt"].as_str().unwrap_or("").to_string();
+        tx.execute(
+            "INSERT INTO workspaces (id, name, role, rider_type, rider_name, rider_number, specialties, sort_order, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            params![id, name, role, rider_type, rider_name, rider_number, specialties, sort_order, created_at],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    let links = data["workspace_links"].as_array().cloned().unwrap_or_default();
+    for l in links {
+        let wid = l["workspaceId"].as_i64().unwrap_or(0);
+        let lj = serde_json::to_string(&l["linksJson"]).unwrap_or_else(|_| "{}".to_string());
+        tx.execute(
+            "INSERT INTO workspace_links (workspace_id, links_json) VALUES (?1, ?2)",
+            params![wid, lj],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    let cfg = data["app_config"].as_array().cloned().unwrap_or_default();
+    for c in cfg {
+        let k = c["key"].as_str().unwrap_or("").to_string();
+        let v = serde_json::to_string(&c["value"]).unwrap_or_else(|_| "null".to_string());
+        if k.is_empty() {
+            continue;
+        }
+        tx.execute(
+            "INSERT INTO app_config (key, value) VALUES (?1, ?2)",
+            params![k, v],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    tx.commit().map_err(|e| e.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -278,5 +410,26 @@ mod tests {
         assert_eq!(get_workspace_links(&conn, 1).expect("get links"), data);
         set_config(&conn, "active_workspace", &serde_json::json!(1)).expect("set config");
         assert_eq!(get_config(&conn, "active_workspace").expect("get config"), serde_json::json!(1));
+    }
+
+    #[test]
+    fn export_import_roundtrip() {
+        let conn = test_conn();
+        seed(&conn).expect("seed");
+        save_workspace_links(&conn, 1, &serde_json::json!({ "icons": [{ "title": "x", "url": "https://x.com" }] }))
+            .expect("save links");
+        set_config(&conn, "active_workspace", &serde_json::json!(2)).expect("set config");
+
+        let export = export_all(&conn).expect("export");
+        assert_eq!(export["workspaces"].as_array().unwrap().len(), 5);
+        assert_eq!(export["app_config"].as_array().unwrap().len(), 1);
+
+        let mut conn2 = test_conn();
+        import_all(&mut conn2, &export).expect("import");
+        let ws = list_workspaces(&conn2).expect("list");
+        assert_eq!(ws.len(), 5);
+        assert_eq!(ws[0].name, "主将");
+        assert_eq!(get_workspace_links(&conn2, 1).expect("get links")["icons"][0]["title"], "x");
+        assert_eq!(get_config(&conn2, "active_workspace").expect("get config"), serde_json::json!(2));
     }
 }

@@ -265,8 +265,24 @@ body.dev-embedded .content {
   min-height: 100%;
 }
 body.dev-embedded .bg-layer { background-image: none; }
-body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
-[data-theme="dark"] body.dev-embedded::before { background: rgba(7, 11, 18, 0.55); }
+body.dev-embedded::before { background: transparent; }
+/* 嵌入主应用时背景跟随 Portal 配色方案（与主应用 index.html 的 space / 浅色渐变保持一致） */
+[data-theme="dark"] body.dev-embedded {
+  background-color: rgba(62, 58, 101, 0.35);
+  background-image:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.02"/></svg>'),
+    linear-gradient(180deg, rgba(62, 58, 101, 0.62) 0%, rgba(71, 55, 101, 0.62) 100%);
+  background-blend-mode: overlay, normal;
+  background-attachment: fixed;
+}
+[data-theme="light"] body.dev-embedded {
+  background-color: rgba(245, 250, 255, 0.6);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(177, 227, 255, 0.2) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(255, 224, 174, 0.12) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(245, 250, 255, 0.62) 0%, rgba(255, 253, 248, 0.62) 100%);
+  background-attachment: fixed;
+}
 
 /* ---------- Panels ---------- */
 .tab-panel { display: none; max-width: 960px; margin: 0 auto; }
@@ -417,6 +433,17 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
   background: var(--glass-bg);
 }
 .empty-state p { margin-bottom: 14px; font-size: 13.5px; }
+
+/* 公网展示版：面板为开发者私有工具，只显示锁定空状态 */
+body.web-locked { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.web-lock {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; min-height: 220px; padding: 32px 24px; text-align: center;
+  color: var(--text-3);
+}
+.web-lock svg { width: 42px; height: 42px; opacity: 0.5; }
+.web-lock-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.web-lock-sub { font-size: 13px; opacity: 0.8; }
 
 /* ---------- My Files ---------- */
 .myfiles-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
@@ -765,6 +792,25 @@ body.dev-embedded::before { background: rgba(248, 250, 252, 0.5); }
 .sw-item-cat { font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 1px 8px; border-radius: 999px; font-weight: 500; }
 .sw-item-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sw-empty { padding: 34px 10px; text-align: center; color: var(--text-3); font-size: 13px; }
+
+/* 软件选项卡（对应主应用 Software 界面） */
+.software-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.software-card {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius); padding: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.software-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+.software-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.software-card-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.software-card-cat { font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 1px 8px; border-radius: 999px; font-weight: 500; }
+.software-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.software-card-desc { font-size: 12px; color: var(--text-3); line-height: 1.55; margin: 0; flex: 1; }
+.software-card-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.software-card-foot .btn { text-decoration: none; }
 
 /* ---------- 工作台管理 ---------- */
 .ws-list { display: flex; flex-direction: column; gap: 12px; }

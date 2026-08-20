@@ -1,0 +1,2 @@
+023be006dc1d6a533066591d4488f99c6f4cb1dea776aef53a97f26a46fa133d *AlpeHuez_0.6.0_x64-setup.exe
+55ddc9f3fffc05ea2edbd364f3bc87c643ce3458f6c7932c9deeb5a06120287a *my-nav-panel.exe

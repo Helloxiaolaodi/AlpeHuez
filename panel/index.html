@@ -40,6 +40,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
         <span data-i18n="myFiles">My Files</span>
       </button>
+      <button class="tab-btn" data-tab="software" data-i18n-title="softwareTab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        <span data-i18n="softwareTab">软件</span>
+      </button>
       <button class="tab-btn" data-tab="deploy" data-i18n-title="deploy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
         <span data-i18n="deploy">部署</span>
@@ -60,10 +64,13 @@
             <p class="muted" data-i18n="navDesc">管理首页的网址卡片与分组，保存后自动写入 links.json</p>
           </div>
           <div class="head-actions">
+            <button class="btn btn-ghost" id="btnImportBookmarks" data-i18n="importBookmarks">导入书签 HTML</button>
+            <button class="btn btn-ghost" id="btnExportBookmarks" data-i18n="exportBookmarks">导出书签 HTML</button>
             <button class="btn btn-ghost" id="btnNewCard" data-i18n="newCard">新建卡片</button>
             <button class="btn btn-ghost" id="btnEnhance" data-i18n="recompute">重新计算标签 / VPN</button>
             <button class="btn btn-ghost" id="btnDownloadIcons" data-i18n="downloadIcons">下载图标</button>
             <button class="btn btn-primary" id="btnSaveLinks" data-i18n="save">保存</button>
+            <input type="file" id="bookmarkFileInput" accept=".html,.htm,text/html,application/xhtml+xml" hidden>
           </div>
         </div>
 
@@ -124,6 +131,29 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- ============ 软件 ============ -->
+      <section class="tab-panel" id="tab-software">
+        <div class="panel-head">
+          <div>
+            <h1 data-i18n="softwareTab">软件</h1>
+            <p class="muted" data-i18n="softwareTabDesc">管理软件下载页中的软件卡片，保存后自动写入 myfiles/softwares/software-data.json</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="btnSoftwareAdd" data-i18n="addSoftware">新增软件</button>
+          </div>
+        </div>
+
+        <div class="group-bar">
+          <div class="search-row">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="softwareSearch" class="input" data-i18n-placeholder="softwareSearch" placeholder="搜索软件…">
+            <select id="softwareCat" class="select"></select>
+          </div>
+        </div>
+
+        <div class="software-grid" id="softwareGrid"></div>
       </section>
 
       <!-- ============ 部署 ============ -->

@@ -23,7 +23,7 @@
             --brand-mint: #A8FFE1;
             --brand-mint-soft: #C5FDCB;
             --brand-cyan: #9AFDFF;
-            --bg-body: #F5FAFF;
+            --bg-body: rgba(245, 250, 255, 0.6);
             --bg-body-solid: #F5FAFF;
             --bg-card: #FFFFFF;
             --text-main: #111827;
@@ -38,7 +38,7 @@
             --success: #00C805;
             --danger: #FF5000;
             --warning: #F38020;
-            --bg-sidebar: #F7F7F5;
+            --bg-sidebar: rgba(247, 247, 245, 0.6);
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.8);
             --bg-elevated: rgba(255, 255, 255, 0.85);
@@ -55,7 +55,7 @@
             --brand-primary: #7985FF;
             --brand-light: rgba(121, 133, 255, 0.15);
             --brand-warm: rgba(255, 183, 77, 0.16);
-            --bg-body: linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+            --bg-body: linear-gradient(180deg, rgba(62, 58, 101, 0.6) 0%, rgba(71, 55, 101, 0.6) 100%);
             --bg-body-solid: #3E3A65;
             --bg-card: #362F54;
             --text-main: #fcfcfc;
@@ -69,7 +69,7 @@
             --success: #6FCF97;
             --danger: #F87171;
             --warning: #FFB74D;
-            --bg-sidebar: linear-gradient(180deg, #343155 0%, #3B2E58 100%);
+            --bg-sidebar: linear-gradient(180deg, rgba(52, 49, 85, 0.65) 0%, rgba(59, 46, 88, 0.65) 100%);
             --glass-bg: rgba(54, 47, 84, 0.55);
             --glass-border: #3F375F;
             --bg-elevated: #3F375F;
@@ -107,10 +107,10 @@
         }
 
         html[data-theme="space"] body {
-            background-color: #3E3A65;
+            background-color: rgba(62, 58, 101, 0.35);
             background-image:
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'),
-                linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.02"/></svg>'),
+                linear-gradient(180deg, rgba(62, 58, 101, 0.62) 0%, rgba(71, 55, 101, 0.62) 100%);
             background-blend-mode: overlay, normal;
             background-attachment: fixed;
         }
@@ -124,7 +124,7 @@
             filter: blur(var(--space-bg-blur, 0px));
         }
         html[data-theme="space"].noise-off body {
-            background-image: linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+            background-image: linear-gradient(180deg, rgba(62, 58, 101, 0.62) 0%, rgba(71, 55, 101, 0.62) 100%);
         }
 
         /* 浅色模式：液态玻璃与晨曦 */
@@ -132,7 +132,7 @@
             background-image:
                 radial-gradient(circle at 50% 0%, var(--focus-mesh-1) 0%, transparent 55%),
                 radial-gradient(circle at 100% 100%, var(--focus-mesh-2) 0%, transparent 50%),
-                linear-gradient(135deg, #F5FAFF 0%, #FFFDF8 100%);
+                linear-gradient(135deg, rgba(245, 250, 255, 0.62) 0%, rgba(255, 253, 248, 0.62) 100%);
             background-attachment: fixed;
         }
 
@@ -976,6 +976,19 @@
             padding: 0 4px 10px;
         }
 
+        #portalCategoryLinks {
+            max-height: 640px;
+            overflow: hidden;
+            opacity: 1;
+            transition: max-height 0.24s ease, opacity 0.2s ease, padding 0.18s ease;
+        }
+
+        #portalCategoryLinks.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 4px;
+        }
+
         .portal-category-link {
             display: flex;
             align-items: center;
@@ -1084,6 +1097,37 @@
             font-size: 11px;
             line-height: 1.5;
             text-align: center;
+        }
+
+        .web-lock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 220px;
+            padding: 32px 24px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .web-lock svg {
+            width: 42px;
+            height: 42px;
+            opacity: 0.5;
+        }
+        .web-lock-title {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0;
+            color: var(--text-main);
+        }
+        .web-lock-sub {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        #view-dev .dev-frame .web-lock {
+            height: 100%;
+            min-height: 0;
         }
 
         .browser-tabs {
@@ -4244,10 +4288,16 @@
         .settings-section {
             display: none;
             padding: 2px 6px 0;
+            margin-top: 28px;
         }
 
         .settings-section.active {
             display: block;
+        }
+
+        /* 同一选项卡内多个分组小节之间留 28px 间距，分组首个不设上间距（由 JS 标记） */
+        .settings-section.settings-group-first {
+            margin-top: 0;
         }
 
         .settings-section h3 {
@@ -4257,6 +4307,35 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0;
+        }
+
+        /* Sync 面板的 HF backup 热力图：24 格滚动最近 24 小时，与 Portal 右上角 KOM 时间轴同款视觉 */
+        .hf-heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(24, minmax(0, 1fr));
+            gap: 3px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .hf-heatmap-grid .hf-cell {
+            height: 10px;
+            border-radius: 2px;
+            background: rgba(107, 114, 128, 0.16);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hf-heatmap-grid .hf-cell.success {
+            background: var(--brand-primary);
+            box-shadow: 0 0 8px rgba(0, 135, 235, 0.35);
+        }
+
+        .hf-heatmap-grid .hf-cell.error {
+            background: var(--danger);
+        }
+
+        .hf-heatmap-grid .hf-cell.offline {
+            background: rgba(107, 114, 128, 0.3);
         }
 
         .settings-row {
@@ -4818,7 +4897,12 @@
                     <span>Open pages stay as vertical tabs</span>
                 </div>
                 <div id="portalSidebar" class="portal-nav">
-                    <div class="portal-nav-label">Categories</div>
+                    <div class="portal-nav-label portal-nav-label-row">
+                        <span>Categories</span>
+                        <button id="portalCategoriesToggle" class="portal-tags-toggle" type="button" aria-expanded="true" title="Hide categories" aria-label="Hide categories">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                    </div>
                     <div id="portalCategoryLinks" class="portal-categories"></div>
                     <div class="portal-nav-label portal-nav-label-row">
                         <span>Tags</span>
@@ -4843,10 +4927,10 @@
 
             <div id="context-software" class="context-panel">
                 <div class="context-head">
-                    <strong>Windows Software</strong>
-                    <span>Downloads</span>
+                    <strong data-i18n-settings="softwareSideTitle">Windows Software</strong>
+                    <span data-i18n-settings="softwareSideSub">Downloads</span>
                 </div>
-                <div class="context-label"><span>Categories</span><span class="count-pill" id="swCatCount">0</span></div>
+                <div class="context-label"><span data-i18n-settings="softwareCategories">Categories</span><span class="count-pill" id="swCatCount">0</span></div>
                 <div id="swCategoryList" class="portal-categories"></div>
             </div>
 
@@ -5023,6 +5107,11 @@
                             <p>Browse folder reports directly from the workspace without leaving the shell.</p>
                         </div>
                         <div id="myFilesMain" class="myfiles-main"></div>
+                        <div id="myFilesWebLock" class="web-lock" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <p class="web-lock-title" data-i18n-settings="webLockTitle">Private local workspace</p>
+                            <p class="web-lock-sub" data-i18n-settings="webLockDesc">Not available on the web preview.</p>
+                        </div>
                     </div>
                 </section>
 
@@ -5085,7 +5174,7 @@
                                 <h2>Developer &amp; Links</h2>
                                 <div class="about-meta">
                                     <div><label>Developer</label><strong>Helloxiaolaodi</strong></div>
-                                    <div><label>Version</label><strong id="aboutVersionMeta">0.5.0</strong></div>
+                                    <div><label>Version</label><strong id="aboutVersionMeta">0.6.0</strong></div>
                                     <div><label>GitHub</label><strong>Helloxiaolaodi/AlpeHuez</strong></div>
                                     <div><label>AlpeHuez</label><strong>Persistent WebView</strong></div>
                                 </div>
@@ -5097,6 +5186,11 @@
                 <section id="view-dev" class="view">
                     <div class="dev-frame">
                         <iframe id="devFrame" src="panel/index.html?embedded=1" title="AlpeHuez Developer Panel"></iframe>
+                        <div id="devWebLock" class="web-lock" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <p class="web-lock-title" data-i18n-settings="webLockTitle">Private local workspace</p>
+                            <p class="web-lock-sub" data-i18n-settings="webLockDesc">Not available on the web preview.</p>
+                        </div>
                     </div>
                 </section>
 
@@ -5171,7 +5265,7 @@
                 <button id="settingsClose" class="settings-close" type="button" aria-label="Close settings">×</button>
             </div>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="general">
                 <h3 data-i18n-settings="appearance">Appearance</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="backgroundMode">Background mode</label>
@@ -5191,7 +5285,7 @@
                 </div>
             </section>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="shortcuts">
                 <h3 data-i18n-settings="shortcuts">Shortcuts</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="fullscreen">Fullscreen</label>
@@ -5213,7 +5307,7 @@
                 </div>
             </section>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="helpSupport">
                 <h3 data-i18n-settings="feedback">Feedback</h3>
                 <div class="settings-row">
                     <textarea id="feedbackText" class="settings-textarea" data-i18n-placeholder-settings="feedbackPlaceholder" placeholder="Leave feedback for AlpeHuez"></textarea>
@@ -5224,7 +5318,7 @@
                 </div>
             </section>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="helpSupport">
                 <h3 data-i18n-settings="supportAuthor">Support</h3>
                 <p data-i18n-settings="supportBlurb">Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.</p>
                 <div class="support-actions">
@@ -5235,7 +5329,7 @@
                 <span class="settings-hint" id="supportStatus"></span>
             </section>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="general">
                 <h3 data-i18n-settings="language">Language</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="interfaceLanguage">Interface language</label>
@@ -5247,7 +5341,7 @@
                 </div>
             </section>
 
-            <section class="settings-section">
+            <section class="settings-section" data-settings-group="general">
                 <h3 data-i18n-settings="personalization">Personalization</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="quoteLibrary">Daily quote library</label>
@@ -5260,7 +5354,7 @@
                 </div>
             </section>
 
-            <section class="settings-section" id="accountSection">
+            <section class="settings-section" id="accountSection" data-settings-group="accountData">
                 <h3 data-i18n-settings="account">Account</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="recoveryEmailField">Recovery email</label>
@@ -5274,24 +5368,59 @@
                 </div>
             </section>
 
-            <section class="settings-section" id="syncSection">
+            <section class="settings-section" id="syncSection" data-settings-group="accountData">
                 <h3 data-i18n-settings="sync">Sync</h3>
                 <div class="settings-row">
-                    <label data-i18n-settings="syncRepo">HF backup repo</label>
-                    <input id="hfRepo" class="settings-input" type="text" value="Helloxiaolaodi/AlpeHuez">
+                    <label data-i18n-settings="syncProvider">Backup provider</label>
+                    <select id="syncProvider" class="settings-select">
+                        <option value="hf" data-i18n-settings="providerHf">Hugging Face</option>
+                        <option value="webdav" data-i18n-settings="providerWebdav">WebDAV</option>
+                    </select>
                 </div>
-                <div class="settings-row">
-                    <label data-i18n-settings="autoBackup">Auto backup on exit</label>
-                    <input id="hfAutoToggle" class="settings-checkbox" type="checkbox">
+                <div id="hfConfigBlock">
+                    <div class="settings-row">
+                        <label data-i18n-settings="syncRepo">HF backup repo</label>
+                        <input id="hfRepo" class="settings-input" type="text" value="Helloxiaolaodi/AlpeHuez">
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n-settings="proxyLabel">Proxy (optional)</label>
+                        <input id="hfProxy" class="settings-input" type="text" placeholder="http://127.0.0.1:7897">
+                        <span class="settings-hint" data-i18n-settings="proxyHint">Leave empty for direct connection.</span>
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n-settings="autoBackup">Auto backup on exit</label>
+                        <input id="hfAutoToggle" class="settings-checkbox" type="checkbox">
+                    </div>
+                </div>
+                <div id="webdavConfigBlock" hidden>
+                    <div class="settings-row">
+                        <label data-i18n-settings="webdavUrl">Server URL</label>
+                        <input id="webdavUrl" class="settings-input" type="text" data-i18n-placeholder-settings="webdavUrlPlaceholder" placeholder="https://dav.example.com/dav/AlpeHuez">
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n-settings="webdavUser">Username</label>
+                        <input id="webdavUser" class="settings-input" type="text" autocomplete="username">
+                    </div>
+                    <div class="settings-row">
+                        <label data-i18n-settings="webdavPassword">Password</label>
+                        <input id="webdavPassword" class="settings-input" type="password" autocomplete="new-password">
+                        <span class="settings-hint" id="webdavPwdStatus" data-i18n-settings="webdavPwdHint">Stored securely in the system credential manager.</span>
+                    </div>
                 </div>
                 <div class="settings-actions">
-                    <button id="hfBackupBtn" class="settings-action-btn primary" type="button" data-i18n-settings="backupNow">Backup now</button>
-                    <button id="hfTestBtn" class="settings-action-btn" type="button" data-i18n-settings="testConnection">Test connection</button>
+                    <button id="syncBackupBtn" class="settings-action-btn primary" type="button" data-i18n-settings="backupNow">Backup now</button>
+                    <button id="syncTestBtn" class="settings-action-btn" type="button" data-i18n-settings="testConnection">Test connection</button>
+                    <button id="restoreBackupBtn" class="settings-action-btn" type="button" data-i18n-settings="restoreBackup">Restore backup</button>
+                </div>
+                <div class="settings-row">
+                    <label data-i18n-settings="hfHeatmap">Backup heatmap</label>
+                    <div id="hfHeatmapGrid" class="hf-heatmap-grid" title="Backup · last 24 hours"></div>
+                    <span class="settings-hint" data-i18n-settings="hfHeatmapHint">Rolling 24 hours · one block per hour · blue success · red failed · dim no backup.</span>
                 </div>
                 <span class="settings-hint" id="hfStatus"></span>
             </section>
 
-            <section class="settings-section" id="telemetrySection">
+            <section class="settings-section" id="telemetrySection" data-settings-group="accountData">
                 <h3 data-i18n-settings="telemetry">Telemetry</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="zenMode">Zen Mode (pause scoring)</label>
@@ -5308,11 +5437,15 @@
         const THEME_KEY = 'nav_theme';
         const STATS_KEY = 'nav_stats';
         const PORTAL_TAGS_KEY = 'portal_tags_expanded';
+        const PORTAL_CATEGORIES_KEY = 'portal_categories_expanded';
         const MYFILES_FOLDER_COLLAPSED_KEY = 'myfiles_folder_collapsed';
         // 注意：不能用 `const isTauri` —— Tauri 注入的 window.isTauri 是不可配置全局属性，顶层同名 const 会 SyntaxError 白屏。
         const hasTauri = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
         const isAndroid = /android/i.test(navigator.userAgent);
         const isDesktop = hasTauri && !isAndroid;
+        // 线上展示版：无 Tauri 且非本地预览（127.0.0.1）时视为公网展示站点，
+        // My Files / Developer Panel 等开发者私有界面显示空白占位。
+        const isWebShowcase = !isDesktop && !['', 'localhost', '127.0.0.1'].includes(location.hostname);
         // 旧版 exe 窗口仍带原生标题栏时隐藏自定义栏，避免双标题栏
         if (!isDesktop || window.outerHeight - window.innerHeight > 2) document.documentElement.classList.add('no-titlebar');
         const invoke = hasTauri ? window.__TAURI__.core.invoke : null;
@@ -5371,6 +5504,9 @@
         const SETTINGS_STRINGS = {
             en: {
                 settingsTitle: 'Settings',
+                general: 'General',
+                accountData: 'Account & Data',
+                helpSupport: 'Help & Support',
                 appearance: 'Appearance',
                 backgroundBlur: 'Background blur',
                 noiseGrain: 'Noise grain (dark)',
@@ -5388,6 +5524,8 @@
                 saveFeedback: 'Save feedback',
                 sync: 'Sync',
                 syncRepo: 'HF backup repo',
+                proxyLabel: 'Proxy (optional)',
+                proxyHint: 'Leave empty for direct connection.',
                 autoBackup: 'Auto backup on exit',
                 backupNow: 'Backup now',
                 testConnection: 'Test connection',
@@ -5396,6 +5534,23 @@
                 testingShort: 'Testing…',
                 hfConnOk: 'Connected — repository {repo} reachable',
                 hfConnFail: 'Connection failed: {detail}',
+                syncProvider: 'Backup provider',
+                providerHf: 'Hugging Face',
+                providerWebdav: 'WebDAV',
+                webdavUrl: 'Server URL',
+                webdavUser: 'Username',
+                webdavPassword: 'Password',
+                webdavUrlPlaceholder: 'https://dav.example.com/dav/AlpeHuez',
+                webdavPwdHint: 'Stored securely in the system credential manager.',
+                webdavPwdSaved: 'Password saved (system credential manager)',
+                restoreBackup: 'Restore backup',
+                restoring: 'Restoring...',
+                restoreTitle: 'Restore backup',
+                restoreConfirm: 'This will overwrite current local data with the latest backup from {provider}. Continue?',
+                restoreBtn: 'Restore',
+                cancel: 'Cancel',
+                wdConnOk: 'Connected — {url} reachable',
+                restoreDone: 'Restore complete. Local data refreshed.',
                 telemetry: 'Telemetry',
                 zenMode: 'Zen Mode (pause scoring)',
                 clearTelemetry: 'Clear abilities & heatmap',
@@ -5421,6 +5576,8 @@
                 quoteLibraryHint: 'One quote per line; rotates every 6 seconds.',
                 saveQuotes: 'Save quotes',
                 quotesSaved: 'Quotes saved',
+                hfHeatmap: 'Backup heatmap',
+                hfHeatmapHint: 'Rolling 24 hours · one block per hour · blue success · red failed · dim no backup.',
                 notePlaceholder: 'Record today\'s thoughts',
                 focusHeatmap: 'Focus Heatmap',
                 dailyNote: 'Daily Note',
@@ -5482,6 +5639,14 @@
                 setupSave: 'Save',
                 setupSaved: 'Access password set',
                 setupFailed: 'Setup failed: {detail}',
+                myfilesLockTitle: 'My Files is locked',
+                myfilesLockDesc: 'Enter the access password shared with the Developer Panel.',
+                webLockTitle: 'Private local workspace',
+                webLockDesc: 'Not available on the web preview.',
+                passwordPlaceholder: 'Password',
+                wrongPassword: 'Wrong password',
+                unlock: 'Unlock',
+                cancel: 'Cancel',
                 account: 'Account',
                 recoveryEmailField: 'Recovery email',
                 emailSaved: 'Recovery email saved',
@@ -5491,8 +5656,10 @@
                 recoverEmailLbl: 'Recovery email',
                 recoverSend: 'Send code',
                 recoverSentTitle: 'Code sent',
+                softwareSideTitle: 'Windows Software',
+                softwareSideSub: 'Downloads',
+                softwareCategories: 'Categories',
                 recoverSentText: 'A recovery code was sent to {email}. Check your inbox.',
-                recoverCodeText: "If the email doesn't arrive, use this code directly: {code}",
                 recoverOk: 'Got it',
                 recoverStep2Title: 'Reset password',
                 recoverCodeLbl: 'Verification code',
@@ -5502,6 +5669,9 @@
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
+                general: '\u901a\u7528',
+                accountData: '\u8d26\u6237\u4e0e\u6570\u636e',
+                helpSupport: '\u5e2e\u52a9\u4e0e\u652f\u6301',
                 appearance: '\u5916\u89c2',
                 backgroundBlur: '\u80cc\u666f\u6a21\u7cca',
                 noiseGrain: '\u566a\u70b9\u8d28\u611f\uff08\u6df1\u8272\uff09',
@@ -5519,6 +5689,8 @@
                 saveFeedback: '\u4fdd\u5b58\u53cd\u9988',
                 sync: '\u540c\u6b65',
                 syncRepo: 'HF \u5907\u4efd\u4ed3\u5e93',
+                proxyLabel: '\u4ee3\u7406\u670d\u52a1\u5668\uff08\u53ef\u9009\uff09',
+                proxyHint: '\u7559\u7a7a\u5373\u4e3a\u76f4\u8fde\u3002',
                 autoBackup: '\u9000\u51fa\u65f6\u81ea\u52a8\u5907\u4efd',
                 backupNow: '\u7acb\u5373\u5907\u4efd',
                 testConnection: '\u6d4b\u8bd5\u8fde\u63a5',
@@ -5527,6 +5699,23 @@
                 testingShort: '\u6d4b\u8bd5\u4e2d\u2026',
                 hfConnOk: '\u8fde\u63a5\u6210\u529f\uff0c\u4ed3\u5e93 {repo} \u53ef\u8bbf\u95ee',
                 hfConnFail: '\u8fde\u63a5\u5931\u8d25\uff1a{detail}',
+                syncProvider: '\u5907\u4efd\u65b9\u5f0f',
+                providerHf: 'Hugging Face',
+                providerWebdav: 'WebDAV',
+                webdavUrl: '\u670d\u52a1\u5668\u5730\u5740',
+                webdavUser: '\u7528\u6237\u540d',
+                webdavPassword: '\u5bc6\u7801',
+                webdavUrlPlaceholder: 'https://dav.example.com/dav/AlpeHuez',
+                webdavPwdHint: '\u5b89\u5168\u4fdd\u5b58\u81f3\u7cfb\u7edf\u51ed\u636e\u7ba1\u7406\u5668\u3002',
+                webdavPwdSaved: '\u5bc6\u7801\u5df2\u4fdd\u5b58\uff08\u7cfb\u7edf\u51ed\u636e\u7ba1\u7406\u5668\uff09',
+                restoreBackup: '\u6062\u590d\u5907\u4efd',
+                restoring: '\u6062\u590d\u4e2d\u2026',
+                restoreTitle: '\u786e\u8ba4\u6062\u590d\u5907\u4efd',
+                restoreConfirm: '\u5c06\u7528 {provider} \u7684\u6700\u65b0\u5907\u4efd\u8986\u76d6\u5f53\u524d\u672c\u5730\u6570\u636e\uff0c\u662f\u5426\u7ee7\u7eed\uff1f',
+                restoreBtn: '\u6062\u590d',
+                cancel: '\u53d6\u6d88',
+                wdConnOk: '\u8fde\u63a5\u6210\u529f\uff0c{url} \u53ef\u8bbf\u95ee',
+                restoreDone: '\u6062\u590d\u5b8c\u6210\uff0c\u672c\u5730\u6570\u636e\u5df2\u5237\u65b0',
                 telemetry: '\u8fd0\u52a8\u8f68\u8ff9',
                 zenMode: '\u7985\u5fc3\u6a21\u5f0f\uff08\u6682\u505c\u8ba1\u5206\uff09',
                 clearTelemetry: '\u6e05\u9664\u80fd\u529b\u4e0e\u70ed\u529b\u56fe',
@@ -5552,6 +5741,8 @@
                 quoteLibraryHint: '\u6bcf\u884c\u4e00\u53e5\u8bdd\uff0c\u6bcf 6 \u79d2\u987a\u5e8f\u8f6e\u6362\u3002',
                 saveQuotes: '\u4fdd\u5b58',
                 quotesSaved: '\u5df2\u4fdd\u5b58',
+                hfHeatmap: '\u5907\u4efd\u70ed\u529b\u56fe',
+                hfHeatmapHint: '\u6eda\u52a8\u6700\u8fd1 24 \u5c0f\u65f6\uff0c\u6bcf\u683c\u4e00\u5c0f\u65f6\uff1b\u84dd\u8272\u6210\u529f\u00b7\u7ea2\u8272\u5931\u8d25\u00b7\u7070\u8272\u65e0\u5907\u4efd\u3002',
                 notePlaceholder: '\u8bb0\u5f55\u4eca\u5929\u60f3\u6cd5',
                 focusHeatmap: '\u4e13\u6ce8\u70ed\u529b\u56fe',
                 dailyNote: '\u6bcf\u65e5\u7b14\u8bb0',
@@ -5613,6 +5804,14 @@
                 setupSave: '\u4fdd\u5b58',
                 setupSaved: '\u8bbf\u95ee\u5bc6\u7801\u5df2\u8bbe\u7f6e',
                 setupFailed: '\u8bbe\u7f6e\u5931\u8d25\uff1a{detail}',
+                myfilesLockTitle: '\u6211\u7684\u6587\u4ef6\u5df2\u9501\u5b9a',
+                myfilesLockDesc: '\u8bf7\u8f93\u5165\u4e0e\u5f00\u53d1\u8005\u9762\u677f\u5171\u7528\u7684\u8bbf\u95ee\u5bc6\u7801\u3002',
+                webLockTitle: '\u79c1\u4eba\u672c\u5730\u5de5\u4f5c\u533a',
+                webLockDesc: '\u4e0d\u53ef\u7528\u4e8e\u7ebf\u4e0a\u5c55\u793a\u7248\u3002',
+                passwordPlaceholder: '\u5bc6\u7801',
+                wrongPassword: '\u5bc6\u7801\u9519\u8bef',
+                unlock: '\u89e3\u9501',
+                cancel: '\u53d6\u6d88',
                 account: '\u8d26\u6237',
                 recoveryEmailField: '\u627e\u56de\u90ae\u7bb1',
                 emailSaved: '\u627e\u56de\u90ae\u7bb1\u5df2\u4fdd\u5b58',
@@ -5622,8 +5821,10 @@
                 recoverEmailLbl: '\u627e\u56de\u90ae\u7bb1',
                 recoverSend: '\u53d1\u9001\u9a8c\u8bc1\u7801',
                 recoverSentTitle: '\u9a8c\u8bc1\u7801\u5df2\u53d1\u9001',
+                softwareSideTitle: '\u8f6f\u4ef6\u4e0b\u8f7d',
+                softwareSideSub: '\u4e0b\u8f7d',
+                softwareCategories: '\u5206\u7c7b',
                 recoverSentText: '\u9a8c\u8bc1\u7801\u5df2\u53d1\u9001\u5230 {email}\uff0c\u8bf7\u524d\u5f80\u90ae\u7bb1\u67e5\u770b\u3002',
-                recoverCodeText: '\u5982\u679c\u6536\u4e0d\u5230\u90ae\u4ef6\uff0c\u53ef\u76f4\u63a5\u4f7f\u7528\u6b64\u9a8c\u8bc1\u7801\uff1a{code}',
                 recoverOk: '\u77e5\u9053\u4e86',
                 recoverStep2Title: '\u91cd\u7f6e\u5bc6\u7801',
                 recoverCodeLbl: '\u9a8c\u8bc1\u7801',
@@ -5636,7 +5837,7 @@
         let settingsLang = 'en';
         try {
             settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS, JSON.parse(localStorage.getItem(SHORTCUTS_KEY) || '{}'));
-            settingsLang = localStorage.getItem(SETTINGS_LANG_KEY) || 'en';
+            settingsLang = localStorage.getItem(SETTINGS_LANG_KEY) || ((navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en');
         } catch (error) {
             settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
         }
@@ -5663,15 +5864,10 @@
             if (!sections.length) return;
 
             const tabs = [
-                ['appearance', 'appearance'],
+                ['general', 'general'],
                 ['shortcuts', 'shortcuts'],
-                ['feedback', 'feedback'],
-                ['supportAuthor', 'supportAuthor'],
-                ['language', 'language'],
-                ['personalization', 'personalization'],
-                ['account', 'account'],
-                ['sync', 'sync'],
-                ['telemetry', 'telemetry']
+                ['accountData', 'accountData'],
+                ['helpSupport', 'helpSupport']
             ];
             const layout = document.createElement('div');
             layout.className = 'settings-layout';
@@ -5691,11 +5887,20 @@
 
             const content = document.createElement('div');
             content.className = 'settings-content';
+            const groupSeen = {};
             sections.forEach((section) => {
                 const heading = section.querySelector('h3');
-                const key = heading && heading.dataset.i18nSettings ? heading.dataset.i18nSettings : 'appearance';
+                const headingKey = heading && heading.dataset.i18nSettings ? heading.dataset.i18nSettings : '';
+                const group = section.dataset.settingsGroup || headingKey || 'general';
                 section.classList.remove('active');
-                section.dataset.settingsPanel = key;
+                section.dataset.settingsPanel = group;
+                // 每个分组首个区块不加顶部间距（28px 分组间距由 CSS 统一给出）
+                if (!groupSeen[group]) {
+                    section.classList.add('settings-group-first');
+                    groupSeen[group] = true;
+                } else {
+                    section.classList.remove('settings-group-first');
+                }
                 content.appendChild(section);
             });
 
@@ -5703,7 +5908,7 @@
             layout.appendChild(content);
             const header = panel.querySelector('.settings-header');
             panel.insertBefore(layout, header ? header.nextSibling : panel.firstChild);
-            switchSettingsTab('appearance');
+            switchSettingsTab('general');
         }
 
         function applySettingsLanguage() {
@@ -5728,6 +5933,19 @@
                 const key = element.dataset.i18nAriaSettings;
                 if (key && SETTINGS_STRINGS.en[key]) element.setAttribute('aria-label', settingsText(key));
             });
+            syncSoftwareFrameLang();
+        }
+
+        // 把应用语言同步给软件页 iframe：首次带 ?lang= 参数加载，之后用 postMessage 热切换。
+        function syncSoftwareFrameLang() {
+            const frame = $('softwareFrame');
+            if (!frame) return;
+            const src = frame.getAttribute('src') || '';
+            if (src.indexOf('lang=') === -1) {
+                frame.src = src + (src.indexOf('?') === -1 ? '?' : '&') + 'lang=' + settingsLang;
+            } else if (frame.contentWindow) {
+                frame.contentWindow.postMessage({ type: 'alpehuez-lang', lang: settingsLang }, '*');
+            }
         }
 
         const BG_BLUR_KEY = 'alpehuez_bg_blur';
@@ -5932,15 +6150,116 @@
             const modal = $('settingsModal');
             if (!modal) return;
             ensureSettingsLayout();
-            switchSettingsTab('appearance');
+            switchSettingsTab('general');
             syncBgModeUI();
             loadShortcutSettings();
             loadBackgroundBlur();
             loadFeedbackSettings();
             loadSyncState();
+            renderHfHeatmap();
             loadQuoteLibraryInput();
             loadAccountSettings();
+            handoffLocalState();
             modal.classList.add('open');
+        }
+
+        let syncProvider = 'hf';
+        function getSyncProvider() { return syncProvider; }
+
+        // Sync 面板热力图：24 格滚动最近 24 小时（北京时间每格 1 小时），
+        // 蓝=成功、红=失败、灰=无备份。与 Portal 右上角 KOM 时间轴同款视觉。
+        // 按当前选择的备份方式（HF / WebDAV）过滤历史。
+        async function renderHfHeatmap() {
+            const grid = $('hfHeatmapGrid');
+            if (!grid) return;
+            if (!isDesktop) { grid.innerHTML = ''; return; }
+            let records = [];
+            try {
+                const data = await invoke('backup_history', { provider: getSyncProvider() });
+                records = (data && data.records) || [];
+            } catch (error) {
+                console.error('backup_history failed:', error);
+            }
+            const hourKey = (t) => {
+                const bj = new Date(t + 8 * 60 * 60 * 1000);
+                return bj.getUTCFullYear() + '-' + String(bj.getUTCMonth() + 1).padStart(2, '0') + '-' + String(bj.getUTCDate()).padStart(2, '0') + '-' + String(bj.getUTCHours()).padStart(2, '0');
+            };
+            const byHour = {};
+            records.forEach((r) => {
+                const k = hourKey(Number(r.ts) * 1000);
+                const prev = byHour[k];
+                if (!prev || (r.ok && !prev.ok)) byHour[k] = r;
+            });
+            grid.innerHTML = '';
+            const now = Date.now();
+            for (let i = 23; i >= 0; i--) {
+                const key = hourKey(now - i * 60 * 60 * 1000);
+                const rec = byHour[key];
+                const cell = document.createElement('div');
+                cell.className = 'hf-cell' + (rec ? (rec.ok ? ' success' : ' error') : ' offline');
+                cell.title = key + (rec ? (rec.ok ? ' · Backup OK' : ' · Backup failed' + (rec.detail ? ' · ' + rec.detail : '')) : ' · No backup');
+                grid.appendChild(cell);
+            }
+        }
+
+        function syncProviderUI() {
+            const hf = $('hfConfigBlock');
+            const wd = $('webdavConfigBlock');
+            if (hf) hf.hidden = syncProvider !== 'hf';
+            if (wd) wd.hidden = syncProvider !== 'webdav';
+        }
+
+        // 备份前把 localStorage 的成就/遥测移交给后端，落盘到 backup-meta/local-state.json，
+        // 由 build_backup_files 读取并写入白名单备份集。周期调用保证退出自动备份也带最新快照。
+        async function handoffLocalState() {
+            if (!isDesktop || !invoke) return;
+            try {
+                const achievements = localStorage.getItem(ABILITIES_KEY) || '{}';
+                const telemetry = JSON.stringify({
+                    usage: JSON.parse(localStorage.getItem('alpehuez_usage') || '{}'),
+                    timeline: JSON.parse(localStorage.getItem('alpehuez_timeline') || '[]'),
+                    stats: JSON.parse(localStorage.getItem(STATS_KEY) || '{}')
+                });
+                await invoke('backup_set_local_state', { achievements, telemetry });
+            } catch (error) {
+                console.error('handoff local state failed:', error);
+            }
+        }
+
+        function syncConfirmModal(message) {
+            return new Promise((resolve) => {
+                const backdrop = document.createElement('div');
+                backdrop.className = 'app-modal-backdrop';
+                backdrop.innerHTML =
+                    '<div class="app-modal setup-modal" role="dialog" aria-modal="true">' +
+                    '<div class="app-modal-head"><h3>' + escapeHtml(settingsText('restoreTitle', 'Restore backup')) + '</h3>' +
+                    '<div class="app-modal-actions"><button type="button" class="icon-btn" data-confirm="cancel">&times;</button></div></div>' +
+                    '<div class="app-modal-body">' +
+                    '<p style="margin:0 0 16px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + escapeHtml(message) + '</p>' +
+                    '<div class="setup-actions">' +
+                    '<button type="button" class="app-modal-btn" data-confirm="cancel">' + escapeHtml(settingsText('cancel', 'Cancel')) + '</button>' +
+                    '<button type="button" class="app-modal-btn primary" data-confirm="ok">' + escapeHtml(settingsText('restoreBtn', 'Restore')) + '</button>' +
+                    '</div></div></div>';
+                document.body.appendChild(backdrop);
+                const close = (val) => { backdrop.remove(); resolve(val); };
+                backdrop.querySelectorAll('[data-confirm]').forEach((btn) => {
+                    btn.addEventListener('click', () => close(btn.dataset.confirm === 'ok'));
+                });
+                backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(false); });
+            });
+        }
+
+        async function refreshAfterRestore() {
+            await Promise.allSettled([
+                loadWorkspaces(),
+                loadPortalLinks(),
+                renderSoftwareContext(),
+                renderFileTree(),
+                renderContextStats(),
+                refreshAbilities()
+            ]);
+            renderRiderPanel();
+            renderHfHeatmap();
         }
 
         async function loadSyncState() {
@@ -5951,10 +6270,33 @@
             const status = $('hfStatus');
             if (!status) return;
             try {
+                const provider = await invoke('get_app_config', { key: 'sync_provider' });
+                if (provider === 'webdav' || provider === 'hf') syncProvider = provider;
+                const select = $('syncProvider');
+                if (select) select.value = syncProvider;
+                syncProviderUI();
+
                 const repo = await invoke('get_app_config', { key: 'hf_repo' });
                 if (typeof repo === 'string' && repo) $('hfRepo').value = repo;
+                const proxy = await invoke('get_app_config', { key: 'hf_proxy' });
+                if (typeof proxy === 'string' && proxy) $('hfProxy').value = proxy;
                 const auto = await invoke('get_app_config', { key: 'hf_auto_backup' });
                 $('hfAutoToggle').checked = auto === true;
+
+                const wdUrl = await invoke('get_app_config', { key: 'webdav_url' });
+                if (typeof wdUrl === 'string' && wdUrl) $('webdavUrl').value = wdUrl;
+                const wdUser = await invoke('get_app_config', { key: 'webdav_user' });
+                if (typeof wdUser === 'string' && wdUser) $('webdavUser').value = wdUser;
+                try {
+                    const pwdSet = await invoke('webdav_password_set');
+                    const pwdStatus = $('webdavPwdStatus');
+                    if (pwdStatus) {
+                        pwdStatus.textContent = pwdSet
+                            ? settingsText('webdavPwdSaved', 'Password saved (system credential manager)')
+                            : settingsText('webdavPwdHint', 'Stored securely in the system credential manager.');
+                    }
+                } catch (e) { /* 凭据管理器不可用时忽略 */ }
+
                 const last = await invoke('get_app_config', { key: 'hf_last_backup' });
                 status.textContent = (typeof last === 'number')
                     ? settingsText('lastBackup', 'Last backup: ') + new Date(last * 1000).toLocaleString()
@@ -6042,8 +6384,8 @@
                 if (!email) return;
                 sendBtn.disabled = true;
                 try {
-                    const code = await invoke('request_password_recovery', { email });
-                    recoverStepSent(email, code);
+                    await invoke('request_password_recovery', { email });
+                    recoverStepSent(email);
                 } catch (e) {
                     errEl.textContent = errText(e) || settingsText('recoverFailed', 'Recovery failed').replace('{detail}', '');
                     errEl.style.display = 'block';
@@ -6052,25 +6394,24 @@
             });
         }
 
-        function recoverStepSent(email, code) {
+        function recoverStepSent(email) {
             const modal = $('recoverModal');
             $('recoverModalTitle').textContent = settingsText('recoverSentTitle', 'Code sent');
             $('recoverModalBody').innerHTML =
                 '<p style="margin:0 0 10px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverSentText', 'A recovery code was sent to {email}. Check your inbox.').replace('{email}', email) + '</p>' +
-                '<p style="margin:0 0 14px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverCodeText', "If the email doesn't arrive, use this code directly: {code}").replace('{code}', '<strong style="color:var(--text-main);letter-spacing:2px">' + code + '</strong>') + '</p>' +
                 '<div class="setup-actions">' +
                     '<button type="button" id="recoverNextBtn" class="app-modal-btn primary">' + settingsText('recoverOk', 'Got it') + '</button>' +
                 '</div>';
-            $('recoverNextBtn').addEventListener('click', () => recoverStepReset(code));
+            $('recoverNextBtn').addEventListener('click', () => recoverStepReset());
         }
 
-        function recoverStepReset(code) {
+        function recoverStepReset() {
             const modal = $('recoverModal');
             $('recoverModalTitle').textContent = settingsText('recoverStep2Title', 'Reset password');
             $('recoverModalBody').innerHTML =
                 '<div class="setup-field">' +
                     '<label for="recoverCodeField">' + settingsText('recoverCodeLbl', 'Verification code') + '</label>' +
-                    '<input type="text" id="recoverCodeField" inputmode="numeric" value="' + code + '">' +
+                    '<input type="text" id="recoverCodeField" inputmode="numeric">' +
                 '</div>' +
                 '<div class="setup-field">' +
                     '<label for="recoverNewField">' + settingsText('newPassword', 'New password') + '</label>' +
@@ -6148,7 +6489,8 @@
         }
 
         function todayKey() {
-            return new Date().toISOString().slice(0, 10);
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
 
         function recordDailyOpen() {
@@ -6195,7 +6537,7 @@
             const cells = [];
             for (let i = DAYS - 1; i >= 0; i--) {
                 const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
-                const key = d.toISOString().slice(0, 10);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 const count = usageCount(key);
                 const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : count <= 6 ? 3 : 4;
                 cells.push(`<div class="usage-cell l${level}" data-key="${key}" data-count="${count}" role="img" aria-label="${key} · ${count} interactions"></div>`);
@@ -6934,8 +7276,9 @@
                     if (window.hideLoadingOverlay) window.hideLoadingOverlay();
                     throw error;
                 }
-                browserTabs.set(info.label, { label: info.label, title: info.title || title, url: info.url || url });
+                browserTabs.set(info.label, { label: info.label, title: info.title || title, url: info.url || url, wsId: currentWorkspaceId });
                 renderBrowserTabs();
+                persistOpenTabs();
                 // 标记为加载中：activateBrowserTab 会据此跳过 activate_internal_page，
                 // 避免把还没加载完的 webview 提前显示出来（旧深色底色下就是黑屏）。
                 if (window.markTabLoading) window.markTabLoading(info.label);
@@ -7225,6 +7568,39 @@
             syncPortalTagsToggle();
         }
 
+        function syncPortalCategoriesToggle() {
+            const toggle = $('portalCategoriesToggle');
+            const container = $('portalCategoryLinks');
+            if (toggle && container) {
+                toggle.setAttribute('aria-expanded', String(!container.classList.contains('collapsed')));
+            }
+        }
+
+        function togglePortalCategories() {
+            const container = $('portalCategoryLinks');
+            if (!container) return;
+            const collapsed = container.classList.toggle('collapsed');
+            try {
+                localStorage.setItem(PORTAL_CATEGORIES_KEY, collapsed ? '0' : '1');
+            } catch {
+                // Storage can be unavailable in restricted webviews.
+            }
+            syncPortalCategoriesToggle();
+        }
+
+        function restorePortalCategoriesState() {
+            const container = $('portalCategoryLinks');
+            if (!container) return;
+            let expanded = true;
+            try {
+                expanded = localStorage.getItem(PORTAL_CATEGORIES_KEY) !== '0';
+            } catch {
+                expanded = true;
+            }
+            container.classList.toggle('collapsed', !expanded);
+            syncPortalCategoriesToggle();
+        }
+
         function syncPortalCategory() {
             const container = $('portalSidebar');
             const scroller = document.querySelector('.home-scroll');
@@ -7359,8 +7735,10 @@
 
         function renderBrowserTabs() {
             const container = $('browserTabs');
-            $('tabCount').textContent = browserTabs.size;
-            if (!browserTabs.size) {
+            // 内嵌网页标签按工作台隔离：只显示当前工作台打开的页面，避免 GC 的页面残留在 rider 工作台。
+            const wsTabs = [...browserTabs.values()].filter((t) => t.wsId == null || t.wsId === currentWorkspaceId);
+            $('tabCount').textContent = wsTabs.length;
+            if (!wsTabs.length) {
                 container.innerHTML = `
                     <div class="tabs-empty">
                         ${ICONS.globe}
@@ -7369,7 +7747,7 @@
                 `;
                 return;
             }
-            container.innerHTML = [...browserTabs.values()].map((tab) => {
+            container.innerHTML = wsTabs.map((tab) => {
                 const letter = tab.title ? tab.title.charAt(0).toUpperCase() : 'G';
                 const sleeping = tab.sleeping ? ' sleeping' : '';
                 return `
@@ -7382,36 +7760,88 @@
             }).join('');
         }
 
+        // 真休眠（Discard）：不活跃标签的 webview 被真正 close() 掉释放内存，
+        // 标签条目保留在 browserTabs，点击时按原 URL 重建（label 是 URL 哈希，重开不变）。
+        const TAB_HIBERNATE_MS = 15 * 60 * 1000;
+        const MAX_LIVE_WEBVIEWS = 6;
+
         async function sleepTab(label) {
             const tab = browserTabs.get(label);
             if (!tab || tab.sleeping) return;
             tab.sleeping = true;
             if (isDesktop) {
-                try { await invoke('set_internal_page_visible', { label, visible: false }); } catch (e) { console.error(e); }
+                try { await invoke('discard_internal_page', { label }); } catch (e) { console.error(e); }
+                // 无论 close 是否成功，webview 都已不在，内存已释放。
+                tab.discarded = true;
             }
             renderBrowserTabs();
         }
         async function wakeTab(label) {
             const tab = browserTabs.get(label);
             if (!tab || !tab.sleeping) return;
-            tab.sleeping = false;
-            if (isDesktop) {
-                try { await invoke('set_internal_page_visible', { label, visible: true }); } catch (e) { console.error(e); }
+            if (tab.discarded && isDesktop) {
+                const bounds = getStageBounds();
+                try {
+                    await requestLayoutInternalPages();
+                    if (window.showLoadingOverlay) window.showLoadingOverlay();
+                    await new Promise((resolve) => requestAnimationFrame(resolve));
+                    const info = await invoke('open_internal_page', {
+                        url: tab.url,
+                        title: tab.title,
+                        x: bounds.x,
+                        y: bounds.y,
+                        width: bounds.width,
+                        height: bounds.height
+                    });
+                    tab.label = info.label || tab.label;
+                    tab.url = info.url || tab.url;
+                    if (window.markTabLoading) window.markTabLoading(tab.label);
+                    // 新建页面即是最新内容，跳过 activateBrowserTab 的 10 分钟静默刷新。
+                    tab.lastActive = Date.now();
+                } catch (error) {
+                    console.error('wake discarded tab failed:', error);
+                    tab.sleeping = true;
+                    renderBrowserTabs();
+                    return;
+                }
             }
+            tab.sleeping = false;
+            tab.discarded = false;
             renderBrowserTabs();
         }
         setInterval(() => {
             if (!isDesktop) return;
             const now = Date.now();
-            browserTabs.forEach((tab, label) => {
-                if (label === activeBrowserLabel || tab.sleeping) return;
-                if (tab.lastActive && now - tab.lastActive > 15 * 60 * 1000) sleepTab(label);
+            // LRU：按最后活跃时间升序，跳过当前激活的、peek 和已休眠的标签。
+            const idle = [...browserTabs.values()]
+                .filter((t) => t.label !== activeBrowserLabel && !String(t.label).startsWith('peek-') && !t.sleeping)
+                .sort((a, b) => (a.lastActive || 0) - (b.lastActive || 0));
+            idle.forEach((t, index) => {
+                const expired = t.lastActive && now - t.lastActive > TAB_HIBERNATE_MS;
+                const overCap = index < idle.length - MAX_LIVE_WEBVIEWS;
+                if (expired || overCap) sleepTab(t.label);
             });
         }, 60 * 1000);
 
         async function activateBrowserTab(label) {
             const tab = browserTabs.get(label);
             if (tab && tab.sleeping) await wakeTab(label);
+            // 方案 B「唤醒式静默刷新」：网页在后台时绝不刷新（安静休眠省内存），
+            // 切回旧标签且距上次查看超过 10 分钟时，切换瞬间静默刷新一次，保证看到最新内容。
+            // reload 走 browser-load-started/finished 事件链，Rust 侧自动隐藏 webview 并交给遮罩，
+            // 下方 activate_internal_page 也会跳过加载中的标签，不会白屏闪烁。
+            if (tab && tab.lastActive && Date.now() - tab.lastActive > 10 * 60 * 1000) {
+                tab.lastActive = Date.now();
+                if (isDesktop) {
+                    try {
+                        if (window.markTabLoading) window.markTabLoading(label);
+                        await invoke('reload_internal_page', { label });
+                        if (window.syncLoadingOverlay) window.syncLoadingOverlay();
+                    } catch (error) {
+                        console.error('reload_internal_page failed:', error);
+                    }
+                }
+            }
             if (tab) tab.lastActive = Date.now();
             settleBrowserDwell();
             browserDwellStart = Date.now();
@@ -7435,6 +7865,7 @@
                 }
                 requestLayoutInternalPages();
             }
+            persistOpenTabs();
         }
 
         function renderContextStats() {
@@ -7460,6 +7891,19 @@
             $('contextAboutVersion').textContent = label;
         }
 
+        function softwareCatName(cat) {
+            return cat[settingsLang] || cat.en || cat.zh || cat.id || '';
+        }
+
+        function softwareCategoryClick(event) {
+            const btn = event.target.closest('[data-sw-cat]');
+            if (!btn) return;
+            const frame = $('softwareFrame');
+            if (frame && frame.contentWindow) {
+                frame.contentWindow.postMessage({ type: 'alpehuez-sw-category', cat: btn.dataset.swCat }, '*');
+            }
+        }
+
         async function renderSoftwareContext() {
             const container = $('swCategoryList');
             const count = $('swCatCount');
@@ -7473,12 +7917,16 @@
                 container.innerHTML = categories.length
                     ? categories.map((category) => `
                         <div class="portal-category-wrap">
-                            <button type="button" class="portal-category-link">
-                                <span class="portal-category-name">${escapeHtml(category.name || category)}</span>
+                            <button type="button" class="portal-category-link" data-sw-cat="${escapeHtml(category.id || '')}">
+                                <span class="portal-category-name">${escapeHtml(softwareCatName(category))}</span>
                             </button>
                         </div>
                     `).join('')
                     : '<div class="context-empty">No categories</div>';
+                if (!container.dataset.catBound) {
+                    container.dataset.catBound = '1';
+                    container.addEventListener('click', softwareCategoryClick);
+                }
             } catch (error) {
                 console.error('Failed to load software-data.json:', error);
                 container.innerHTML = '<div class="context-empty">No categories</div>';
@@ -7487,6 +7935,11 @@
 
         async function loadMyFilesData() {
             if (myfilesData) return myfilesData;
+            // 线上展示版不加载本地文件数据：My Files 保持空白。
+            if (isWebShowcase) {
+                myfilesData = { folders: [] };
+                return myfilesData;
+            }
             try {
                 const response = await fetch('myfiles/data.json');
                 if (!response.ok) throw new Error('myfiles data unavailable');
@@ -7676,10 +8129,89 @@
             }
         }
 
+        let myFilesUnlocked = false;
+
+        function openMyFilesGate() {
+            const modal = $('myfilesGateModal');
+            if (!modal) { myFilesUnlocked = true; switchView('myfiles'); return; }
+            const input = $('myfilesGatePwd');
+            const errorEl = $('myfilesGateError');
+            const closeBtn = $('myfilesGateClose');
+            const cancelBtn = $('myfilesGateCancel');
+            const submitBtn = $('myfilesGateSubmit');
+            modal.hidden = false;
+            input.value = '';
+            errorEl.hidden = true;
+            try { applySettingsLanguage(); } catch (e) { /* 忽略 */ }
+            input.focus();
+
+            const cleanup = () => {
+                input.removeEventListener('keydown', onEnter);
+                cancelBtn.removeEventListener('click', onCancel);
+                closeBtn.removeEventListener('click', onCancel);
+                submitBtn.removeEventListener('click', onSubmit);
+            };
+            const onCancel = () => { modal.hidden = true; cleanup(); };
+            const onSubmit = async () => {
+                if (!input.value) {
+                    errorEl.textContent = settingsText('wrongPassword');
+                    errorEl.hidden = false;
+                    input.focus();
+                    return;
+                }
+                try {
+                    const ok = await invoke('verify_password', { input: input.value });
+                    if (ok) {
+                        myFilesUnlocked = true;
+                        modal.hidden = true;
+                        cleanup();
+                        switchView('myfiles');
+                    } else {
+                        errorEl.textContent = settingsText('wrongPassword');
+                        errorEl.hidden = false;
+                        input.select();
+                    }
+                } catch (e) {
+                    errorEl.textContent = (e && e.message) || settingsText('wrongPassword');
+                    errorEl.hidden = false;
+                }
+            };
+            const onEnter = (e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit(); } };
+            input.addEventListener('keydown', onEnter);
+            cancelBtn.addEventListener('click', onCancel);
+            closeBtn.addEventListener('click', onCancel);
+            submitBtn.addEventListener('click', onSubmit);
+        }
+
+        // 网页版（线上展示版）：My Files 与 Developer Panel 为开发者私有界面，仅显示空白占位。
+        function showWebLock(viewName) {
+            if (viewName === 'myfiles') {
+                const main = $('myFilesMain');
+                if (main) main.hidden = true;
+                const lock = $('myFilesWebLock');
+                if (lock) lock.hidden = false;
+            } else if (viewName === 'dev') {
+                const frame = $('devFrame');
+                if (frame) frame.style.display = 'none';
+                const lock = $('devWebLock');
+                if (lock) lock.hidden = false;
+            }
+        }
+
         function switchView(viewName) {
+            // My Files 与 Developer Panel 共用同一访问密码：进入前验证一次，会话内保持解锁。
+            if (viewName === 'myfiles' && isDesktop && !myFilesUnlocked) {
+                invoke('has_access_password').then((has) => {
+                    if (!has) { myFilesUnlocked = true; switchView('myfiles'); }
+                    else openMyFilesGate();
+                }).catch(() => { myFilesUnlocked = true; switchView('myfiles'); });
+                return;
+            }
             exitFullscreen();
             resetPortalSidebarState();
             activeBrowserLabel = null;
+            // 离开浏览器视图时收起所有内嵌网页视图，避免上次打开的页面覆盖在 Portal/My Files/Software 等界面上。
+            if (isDesktop) invoke('activate_internal_page', {}).catch(() => {});
             if (window.syncLoadingOverlay) window.syncLoadingOverlay();
             currentView = viewName;
             document.body.classList.remove('browsing');
@@ -7690,11 +8222,16 @@
             $('viewTitle').textContent = titles[viewName] || 'AlpeHuez';
             const contexts = { home: 'portal', myfiles: 'myfiles', software: 'software', badges: 'badges', about: 'about', dev: 'dev' };
             setContext(contexts[viewName] || 'portal');
-            if (viewName === 'myfiles') renderMyFilesView();
-            if (viewName === 'software') renderSoftwareContext();
-            if (viewName === 'badges') { renderBadges(); renderRiderPanel(); }
-            if (viewName === 'about') loadAbout();
-            if (viewName === 'dev') syncDevTabToFrame();
+            const webLocked = isWebShowcase && (viewName === 'myfiles' || viewName === 'dev');
+            if (webLocked) {
+                showWebLock(viewName);
+            } else {
+                if (viewName === 'myfiles') renderMyFilesView();
+                if (viewName === 'software') renderSoftwareContext();
+                if (viewName === 'badges') { renderBadges(); renderRiderPanel(); }
+                if (viewName === 'about') loadAbout();
+                if (viewName === 'dev') syncDevTabToFrame();
+            }
             if (isDesktop) {
                 invoke('activate_internal_page', {}).catch((error) => console.error('hide browser pages failed:', error));
             }
@@ -7714,25 +8251,104 @@
             renderBrowserTabs();
             if (activeBrowserLabel === label) {
                 activeBrowserLabel = null;
-                const next = [...browserTabs.keys()].pop();
+                const sameWs = [...browserTabs.values()].filter((t) => t.wsId == null || t.wsId === currentWorkspaceId);
+                const next = sameWs.length ? sameWs[sameWs.length - 1].label : null;
                 if (next) {
                     await activateBrowserTab(next);
                 } else {
                     switchView('home');
                 }
             }
+            persistOpenTabs();
         }
 
         async function restoreTabs() {
             if (!isDesktop) return;
             try {
                 const pages = await invoke('list_internal_pages');
-                pages.forEach((page) => browserTabs.set(page.label, page));
+                // 会话恢复的标签归入当前激活的工作台，保证各工作台互不串页。
+                pages.forEach((page) => browserTabs.set(page.label, { ...page, wsId: currentWorkspaceId }));
                 renderBrowserTabs();
                 await invoke('activate_internal_page', {});
                 requestLayoutInternalPages();
+                // 重启后子 webview 全部消失（list_internal_pages 返回空），
+                // 从本地缓存重建上次会话的 Open Pages 标签。
+                if (pages.length === 0) {
+                    await restoreSavedOpenTabs();
+                }
             } catch (error) {
                 console.error('restore internal tabs failed:', error);
+            }
+        }
+
+        // 会话恢复：Open Pages 标签（含异常退出）写进 localStorage，重启后重建。
+        // 同步 setItem，每次标签增删/切换即落盘，异常退出也不丢失。
+        const OPEN_TABS_KEY = 'alpehuez_open_tabs';
+
+        function persistOpenTabs() {
+            if (!isDesktop) return;
+            try {
+                const list = [];
+                browserTabs.forEach((tab, label) => {
+                    list.push({
+                        label,
+                        title: tab.title || '',
+                        url: tab.url || '',
+                        wsId: tab.wsId == null ? null : tab.wsId,
+                        active: label === activeBrowserLabel
+                    });
+                });
+                localStorage.setItem(OPEN_TABS_KEY, JSON.stringify(list));
+            } catch (error) {
+                console.error('persist open tabs failed:', error);
+            }
+        }
+
+        async function restoreSavedOpenTabs() {
+            if (browserTabs.size > 0) return; // 已有存活标签，不重复重建
+            let list;
+            try {
+                list = JSON.parse(localStorage.getItem(OPEN_TABS_KEY) || '[]');
+            } catch (error) {
+                return;
+            }
+            if (!Array.isArray(list) || list.length === 0) return;
+            // 过滤失效记录：非 http(s) 链接，或属于已被删除工作台的标签。
+            const validWs = new Set((workspaces || []).map((w) => w.id));
+            const tabs = list.filter((t) => t && /^https?:\/\//i.test(t.url) && (t.wsId == null || validWs.has(t.wsId)));
+            if (tabs.length === 0) return;
+            const bounds = getStageBounds();
+            let activeLabel = null;
+            for (const t of tabs) {
+                try {
+                    const info = await invoke('open_internal_page', {
+                        url: t.url,
+                        title: t.title || undefined,
+                        x: bounds.x,
+                        y: bounds.y,
+                        width: bounds.width,
+                        height: bounds.height
+                    });
+                    browserTabs.set(info.label, {
+                        label: info.label,
+                        title: t.title || info.title,
+                        url: t.url,
+                        wsId: t.wsId == null ? null : t.wsId,
+                        restored: true
+                    });
+                    if (window.markTabLoading) window.markTabLoading(info.label);
+                    if (t.active) activeLabel = info.label;
+                } catch (error) {
+                    console.error('restore open tab failed:', error);
+                }
+            }
+            renderBrowserTabs();
+            await invoke('activate_internal_page', {});
+            if (activeLabel && browserTabs.has(activeLabel)) {
+                await activateBrowserTab(activeLabel);
+            } else if (browserTabs.size > 0) {
+                const fallback = [...browserTabs.values()].find((tb) => tb.wsId == null || tb.wsId === currentWorkspaceId);
+                if (fallback) await activateBrowserTab(fallback.label);
             }
         }
 
@@ -7782,7 +8398,7 @@
         }
 
         async function loadAbout() {
-            const fallbackVersion = '0.5.0';
+            const fallbackVersion = '0.6.0';
             renderRiderPanel();
             if (!isDesktop) return;
             try {
@@ -7878,6 +8494,7 @@
                 sidebarOpen: document.body.classList.contains('sidebar-is-open'),
                 scrollTop: document.querySelector('.workspace') ? document.querySelector('.workspace').scrollTop : 0,
                 search: $('searchInput') ? $('searchInput').value : '',
+                browsingLabel: document.body.classList.contains('browsing') && currentView === 'browser' ? activeBrowserLabel : null,
             };
         }
 
@@ -7888,6 +8505,12 @@
             if (st.sidebarOpen) document.body.classList.add('sidebar-is-open');
             else document.body.classList.remove('sidebar-is-open');
             if (st.search && $('searchInput')) $('searchInput').value = st.search;
+            // 恢复该工作台上次正在浏览的页面（activateBrowserTab 会重新显示对应 webview）。
+            if (st.browsingLabel && browserTabs.get(st.browsingLabel)) {
+                activateBrowserTab(st.browsingLabel);
+            } else {
+                document.body.classList.remove('browsing');
+            }
         }
 
         async function switchWorkspace(id) {
@@ -7898,6 +8521,11 @@
             await core.invoke('set_active_workspace', { id });
             currentWorkspaceId = id;
             renderWorkspaceTabs();
+            // 收起上一个工作台遗留的内嵌网页视图，避免其页面残留在新工作台（restoreWorkspaceState 按需恢复）。
+            if (isDesktop) core.invoke('activate_internal_page', {}).catch(() => {});
+            activeBrowserLabel = null;
+            document.body.classList.remove('browsing');
+            renderBrowserTabs();
             trackAction('workspace', `Switched workspace to ${ws ? ws.name : id}`);
             const content = document.querySelector('.workspace');
             if (content) {
@@ -8414,20 +9042,34 @@
                 const status = $('quoteStatus');
                 if (status) status.textContent = settingsText('quotesSaved', 'Quotes saved');
             });
-            $('hfBackupBtn').addEventListener('click', async () => {
+            $('syncProvider').addEventListener('change', async () => {
+                syncProvider = $('syncProvider').value;
+                syncProviderUI();
+                try {
+                    await invoke('set_app_config', { key: 'sync_provider', value: syncProvider });
+                } catch (error) {
+                    console.error('save sync provider failed:', error);
+                }
+                loadSyncState();
+                renderHfHeatmap();
+            });
+            $('syncBackupBtn').addEventListener('click', async () => {
                 const status = $('hfStatus');
                 if (!status) return;
                 status.textContent = settingsText('backingUp', 'Backing up...');
                 try {
-                    const msg = await invoke('hf_backup');
+                    await handoffLocalState();
+                    const msg = await invoke(getSyncProvider() === 'webdav' ? 'webdav_backup' : 'hf_backup');
                     status.textContent = String(msg);
                     loadSyncState();
+                    renderHfHeatmap();
                 } catch (error) {
                     status.textContent = String(error);
+                    renderHfHeatmap();
                 }
             });
-            $('hfTestBtn').addEventListener('click', async () => {
-                const btn = $('hfTestBtn');
+            $('syncTestBtn').addEventListener('click', async () => {
+                const btn = $('syncTestBtn');
                 const status = $('hfStatus');
                 if (!status || !btn) return;
                 const origHtml = btn.innerHTML;
@@ -8435,9 +9077,12 @@
                 btn.innerHTML = '<span class="btn-spinner"></span>' + settingsText('testingShort', 'Testing…');
                 status.textContent = settingsText('testingConn', 'Testing connection...');
                 try {
-                    const res = await invoke('hf_test_connection');
+                    const provider = getSyncProvider();
+                    const res = await invoke(provider === 'webdav' ? 'webdav_test_connection' : 'hf_test_connection');
                     if (res.ok) {
-                        status.textContent = settingsText('hfConnOk', 'Connected — repository {repo} reachable').replace('{repo}', res.repo);
+                        status.textContent = provider === 'webdav'
+                            ? settingsText('wdConnOk', 'Connected — {url} reachable').replace('{url}', res.url)
+                            : settingsText('hfConnOk', 'Connected — repository {repo} reachable').replace('{repo}', res.repo);
                     } else {
                         status.textContent = settingsText('hfConnFail', 'Connection failed: {detail}').replace('{detail}', res.detail || '');
                     }
@@ -8448,11 +9093,86 @@
                     btn.innerHTML = origHtml;
                 }
             });
+            $('restoreBackupBtn').addEventListener('click', async () => {
+                const status = $('hfStatus');
+                if (!status) return;
+                const provider = getSyncProvider() === 'webdav' ? 'WebDAV' : 'Hugging Face';
+                const ok = await syncConfirmModal(settingsText('restoreConfirm', 'This will overwrite current local data with the latest backup from {provider}. Continue?').replace('{provider}', provider));
+                if (!ok) return;
+                status.textContent = settingsText('restoring', 'Restoring...');
+                try {
+                    const res = await invoke('restore_backup');
+                    if (res && res.ok) {
+                        if (res.achievements) {
+                            try { localStorage.setItem(ABILITIES_KEY, res.achievements); } catch (e) { console.error(e); }
+                        }
+                        if (res.telemetry) {
+                            try {
+                                const t = JSON.parse(res.telemetry);
+                                if (t && typeof t === 'object') {
+                                    if (t.usage) localStorage.setItem('alpehuez_usage', JSON.stringify(t.usage));
+                                    if (t.timeline) localStorage.setItem('alpehuez_timeline', JSON.stringify(t.timeline));
+                                    if (t.stats) localStorage.setItem(STATS_KEY, JSON.stringify(t.stats));
+                                }
+                            } catch (e) { console.error('parse restored telemetry failed:', e); }
+                        }
+                        if (res.dailyNotes) {
+                            try {
+                                const map = JSON.parse(res.dailyNotes);
+                                const all = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}');
+                                Object.assign(all, map);
+                                localStorage.setItem(NOTES_KEY, JSON.stringify(all));
+                            } catch (e) { console.error('read restored daily notes failed:', e); }
+                        }
+                        status.textContent = res.message + ' · ' + settingsText('restoreDone', 'Restore complete. Local data refreshed.');
+                        await refreshAfterRestore();
+                        if (noteDate) renderNote();
+                    } else {
+                        status.textContent = (res && res.message) || String(res);
+                    }
+                } catch (error) {
+                    status.textContent = String(error);
+                }
+            });
             $('hfRepo').addEventListener('change', async () => {
                 try {
                     await invoke('set_app_config', { key: 'hf_repo', value: $('hfRepo').value.trim() });
                 } catch (error) {
                     console.error('save hf repo failed:', error);
+                }
+            });
+            $('hfProxy').addEventListener('change', async () => {
+                try {
+                    await invoke('set_app_config', { key: 'hf_proxy', value: $('hfProxy').value.trim() });
+                } catch (error) {
+                    console.error('save hf proxy failed:', error);
+                }
+            });
+            $('webdavUrl').addEventListener('change', async () => {
+                try {
+                    await invoke('set_app_config', { key: 'webdav_url', value: $('webdavUrl').value.trim() });
+                } catch (error) {
+                    console.error('save webdav url failed:', error);
+                }
+            });
+            $('webdavUser').addEventListener('change', async () => {
+                try {
+                    await invoke('set_app_config', { key: 'webdav_user', value: $('webdavUser').value.trim() });
+                } catch (error) {
+                    console.error('save webdav user failed:', error);
+                }
+            });
+            $('webdavPassword').addEventListener('change', async () => {
+                const input = $('webdavPassword');
+                const status = $('webdavPwdStatus');
+                const pwd = input ? input.value : '';
+                if (!pwd) return;
+                try {
+                    await invoke('set_webdav_password', { password: pwd });
+                    input.value = '';
+                    if (status) status.textContent = settingsText('webdavPwdSaved', 'Password saved (system credential manager)');
+                } catch (error) {
+                    if (status) status.textContent = String(error);
                 }
             });
             $('hfAutoToggle').addEventListener('change', async () => {
@@ -8654,6 +9374,11 @@
             const portalTagsToggle = $('portalTagsToggle');
             if (portalTagsToggle) {
                 portalTagsToggle.addEventListener('click', togglePortalTags);
+            }
+
+            const portalCategoriesToggle = $('portalCategoriesToggle');
+            if (portalCategoriesToggle) {
+                portalCategoriesToggle.addEventListener('click', togglePortalCategories);
             }
 
             document.querySelector('.home-scroll').addEventListener('scroll', () => {
@@ -8874,8 +9599,10 @@
                         return;
                     }
                     const isNew = !browserTabs.has(info.label);
-                    browserTabs.set(info.label, { label: info.label, title: info.title || info.url, url: info.url || '' });
+                    const existing = browserTabs.get(info.label);
+                    browserTabs.set(info.label, { label: info.label, title: info.title || info.url, url: info.url || '', wsId: existing ? existing.wsId : currentWorkspaceId });
                     renderBrowserTabs();
+                    persistOpenTabs();
                     if (isNew && info.label) activateBrowserTab(info.label);
                 });
                 listen('browser-tab-closed', (event) => {
@@ -8887,6 +9614,7 @@
                     if (label && browserTabs.has(label)) {
                         browserTabs.delete(label);
                         renderBrowserTabs();
+                        persistOpenTabs();
                     }
                 });
                 listen('browser-load-started', pageLoadStarted);
@@ -8900,6 +9628,12 @@
                 listen('alpehuez-open-tab', (event) => {
                     const p = event.payload || {};
                     if (p.url) openInternalUrl(p.url, p.title || '');
+                });
+                // 开发者面板「忘记密码」：唤出本应用并打开「设置 → 账户 → 找回密码」弹窗。
+                listen('alpehuez-open-recovery', () => {
+                    openSettingsModal();
+                    switchSettingsTab('accountData');
+                    recoverStepEmail();
                 });
             }
         }
@@ -9075,18 +9809,19 @@
             setTimeout(dismissLoadingScreen, 3000);
             recordDailyOpen();
             refreshAbilities();
-            setInterval(() => { refreshAbilities(); scanTodoCompletions(); }, 60000);
+            setInterval(() => { refreshAbilities(); scanTodoCompletions(); handoffLocalState(); }, 60000);
             updateThemeUI(document.documentElement.dataset.theme);
             restorePortalTagsState();
+            restorePortalCategoriesState();
             initSettings();
             bindEvents();
             renderBrowserTabs();
             renderContextStats();
             renderFileTree();
-            restoreTabs();
             initKomStatus();
             loadAbout();
             await initWorkspaceTabs();
+            restoreTabs();
             initVelometer();
             initPageLoadingOverlay();
             initActivityTimelineModal();
@@ -9717,6 +10452,28 @@
                 <div class="setup-actions">
                     <button type="button" id="setupLaterBtn" class="app-modal-btn" data-i18n-settings="later">Later</button>
                     <button type="button" id="setupSaveBtn" class="app-modal-btn primary" data-i18n-settings="setupSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myfilesGateModal" class="app-modal-backdrop" hidden>
+        <div class="app-modal setup-modal" role="dialog" aria-modal="true">
+            <div class="app-modal-head">
+                <h3 data-i18n-settings="myfilesLockTitle">My Files is locked</h3>
+                <div class="app-modal-actions">
+                    <button type="button" id="myfilesGateClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="app-modal-body">
+                <p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)" data-i18n-settings="myfilesLockDesc">Enter the access password shared with the Developer Panel.</p>
+                <div class="setup-field">
+                    <label for="myfilesGatePwd" data-i18n-settings="passwordPlaceholder">Password</label>
+                    <input type="password" id="myfilesGatePwd" autocomplete="current-password">
+                </div>
+                <p class="setup-error" id="myfilesGateError" hidden></p>
+                <div class="setup-actions">
+                    <button type="button" id="myfilesGateCancel" class="app-modal-btn" data-i18n-settings="cancel">Cancel</button>
+                    <button type="button" id="myfilesGateSubmit" class="app-modal-btn primary" data-i18n-settings="unlock">Unlock</button>
                 </div>
             </div>
         </div>

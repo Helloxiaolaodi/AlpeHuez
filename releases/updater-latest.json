@@ -1,11 +1,11 @@
 {
-    "version":  "0.5.0",
-    "notes":  "f25b2d7 fix: in-app software buttons, visible recovery dialog, settings account section\ncca258d feat: v0.5.0 release — download config ACL, password recovery email, HF backup self-heal, software manager\n4e53e85 feat: v0.5.0 — Emotional Dark palette, auto-update, NSIS skin, panel i18n\n3c7e52f chore: rebuild v0.5.0 exe with tray daemon + loading fix\nf46d7d2 feat: full i18n — telemetry pod, activity/code modal, float ball, vertical dashboard",
-    "pub_date":  "2026-08-19T14:42:10Z",
+    "version":  "0.6.0",
+    "notes":  "b265666 chore: refresh release manifests with latest commit notes\nc9ddde0 fix: in-app software buttons, visible recovery dialog, settings account section\n3c20a6e Update README.md\ncca258d feat: v0.5.0 release — download config ACL, password recovery email, HF backup self-heal, software manager\n4e53e85 feat: v0.5.0 — Emotional Dark palette, auto-update, NSIS skin, panel i18n",
+    "pub_date":  "2026-08-20T10:42:20Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0x2QkV1anNwV010VXBQL0hOMjhiOVN6NE5ma1EvVFZzcGZadXVvT2ZOK3ZmV0szNDZXOGYraEpmaG9QWnJZUVhXaStidlNyc084KzhpNzkveldqZHdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MTUwNDEwCWZpbGU6QWxwZUh1ZXpfMC41LjBfeDY0LXNldHVwLmV4ZQp2UWF0VDI1T0w2TUZMeitScnFZV0VURmxrdnJlRzJ5R2JLb2Y3eCtnWFREdGRkUzJiNHhhZi9JVUdocklSOHNIR1RSZExJRVBteWpjVEFSVmhjV25EUT09Cg==",
-                                             "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.5.0/AlpeHuez_0.5.0_x64-setup.exe"
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0FZNjdSZjNpRWtzbjhoZXNkMkw0M2VzNlkveGxrRDJkUGV2WWMrSHJjUzVKL1BDWU1EZW9PMXFCRU42T0o1M1pFZTVpN3Uwb0JGVXFwaHJ0SFhNWFFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MjIyNTM5CWZpbGU6QWxwZUh1ZXpfMC42LjBfeDY0LXNldHVwLmV4ZQovdTNEeDBIaG0rbm5lei8vWHFmUjBSTUZxUzBDbHVNOVFzZ0NvVGtGMGZPVzRIZ21KSFhhR2lUVndWZ3kzVnV4Mjh4YXRiQ1dadTVrYjRQaWdhZk1Bdz09Cg==",
+                                             "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.6.0/AlpeHuez_0.6.0_x64-setup.exe"
                                          }
                   }
 }
