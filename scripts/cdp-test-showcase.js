@@ -74,9 +74,10 @@ async function ev(expr) {
   await ev(`document.getElementById('btnBadges').click()`);
   await new Promise(r => setTimeout(r, 800));
   console.log('--- Achievements ---');
-  console.log('badgesContent hidden:', await ev(`document.getElementById('badgesContent').hidden`));
-  console.log('badgesWebLock visible:', await ev(`!document.getElementById('badgesWebLock').hidden`));
-  console.log('lock text:', await ev(`document.getElementById('badgesWebLock').innerText.slice(0, 120)`));
+  console.log('riderPanel hidden:', await ev(`document.getElementById('riderPanel').hidden`));
+  console.log('stats-strip hidden:', await ev(`document.querySelector('#view-badges .stats-strip').hidden`));
+  console.log('badge tiles:', await ev(`document.querySelectorAll('.badge-tile').length`));
+  console.log('no web-lock text:', await ev(`!document.querySelector('#view-badges .web-lock')`));
 
   // 切回 Home
   await ev(`document.getElementById('btnHome').click()`);
