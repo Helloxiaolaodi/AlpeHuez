@@ -10,13 +10,15 @@ const AREA_PREFIXES = [
 ];
 
 // 共享资源与公开页面：explorer 资源被所有受保护页面加载（收紧会破坏受保护页）；
-// 软件下载页及其数据保持公开。
+// 软件下载页及其数据保持公开。Cloudflare Pages 会把 .html 请求 308 到无扩展名路径，
+// 因此软件页同时登记带 .html 与不带 .html 两种形式。
 const PUBLIC_PATHS = new Set([
   '/myfiles/login.html',
   '/myfiles/login',
   '/myfiles/explorer.css',
   '/myfiles/explorer.js',
   '/myfiles/softwares/Windows Software Downloads.html',
+  '/myfiles/softwares/Windows Software Downloads',
   '/myfiles/softwares/software-data.json',
 ]);
 
