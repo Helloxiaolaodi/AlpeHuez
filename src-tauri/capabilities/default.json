@@ -35,6 +35,8 @@
     "allow-save-bg-image",
     "allow-get-bg-config",
     "allow-set-bg-config",
+    "allow-save-bookmarks-export",
+    "allow-fetch-portal-links",
     "allow-save-feedback",
     "allow-get-feedback",
     "allow-get-wechat-qr",

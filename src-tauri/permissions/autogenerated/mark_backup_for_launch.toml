@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-mark-backup-for-launch"
+description = "Enables the mark_backup_for_launch command without any pre-configured scope."
+commands.allow = ["mark_backup_for_launch"]
+
+[[permission]]
+identifier = "deny-mark-backup-for-launch"
+description = "Denies the mark_backup_for_launch command without any pre-configured scope."
+commands.deny = ["mark_backup_for_launch"]

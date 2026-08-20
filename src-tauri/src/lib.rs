@@ -172,6 +172,7 @@ pub fn run() {
             commands::get_bg_config,
             commands::set_bg_config,
             commands::save_bookmarks_export,
+            commands::fetch_portal_links,
             commands::save_feedback,
             commands::get_feedback,
             commands::get_wechat_qr,

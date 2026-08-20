@@ -47,10 +47,10 @@ const LOCALES = {
     preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
     navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
     recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
-    importBookmarks: '导入书签 HTML', exportBookmarks: '导出书签 HTML',
+    importBookmarks: '导入书签 HTML', exportBookmarks: '导出书签 HTML', restorePortal: '恢复 Portal 最新内容',
     noBookmarks: '未找到可导入的书签链接', importedCount: '已导入 {n} 个书签（跳过 {dup} 个重复）', importFailed: '导入失败：',
     importedGroup: '导入的书签', noLinksToExport: '没有可导出的网址卡片',
-    bookmarksExported: '已导出书签 HTML：', exportFailed: '导出失败：',
+    bookmarksExported: '已导出书签 HTML：', exportFailed: '导出失败：', restorePortalConfirm: '将用 Portal 线上最新内容覆盖当前导航卡片，确定？', restorePortalOk: '已恢复为 Portal 最新内容', restorePortalFail: '恢复失败：',
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
     noCards: '该分组还没有卡片', noMatch: '没有匹配的卡片', newCard: '新建卡片',
     myfilesDesc: '管理文件浏览器中的文件夹与文件，保存后自动写入 data.json',
@@ -101,10 +101,8 @@ const LOCALES = {
     myfilesPwdHint: '密码只保存在本机，不会上传仓库。修改后开发者面板登录密码同步更新。',
     myfilesPwdNextTitle: '下一步：同步到 Cloudflare',
     myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → 选择项目\n2. Settings → Environment variables → Production\n3. 将 ALPEHUZ_ACCESS_PASSWORD 改为：{pwd}\n4. 点 Save，Cloudflare 自动重新部署，新密码生效。',
-    forgotPassword: '忘记密码？',
     webLockTitle: '私人本地工作区', webLockDesc: '不可用于线上展示版。',
     recoverEmail: '找回邮箱',
-    recoverFailed: '找回失败：',
     manageSoftware: '管理软件', softwareManager: '软件下载管理', addSoftware: '新增软件', editSoftware: '编辑软件',
     softwareSearch: '搜索软件…', softwareEmpty: '没有匹配的软件。', done: '完成', all: '全部',
     softwareName: '软件名称', softwareCat: '分类', softwareEn: '英文描述', softwareZh: '中文描述',
@@ -126,10 +124,10 @@ const LOCALES = {
     preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
     navDesc: 'Manage nav cards & groups. Saved to links.json',
     recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
-    importBookmarks: 'Import bookmarks', exportBookmarks: 'Export bookmarks',
+    importBookmarks: 'Import bookmarks', exportBookmarks: 'Export bookmarks', restorePortal: 'Restore from Portal',
     noBookmarks: 'No valid bookmark links found', importedCount: 'Imported {n} bookmarks (skipped {dup} duplicates)', importFailed: 'Import failed: ',
     importedGroup: 'Imported Bookmarks', noLinksToExport: 'Nothing to export',
-    bookmarksExported: 'Bookmarks exported: ', exportFailed: 'Export failed: ',
+    bookmarksExported: 'Bookmarks exported: ', exportFailed: 'Export failed: ', restorePortalConfirm: 'Overwrite current nav cards with the latest Portal content?', restorePortalOk: 'Restored to latest Portal content', restorePortalFail: 'Restore failed: ',
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
     noCards: 'No cards in this group yet', noMatch: 'No matching cards', newCard: 'New Card',
     myfilesDesc: 'Manage folders & files in the file explorer. Saved to data.json',
@@ -180,10 +178,8 @@ const LOCALES = {
     myfilesPwdHint: 'Stored locally only — never uploaded to the repo. The Developer Panel login password updates together.',
     myfilesPwdNextTitle: 'Next: Sync to Cloudflare',
     myfilesPwdSteps: '1. Cloudflare Dashboard → Workers & Pages → select your project\n2. Settings → Environment variables → Production\n3. Set ALPEHUZ_ACCESS_PASSWORD to: {pwd}\n4. Click Save — Cloudflare redeploys automatically.',
-    forgotPassword: 'Forgot password?',
     webLockTitle: 'Private local workspace', webLockDesc: 'Not available on the web preview.',
     recoverEmail: 'Recovery email',
-    recoverFailed: 'Recovery failed: ',
     manageSoftware: 'Manage Software', softwareManager: 'Software Manager', addSoftware: 'Add Software', editSoftware: 'Edit Software',
     softwareSearch: 'Search software…', softwareEmpty: 'No matching software.', done: 'Done', all: 'All',
     softwareName: 'Name', softwareCat: 'Category', softwareEn: 'English description', softwareZh: 'Chinese description',
@@ -1507,6 +1503,27 @@ $('#btnExportBookmarks').onclick = async () => {
   }
 };
 
+$('#btnRestorePortal').onclick = async () => {
+  if (!confirm(t('restorePortalConfirm'))) return;
+  try {
+    let data;
+    if (isDesktop) {
+      data = await window.__TAURI__.core.invoke('fetch_portal_links');
+    } else {
+      const res = await api('/api/restore-portal');
+      data = res.data;
+    }
+    if (!data || !Array.isArray(data.icons)) { toast(t('restorePortalFail') + 'invalid data', 'error'); return; }
+    links = data;
+    currentGroup = 0;
+    renderGroups();
+    saveLinksNow();
+    toast(t('restorePortalOk'), 'success');
+  } catch (e) {
+    toast(t('restorePortalFail') + errText(e), 'error');
+  }
+};
+
 $('#cardList').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit]');
   const delBtn = e.target.closest('[data-del]');
@@ -1797,20 +1814,6 @@ async function initAuth() {
   }
   $('#btnLogin').onclick = tryLogin;
   pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
-
-  // 忘记密码：跳转到主应用的「设置 → 账户 → 找回密码」弹窗，验证码由主应用通过邮件发送。
-  const forgotBtn = $('#btnForgot');
-  if (forgotBtn) forgotBtn.addEventListener('click', async () => {
-    if (!(window.__TAURI__ && window.__TAURI__.core)) {
-      toast(t('recoverFailed') + '主应用不可用', 'error');
-      return;
-    }
-    try {
-      await window.__TAURI__.core.invoke('open_password_recovery');
-    } catch (e) {
-      toast(errText(e) || t('recoverFailed'), 'error');
-    }
-  });
 }
 
 /* ---------- 修改密码 / 设置找回邮箱（仅桌面应用） ---------- */

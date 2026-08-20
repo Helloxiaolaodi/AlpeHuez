@@ -24,18 +24,18 @@
 html { color-scheme: dark; }
 html[data-theme="light"] { color-scheme: light; }
 
-/* 深色（默认主打）：暗黑极客 + 骑行爬坡 */
+/* 深色（默认主打）：与 Portal 主界面一致的暗紫蓝液态玻璃配色 */
 [data-theme="dark"] {
-  --bg-0: #14121A;
-  --bg-1: #16131D;
-  --bg-2: #221E2C;
+  --bg-0: #3E3A65;
+  --bg-1: #3E3A65;
+  --bg-2: #362F54;
   --text: #FFFFFF;
-  --text-2: #9B94AD;
-  --text-3: #71717A;
-  --accent: #A27BFF;            /* 睡眠紫 */
-  --accent-hover: #8B5CF6;
-  --accent-soft: rgba(162, 123, 255, 0.16);
-  --blue: rgba(162, 123, 255, 0.30);
+  --text-2: #C9C4E0;
+  --text-3: #9B94AD;
+  --accent: #7985FF;            /* 电光紫蓝，与 Portal --brand-primary 一致 */
+  --accent-hover: #9D85FA;
+  --accent-soft: rgba(121, 133, 255, 0.16);
+  --blue: rgba(121, 133, 255, 0.30);
   --green: #6FCF97;
   --green-soft: rgba(111, 207, 151, 0.14);
   --amber: #fbbf24;
@@ -47,18 +47,18 @@ html[data-theme="light"] { color-scheme: light; }
   --surface-strong: rgba(255, 255, 255, 0.08);
   --border: rgba(255, 255, 255, 0.04);
   --border-strong: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(20, 18, 26, 0.6);
-  --glass-bg-strong: rgba(20, 18, 26, 0.75);
-  --glass-bg-solid: rgba(20, 18, 26, 0.94);
+  --glass-bg: rgba(62, 58, 101, 0.6);
+  --glass-bg-strong: rgba(62, 58, 101, 0.75);
+  --glass-bg-solid: rgba(62, 58, 101, 0.94);
   --glass-border: rgba(255, 255, 255, 0.04);
   --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 30px rgba(0, 0, 0, 0.5);
   --shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 48px -18px rgba(0, 0, 0, 0.6);
-  --glow-accent: 0 0 0 1px rgba(162, 123, 255, 0.35), 0 0 20px rgba(162, 123, 255, 0.18);
+  --glow-accent: 0 0 0 1px rgba(121, 133, 255, 0.35), 0 0 20px rgba(121, 133, 255, 0.18);
   /* 背景预设 */
-  --preset-default: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'), radial-gradient(1100px 560px at 88% -12%, rgba(162, 123, 255, 0.16), transparent 60%), radial-gradient(900px 480px at -8% 112%, rgba(162, 123, 255, 0.10), transparent 60%), radial-gradient(700px 400px at 50% 120%, rgba(255, 183, 77, 0.06), transparent 60%);
-  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(162,123,255,0.16)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(162,123,255,0.12)'/></svg>"), linear-gradient(180deg, #16131D, #221E2C);
-  --preset-grid: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), radial-gradient(900px 500px at 50% 0%, rgba(162, 123, 255, 0.14), transparent 60%), linear-gradient(180deg, #16131D, #221E2C);
+  --preset-default: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.035"/></svg>'), radial-gradient(1100px 560px at 88% -12%, rgba(121, 133, 255, 0.16), transparent 60%), radial-gradient(900px 480px at -8% 112%, rgba(121, 133, 255, 0.10), transparent 60%), radial-gradient(700px 400px at 50% 120%, rgba(255, 183, 77, 0.06), transparent 60%);
+  --preset-mountain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMax slice'><path d='M0 900 L0 640 L200 500 L400 580 L600 400 L800 520 L1000 340 L1200 460 L1440 380 L1440 900 Z' fill='rgba(121,133,255,0.16)'/><path d='M0 900 L0 740 L260 620 L520 700 L780 560 L1040 660 L1300 540 L1440 640 L1440 900 Z' fill='rgba(121,133,255,0.12)'/></svg>"), linear-gradient(180deg, #3E3A65, #362F54);
+  --preset-grid: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 44px), radial-gradient(900px 500px at 50% 0%, rgba(121, 133, 255, 0.14), transparent 60%), linear-gradient(180deg, #3E3A65, #362F54);
   --preset-custom: none;
 }
 
@@ -492,7 +492,8 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
 .card-title { font-weight: 600; font-size: 13.5px; margin-bottom: 14px; }
 .git-meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .git-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-.git-meta-row code { font-family: var(--mono); font-size: 12px; background: var(--hover); padding: 2px 8px; border-radius: 5px; }
+.git-meta-row .muted { color: #64748b; font-size: 12px; }
+.git-meta-row code { font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--hover); padding: 2px 8px; border-radius: 5px; }
 .git-changes { border-top: 1px solid var(--border); padding-top: 12px; font-size: 12.5px; }
 .git-changes .change-line { display: flex; gap: 8px; padding: 2px 0; color: var(--text-2); font-family: var(--mono); font-size: 12px; }
 .git-changes .change-line .st { width: 12px; flex-shrink: 0; font-weight: 600; }
@@ -606,14 +607,6 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
 }
 .login-card h2 { font-size: 18px; font-weight: 650; }
 .login-error { color: var(--red); font-size: 12.5px; }
-.login-forgot {
-  align-self: center;
-  background: none; border: none; padding: 2px 4px;
-  font-size: 12.5px; color: var(--text-3);
-  cursor: pointer; text-decoration: underline;
-  transition: color 0.15s ease;
-}
-.login-forgot:hover { color: var(--accent); }
 
 /* ---------- Modal ---------- */
 .modal-backdrop {

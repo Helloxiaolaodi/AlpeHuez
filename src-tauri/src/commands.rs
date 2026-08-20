@@ -697,19 +697,16 @@ fn make_recovery_code(email: &str) -> String {
     code
 }
 
-/// 通过 Resend API 发送验证码邮件。API Key 由开发者构建时注入（RESEND_API_KEY / RESEND_FROM
+/// 通过 Resend API 发送验证码邮件。API Key 由开发者构建时注入（RESEND_API_KEY
 /// 环境变量，编译期固化进二进制），最终用户无需任何邮件配置。
-fn send_recovery_email(api_key: &str, from: &str, to: &str, code: &str) -> Result<(), String> {
-    let subject = "找回密码验证码";
-    let body = format!(
-        "你的 AlpeHuez 找回密码验证码是：{}\n验证码 10 分钟内有效。如果不是你本人操作，请忽略本邮件。",
-        code
-    );
+fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String> {
+    let subject = "AlpeHuez Security Code";
+    let html = RECOVERY_EMAIL_TEMPLATE.replace("__CODE__", code);
     let payload = serde_json::json!({
-        "from": from,
+        "from": "AlpeHuez <admin@20211003.xyz>",
         "to": [to],
         "subject": subject,
-        "text": body,
+        "html": html,
     });
     let agent = ureq::AgentBuilder::new()
         .timeout_connect(Duration::from_secs(15))
@@ -727,6 +724,55 @@ fn send_recovery_email(api_key: &str, from: &str, to: &str, code: &str) -> Resul
     }
     Ok(())
 }
+
+/// 深色液态玻璃 / 极客风验证码邮件模板。`__CODE__` 占位符在发送前替换为 6 位验证码。
+const RECOVERY_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background-color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:linear-gradient(180deg,#21203b,#1a1a1a);border-radius:16px;border:1px solid rgba(121,133,255,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.5);padding:36px 32px;">
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#7985FF,#D489FF);display:inline-block;text-align:center;line-height:48px;font-size:24px;font-weight:800;color:#ffffff;">A</div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:8px;">
+              <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">AlpeHuez Security Code</h1>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:24px;">
+              <p style="margin:0;font-size:13px;line-height:1.7;color:#9B94AD;">你的 AlpeHuez 找回密码验证码已生成，10 分钟内有效。</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:28px;">
+              <div style="display:inline-block;background:#2a2745;border:1px solid rgba(121,133,255,0.35);border-radius:12px;padding:18px 40px;letter-spacing:8px;font-size:32px;font-weight:800;color:#D489FF;font-variant-numeric:tabular-nums;">__CODE__</div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:24px;">
+              <p style="margin:0;font-size:12px;line-height:1.7;color:#9B94AD;">如果不是你本人操作，请忽略本邮件，并检查你的账户安全。</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center">
+              <p style="margin:0;font-size:11px;color:#64748b;">AlpeHuez · 20211003.xyz</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>"#;
 
 /// 开发者面板「忘记密码」：唤出主窗口，通知其打开「设置 → 账户 → 找回密码」弹窗。
 /// 找回密码的完整流程（验证码邮件发送）只存在于主应用，面板不再重复实现。
@@ -780,10 +826,9 @@ pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> 
     )?;
     tauri::async_runtime::spawn_blocking(move || {
         let key = option_env!("RESEND_API_KEY").map(str::trim).filter(|s| !s.is_empty());
-        let from = option_env!("RESEND_FROM").map(str::trim).filter(|s| !s.is_empty());
-        match (key, from) {
-            (Some(k), Some(f)) => send_recovery_email(k, f, &email, &code),
-            _ => Err("邮件发送尚未配置（构建时需设置 RESEND_API_KEY / RESEND_FROM）".into()),
+        match key {
+            Some(k) => send_recovery_email(k, &email, &code),
+            None => Err("邮件服务不可用，请稍后再试".into()),
         }
     })
     .await
@@ -1184,6 +1229,22 @@ pub async fn save_bookmarks_export(app: tauri::AppHandle, filename: String, cont
     let full = dir.join(&name);
     fs::write(&full, content).map_err(|e| e.to_string())?;
     Ok(serde_json::json!({ "name": name, "path": full.to_string_lossy().to_string() }))
+}
+
+/// 拉取 Portal 线上最新 links.json（导航卡片数据），供开发者面板一键恢复。
+#[tauri::command]
+pub async fn fetch_portal_links() -> Result<Value, String> {
+    let url = "https://20211003.xyz/links.json";
+    let resp = ureq::get(url)
+        .timeout(Duration::from_secs(15))
+        .call()
+        .map_err(|e| e.to_string())?;
+    let text = resp.into_string().map_err(|e| e.to_string())?;
+    let v: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+    if !v.get("icons").and_then(|x| x.as_array()).is_some() {
+        return Err("Portal 数据格式不正确（缺少 icons 数组）".into());
+    }
+    Ok(v)
 }
 
 #[tauri::command]

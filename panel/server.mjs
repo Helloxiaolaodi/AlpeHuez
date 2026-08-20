@@ -280,6 +280,30 @@ async function handleApi(req, res, url) {
     });
   }
 
+  if (route === '/api/export-bookmarks' && req.method === 'POST') {
+    const body = JSON.parse(await readBody(req));
+    const filename = String(body.filename || 'alpehuez-bookmarks.html').replace(/[\\/:*?"<>|]/g, '_');
+    const content = String(body.content || '');
+    const dir = path.join(os.homedir(), 'Downloads');
+    await mkdir(dir, { recursive: true });
+    const full = path.join(dir, filename);
+    await writeFile(full, content, 'utf8');
+    return sendJson(res, 200, { ok: true, name: filename, path: full });
+  }
+
+  if (route === '/api/restore-portal' && req.method === 'GET') {
+    const portalUrl = 'https://20211003.xyz/links.json';
+    const resp = await fetch(portalUrl);
+    if (!resp.ok) {
+      return sendJson(res, 502, { ok: false, error: `Portal 拉取失败: HTTP ${resp.status}` });
+    }
+    const data = await resp.json();
+    if (!data || !Array.isArray(data.icons)) {
+      return sendJson(res, 400, { ok: false, error: 'Portal 数据格式不正确（缺少 icons 数组）' });
+    }
+    return sendJson(res, 200, { ok: true, data });
+  }
+
   return sendJson(res, 404, { ok: false, error: '接口不存在' });
 }
 

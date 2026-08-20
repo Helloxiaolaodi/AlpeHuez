@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-fetch-portal-links"
+description = "Enables the fetch_portal_links command without any pre-configured scope."
+commands.allow = ["fetch_portal_links"]
+
+[[permission]]
+identifier = "deny-fetch-portal-links"
+description = "Denies the fetch_portal_links command without any pre-configured scope."
+commands.deny = ["fetch_portal_links"]

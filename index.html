@@ -38,7 +38,7 @@
             --success: #00C805;
             --danger: #FF5000;
             --warning: #F38020;
-            --bg-sidebar: rgba(247, 247, 245, 0.6);
+            --bg-sidebar: rgba(240, 248, 255, 0.4);
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.8);
             --bg-elevated: rgba(255, 255, 255, 0.85);
@@ -400,6 +400,7 @@
         .vm-val { font-variant-numeric: tabular-nums; min-width: 30px; text-align: right; }
         .velometer-pill .vm-ring { position: relative; display: inline-flex; width: 40px; height: 40px; transform: none; }
         .velometer-pill .vm-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .velometer-pill .vm-track, .velometer-pill .vm-fill { stroke-width: 2; }
         .vm-track { fill: none; stroke: var(--line); stroke-width: 4; }
         .vm-fill { fill: none; stroke: url(#vmGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 4px rgba(121, 133, 255, 0.6)); }
         html:not([data-theme="space"]) .vm-fill { filter: drop-shadow(0 0 4px rgba(0, 135, 235, 0.4)); }
@@ -2723,6 +2724,23 @@
             display: none;
         }
 
+        .usage-heatmap-wrap {
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .usage-days {
+            display: grid;
+            grid-template-rows: repeat(7, 10px);
+            gap: 3px;
+            font-size: 9px;
+            line-height: 10px;
+            color: var(--text-muted);
+            text-align: right;
+            user-select: none;
+        }
+
         .usage-grid {
             display: grid;
             grid-template-rows: repeat(7, 10px);
@@ -4340,7 +4358,7 @@
 
         .settings-row {
             display: grid;
-            grid-template-columns: 180px 1fr auto;
+            grid-template-columns: 140px 1fr auto;
             gap: 12px;
             align-items: center;
             margin-bottom: 12px;
@@ -4378,10 +4396,35 @@
         }
         html[data-theme="space"] .settings-textarea:focus { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(121, 133, 255, 0.12); }
 
-        .settings-input,
+        .settings-input {
+            height: auto;
+            min-height: 34px;
+            padding: 8px 10px;
+            line-height: 1.4;
+        }
+
         .settings-select {
             height: 34px;
             padding: 0 10px;
+        }
+
+        /* 原生 select/option 在暗黑模式易受系统默认样式影响导致白底白字，强制指定配色 */
+        .settings-select option {
+            background: #FFFFFF;
+            color: #111827;
+        }
+        .settings-select option:checked,
+        .settings-select option:hover {
+            background: #E0F2FE;
+            color: #111827;
+        }
+        html[data-theme="space"] .settings-select option {
+            background: #362F54;
+            color: #FCFCFC;
+        }
+        html[data-theme="space"] .settings-select option:checked {
+            background: #7985FF;
+            color: #FFFFFF;
         }
 
         .settings-checkbox {
@@ -4420,10 +4463,19 @@
             resize: vertical;
         }
 
+        /* 反馈/金句文本框拉伸至整行，按钮置于右下角正下方，消除空间断层 */
+        #feedbackText,
+        #quoteLibrary {
+            grid-column: 1 / -1;
+        }
+
         .settings-hint {
             grid-column: 2 / -1;
-            color: var(--text-muted);
+            color: #94a3b8;
             font-size: 11px;
+        }
+        html[data-theme="space"] .settings-hint {
+            color: #9B94AD;
         }
 
         .settings-actions {
@@ -4474,6 +4526,38 @@
         .settings-action-btn.primary:hover {
             background: var(--accent-gradient);
             filter: brightness(1.06);
+        }
+
+        /* 次级操作：幽灵按钮，仅保留主题色描边，避免与主按钮视觉竞争 */
+        .settings-action-btn.secondary {
+            color: var(--brand-primary);
+            background: transparent;
+            border: 1px solid rgba(0, 135, 235, 0.45);
+        }
+        html[data-theme="space"] .settings-action-btn.secondary {
+            color: #9D85FA;
+            border-color: rgba(157, 133, 250, 0.45);
+        }
+        .settings-action-btn.secondary:hover {
+            background: rgba(0, 135, 235, 0.08);
+        }
+        html[data-theme="space"] .settings-action-btn.secondary:hover {
+            background: rgba(121, 133, 255, 0.12);
+        }
+
+        /* 弱化操作：纯文本链接 */
+        .settings-action-btn.link {
+            color: var(--brand-primary);
+            background: transparent;
+            border-color: transparent;
+            padding: 0 4px;
+        }
+        html[data-theme="space"] .settings-action-btn.link {
+            color: #9D85FA;
+        }
+        .settings-action-btn.link:hover {
+            background: transparent;
+            text-decoration: underline;
         }
 
         .support-actions {
@@ -4803,6 +4887,14 @@
     </style>
 </head>
 <body data-context="portal">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <linearGradient id="vmGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" class="vm-grad-stop-a"/>
+                <stop offset="100%" class="vm-grad-stop-b"/>
+            </linearGradient>
+        </defs>
+    </svg>
     <div id="titleBar" class="title-bar" data-tauri-drag-region>
         <span class="title-bar-brand" data-tauri-drag-region>AlpeHuez</span>
         <div class="title-bar-controls">
@@ -5221,12 +5313,6 @@
             <div class="vm-rings">
                 <div class="vm-ring-wrap">
                     <svg class="vm-ring" viewBox="0 0 80 80">
-                        <defs>
-                            <linearGradient id="vmGrad" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" class="vm-grad-stop-a"/>
-                                <stop offset="100%" class="vm-grad-stop-b"/>
-                            </linearGradient>
-                        </defs>
                         <circle class="vm-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="vm-ring-fg" id="vmRingCpu" cx="40" cy="40" r="34"/>
                     </svg>
@@ -5360,7 +5446,7 @@
                 </div>
                 <div class="settings-actions">
                     <button id="recoveryEmailSave" class="settings-action-btn primary" type="button" data-i18n-settings="setupSave">Save</button>
-                    <button id="forgotPwdBtn" class="settings-action-btn" type="button" data-i18n-settings="forgotPassword">Forgot password?</button>
+                    <button id="forgotPwdBtn" class="settings-action-btn link" type="button" data-i18n-settings="forgotPassword">Forgot password?</button>
                     <span class="settings-hint" id="recoveryEmailStatus"></span>
                 </div>
             </section>
@@ -5406,8 +5492,8 @@
                 </div>
                 <div class="settings-actions">
                     <button id="syncBackupBtn" class="settings-action-btn primary" type="button" data-i18n-settings="backupNow">Backup now</button>
-                    <button id="syncTestBtn" class="settings-action-btn" type="button" data-i18n-settings="testConnection">Test connection</button>
-                    <button id="restoreBackupBtn" class="settings-action-btn" type="button" data-i18n-settings="restoreBackup">Restore backup</button>
+                    <button id="syncTestBtn" class="settings-action-btn secondary" type="button" data-i18n-settings="testConnection">Test connection</button>
+                    <button id="restoreBackupBtn" class="settings-action-btn secondary" type="button" data-i18n-settings="restoreBackup">Restore backup</button>
                 </div>
                 <div class="settings-row">
                     <label data-i18n-settings="hfHeatmap">Backup heatmap</label>
@@ -5457,6 +5543,7 @@
             star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
             bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
             files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+            software: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
             github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
             blog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
             search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
@@ -6532,6 +6619,12 @@
             const activeDays = Object.keys(map).filter((key) => Number(map[key]) > 0).length;
             if (activeDays === 0) { el.innerHTML = emptyState('No ride data yet', 'Your first deep-focus session will paint this board.'); el.hidden = false; return; }
             const cells = [];
+            // 行0=周日：首日不一定是周日，前置空格把每个日期对齐到真实星期行，
+            // 否则整张图错位，数据会落到错误的星期（如周六）上。
+            const firstDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (DAYS - 1));
+            for (let pad = 0; pad < firstDate.getDay(); pad++) {
+                cells.push('<div class="usage-cell l0"></div>');
+            }
             for (let i = DAYS - 1; i >= 0; i--) {
                 const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -6540,7 +6633,10 @@
                 cells.push(`<div class="usage-cell l${level}" data-key="${key}" data-count="${count}" role="img" aria-label="${key} · ${count} interactions"></div>`);
             }
             el.innerHTML = `
-                <div class="usage-grid">${cells.join('')}</div>
+                <div class="usage-heatmap-wrap">
+                    <div class="usage-days"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+                    <div class="usage-grid">${cells.join('')}</div>
+                </div>
                 <div class="usage-legend">
                     Less
                     <span class="usage-cell l0"></span>
@@ -6644,10 +6740,11 @@
 
         // ---------- 更新检查（Tauri updater 插件）----------
         let pendingUpdate = null;
+        let currentAppVersion = '0.6.0';
 
         function openUpdateModal(update) {
             pendingUpdate = update;
-            $('updateCurrentVer').textContent = 'v' + (update.currentVersion || '');
+            $('updateCurrentVer').textContent = 'v' + (update.currentVersion || currentAppVersion || '');
             $('updateLatestVer').textContent = 'v' + update.version;
             const notes = $('updateNotes');
             notes.textContent = update.body || '';
@@ -6663,12 +6760,12 @@
         }
 
         async function checkForUpdates(manual) {
-            if (!isDesktop || !window.__TAURI__.updater) {
+            if (!isDesktop || !window.__TAURI__.core) {
                 if (manual) showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', 'updater unavailable'), 'error');
                 return null;
             }
             try {
-                const update = await window.__TAURI__.updater.check();
+                const update = await window.__TAURI__.core.invoke('plugin:updater|check');
                 if (!update) {
                     if (manual) showToast(settingsText('upToDate', 'You are up to date'), 'success');
                     return null;
@@ -6694,7 +6791,7 @@
             installBtn.disabled = true;
             installBtn.textContent = settingsText('updateDownloading', 'Downloading update…');
             try {
-                await pendingUpdate.downloadAndInstall();
+                await window.__TAURI__.core.invoke('plugin:updater|download_and_install', { update: pendingUpdate });
                 installBtn.textContent = settingsText('updateInstalling', 'Installing update…');
                 setTimeout(() => {
                     if (window.__TAURI__.process && window.__TAURI__.process.relaunch) {
@@ -8412,9 +8509,10 @@
             if (!isDesktop) return;
             try {
                 const version = await invoke('get_app_version');
-                const label = version ? 'v' + version : 'v' + fallbackVersion;
+                currentAppVersion = version || fallbackVersion;
+                const label = 'v' + currentAppVersion;
                 $('aboutVersion').textContent = label;
-                $('aboutVersionMeta').textContent = version || fallbackVersion;
+                $('aboutVersionMeta').textContent = currentAppVersion;
                 $('versionChip').textContent = label;
                 renderContextAbout();
             } catch (error) {
@@ -8771,6 +8869,7 @@
         const COMMANDS = [
             { match: 'settings', label: 'Interface Settings', desc: 'Open app settings', action: 'settings', icon: ICONS.sliders },
             { match: 'myfiles', label: 'My Files', desc: 'Open file sharing workspace', action: 'myfiles', icon: ICONS.files },
+            { match: 'software', label: 'Software', desc: 'Open software downloads', view: 'software', icon: ICONS.software },
             { match: 'badges', label: 'Achievements', desc: 'Open the achievement gallery', view: 'badges', icon: ICONS.badge },
             { match: 'dev', label: 'Developer Panel', desc: 'Open the developer console', view: 'dev', icon: ICONS.code },
             { match: 'github', label: 'GitHub', desc: 'Open GitHub in a tab', url: 'https://github.com/Helloxiaolaodi', icon: ICONS.github, quick: true },

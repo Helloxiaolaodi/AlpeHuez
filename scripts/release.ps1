@@ -115,6 +115,16 @@ if (-not $NoBuild) {
             Write-Warning '未找到签名密钥（TAURI_SIGNING_PRIVATE_KEY 或 ~/.tauri/alpehuez.key），createUpdaterArtifacts 构建会失败。'
         }
     }
+    # Resend API Key：编译期注入 option_env!("RESEND_API_KEY")。未设置时从 ~/.tauri/resend.key 读取（不进仓库）。
+    if (-not $env:RESEND_API_KEY) {
+        $resendKey = Join-Path $HOME '.tauri\resend.key'
+        if (Test-Path -LiteralPath $resendKey) {
+            $env:RESEND_API_KEY = (Get-Content -Raw -LiteralPath $resendKey).Trim()
+        }
+        else {
+            Write-Warning '未找到 Resend API Key（RESEND_API_KEY 或 ~/.tauri/resend.key），找回密码邮件发送会失败。'
+        }
+    }
     Push-Location $root
     try {
         & tauri build --bundles nsis
