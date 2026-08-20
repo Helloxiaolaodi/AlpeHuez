@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlpeHuez v0.5.0</title>
+    <title>AlpeHuez v0.6.0</title>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
         const savedTheme = storedTheme === 'space' ? 'space' : 'gradient';
@@ -4975,14 +4975,14 @@
                 <div class="context-label"><span>App</span></div>
                 <div class="context-about-card">
                     <label>Version</label>
-                    <strong id="contextAboutVersion">v0.5.0</strong>
+                    <strong id="contextAboutVersion">v0.6.0</strong>
                     <label>Developer</label>
                     <strong>Helloxiaolaodi</strong>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <span class="version-chip" id="versionChip">v0.5.0</span>
+                <span class="version-chip" id="versionChip">v0.6.0</span>
                 <span class="legend-item" title="Internal pages share a persistent WebView session">
                     <span class="legend-dot green"></span>
                     AlpeHuez
@@ -5142,7 +5142,7 @@
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
-                                <h1>AlpeHuez <span id="aboutVersion">v0.5.0</span></h1>
+                                <h1>AlpeHuez <span id="aboutVersion">v0.6.0</span></h1>
                                 <p>A workspace browser for Helloxiaolaodi. It combines the portal dashboard, vertical browser tabs, persistent sessions, local achievements, and the developer console in one desktop shell.</p>
                             </div>
                         </div>
@@ -5158,16 +5158,13 @@
                         </div>
                         <div class="about-grid">
                             <div class="about-card">
-                                <h2>v0.5.0 Update Notes</h2>
+                                <h2>v0.6.0 Update Notes</h2>
                                 <ul>
-                                    <li>Telemetry Pod adds a Markdown daily note: slash commands (#, ##, -, &gt;, **, code), instant preview, and one-click code capsules.</li>
-                                    <li>Code snippets open a focused reader with syntax highlighting, line numbers, and one-click copy.</li>
-                                    <li>Rider Abilities grows to six disciplines — One Day classics and Hills join GC, Climber, Sprint, TT — displayed as long power bars.</li>
-                                    <li>Embedded WebViews load behind a hand-drawn road bike animation instead of a black screen.</li>
-                                    <li>VeloMeter pill gains a DISK ring, and the process list draws mini CPU bars for at-a-glance health.</li>
-                                    <li>Command Palette matches Portal card names and URLs when you type without a slash.</li>
-                                    <li>Cards, modals, and the palette get crisper micro-borders, physical depth, and cleaner selection states.</li>
-                                    <li>Dev Panel light mode follows the app theme; data sync targets the correct ApleHuez repository.</li>
+                                    <li>Dual-channel backup: WebDAV single-zip joins Hugging Face git sync, with whitelist filtering and DB→JSON export keeping backups clean.</li>
+                                    <li>Full restore: links, My Files metadata, and settings come back from a backup in one flow.</li>
+                                    <li>Tab discarding: inactive browser tabs hibernate to cut desktop memory, re-opening on click.</li>
+                                    <li>Bookmark import/export: one-click import of browser bookmark HTML and export of Portal link cards.</li>
+                                    <li>Settings refactor: account section and clearer backup/restore controls.</li>
                                 </ul>
                             </div>
                             <div class="about-card">
@@ -7887,7 +7884,7 @@
 
         function renderContextAbout() {
             const version = $('aboutVersionMeta');
-            const label = version && version.textContent ? 'v' + version.textContent : 'v0.5.0';
+            const label = version && version.textContent ? 'v' + version.textContent : 'v0.6.0';
             $('contextAboutVersion').textContent = label;
         }
 
