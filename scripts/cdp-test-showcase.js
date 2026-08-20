@@ -70,6 +70,14 @@ async function ev(expr) {
   console.log('devWebLock visible:', await ev(`!document.getElementById('devWebLock').hidden`));
   console.log('lock text:', await ev(`document.getElementById('devWebLock').innerText.slice(0, 120)`));
 
+  // 切到 Achievements
+  await ev(`document.getElementById('btnBadges').click()`);
+  await new Promise(r => setTimeout(r, 800));
+  console.log('--- Achievements ---');
+  console.log('badgesContent hidden:', await ev(`document.getElementById('badgesContent').hidden`));
+  console.log('badgesWebLock visible:', await ev(`!document.getElementById('badgesWebLock').hidden`));
+  console.log('lock text:', await ev(`document.getElementById('badgesWebLock').innerText.slice(0, 120)`));
+
   // 切回 Home
   await ev(`document.getElementById('btnHome').click()`);
   await new Promise(r => setTimeout(r, 500));

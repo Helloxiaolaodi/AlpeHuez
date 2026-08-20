@@ -5127,13 +5127,20 @@
                             <h1>Achievement Gallery</h1>
                             <p>Progress is recorded locally in this workspace. Daily openings, link card clicks, and hidden milestone interactions unlock the next badge.</p>
                         </div>
-                        <div id="riderPanel" class="rider-panel"></div>
-                        <div class="stats-strip">
-                            <div class="stat-tile"><label>Daily Opens</label><strong id="statOpens">0</strong></div>
-                            <div class="stat-tile"><label>Card Clicks</label><strong id="statClicks">0</strong></div>
-                            <div class="stat-tile"><label>Interactions</label><strong id="statInteractions">0</strong></div>
+                        <div id="badgesContent">
+                            <div id="riderPanel" class="rider-panel"></div>
+                            <div class="stats-strip">
+                                <div class="stat-tile"><label>Daily Opens</label><strong id="statOpens">0</strong></div>
+                                <div class="stat-tile"><label>Card Clicks</label><strong id="statClicks">0</strong></div>
+                                <div class="stat-tile"><label>Interactions</label><strong id="statInteractions">0</strong></div>
+                            </div>
+                            <div id="badgeGrid" class="badge-grid"></div>
                         </div>
-                        <div id="badgeGrid" class="badge-grid"></div>
+                        <div id="badgesWebLock" class="web-lock" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <p class="web-lock-title" data-i18n-settings="webLockTitle">Private local workspace</p>
+                            <p class="web-lock-sub" data-i18n-settings="webLockDesc">Not available on the web preview.</p>
+                        </div>
                     </div>
                 </section>
 
@@ -8192,6 +8199,11 @@
                 if (frame) frame.style.display = 'none';
                 const lock = $('devWebLock');
                 if (lock) lock.hidden = false;
+            } else if (viewName === 'badges') {
+                const content = $('badgesContent');
+                if (content) content.hidden = true;
+                const lock = $('badgesWebLock');
+                if (lock) lock.hidden = false;
             }
         }
 
@@ -8219,7 +8231,7 @@
             $('viewTitle').textContent = titles[viewName] || 'AlpeHuez';
             const contexts = { home: 'portal', myfiles: 'myfiles', software: 'software', badges: 'badges', about: 'about', dev: 'dev' };
             setContext(contexts[viewName] || 'portal');
-            const webLocked = isWebShowcase && (viewName === 'myfiles' || viewName === 'dev');
+            const webLocked = isWebShowcase && (viewName === 'myfiles' || viewName === 'dev' || viewName === 'badges');
             if (webLocked) {
                 showWebLock(viewName);
             } else {
