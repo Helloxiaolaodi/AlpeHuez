@@ -13,6 +13,9 @@ This repository contains a static homepage that renders links from `links.json`,
 - Light gradient and dark space themes with a background image (dark mode uses the "Emotional Dark" deep-violet palette)
 - System tray resident daemon: close/minimize hides to tray, Chinese tray menu (show / hide / quit), `Alt+A` global summon
 - Auto-update: checks GitHub releases on launch, manual check in About, one-click download & install (NSIS installer, signed)
+- Dual-channel backup: Hugging Face git sync + WebDAV single-zip, with whitelist filtering, DB→JSON export, and full restore
+- Tab discarding: inactive browser tabs are hibernated (WebView closed) to cut desktop memory, re-opened on click
+- Bookmark import/export: one-click import of browser bookmark HTML and export of Portal link cards
 - Local click-frequency tracking with most-used-first sorting
 - My Files explorer with folder and file metadata from `myfiles/data.json`
 - Password-protected report folders backed by Cloudflare Pages Functions and `ALPEHUZ_ACCESS_PASSWORD`
@@ -149,7 +152,7 @@ The NSIS installer uses a custom **Liquid Glass** skin (white-to-`#E8F4FD` sideb
 To automate a version bump, build, sign, and archive:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.5.0
+powershell -ExecutionPolicy Bypass -File scripts\release.ps1 -Version 0.6.0
 ```
 
 The script reads the updater signing key from `~/.tauri/alpehuez.key` (or `TAURI_SIGNING_PRIVATE_KEY`), produces the signed installer, and writes both `releases/latest.json` and the Tauri-format `releases/updater-latest.json` (signature + download URL) that the in-app updater polls.
