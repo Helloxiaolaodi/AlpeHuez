@@ -8,6 +8,9 @@ node_modules/
 # Local verification/build artifacts
 .tmp-shots/
 .webview2-check/
+.edge-shot/
+.edge-shot2/
+shot-myfiles.png
 debug-window.log
 
 # 门户暂存目录（build.rs 生成，供 include_dir 嵌入）
