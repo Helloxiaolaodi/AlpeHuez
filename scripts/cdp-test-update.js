@@ -1,12 +1,12 @@
-// CDP 驱动 Edge 无头浏览器，验证主应用 About 页「检查更新」按钮 + 更新弹窗
+// CDP 驱动 Thorium 无头浏览器，验证主应用 About 页「检查更新」按钮 + 更新弹窗
 const { spawn } = require('child_process');
 const path = require('path');
 
-const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const THORIUM = 'C:\\Users\\Lenovo\\AppData\\Local\\Thorium\\Application\\thorium.exe';
 const PORT = 9225;
-const USER_DATA = path.join(process.env.TEMP, 'edge-cdp-update-' + Date.now());
+const USER_DATA = path.join(process.env.TEMP, 'thorium-cdp-update-' + Date.now());
 
-const edge = spawn(EDGE, [
+const browser = spawn(THORIUM, [
   '--headless=new', '--remote-debugging-port=' + PORT,
   '--user-data-dir=' + USER_DATA, '--no-first-run', '--disable-gpu', 'about:blank'
 ], { stdio: 'ignore' });

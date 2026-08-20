@@ -2,11 +2,11 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const THORIUM = 'C:\\Users\\Lenovo\\AppData\\Local\\Thorium\\Application\\thorium.exe';
 const PORT = 9225;
-const USER_DATA = path.join(process.env.TEMP, 'edge-cdp-test3-' + Date.now());
+const USER_DATA = path.join(process.env.TEMP, 'thorium-cdp-test3-' + Date.now());
 
-const edge = spawn(EDGE, [
+const browser = spawn(THORIUM, [
   '--headless=new', '--remote-debugging-port=' + PORT,
   '--user-data-dir=' + USER_DATA, '--no-first-run', '--disable-gpu', 'about:blank'
 ], { stdio: 'ignore' });

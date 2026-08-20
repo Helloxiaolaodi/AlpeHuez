@@ -1,13 +1,13 @@
-// CDP 驱动 Edge 无头浏览器，测试面板「新建文件」保存流程
+// CDP 驱动 Thorium 无头浏览器，测试面板「新建文件」保存流程
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const THORIUM = 'C:\\Users\\Lenovo\\AppData\\Local\\Thorium\\Application\\thorium.exe';
 const PORT = 9224;
-const USER_DATA = path.join(process.env.TEMP, 'edge-cdp-test2-' + Date.now());
+const USER_DATA = path.join(process.env.TEMP, 'thorium-cdp-test2-' + Date.now());
 
-const edge = spawn(EDGE, [
+const browser = spawn(THORIUM, [
   '--headless=new', '--remote-debugging-port=' + PORT,
   '--user-data-dir=' + USER_DATA, '--no-first-run', '--disable-gpu', 'about:blank'
 ], { stdio: 'ignore' });
