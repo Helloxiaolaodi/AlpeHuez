@@ -19,3 +19,10 @@ src-tauri/webroot/
 
 # 便携版 exe 体积大且非安装版，不上传 GitHub（仅保留本地）
 releases/v*/my-nav-panel.exe
+
+# 旧版本发布二进制（setup.exe / apk / msi）不上传 GitHub，仅保留最新版安装包
+releases/v0.1.0/
+releases/v0.2.0/
+releases/v0.3.0/
+releases/v0.4.0/
+releases/v0.5.0/
