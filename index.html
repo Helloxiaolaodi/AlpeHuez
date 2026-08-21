@@ -847,6 +847,19 @@
             pointer-events: auto;
         }
 
+        /* 浏览应用内网页时（有 Open Pages 标签），左侧栏常驻展开：
+           否则 body[data-context] 的折叠规则会把标签页列表藏成 12px 隐形竖条，
+           切换不同网页时左侧栏看起来"消失"，只能悬停边缘唤出。 */
+        body.browsing .tab-sidebar {
+            flex: 0 0 236px;
+            width: 236px;
+            opacity: 1;
+            overflow: visible;
+        }
+        body.browsing .tab-sidebar > * {
+            pointer-events: auto;
+        }
+
         .context-panel {
             display: none;
             flex: 1;
@@ -1183,7 +1196,7 @@
             background: var(--brand-primary);
         }
 
-        .browser-tab.sleeping { opacity: 0.55; filter: blur(0.3px); }
+        .browser-tab.sleeping { opacity: 0.55; }
 
         html[data-theme="space"] .browser-tab:hover {
             background: rgba(255, 255, 255, 0.06);
@@ -5201,6 +5214,11 @@
                     <input type="text" id="noteAppPath" class="notes-launch-input" placeholder="External notes app path…" title="Path to an external notes app, e.g. D:\软件安装\yuque\yuque-desktop\语雀.exe">
                     <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn" title="Launch the external notes app">Launch</button>
                 </div>
+                <div class="notes-launch">
+                    <input type="text" id="noteExportDir" class="notes-launch-input" placeholder="Export folder, default: Downloads" title="Notes 导出目录。留空则导出到下载文件夹；可直接输入路径或用「选择」按钮挑选。">
+                    <button type="button" id="btnNoteExportPick" class="notes-launch-btn" title="Choose export folder">Pick</button>
+                    <button type="button" id="btnNoteExportOpen" class="notes-launch-btn" title="Open the export folder">Open</button>
+                </div>
             </div>
 
             <div id="context-dev" class="context-panel">
@@ -7542,8 +7560,18 @@
             const md = parts.join('\n');
             if (isDesktop) {
                 try {
-                    await invoke('save_bookmarks_export', { filename: 'alpehuez-notes-' + todayStr() + '.md', content: md });
-                    showToast('Notes exported to Downloads');
+                    let dir = null;
+                    try {
+                        const v = await invoke('get_app_config', { key: 'note_export_dir' });
+                        if (v != null && String(v).trim()) dir = String(v);
+                    } catch (e) {}
+                    const res = await invoke('save_notes_export', {
+                        dir,
+                        filename: 'alpehuez-notes-' + todayStr() + '.md',
+                        content: md
+                    });
+                    const where = dir ? String(res && res.path || dir) : 'Downloads';
+                    showToast('Notes exported to ' + where);
                 } catch (e) { showToast('Export failed'); }
             } else {
                 const blob = new Blob([md], { type: 'text/markdown' });
@@ -7670,6 +7698,50 @@
                     showToast(res || 'Launched');
                 } catch (e) {
                     showToast('Launch failed: ' + e);
+                }
+            });
+            // 笔记导出目录（留空 = 下载文件夹；可输入路径或用系统选择器挑选）
+            const exportDir = $('noteExportDir');
+            if (exportDir) {
+                if (isDesktop) {
+                    invoke('get_app_config', { key: 'note_export_dir' })
+                        .then((v) => { if (v != null && v !== '') exportDir.value = String(v); })
+                        .catch(() => {});
+                }
+                exportDir.addEventListener('change', () => {
+                    const val = exportDir.value.trim();
+                    if (isDesktop) invoke('set_app_config', { key: 'note_export_dir', value: val }).catch(() => {});
+                });
+            }
+            const pickExportBtn = $('btnNoteExportPick');
+            if (pickExportBtn) pickExportBtn.addEventListener('click', async () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                try {
+                    const p = await invoke('pick_folder', { title: '选择笔记导出目录' });
+                    if (p) {
+                        exportDir.value = String(p);
+                        invoke('set_app_config', { key: 'note_export_dir', value: String(p) }).catch(() => {});
+                        showToast('Export folder set');
+                    }
+                } catch (e) {
+                    showToast('Pick failed: ' + e);
+                }
+            });
+            const openExportBtn = $('btnNoteExportOpen');
+            if (openExportBtn) openExportBtn.addEventListener('click', async () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                let path = (($('noteExportDir') || {}).value || '').trim();
+                if (!path) {
+                    try {
+                        const v = await invoke('get_app_config', { key: 'note_export_dir' });
+                        if (v != null && v !== '') path = String(v);
+                    } catch (e) {}
+                }
+                if (!path) { showToast('No export folder set'); return; }
+                try {
+                    await invoke('open_in_explorer', { path });
+                } catch (e) {
+                    showToast('Open folder failed: ' + e);
                 }
             });
         }

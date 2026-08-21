@@ -6,8 +6,8 @@ mod velometer;
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
 
 use tauri::Manager;
 #[cfg(not(target_os = "android"))]
@@ -28,19 +28,6 @@ static STARTED_AT: OnceLock<Instant> = OnceLock::new();
 /// 启动 watchdog 依据它区分"用户想隐藏"与"窗口本该显示却没显示"，避免对抗。
 static USER_HIDDEN: AtomicBool = AtomicBool::new(false);
 
-/// 最近一次显式召唤主窗口的时刻（毫秒时间戳）。show_main / watchdog 还原窗口时，
-/// Windows 的 Resized 事件可能在 is_minimized() 仍返回 true 的瞬间到达，
-/// 事件处理器会误判为"用户最小化"再次 hide 到托盘（表现为唤不回来，只能重启）。
-/// 1.5 秒内的最小化事件视为还原过程，跳过 hide。
-static LAST_SHOW_MS: AtomicU64 = AtomicU64::new(0);
-
-fn now_ms() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-}
-
 /// 设置仓库根目录（Android 上由 setup 指向应用私有 webroot，桌面版无需调用）。
 /// 统一 canonicalize：Windows 上 fs::canonicalize 会补 `\\?\` 前缀，若根目录不规范化，
 /// preview::handler 的 `normalized.starts_with(root)` 前缀判断会误判为越权（403）。
@@ -59,12 +46,20 @@ pub fn repo_root() -> &'static Path {
     })
 }
 
+/// 取主窗口（普通 Window）。不用 get_webview_window("main")：应用内打开的网页标签
+/// 是挂在主窗口下的子 webview（browser-*），会让 window.is_webview_window() 为 false，
+/// get_webview_window 于是返回 None，show_main/hide_to_tray 全部静默失效
+/// （表现为最小化/关闭后唤不回来，只能重启）。get_window 不依赖该判定，始终可用。
+#[cfg(not(target_os = "android"))]
+pub(crate) fn main_window(app: &tauri::AppHandle) -> Option<tauri::Window> {
+    app.get_window("main")
+}
+
 /// 显示并聚焦主窗口。Windows 上直接 show() 有时不置顶，需 unminimize + set_focus 兜底。
 #[cfg(not(target_os = "android"))]
 fn show_main(app: &tauri::AppHandle) {
     USER_HIDDEN.store(false, Ordering::Relaxed);
-    LAST_SHOW_MS.store(now_ms(), Ordering::Relaxed);
-    if let Some(win) = app.get_webview_window("main") {
+    if let Some(win) = main_window(app) {
         let _ = win.show();
         let _ = win.unminimize();
         let _ = win.set_focus();
@@ -99,13 +94,13 @@ impl Hideable for tauri::WebviewWindow {
 #[cfg(not(target_os = "android"))]
 pub(crate) fn hide_to_tray(win: &impl Hideable) {
     USER_HIDDEN.store(true, Ordering::Relaxed);
-    win.hide_window();
+    let _ = win.hide_window();
 }
 
 /// 无边框透明窗口失去系统阴影，用 DwmExtendFrameIntoClientArea 找回（1px 玻璃边即可触发阴影/圆角）。
 /// 等价于旧 crate window-shadows 的实现，但它停留在 raw-window-handle 0.5，与 Tauri v2（0.6）不兼容。
 #[cfg(target_os = "windows")]
-fn enable_window_shadow(win: &tauri::WebviewWindow) {
+fn enable_window_shadow(win: &tauri::Window) {
     use raw_window_handle::HasWindowHandle;
     let Ok(handle) = win.window_handle() else { return; };
     let raw_window_handle::RawWindowHandle::Win32(h) = handle.as_raw() else { return; };
@@ -136,8 +131,11 @@ pub fn run() {
                 api.prevent_close();
                 hide_to_tray(window);
             }
-            // 最小化按钮 → 同样隐藏到系统托盘（驻留后台继续运行）。
-            // Resized 在最小化/还原时都会触发，按 is_minimized 状态区分。
+            // 最小化/还原时都会触发 Resized。最小化一律交给系统（任务栏图标 / Win+D /
+            // Win+Down 的正常最小化/还原）；winMin 按钮隐藏到托盘走 hide_main_window 命令，
+            // 不经过这里。旧实现把"最小化"一律 hide 到托盘，导致点击任务栏图标把窗口藏进
+            // 托盘，且 get_webview_window("main") 在存在 browser-* 子 webview 时返回 None，
+            // 托盘「显示 AlpeHuez」无法唤回，只能重启。这里只处理启动初期的恢复。
             #[cfg(not(target_os = "android"))]
             if let tauri::WindowEvent::Resized(_) = event {
                 if window.is_minimized().unwrap_or(false) {
@@ -149,17 +147,6 @@ pub fn run() {
                         // 启动初期：Windows 会恢复上次会话的最小化状态，直接隐藏会把窗口
                         // 藏进托盘，表现为"启动后看不到界面"。改为还原显示。
                         let _ = window.unminimize();
-                    } else {
-                        // 还原过程中（show/unminimize 刚发起不久，或窗口本就被隐藏到托盘）
-                        // Resized 仍可能携带 is_minimized()=true 到达，此时若 hide 会立刻把
-                        // 刚唤出的窗口藏回托盘。两种情况都视为还原过程，跳过 hide：
-                        //  1) 1.5s 内显式召唤过（托盘/快捷键/show_request/watchdog 走 show_main）；
-                        //  2) 窗口正处于隐藏到托盘状态（任务栏还原等未走 show_main 的路径）。
-                        let restoring = now_ms().saturating_sub(LAST_SHOW_MS.load(Ordering::Relaxed)) < 1500
-                            || USER_HIDDEN.load(Ordering::Relaxed);
-                        if !restoring {
-                            hide_to_tray(window);
-                        }
                     }
                 }
             }
@@ -241,6 +228,9 @@ pub fn run() {
             commands::delete_daily_note,
             commands::hide_main_window,
             commands::launch_note_app,
+            commands::pick_folder,
+            commands::open_in_explorer,
+            commands::save_notes_export,
         ]);
 
     // Alt+A 全局召唤：隐藏时显示并聚焦，可见时隐藏。Android 无全局快捷键，且该插件在移动端为空壳。
@@ -251,7 +241,7 @@ pub fn run() {
             .expect("invalid global shortcut alt+a")
             .with_handler(|app, _shortcut, event| {
                 if event.state == ShortcutState::Pressed {
-                    if let Some(window) = app.get_webview_window("main") {
+                    if let Some(window) = main_window(app) {
                         if window.is_visible().unwrap_or(true) {
                             hide_to_tray(&window);
                         } else {
@@ -292,7 +282,7 @@ pub fn run() {
             // 磨砂玻璃（Windows）：Acrylic 让桌面壁纸透出；找回无边框透明窗口的系统阴影。
             #[cfg(target_os = "windows")]
             {
-                if let Some(win) = app.get_webview_window("main") {
+                if let Some(win) = main_window(app.app_handle()) {
                     let _ = window_vibrancy::apply_acrylic(&win, Some((35, 35, 50, 96)));
                     enable_window_shadow(&win);
                 }
@@ -345,11 +335,10 @@ pub fn run() {
                             break;
                         }
                         std::thread::sleep(Duration::from_millis(1200));
-                        if let Some(win) = handle.get_webview_window("main") {
+                        if let Some(win) = main_window(&handle) {
                             let visible = win.is_visible().unwrap_or(false);
                             let minimized = win.is_minimized().unwrap_or(false);
                             if !USER_HIDDEN.load(Ordering::Relaxed) && (!visible || minimized) {
-                                LAST_SHOW_MS.store(now_ms(), Ordering::Relaxed);
                                 let _ = win.unminimize();
                                 let _ = win.show();
                                 let _ = win.set_focus();
@@ -397,7 +386,7 @@ pub fn run() {
                 tray = tray.on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => show_main(app),
                     "hide" => {
-                        if let Some(win) = app.get_webview_window("main") {
+                        if let Some(win) = main_window(app) {
                             hide_to_tray(&win);
                         }
                     }

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-save-notes-export"
+description = "Enables the save_notes_export command without any pre-configured scope."
+commands.allow = ["save_notes_export"]
+
+[[permission]]
+identifier = "deny-save-notes-export"
+description = "Denies the save_notes_export command without any pre-configured scope."
+commands.deny = ["save_notes_export"]

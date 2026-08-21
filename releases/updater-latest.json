@@ -1,10 +1,10 @@
 {
     "version":  "0.7.0",
-    "notes":  "e9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring\n871034e feat: show generic badges on web showcase, hide rider profile and stats\n64ebb8e feat: lock Achievements view on web showcase\ne29b7d1 fix: software page public after Cloudflare .html canonicalization",
-    "pub_date":  "2026-08-21T05:51:54Z",
+    "notes":  "d3c497b feat: v0.7.0 notes workspace, window summon fix, email recovery fixes\ne9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring\n871034e feat: show generic badges on web showcase, hide rider profile and stats\n64ebb8e feat: lock Achievements view on web showcase",
+    "pub_date":  "2026-08-21T07:15:48Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc051NFB4UUw0K1ZBSnVYZXdwR3VuWEthUG1Icmk3MHVPRnVnRUZMK3ZYVm4vdGJkVjkwaFBlMndiU0tqa3Z2bDcwcXNJV29tVmpSQjc3aXhvRTMycVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MjkxNTE0CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQp6SkIrK1czQTQrNUltQkkrM0puZlpHRFRVNVlsNENhVnZoSER4UEwyU1NWV3F3dkhpVXRMRGJrc2Q0b0pmTURIaHhnbDR3LzgxcTl2clJOS2tVenhDZz09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0pDODRmVzZPSGhYcW1adnE5MVFxQmwzUzkyNTErTWlBRzN2OUJocXZZTlMwVnVXanQrdlB2YU1UUnVRNXIrcnFhTnBTajBtQ09JZXFkTG53d0lnY0E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3Mjk2NTQ4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQp4dXJwWnZoZU4wVVpDcUVjREkvM3NzOG9Kd1VoaXZoQlB1SFQ5aGdTTHpHTXhyaCtvZ0x2VGY1T2pPVUV3dEl6UHpvcVpYbWlVazZmSldERFZmcFNCdz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }

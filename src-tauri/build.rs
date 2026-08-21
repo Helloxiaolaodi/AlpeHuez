@@ -82,6 +82,9 @@ fn main() {
                 "delete_daily_note",
                 "hide_main_window",
                 "launch_note_app",
+                "pick_folder",
+                "open_in_explorer",
+                "save_notes_export",
             ]),
         ),
     )

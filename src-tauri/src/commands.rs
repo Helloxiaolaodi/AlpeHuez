@@ -712,11 +712,18 @@ fn make_recovery_code(email: &str) -> String {
     code
 }
 
+/// 内嵌应用图标（构建期打包），邮件模板中以 data URI 展示真实 logo，替代字母占位。
+const APP_ICON_PNG: &[u8] = include_bytes!("../icons/128x128.png");
+
 /// 通过 Resend API 发送验证码邮件。API Key 由开发者构建时注入（RESEND_API_KEY
 /// 环境变量，编译期固化进二进制），最终用户无需任何邮件配置。
 fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String> {
-    let subject = "AlpeHuez Security Code";
-    let html = RECOVERY_EMAIL_TEMPLATE.replace("__CODE__", code);
+    use base64::Engine as _;
+    let icon_b64 = base64::engine::general_purpose::STANDARD.encode(APP_ICON_PNG);
+    let subject = "AlpeHuez 安全验证码";
+    let html = RECOVERY_EMAIL_TEMPLATE
+        .replace("__CODE__", code)
+        .replace("__ICON__", &format!("data:image/png;base64,{}", icon_b64));
     let payload = serde_json::json!({
         "from": "AlpeHuez <admin@20211003.xyz>",
         "to": [to],
@@ -754,12 +761,12 @@ const RECOVERY_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:linear-gradient(180deg,#21203b,#1a1a1a);border-radius:16px;border:1px solid rgba(121,133,255,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.5);padding:36px 32px;">
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#7985FF,#D489FF);display:inline-block;text-align:center;line-height:48px;font-size:24px;font-weight:800;color:#ffffff;">A</div>
+              <img src="__ICON__" width="48" height="48" alt="AlpeHuez" style="display:block;border-radius:12px;width:48px;height:48px;">
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">AlpeHuez Security Code</h1>
+              <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">AlpeHuez 安全验证码</h1>
             </td>
           </tr>
           <tr>
@@ -800,7 +807,7 @@ pub fn open_password_recovery(app: tauri::AppHandle) -> Result<(), String> {
     }
     #[cfg(not(target_os = "android"))]
     {
-        if let Some(win) = app.get_webview_window("main") {
+        if let Some(win) = crate::main_window(&app) {
             let _ = win.show();
             let _ = win.unminimize();
             let _ = win.set_focus();
@@ -2391,7 +2398,7 @@ fn read_zip_files(bytes: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
 #[tauri::command]
 pub fn hide_main_window(app: tauri::AppHandle) {
     #[cfg(not(target_os = "android"))]
-    if let Some(win) = app.get_webview_window("main") {
+    if let Some(win) = crate::main_window(&app) {
         crate::hide_to_tray(&win);
     }
 }
@@ -2425,6 +2432,100 @@ pub fn launch_note_app(path: String) -> Result<String, String> {
             .map_err(|e| format!("启动失败: {e}"))?;
         Ok(format!("已启动 {p}"))
     }
+}
+
+/// 系统原生文件夹选择器（Windows 用 PowerShell 的 FolderBrowserDialog，零新增依赖）。
+/// 返回用户选中的目录；取消返回 None。桌面版专用，移动端返回 None。
+#[tauri::command]
+pub fn pick_folder(app: tauri::AppHandle, title: Option<String>) -> Result<Option<String>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let _ = &app;
+        let t = title
+            .unwrap_or_else(|| "选择导出文件夹".into())
+            .replace('\'', "''");
+        let script = format!(
+            "Add-Type -AssemblyName System.Windows.Forms; \
+             $d = New-Object System.Windows.Forms.FolderBrowserDialog; \
+             $d.Description = '{t}'; \
+             if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ Write-Output $d.SelectedPath }}"
+        );
+        let out = std::process::Command::new("powershell")
+            .args(["-NoProfile", "-WindowStyle", "Hidden", "-Command", &script])
+            .output()
+            .map_err(|e| format!("无法打开文件夹选择器: {e}"))?;
+        let text = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        Ok(if text.is_empty() { None } else { Some(text) })
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (app, title);
+        Ok(None)
+    }
+}
+
+/// 在资源管理器中打开指定目录（路径指向文件时打开其所在目录）。桌面版专用。
+#[tauri::command]
+pub fn open_in_explorer(app: tauri::AppHandle, path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        let _ = &app;
+        let p = path.trim();
+        if p.is_empty() {
+            return Err("路径为空".into());
+        }
+        let dir = if std::path::Path::new(p).is_dir() {
+            p.to_string()
+        } else {
+            std::path::Path::new(p)
+                .parent()
+                .map(|d| d.to_string_lossy().to_string())
+                .unwrap_or_else(|| p.to_string())
+        };
+        std::process::Command::new("explorer")
+            .arg(&dir)
+            .spawn()
+            .map_err(|e| format!("无法打开文件夹: {e}"))?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (app, path);
+        Err("仅桌面版支持".into())
+    }
+}
+
+/// 导出全部笔记为 Markdown：写入用户自定义目录（未设置时回退下载目录）。
+/// 返回写入的文件名与完整路径，供前端提示与「打开文件夹」使用。
+#[tauri::command]
+pub fn save_notes_export(
+    app: tauri::AppHandle,
+    dir: Option<String>,
+    filename: String,
+    content: String,
+) -> Result<serde_json::Value, String> {
+    let name = if filename.trim().is_empty()
+        || filename.contains(['/', '\\', ':', '*', '?', '"', '<', '>', '|'])
+    {
+        "alpehuez-notes.md".to_string()
+    } else {
+        filename.trim().to_string()
+    };
+    let base = match dir.filter(|d| !d.trim().is_empty()) {
+        Some(d) => std::path::PathBuf::from(d.trim()),
+        None => app
+            .path()
+            .download_dir()
+            .or_else(|_| app.path().home_dir().map(|h| h.join("Downloads")))
+            .map_err(|e| e.to_string())?,
+    };
+    std::fs::create_dir_all(&base).map_err(|e| format!("无法创建导出目录: {e}"))?;
+    let full = base.join(&name);
+    std::fs::write(&full, &content).map_err(|e| format!("写入失败: {e}"))?;
+    Ok(serde_json::json!({
+        "name": name,
+        "path": full.to_string_lossy().to_string(),
+    }))
 }
 
 #[tauri::command]
