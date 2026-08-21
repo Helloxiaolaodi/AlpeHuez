@@ -1,10 +1,10 @@
 {
     "version":  "0.7.0",
-    "notes":  "d3c497b feat: v0.7.0 notes workspace, window summon fix, email recovery fixes\ne9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring\n871034e feat: show generic badges on web showcase, hide rider profile and stats\n64ebb8e feat: lock Achievements view on web showcase",
-    "pub_date":  "2026-08-21T07:15:48Z",
+    "notes":  "f849608 1\nae3b431 feat: notes custom export dir, reliable window restore, keep sidebar open while browsing\nd3c497b feat: v0.7.0 notes workspace, window summon fix, email recovery fixes\ne9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring",
+    "pub_date":  "2026-08-21T14:18:19Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0pDODRmVzZPSGhYcW1adnE5MVFxQmwzUzkyNTErTWlBRzN2OUJocXZZTlMwVnVXanQrdlB2YU1UUnVRNXIrcnFhTnBTajBtQ09JZXFkTG53d0lnY0E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3Mjk2NTQ4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQp4dXJwWnZoZU4wVVpDcUVjREkvM3NzOG9Kd1VoaXZoQlB1SFQ5aGdTTHpHTXhyaCtvZ0x2VGY1T2pPVUV3dEl6UHpvcVpYbWlVazZmSldERFZmcFNCdz09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0QxN2wySTdOM3YwakhvbzErUEEzR2dCN3R4bCswMVczMlVXdmlzQUNkenZBUWhjVjBuS1lCeU05aERGNGpmQ0UxMERFMS9vTVh3SHl5STFmSStUWndjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzIxODk4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQpta2Y5V1lXdnZTNWpJM09xTEF0NFg2TDZyZ2FObVVHMDJoVCtPR2xNZG9NLytBN2tEcEtkSm9wRFJTNE81U0lzQzVXTkpCQ1N3RTU4b0RFc29NalRCZz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }

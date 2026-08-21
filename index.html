@@ -4108,6 +4108,23 @@
         }
         html[data-theme="space"] .notes-launch-btn { background: rgba(121, 133, 255, 0.10); }
         .notes-launch-btn:hover { background: rgba(0, 135, 235, 0.14); border-color: var(--brand-primary); }
+        .notes-launch-btn.primary { flex: 1; color: #fff; background: var(--brand-primary); border-color: var(--brand-primary); }
+        html[data-theme="space"] .notes-launch-btn.primary { background: #2b357f; border-color: #2b357f; }
+        .notes-launch-btn.primary:hover { filter: brightness(1.12); }
+        .notes-apps { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .notes-app-item {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 8px; background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--line); border-radius: 8px;
+        }
+        html[data-theme="space"] .notes-app-item { background: rgba(255, 255, 255, 0.03); }
+        .notes-app-item.is-default { border-color: var(--brand-primary); }
+        .notes-app-info { flex: 1; min-width: 0; }
+        .notes-app-name { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .notes-app-default-tag { font-size: 9px; font-weight: 700; color: var(--brand-primary); border: 1px solid currentColor; border-radius: 4px; padding: 0 3px; margin-left: 4px; vertical-align: 1px; }
+        .notes-app-path { display: block; font-size: 10px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .notes-app-actions { display: flex; gap: 4px; }
+        .notes-app-actions .notes-launch-btn { padding: 0 8px; font-size: 11px; }
 
         /* Markdown 编辑工具栏 */
         .notes-mdbar {
@@ -5211,9 +5228,16 @@
                 </div>
                 <button type="button" id="btnNoteNew" class="notes-new-btn">+ New note</button>
                 <div class="notes-launch">
-                    <input type="text" id="noteAppPath" class="notes-launch-input" placeholder="External notes app path…" title="Path to an external notes app, e.g. D:\软件安装\yuque\yuque-desktop\语雀.exe">
-                    <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn" title="Launch the external notes app">Launch</button>
+                    <button type="button" id="btnNoteAppQuick" class="notes-launch-btn primary" title="Launch the default notes app">Open Notes App</button>
+                    <span class="settings-hint" id="noteAppStatus"></span>
                 </div>
+                <div class="notes-launch">
+                    <input type="text" id="noteAppPath" class="notes-launch-input" placeholder="External notes app path…" title="Path to an external notes app, e.g. D:\软件安装\yuque\yuque-desktop\语雀.exe">
+                    <button type="button" id="btnNoteAppPick" class="notes-launch-btn" title="Choose a notes app file">Pick</button>
+                    <button type="button" id="btnNoteAppSave" class="notes-launch-btn" title="Save this app to the list">Save</button>
+                    <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn" title="Launch this app">Launch</button>
+                </div>
+                <div id="noteAppsList" class="notes-apps"></div>
                 <div class="notes-launch">
                     <input type="text" id="noteExportDir" class="notes-launch-input" placeholder="Export folder, default: Downloads" title="Notes 导出目录。留空则导出到下载文件夹；可直接输入路径或用「选择」按钮挑选。">
                     <button type="button" id="btnNoteExportPick" class="notes-launch-btn" title="Choose export folder">Pick</button>
@@ -5670,7 +5694,7 @@
                     <span class="settings-hint" id="feedbackStatus"></span>
                 </div>
                 <div class="settings-actions">
-                    <button id="feedbackSave" class="settings-action-btn primary" type="button" data-i18n-settings="saveFeedback">Save feedback</button>
+                    <button id="feedbackSend" class="settings-action-btn primary" type="button" data-i18n-settings="saveFeedback">Send feedback</button>
                 </div>
             </section>
 
@@ -5819,6 +5843,7 @@
             software: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
             github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
             blog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+            note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3"/><path d="M16 3v3"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 14h8"/><path d="M8 18h5"/></svg>',
             search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
             globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg>',
             code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>',
@@ -5878,7 +5903,7 @@
                 resetShortcuts: 'Reset',
                 feedback: 'Feedback',
                 feedbackPlaceholder: 'Leave feedback for AlpeHuez',
-                saveFeedback: 'Save feedback',
+                saveFeedback: 'Send feedback',
                 sync: 'Sync',
                 syncRepo: 'HF backup repo',
                 proxyLabel: 'Proxy (optional)',
@@ -5919,8 +5944,8 @@
                 interfaceLanguage: 'Interface language',
                 english: 'English',
                 chinese: 'Simplified Chinese',
-                feedbackSaved: 'Feedback saved',
-                feedbackFailed: 'Unable to save feedback',
+                feedbackSent: 'Feedback sent',
+                feedbackFailed: 'Unable to send feedback',
                 qrLoading: 'Loading QR code...',
                 qrFailed: 'WeChat QR unavailable',
                 shortcutSaved: 'Shortcut saved',
@@ -6043,7 +6068,7 @@
                 resetShortcuts: '\u91cd\u7f6e',
                 feedback: '\u53cd\u9988',
                 feedbackPlaceholder: '\u4e3a AlpeHuez \u7559\u4e0b\u53cd\u9988',
-                saveFeedback: '\u4fdd\u5b58\u53cd\u9988',
+                saveFeedback: '\u53d1\u9001\u53cd\u9988',
                 sync: '\u540c\u6b65',
                 syncRepo: 'HF \u5907\u4efd\u4ed3\u5e93',
                 proxyLabel: '\u4ee3\u7406\u670d\u52a1\u5668\uff08\u53ef\u9009\uff09',
@@ -6084,8 +6109,8 @@
                 interfaceLanguage: '\u754c\u9762\u8bed\u8a00',
                 english: '\u82f1\u6587',
                 chinese: '\u7b80\u4f53\u4e2d\u6587',
-                feedbackSaved: '\u53cd\u9988\u5df2\u4fdd\u5b58',
-                feedbackFailed: '\u65e0\u6cd5\u4fdd\u5b58\u53cd\u9988',
+                feedbackSent: '\u53cd\u9988\u5df2\u53d1\u9001',
+                feedbackFailed: '\u65e0\u6cd5\u53d1\u9001\u53cd\u9988',
                 qrLoading: '\u6b63\u5728\u52a0\u8f7d\u4e8c\u7ef4\u7801',
                 qrFailed: '\u5fae\u4fe1\u4e8c\u7ef4\u7801\u4e0d\u53ef\u7528',
                 shortcutSaved: '\u5feb\u6377\u952e\u5df2\u4fdd\u5b58',
@@ -6453,37 +6478,22 @@
             return key === event.key.toLowerCase() || key === event.code.toLowerCase();
         }
 
-        async function loadFeedbackSettings() {
-            if (!isDesktop || !$('feedbackText')) return;
-            try {
-                $('feedbackText').value = await invoke('get_feedback');
-            } catch (error) {
-                console.error('load feedback failed:', error);
-            }
-        }
-
-        async function saveFeedbackSettings() {
+        async function sendFeedbackSettings() {
             const input = $('feedbackText');
             const status = $('feedbackStatus');
             if (!input || !isDesktop) return;
             const text = input.value.trim();
             if (!text) {
-                if (status) status.textContent = settingsText('feedbackFailed', 'Unable to save feedback');
+                if (status) status.textContent = settingsText('feedbackFailed', 'Unable to send feedback');
                 return;
             }
             try {
-                await invoke('save_feedback', { text });
-                if (status) status.textContent = settingsText('feedbackSaved', 'Feedback saved');
-                // 反馈最终通过默认邮件客户端发送到 yangsanduo2025@gmail.com
-                const mailto = 'mailto:yangsanduo2025@gmail.com?subject=' + encodeURIComponent('AlpeHuez Feedback') + '&body=' + encodeURIComponent(text);
-                if (hasTauri) {
-                    try { await invoke('open_url_scheme', { url: mailto }); } catch (e) { console.error('open mailto failed:', e); }
-                } else {
-                    window.open(mailto, '_blank');
-                }
+                await invoke('send_feedback_email', { text });
+                if (status) status.textContent = settingsText('feedbackSent', 'Feedback sent');
+                input.value = '';
             } catch (error) {
-                console.error('save feedback failed:', error);
-                if (status) status.textContent = settingsText('feedbackFailed', 'Unable to save feedback');
+                console.error('send feedback failed:', error);
+                if (status) status.textContent = settingsText('feedbackFailed', 'Unable to send feedback');
             }
         }
 
@@ -6511,7 +6521,6 @@
             syncBgModeUI();
             loadShortcutSettings();
             loadBackgroundBlur();
-            loadFeedbackSettings();
             loadSyncState();
             renderHfHeatmap();
             loadQuoteLibraryInput();
@@ -6674,7 +6683,7 @@
             syncBgModeUI();
             loadShortcutSettings();
             initAccountSettings();
-            await Promise.all([loadBackgroundBlur(), loadFeedbackSettings()]);
+            await loadBackgroundBlur();
         }
 
         /* ---------- 账户：找回邮箱 + 忘记密码（仅桌面应用） ---------- */
@@ -7664,19 +7673,107 @@
                     notesCalRender();
                 }
             });
-            // 外部笔记软件启动（路径可填，如 语雀.exe）
+            // 外部笔记软件：可保存多个路径、设默认，一键打开默认应用
+            let noteApps = [];
+            let noteAppDefault = '';
+            const noteAppName = (p) => { const n = String(p).split(/[\\/]/).pop().replace(/\.exe$/i, ''); return n || String(p); };
+            const persistNoteApps = () => {
+                if (!isDesktop) return;
+                invoke('set_app_config', { key: 'note_apps', value: JSON.stringify(noteApps) }).catch(() => {});
+                invoke('set_app_config', { key: 'note_app_default', value: noteAppDefault }).catch(() => {});
+            };
+            const renderNoteApps = () => {
+                const list = $('noteAppsList');
+                const status = $('noteAppStatus');
+                if (status) {
+                    const def = noteApps.find((a) => a.id === noteAppDefault);
+                    status.textContent = def ? 'Default: ' + def.name : '';
+                }
+                if (!list) return;
+                list.innerHTML = noteApps.length ? noteApps.map((app) => {
+                    const isDefault = app.id === noteAppDefault;
+                    return `<div class="notes-app-item${isDefault ? ' is-default' : ''}">
+                        <div class="notes-app-info">
+                            <span class="notes-app-name">${escapeHtml(app.name)}${isDefault ? '<span class="notes-app-default-tag">Default</span>' : ''}</span>
+                            <span class="notes-app-path" title="${escapeHtml(app.path)}">${escapeHtml(app.path)}</span>
+                        </div>
+                        <div class="notes-app-actions">
+                            <button type="button" class="notes-launch-btn" data-app-launch="${app.id}" title="Launch this app">▶</button>
+                            <button type="button" class="notes-launch-btn" data-app-default="${app.id}" title="Set as default">★</button>
+                            <button type="button" class="notes-launch-btn" data-app-remove="${app.id}" title="Remove this app">✕</button>
+                        </div>
+                    </div>`;
+                }).join('') : '';
+            };
+            const runAppPath = async (path) => {
+                try { showToast(await invoke('launch_note_app', { path }) || 'Launched'); return true; }
+                catch (e) { showToast('Launch failed: ' + e); return false; }
+            };
+            const appsList = $('noteAppsList');
+            if (appsList) appsList.addEventListener('click', (event) => {
+                const lb = event.target.closest('[data-app-launch]');
+                if (lb) { const a = noteApps.find((x) => x.id === lb.dataset.appLaunch); if (a) runAppPath(a.path); return; }
+                const db = event.target.closest('[data-app-default]');
+                if (db) { noteAppDefault = db.dataset.appDefault; persistNoteApps(); renderNoteApps(); return; }
+                const rb = event.target.closest('[data-app-remove]');
+                if (rb) {
+                    const id = rb.dataset.appRemove;
+                    noteApps = noteApps.filter((x) => x.id !== id);
+                    if (noteAppDefault === id) noteAppDefault = '';
+                    persistNoteApps(); renderNoteApps();
+                }
+            });
+            const quickBtn = $('btnNoteAppQuick');
+            if (quickBtn) quickBtn.addEventListener('click', () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                const app = noteApps.find((a) => a.id === noteAppDefault) || noteApps[0];
+                if (!app) { showToast('Save a notes app first'); const inp = $('noteAppPath'); if (inp) inp.focus(); return; }
+                runAppPath(app.path);
+            });
             const appPath = $('noteAppPath');
             if (appPath) {
                 if (isDesktop) {
                     invoke('get_app_config', { key: 'note_app_path' })
                         .then((v) => { if (v != null && v !== '') appPath.value = String(v); })
                         .catch(() => {});
+                    invoke('get_app_config', { key: 'note_apps' })
+                        .then((v) => { if (v) { try { const arr = JSON.parse(String(v)); if (Array.isArray(arr)) noteApps = arr; } catch (e) {} } })
+                        .catch(() => {})
+                        .then(() => invoke('get_app_config', { key: 'note_app_default' }))
+                        .then((d) => { if (d != null && d !== '') noteAppDefault = String(d); })
+                        .catch(() => {})
+                        .finally(() => renderNoteApps());
                 }
                 appPath.addEventListener('change', () => {
                     const val = appPath.value.trim();
                     if (isDesktop && val) invoke('set_app_config', { key: 'note_app_path', value: val }).catch(() => {});
                 });
             }
+            const pickBtn = $('btnNoteAppPick');
+            if (pickBtn) pickBtn.addEventListener('click', async () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                try {
+                    const p = await invoke('pick_note_app');
+                    if (p) {
+                        const inp = $('noteAppPath');
+                        if (inp) inp.value = String(p);
+                        invoke('set_app_config', { key: 'note_app_path', value: String(p) }).catch(() => {});
+                        showToast('Notes app selected');
+                    }
+                } catch (e) { showToast('Pick failed: ' + e); }
+            });
+            const saveBtn = $('btnNoteAppSave');
+            if (saveBtn) saveBtn.addEventListener('click', () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                const path = (($('noteAppPath') || {}).value || '').trim();
+                if (!path) { showToast('Enter a notes app path first'); return; }
+                if (noteApps.some((a) => a.path.toLowerCase() === path.toLowerCase())) { showToast('Already saved'); return; }
+                const id = 'app' + Date.now().toString(36);
+                noteApps.push({ id, name: noteAppName(path), path });
+                if (!noteAppDefault) noteAppDefault = id;
+                persistNoteApps(); renderNoteApps();
+                showToast('Notes app saved');
+            });
             const launchBtn = $('btnNoteAppLaunch');
             if (launchBtn) launchBtn.addEventListener('click', async () => {
                 if (!isDesktop) { showToast('Desktop only'); return; }
@@ -7693,12 +7790,7 @@
                     if (inp) inp.focus();
                     return;
                 }
-                try {
-                    const res = await invoke('launch_note_app', { path });
-                    showToast(res || 'Launched');
-                } catch (e) {
-                    showToast('Launch failed: ' + e);
-                }
+                runAppPath(path);
             });
             // 笔记导出目录（留空 = 下载文件夹；可输入路径或用系统选择器挑选）
             const exportDir = $('noteExportDir');
@@ -9720,6 +9812,7 @@
             { match: 'settings', label: 'Interface Settings', desc: 'Open app settings', action: 'settings', icon: ICONS.sliders },
             { match: 'myfiles', label: 'My Files', desc: 'Open file sharing workspace', action: 'myfiles', icon: ICONS.files },
             { match: 'software', label: 'Software', desc: 'Open software downloads', view: 'software', icon: ICONS.software },
+            { match: 'note', label: 'Notes', desc: 'Open daily notes workspace', view: 'notes', icon: ICONS.note },
             { match: 'badges', label: 'Achievements', desc: 'Open the achievement gallery', view: 'badges', icon: ICONS.badge },
             { match: 'dev', label: 'Developer Panel', desc: 'Open the developer console', view: 'dev', icon: ICONS.code },
             { match: 'github', label: 'GitHub', desc: 'Open GitHub in a tab', url: 'https://github.com/Helloxiaolaodi', icon: ICONS.github, quick: true },
@@ -9969,7 +10062,7 @@
             $('shortcutSearch').addEventListener('change', () => saveShortcut('search', 'shortcutSearch'));
             $('shortcutDev').addEventListener('change', () => saveShortcut('dev', 'shortcutDev'));
             $('shortcutReset').addEventListener('click', resetShortcutSettings);
-            $('feedbackSave').addEventListener('click', saveFeedbackSettings);
+            $('feedbackSend').addEventListener('click', sendFeedbackSettings);
             $('koFiBtn').addEventListener('click', () => openUrl('https://ko-fi.com/helloxiaolaodi', 'Ko-fi'));
             $('wechatBtn').addEventListener('click', showWechatQr);
             $('languageSelect').addEventListener('change', () => {

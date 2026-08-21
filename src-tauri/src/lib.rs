@@ -183,8 +183,7 @@ pub fn run() {
             commands::set_bg_config,
             commands::save_bookmarks_export,
             commands::fetch_portal_links,
-            commands::save_feedback,
-            commands::get_feedback,
+            commands::send_feedback_email,
             commands::get_wechat_qr,
             commands::get_browser_config,
             commands::open_url,
@@ -229,6 +228,7 @@ pub fn run() {
             commands::hide_main_window,
             commands::launch_note_app,
             commands::pick_folder,
+            commands::pick_note_app,
             commands::open_in_explorer,
             commands::save_notes_export,
         ]);

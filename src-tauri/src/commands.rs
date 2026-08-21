@@ -715,15 +715,10 @@ fn make_recovery_code(email: &str) -> String {
 /// 内嵌应用图标（构建期打包），邮件模板中以 data URI 展示真实 logo，替代字母占位。
 const APP_ICON_PNG: &[u8] = include_bytes!("../icons/128x128.png");
 
-/// 通过 Resend API 发送验证码邮件。API Key 由开发者构建时注入（RESEND_API_KEY
-/// 环境变量，编译期固化进二进制），最终用户无需任何邮件配置。
-fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String> {
-    use base64::Engine as _;
-    let icon_b64 = base64::engine::general_purpose::STANDARD.encode(APP_ICON_PNG);
-    let subject = "AlpeHuez 安全验证码";
-    let html = RECOVERY_EMAIL_TEMPLATE
-        .replace("__CODE__", code)
-        .replace("__ICON__", &format!("data:image/png;base64,{}", icon_b64));
+/// 通过 Resend API 发送 HTML 邮件（找回验证码 / 用户反馈共用）。
+/// API Key 由开发者构建时注入（RESEND_API_KEY 环境变量，编译期固化进二进制），
+/// 最终用户无需任何邮件配置。
+fn resend_send(api_key: &str, to: &str, subject: &str, html: &str) -> Result<(), String> {
     let payload = serde_json::json!({
         "from": "AlpeHuez <admin@20211003.xyz>",
         "to": [to],
@@ -745,6 +740,17 @@ fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String
         return Err(format!("HTTP {}", detail));
     }
     Ok(())
+}
+
+/// 通过 Resend API 发送验证码邮件。
+fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String> {
+    use base64::Engine as _;
+    let icon_b64 = base64::engine::general_purpose::STANDARD.encode(APP_ICON_PNG);
+    let subject = "AlpeHuez 安全验证码";
+    let html = RECOVERY_EMAIL_TEMPLATE
+        .replace("__CODE__", code)
+        .replace("__ICON__", &format!("data:image/png;base64,{}", icon_b64));
+    resend_send(api_key, to, subject, &html)
 }
 
 /// 深色液态玻璃 / 极客风验证码邮件模板。`__CODE__` 占位符在发送前替换为 6 位验证码。
@@ -1287,37 +1293,72 @@ pub async fn set_bg_config(app: tauri::AppHandle, config: Value) -> Result<(), S
     fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
 }
 
-#[tauri::command]
-pub async fn save_feedback(app: tauri::AppHandle, text: String) -> Result<(), String> {
-    let file = config_file(&app)?;
-    let mut v = if file.exists() {
-        let content = fs::read_to_string(&file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}))
-    } else {
-        serde_json::json!({})
-    };
-    if !v.is_object() {
-        v = serde_json::json!({});
-    }
-    v.as_object_mut()
-        .expect("刚构造的对象")
-        .insert("feedback".into(), serde_json::Value::String(text.trim().to_string()));
-    fs::write(&file, to_pretty_4(&v) + "\n").map_err(|e| e.to_string())
+/// 用户反馈邮件接收方：开发者邮箱（与旧版 mailto 目标一致）。
+const DEVELOPER_FEEDBACK_EMAIL: &str = "yangsanduo2025@gmail.com";
+
+/// HTML 转义，反馈文本进入邮件模板前先转义，防止邮件内容被注入标签。
+fn escape_html(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
 }
 
+/// 深色玻璃风用户反馈邮件模板。`__ICON__` 为应用图标 data URI，`__TEXT__` 为转义后的反馈正文。
+const FEEDBACK_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background-color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;padding:40px 16px;">
+    <tr><td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background-color:#232323;border-radius:16px;overflow:hidden;border:1px solid #333;">
+        <tr><td align="center" style="padding:26px 24px 10px;">
+          <img src="__ICON__" width="48" height="48" alt="AlpeHuez" style="display:block;border-radius:12px;width:48px;height:48px;">
+        </td></tr>
+        <tr><td align="center" style="padding:0 24px;">
+          <h1 style="margin:0;color:#ffffff;font-size:20px;">AlpeHuez 用户反馈</h1>
+        </td></tr>
+        <tr><td style="padding:18px 24px;">
+          <p style="margin:0;color:#d8d8d8;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;">__TEXT__</p>
+        </td></tr>
+        <tr><td style="padding:0 24px 22px;">
+          <p style="margin:0;color:#777;font-size:12px;">来自 AlpeHuez 桌面应用设置页的直接反馈</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+"#;
+
+/// 把设置页里的反馈文本直接发送到开发者邮箱（Resend，构建期注入 API Key）。
+/// 不保存到本地、不拉起用户邮件客户端。
 #[tauri::command]
-pub async fn get_feedback(app: tauri::AppHandle) -> Result<String, String> {
-    let file = config_file(&app)?;
-    if file.exists() {
-        let content = fs::read_to_string(&file).map_err(|e| e.to_string())?;
-        let v: Value = serde_json::from_str(&content).map_err(|e| e.to_string())?;
-        return Ok(v
-            .get("feedback")
-            .and_then(|f| f.as_str())
-            .unwrap_or("")
-            .to_string());
+pub async fn send_feedback_email(text: String) -> Result<(), String> {
+    let text = text.trim().to_string();
+    if text.is_empty() {
+        return Err("反馈内容不能为空".into());
     }
-    Ok(String::new())
+    tauri::async_runtime::spawn_blocking(move || {
+        let key = option_env!("RESEND_API_KEY").map(str::trim).filter(|s| !s.is_empty());
+        match key {
+            Some(k) => {
+                use base64::Engine as _;
+                let icon_b64 = base64::engine::general_purpose::STANDARD.encode(APP_ICON_PNG);
+                let html = FEEDBACK_EMAIL_TEMPLATE
+                    .replace("__TEXT__", &escape_html(&text))
+                    .replace("__ICON__", &format!("data:image/png;base64,{}", icon_b64));
+                resend_send(k, DEVELOPER_FEEDBACK_EMAIL, "AlpeHuez 用户反馈", &html)
+            }
+            None => Err("邮件服务不可用，请稍后再试".into()),
+        }
+    })
+    .await
+    .map_err(|e| format!("邮件发送任务失败：{}", e))?
 }
 
 #[tauri::command]
@@ -2464,10 +2505,35 @@ pub fn pick_folder(app: tauri::AppHandle, title: Option<String>) -> Result<Optio
     }
 }
 
+/// 系统原生文件选择器（Windows 用 PowerShell 的 OpenFileDialog，零新增依赖）。
+/// 用于挑选笔记软件 exe 等可执行文件；取消返回 None。桌面版专用，移动端返回 None。
+#[tauri::command]
+pub fn pick_note_app() -> Result<Option<String>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let script = r#"
+Add-Type -AssemblyName System.Windows.Forms
+$f = New-Object System.Windows.Forms.OpenFileDialog
+$f.Filter = "Executable (*.exe)|*.exe|All files (*.*)|*.*"
+$f.Title = "选择笔记软件"
+if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Output $f.FileName }
+"#;
+        let out = std::process::Command::new("powershell")
+            .args(["-NoProfile", "-WindowStyle", "Hidden", "-Command", script])
+            .output()
+            .map_err(|e| format!("无法打开文件选择器: {e}"))?;
+        let text = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        Ok(if text.is_empty() { None } else { Some(text) })
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Ok(None)
+    }
+}
+
 /// 在资源管理器中打开指定目录（路径指向文件时打开其所在目录）。桌面版专用。
 #[tauri::command]
-pub fn open_in_explorer(app: tauri::AppHandle, path: String) -> Result<(), String> {
-    #[cfg(target_os = "windows")]
+pub fn open_in_explorer(app: tauri::AppHandle, path: String) -> Result<(), String> {    #[cfg(target_os = "windows")]
     {
         let _ = &app;
         let p = path.trim();

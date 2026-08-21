@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-send-feedback-email"
+description = "Enables the send_feedback_email command without any pre-configured scope."
+commands.allow = ["send_feedback_email"]
+
+[[permission]]
+identifier = "deny-send-feedback-email"
+description = "Denies the send_feedback_email command without any pre-configured scope."
+commands.deny = ["send_feedback_email"]

@@ -37,8 +37,7 @@
     "allow-set-bg-config",
     "allow-save-bookmarks-export",
     "allow-fetch-portal-links",
-    "allow-save-feedback",
-    "allow-get-feedback",
+    "allow-send-feedback-email",
     "allow-get-wechat-qr",
     "allow-get-browser-config",
     "allow-open-url",
@@ -64,6 +63,7 @@
     "allow-get-app-config",
     "allow-set-app-config",
     "allow-pick-folder",
+    "allow-pick-note-app",
     "allow-open-in-explorer",
     "allow-save-notes-export"
   ]

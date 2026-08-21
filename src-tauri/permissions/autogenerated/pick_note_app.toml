@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pick-note-app"
+description = "Enables the pick_note_app command without any pre-configured scope."
+commands.allow = ["pick_note_app"]
+
+[[permission]]
+identifier = "deny-pick-note-app"
+description = "Denies the pick_note_app command without any pre-configured scope."
+commands.deny = ["pick_note_app"]
