@@ -130,6 +130,34 @@ const CHILD_KEY_JS: &str = r#"(function () {
   document.addEventListener('click', routeBlankTarget, true);
 })();"#;
 
+const READY_JS: &str = r#"(function () {
+  var attempts = 0;
+  function emitReady() {
+    var tauriEvent = window.__TAURI__ && window.__TAURI__.event;
+    if (!tauriEvent || typeof tauriEvent.emitTo !== 'function') return false;
+    try {
+      tauriEvent.emitTo('main', 'alpehuez-dom-ready', {
+        label: window.__ALPEHUEZ_PAGE_LABEL__ || '',
+        readyState: document.readyState,
+        href: location.href
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function tryEmit() {
+    if (attempts > 80) return;
+    attempts++;
+    if (!emitReady() && typeof setTimeout === 'function') setTimeout(tryEmit, 25);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(tryEmit, 0); }, { once: true });
+  } else {
+    setTimeout(tryEmit, 0);
+  }
+})();"#;
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScriptResult {
@@ -466,9 +494,19 @@ pub async fn git_log() -> Result<Vec<GitLogEntry>, String> {
 }
 
 /// 系统资源：CPU / 内存 / 磁盘（分段进度条用）。
-/// 只加载 CPU/内存（不枚举全部进程），避免 System::new_all() 卡顿。
+/// 与顶部挂件共用 velometer 轮询的同一份快照（单一数据源），保证读数完全一致。
 #[tauri::command]
 pub async fn sys_stats() -> Result<SysStats, String> {
+    if let Some(snap) = crate::velometer::last_snapshot() {
+        return Ok(SysStats {
+            cpu: snap.cpu,
+            mem_used: snap.mem_used,
+            mem_total: snap.mem_total,
+            disk_used: snap.disk_used,
+            disk_total: snap.disk_total,
+        });
+    }
+    // velometer 尚未产出第一份快照（极早期）：兜底做一次即时读取。
     use sysinfo::{CpuRefreshKind, Disks, MemoryRefreshKind, RefreshKind, System};
     let mut sys = System::new_with_specifics(
         RefreshKind::new()
@@ -746,16 +784,16 @@ fn resend_send(api_key: &str, to: &str, subject: &str, html: &str) -> Result<(),
 fn send_recovery_email(api_key: &str, to: &str, code: &str) -> Result<(), String> {
     use base64::Engine as _;
     let icon_b64 = base64::engine::general_purpose::STANDARD.encode(APP_ICON_PNG);
-    let subject = "AlpeHuez 安全验证码";
+    let subject = "AlpeHuez Security Code";
     let html = RECOVERY_EMAIL_TEMPLATE
         .replace("__CODE__", code)
         .replace("__ICON__", &format!("data:image/png;base64,{}", icon_b64));
     resend_send(api_key, to, subject, &html)
 }
 
-/// 深色液态玻璃 / 极客风验证码邮件模板。`__CODE__` 占位符在发送前替换为 6 位验证码。
+/// 深色液态玻璃 / 极客风验证码邮件模板（英文）。`__CODE__` 占位符在发送前替换为 6 位验证码。
 const RECOVERY_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -772,12 +810,12 @@ const RECOVERY_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">AlpeHuez 安全验证码</h1>
+              <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">AlpeHuez Security Code</h1>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:24px;">
-              <p style="margin:0;font-size:13px;line-height:1.7;color:#9B94AD;">你的 AlpeHuez 找回密码验证码已生成，10 分钟内有效。</p>
+              <p style="margin:0;font-size:13px;line-height:1.7;color:#9B94AD;">Your AlpeHuez password recovery code is ready. It expires in 10 minutes.</p>
             </td>
           </tr>
           <tr>
@@ -787,12 +825,12 @@ const RECOVERY_EMAIL_TEMPLATE: &str = r#"<!DOCTYPE html>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:24px;">
-              <p style="margin:0;font-size:12px;line-height:1.7;color:#9B94AD;">如果不是你本人操作，请忽略本邮件，并检查你的账户安全。</p>
+              <p style="margin:0;font-size:12px;line-height:1.7;color:#9B94AD;">If you did not request this, ignore this email and review the security of your account.</p>
             </td>
           </tr>
           <tr>
             <td align="center">
-              <p style="margin:0;font-size:11px;color:#64748b;">AlpeHuez · 20211003.xyz</p>
+              <p style="margin:0;font-size:11px;color:#64748b;">AlpeHuez</p>
             </td>
           </tr>
         </table>
@@ -826,18 +864,20 @@ pub fn open_password_recovery(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 /// 校验找回邮箱并生成 6 位验证码，通过 Resend 真实发送到该邮箱。
+/// 收件人直接用设置里预留的找回邮箱，前端不再传参。
 /// 发送成功才返回 Ok；未配置/发送失败只报错，验证码不暴露给前端。
 #[tauri::command]
-pub async fn request_password_recovery(app: tauri::AppHandle, email: String) -> Result<(), String> {
-    let email = email.trim().to_string();
+pub async fn request_password_recovery(app: tauri::AppHandle) -> Result<(), String> {
     let file = config_file(&app)?;
     let v = read_config_value(&file);
-    let stored = v.get("recovery_email").and_then(|e| e.as_str()).unwrap_or("");
-    if stored.is_empty() {
+    let email = v
+        .get("recovery_email")
+        .and_then(|e| e.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if email.is_empty() {
         return Err("尚未设置找回邮箱，无法找回密码。请在设置中填写找回邮箱".into());
-    }
-    if stored != email {
-        return Err("邮箱与预留的找回邮箱不一致".into());
     }
     let code = make_recovery_code(&email);
     let expires = std::time::SystemTime::now()
@@ -1728,7 +1768,11 @@ fn open_internal_page_impl(
     let title_label = label.clone();
     let title_url = url.clone();
     let open_app = app.clone();
-    let child_script = format!("{}\n{}", ADBLOCK_JS, CHILD_KEY_JS);
+    let label_js = format!(
+        "window.__ALPEHUEZ_PAGE_LABEL__ = {};",
+        serde_json::to_string(&label).unwrap_or_else(|_| "\"\"".into())
+    );
+    let child_script = format!("{}\n{}\n{}\n{}", ADBLOCK_JS, label_js, CHILD_KEY_JS, READY_JS);
 
     let builder = WebviewBuilder::new(label.clone(), WebviewUrl::External(parsed))
         .data_directory(session_dir)

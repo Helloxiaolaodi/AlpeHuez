@@ -1,6 +1,15 @@
+use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use sysinfo::{CpuRefreshKind, MemoryRefreshKind, Networks, ProcessRefreshKind, RefreshKind, System};
 use tauri::Emitter;
+
+/// 单一数据源：velometer 每次轮询写入最新快照，sys_stats / 面板 / 挂件都从这里取值，
+/// 保证全软件 CPU / 内存 / 磁盘读数完全一致。
+static LAST_SNAPSHOT: OnceLock<Mutex<Option<VelometerData>>> = OnceLock::new();
+
+pub fn last_snapshot() -> Option<VelometerData> {
+    LAST_SNAPSHOT.get().and_then(|m| m.lock().ok()?.clone())
+}
 
 #[derive(serde::Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -25,6 +34,7 @@ pub struct VelometerData {
 }
 
 pub fn spawn(app: tauri::AppHandle) {
+    let _ = LAST_SNAPSHOT.set(Mutex::new(None));
     std::thread::spawn(move || {
         let mut sys = System::new_with_specifics(
             RefreshKind::new()
@@ -87,6 +97,11 @@ pub fn spawn(app: tauri::AppHandle) {
                 net_down_bps: (net_down as f32 / dt) as u64,
                 processes,
             };
+            if let Some(m) = LAST_SNAPSHOT.get() {
+                if let Ok(mut g) = m.lock() {
+                    *g = Some(data.clone());
+                }
+            }
             let _ = app.emit("velometer-update", data);
             let elapsed = tick_start.elapsed();
             std::thread::sleep(Duration::from_millis(1500).saturating_sub(elapsed));

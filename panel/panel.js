@@ -45,8 +45,7 @@ const LOCALES = {
   zh: {
     appName: 'AlpeHuez 开发者面板', appSub: 'AlpeHuez · 本地内容管理', connected: '已连接', uncommitted: '待推送',
     preview: '预览网站 ↗', navCards: '导航卡片', myFiles: 'My Files', deploy: '部署',
-    navDesc: '管理首页的网址卡片与分组，保存后自动写入 links.json',
-    recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存',
+    recompute: '重新计算标签 / VPN', downloadIcons: '下载图标', save: '保存', more: '更多操作',
     importBookmarks: '导入书签 HTML', exportBookmarks: '导出书签 HTML', restorePortal: '恢复 Portal 最新内容',
     noBookmarks: '未找到可导入的书签链接', importedCount: '已导入 {n} 个书签（跳过 {dup} 个重复）', importFailed: '导入失败：',
     importedGroup: '导入的书签', noLinksToExport: '没有可导出的网址卡片',
@@ -54,7 +53,7 @@ const LOCALES = {
     currentGroup: '当前分组', newGroup: '新建分组', rename: '重命名', delete: '删除',
     noCards: '该分组还没有卡片', noMatch: '没有匹配的卡片', newCard: '新建卡片',
     myfilesDesc: '管理文件浏览器中的文件夹与文件，保存后自动写入 data.json',
-    folders: '文件夹', new: '新建', files: '文件', newFile: '新建文件', noFiles: '该文件夹还没有文件',
+    folders: '文件夹', new: '+ 新建', files: '文件', newFile: '+ 新建文件', noFiles: '该文件夹还没有文件',
     deployDesc: '提交并推送到 GitHub，Cloudflare Pages 会自动发布',
     workspaces: '工作台', workspacesDesc: '管理车队工作台：增删改工作台、调整车手能力值（specialties）', newWorkspace: '新建工作台',
     repoStatus: '仓库状态', branch: '分支', lastCommit: '最近提交',
@@ -122,8 +121,7 @@ const LOCALES = {
   en: {
     appName: 'AlpeHuez Dev Panel', appSub: 'AlpeHuez · Local Content Manager', connected: 'Connected', uncommitted: 'Uncommitted',
     preview: 'Preview Site ↗', navCards: 'Nav Cards', myFiles: 'My Files', deploy: 'Deploy',
-    navDesc: 'Manage nav cards & groups. Saved to links.json',
-    recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save',
+    recompute: 'Recompute Tags / VPN', downloadIcons: 'Download Icons', save: 'Save', more: 'More actions',
     importBookmarks: 'Import bookmarks', exportBookmarks: 'Export bookmarks', restorePortal: 'Restore from Portal',
     noBookmarks: 'No valid bookmark links found', importedCount: 'Imported {n} bookmarks (skipped {dup} duplicates)', importFailed: 'Import failed: ',
     importedGroup: 'Imported Bookmarks', noLinksToExport: 'Nothing to export',
@@ -131,7 +129,7 @@ const LOCALES = {
     currentGroup: 'Current Group', newGroup: 'New Group', rename: 'Rename', delete: 'Delete',
     noCards: 'No cards in this group yet', noMatch: 'No matching cards', newCard: 'New Card',
     myfilesDesc: 'Manage folders & files in the file explorer. Saved to data.json',
-    folders: 'Folders', new: 'New', files: 'Files', newFile: 'New File', noFiles: 'No files in this folder yet',
+    folders: 'Folders', new: '+ New', files: 'Files', newFile: '+ New File', noFiles: 'No files in this folder yet',
     deployDesc: 'Commit & push to GitHub. Cloudflare Pages auto-deploys',
     workspaces: 'Workspaces', workspacesDesc: 'Manage team workspaces: add/edit/delete workspaces and adjust rider specialties', newWorkspace: 'New Workspace',
     repoStatus: 'Repo Status', branch: 'Branch', lastCommit: 'Last Commit',
@@ -436,6 +434,14 @@ function errText(e) {
   return String(e);
 }
 
+// 红色警示条（Alert）：异常状态第一秒就能被察觉。
+function errorBanner(text) {
+  return `<div class="alert alert-error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <span>${text}</span>
+  </div>`;
+}
+
 function appendLog(text) {
   const el = $('#logArea');
   if (el.textContent === '—') el.textContent = '';
@@ -453,6 +459,10 @@ if (isDesktop && window.__TAURI__.event && typeof window.__TAURI__.event.listen 
     block.innerHTML = `<div class="deploy-block-head">${escapeHtml(phase)}</div><pre>${escapeHtml(text)}</pre>`;
     $('#logArea').appendChild(block);
     $('#logArea').scrollTop = $('#logArea').scrollHeight;
+  });
+  // 与顶部挂件同源（velometer 单一数据源广播），系统资源读数实时同步。
+  window.__TAURI__.event.listen('velometer-update', (e) => {
+    renderSysStats(e.payload || {});
   });
 }
 
@@ -974,19 +984,22 @@ function setBar(sel, pct) {
   bar.classList.toggle('danger', pct >= 85);
 }
 
+function renderSysStats(s) {
+  if (!s) return;
+  const cpu = Math.round(s.cpu);
+  const memPct = s.memTotal ? Math.round((s.memUsed / s.memTotal) * 100) : 0;
+  const diskPct = s.diskTotal ? Math.round((s.diskUsed / s.diskTotal) * 100) : 0;
+  $('#cpuVal').textContent = cpu + '%';
+  $('#memVal').textContent = memPct + '%';
+  $('#diskVal').textContent = diskPct + '%';
+  setBar('#cpuBar', cpu);
+  setBar('#memBar', memPct);
+  setBar('#diskBar', diskPct);
+}
+
 async function loadSysStats() {
   try {
-    const s = await api('/api/sys-stats');
-    if (!s) return;
-    const cpu = Math.round(s.cpu);
-    const memPct = s.memTotal ? Math.round((s.memUsed / s.memTotal) * 100) : 0;
-    const diskPct = s.diskTotal ? Math.round((s.diskUsed / s.diskTotal) * 100) : 0;
-    $('#cpuVal').textContent = cpu + '%';
-    $('#memVal').textContent = memPct + '%';
-    $('#diskVal').textContent = diskPct + '%';
-    setBar('#cpuBar', cpu);
-    setBar('#memBar', memPct);
-    setBar('#diskBar', diskPct);
+    renderSysStats(await api('/api/sys-stats'));
   } catch (e) { /* 静默：桌面模式才可用 */ }
 }
 
@@ -1007,7 +1020,7 @@ async function loadGitTimeline() {
     tlPage = 0;
     renderTimelinePage();
   } catch (e) {
-    el.innerHTML = `<div class="muted">${t('timelineError')}${escapeHtml(e.message)}</div>`;
+    el.innerHTML = errorBanner(t('timelineError') + escapeHtml(e.message));
     $('#tlPager').innerHTML = '';
   }
 }
@@ -1023,7 +1036,7 @@ function renderTimelinePage() {
     <div class="tl-item ${start + i === 0 ? 'latest' : ''}">
       <div class="tl-node"></div>
       <div class="tl-body">
-        <div class="tl-msg">${escapeHtml(c.message)}</div>
+        <div class="tl-msg" title="${escapeHtml(c.message)}">${escapeHtml(c.message)}</div>
         <div class="tl-meta"><code>${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
       </div>
     </div>`).join('');
@@ -1058,7 +1071,8 @@ async function loadGitStatus() {
     statusDirty = changes.length > 0;
     setStatusLabel();
     $('#serverStatus').classList.toggle('dirty', statusDirty);
-    $('#deployBadge').classList.toggle('show', statusDirty);
+    const badge = $('#deployBadge');
+    if (badge) badge.classList.toggle('show', statusDirty);
     const el = $('#gitChanges');
     if (!changes.length) {
       el.innerHTML = `<div class="muted">${t('clean')}</div>`;
@@ -1070,7 +1084,7 @@ async function loadGitStatus() {
       }).join('');
     }
   } catch (e) {
-    $('#gitChanges').innerHTML = `<div class="muted">${t('gitError')}${escapeHtml(e.message)}</div>`;
+    $('#gitChanges').innerHTML = errorBanner(t('gitError') + escapeHtml(e.message));
   }
 }
 
@@ -1600,6 +1614,22 @@ $('#btnSaveLinks').onclick = async () => {
 $('#btnDownloadIcons').onclick = () => runScript('download_icons', $('#btnDownloadIcons'), t('iconsDone'));
 $('#btnEnhance').onclick = () => runScript('enhance_links', $('#btnEnhance'), t('enhanceDone'));
 
+/* 顶部「⋯」更多菜单：打开 / 外部点击关闭 / 点击选项后关闭 */
+const moreMenu = $('#moreMenu');
+const moreBtn = $('#btnMoreMenu');
+if (moreMenu && moreBtn) {
+  moreBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = moreMenu.hidden;
+    moreMenu.hidden = !open;
+    moreBtn.classList.toggle('open', open);
+  });
+  document.addEventListener('click', () => { moreMenu.hidden = true; moreBtn.classList.remove('open'); });
+  moreMenu.addEventListener('click', (e) => {
+    if (e.target.closest('.c-dd-option')) { moreMenu.hidden = true; moreBtn.classList.remove('open'); }
+  });
+}
+
 $('#folderList').addEventListener('click', async (e) => {
   const delBtn = e.target.closest('[data-fdel]');
   if (delBtn) {
@@ -1816,49 +1846,8 @@ async function initAuth() {
   pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
 }
 
-/* ---------- 修改密码 / 设置找回邮箱（仅桌面应用） ---------- */
-$('#btnChangePwd').addEventListener('click', async () => {
-  let currentEmail = '';
-  try {
-    currentEmail = await window.__TAURI__.core.invoke('get_access_email');
-  } catch (e) { /* 读取失败按空处理 */ }
-  openModal(t('changePwdTitle'), [
-    { key: 'old', label: t('oldPassword'), type: 'password', required: false },
-    { key: 'new', label: t('newPassword'), type: 'password', required: false },
-    { key: 'confirm', label: t('confirmPassword'), type: 'password', required: false },
-    { key: 'email', label: t('recoverEmail'), type: 'text', value: currentEmail, required: false, hint: t('recoverEmailHint') },
-  ], async (values) => {
-    const hasOld = !!(values.old && values.old.trim());
-    const hasNew = !!(values.new && values.new.trim());
-    const email = (values.email || '').trim();
-    if ((hasOld || hasNew) && !(hasOld && hasNew)) {
-      toast(t('pwdFillBoth'), 'error');
-      return;
-    }
-    if (!hasOld && !hasNew && !email) {
-      toast(t('pwdFillBoth'), 'error');
-      return;
-    }
-    if (hasNew && values.new !== values.confirm) {
-      toast(t('pwdMismatch'), 'error');
-      return;
-    }
-    try {
-      if (hasOld && hasNew) {
-        await window.__TAURI__.core.invoke('change_password', { old: values.old, new: values.new });
-      }
-      if (email) {
-        await window.__TAURI__.core.invoke('set_access_email', { email });
-      }
-      toast(t('pwdChanged'), 'success');
-    } catch (e) {
-      toast(errText(e) || t('oldPwdWrong'), 'error');
-    }
-  });
-});
-
-/* ---------- My Files 网页访问密码（本地保存 + Cloudflare 后台手动同步） ---------- */
-$('#btnMyfilesPassword').addEventListener('click', async () => {
+/* ---------- 访问密码（Developer Panel 与 My Files 共用同一密码：统一窗口流程） ---------- */
+async function openAccessPwdModal() {
   let current = '';
   try {
     const res = await api('/api/myfiles-password');
@@ -1875,7 +1864,7 @@ $('#btnMyfilesPassword').addEventListener('click', async () => {
     }
     try {
       await api('/api/myfiles-password', { method: 'POST', body: JSON.stringify({ password: values.new }) });
-      toast(t('myfilesPwdSaved'), 'success');
+      toast(t('pwdChanged'), 'success');
       openModal(t('myfilesPwdNextTitle'), [
         { key: 'copy', label: t('myfilesPwdCopy'), type: 'text', value: values.new },
         { key: 'steps', label: '', type: 'textarea', rows: 8, value: t('myfilesPwdSteps').replace('{pwd}', values.new), required: false },
@@ -1884,7 +1873,10 @@ $('#btnMyfilesPassword').addEventListener('click', async () => {
       toast(e.message || t('myfilesPwdFailed'), 'error');
     }
   });
-});
+}
+
+$('#btnChangePwd').addEventListener('click', openAccessPwdModal);
+$('#btnMyfilesPassword').addEventListener('click', openAccessPwdModal);
 
 /* 公网展示版：面板为开发者私有工具，不加载任何数据，只显示锁定空状态。 */
 function showWebLock() {

@@ -374,6 +374,17 @@ body.dev-embedded::before { background: transparent; }
 .c-dd-option:hover, .c-dd-option.selected { background: var(--accent-soft); color: var(--text); }
 .sw-toolbar .c-dd { flex: 0 0 220px; }
 
+/* 顶部「⋯」更多菜单 */
+.more-trigger {
+  width: auto; min-width: 0; justify-content: center;
+  background: var(--glass-bg-solid); color: var(--text-2);
+  border-color: var(--border-strong); border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.more-trigger:hover { color: var(--text); background: var(--hover); }
+.more-trigger .more-dots { font-size: 16px; line-height: 1; letter-spacing: 0.08em; }
+.more-menu { min-width: 210px; left: auto; right: 0; }
+
 /* ---------- Card list ---------- */
 .card-list { display: flex; flex-direction: column; gap: 8px; }
 .card-item {
@@ -445,16 +456,20 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
 .web-lock-title { font-size: 15px; font-weight: 700; color: var(--text); }
 .web-lock-sub { font-size: 13px; opacity: 0.8; }
 
-/* ---------- My Files ---------- */
-.myfiles-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+/* ---------- My Files（无缝双分栏 Split-Pane） ---------- */
+.myfiles-layout { display: grid; grid-template-columns: minmax(230px, 30%) 1fr; gap: 0; align-items: stretch; min-width: 0; }
 .folder-col, .file-col {
-  background: var(--glass-bg-solid);
-  border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  background: transparent;
+  border: none; border-radius: 0; box-shadow: none;
+  min-width: 0;
 }
+.folder-col { border-right: 1px solid var(--border); padding-right: 18px; }
+.file-col { padding-left: 18px; }
 .col-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  padding: 12px 4px; border-bottom: 1px solid var(--border);
 }
+.col-head .btn { flex-shrink: 0; }
 .col-title { font-weight: 600; font-size: 13.5px; }
 .folder-list, .file-list { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
 .folder-item {
@@ -503,6 +518,21 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
 .git-changes .change-line .st.?? { color: var(--accent); }
 .hint { font-size: 12px; color: var(--text-3); margin-top: 10px; }
 
+/* ---------- Alert（异常状态警示条） ---------- */
+.alert {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  font-size: 12.5px; line-height: 1.5; font-family: var(--font);
+}
+.alert svg { flex-shrink: 0; width: 15px; height: 15px; margin-top: 1px; }
+.alert span { min-width: 0; word-break: break-word; }
+.alert-error {
+  background: var(--red-soft);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: var(--red);
+}
+[data-theme="light"] .alert-error { border-color: rgba(220, 74, 74, 0.35); }
+
 .log-card { padding: 0; overflow: hidden; }
 .log-card .card-title { padding: 14px 18px; border-bottom: 1px solid var(--border); margin-bottom: 0; }
 
@@ -527,7 +557,7 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
   background: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft), 0 0 12px rgba(0, 135, 235,0.5);
 }
-.tl-msg { font-weight: 550; font-size: 13px; line-height: 1.4; }
+.tl-msg { font-weight: 550; font-size: 13px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tl-item.latest .tl-msg { color: var(--accent); }
 .tl-meta { font-size: 11.5px; color: var(--text-3); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .tl-meta code { font-family: var(--mono); background: var(--hover); padding: 1px 6px; border-radius: 4px; color: var(--text-2); }
@@ -548,14 +578,14 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
 }
 .tl-pg:disabled { opacity: 0.35; cursor: default; }
 
-/* ---------- 系统资源（分段胶囊进度条） ---------- */
+/* ---------- 系统资源（细精度进度条） ---------- */
 .sys-card { margin-bottom: 16px; }
-.sys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.sys-item { display: flex; flex-direction: column; gap: 8px; }
+.sys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.sys-item { display: flex; flex-direction: column; gap: 6px; }
 .sys-head { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--text-2); }
-.sys-val { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); }
+.sys-val { font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--text); }
 .progress {
-  height: 12px; border-radius: 999px; overflow: hidden;
+  height: 6px; border-radius: 999px; overflow: hidden;
   background: var(--blue);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
 }
@@ -770,6 +800,8 @@ body.web-locked { display: flex; align-items: center; justify-content: center; m
   .sidebar .tab-btn .badge-dot { right: 5px; }
   .content { padding: 20px 16px 20px 80px; }
   .myfiles-layout, .deploy-grid { grid-template-columns: 1fr; }
+  .folder-col { border-right: 0; padding-right: 0; }
+  .file-col { padding-left: 0; }
   .panel-head { flex-direction: column; }
 }
 

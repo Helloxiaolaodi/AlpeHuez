@@ -414,6 +414,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Motionsites",
+                    "url": "https://motionsites.ai/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2611,5 +2628,5 @@
             ]
         }
     ],
-    "md5": "67eac33680b9a97b83af848c3f1bcf6d"
+    "md5": "5a3e58b590ff48d5297dc51ce302922a"
 }

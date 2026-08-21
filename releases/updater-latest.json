@@ -1,10 +1,10 @@
 {
     "version":  "0.7.0",
-    "notes":  "f849608 1\nae3b431 feat: notes custom export dir, reliable window restore, keep sidebar open while browsing\nd3c497b feat: v0.7.0 notes workspace, window summon fix, email recovery fixes\ne9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring",
-    "pub_date":  "2026-08-21T14:18:19Z",
+    "notes":  "722bc5b feat: feedback direct-email via Resend, Portal / Notes command, external notes app manager\nf849608 1\nae3b431 feat: notes custom export dir, reliable window restore, keep sidebar open while browsing\nd3c497b feat: v0.7.0 notes workspace, window summon fix, email recovery fixes\ne9acc79 chore: publish v0.6.0 setup exe with Resend email recovery",
+    "pub_date":  "2026-08-21T14:43:29Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0QxN2wySTdOM3YwakhvbzErUEEzR2dCN3R4bCswMVczMlVXdmlzQUNkenZBUWhjVjBuS1lCeU05aERGNGpmQ0UxMERFMS9vTVh3SHl5STFmSStUWndjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzIxODk4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQpta2Y5V1lXdnZTNWpJM09xTEF0NFg2TDZyZ2FObVVHMDJoVCtPR2xNZG9NLytBN2tEcEtkSm9wRFJTNE81U0lzQzVXTkpCQ1N3RTU4b0RFc29NalRCZz09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0pabHRrOU94RnlSTE1CRG5IMnROVk94RStVMTRoN2VQNU1kb1BRSEV1eVhUNWF4OUxYQ3hqSUx0Q3psQ2NQeTBNRDFSN3FDL3lqeVNnRXQ5THh3eEFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzIzNDA4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQpiaWh0TUFseE9ldUJISzdlTDQwNmFlQ1l5cjFRSFFwVnpDM0lhdTB1Nm5OeG1IRmFkVm53T2QvSHJ0MjRoZ3l3ODNpWlA2elVVUXhnSVVxcWJWUWZDdz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }

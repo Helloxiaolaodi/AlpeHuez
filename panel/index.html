@@ -61,17 +61,23 @@
         <div class="panel-head">
           <div>
             <h1 data-i18n="navCards">导航卡片</h1>
-            <p class="muted" data-i18n="navDesc">管理首页的网址卡片与分组，保存后自动写入 links.json</p>
           </div>
           <div class="head-actions">
-            <button class="btn btn-ghost" id="btnImportBookmarks" data-i18n="importBookmarks">导入书签 HTML</button>
-            <button class="btn btn-ghost" id="btnExportBookmarks" data-i18n="exportBookmarks">导出书签 HTML</button>
-            <button class="btn btn-ghost" id="btnRestorePortal" data-i18n="restorePortal">恢复 Portal 最新内容</button>
             <button class="btn btn-ghost" id="btnNewCard" data-i18n="newCard">新建卡片</button>
-            <button class="btn btn-ghost" id="btnEnhance" data-i18n="recompute">重新计算标签 / VPN</button>
-            <button class="btn btn-ghost" id="btnDownloadIcons" data-i18n="downloadIcons">下载图标</button>
-            <button class="btn btn-primary" id="btnSaveLinks" data-i18n="save">保存</button>
+            <div class="c-dd" id="moreDD">
+              <button type="button" class="c-dd-trigger more-trigger" id="btnMoreMenu" data-i18n-title="more" title="More">
+                <span class="more-dots">⋯</span>
+              </button>
+              <div class="c-dd-menu more-menu" id="moreMenu" role="menu" hidden>
+                <button type="button" class="c-dd-option" id="btnImportBookmarks" data-i18n="importBookmarks">导入书签 HTML</button>
+                <button type="button" class="c-dd-option" id="btnExportBookmarks" data-i18n="exportBookmarks">导出书签 HTML</button>
+                <button type="button" class="c-dd-option" id="btnRestorePortal" data-i18n="restorePortal">恢复 Portal 最新内容</button>
+                <button type="button" class="c-dd-option" id="btnEnhance" data-i18n="recompute">重新计算标签 / VPN</button>
+                <button type="button" class="c-dd-option" id="btnDownloadIcons" data-i18n="downloadIcons">下载图标</button>
+              </div>
+            </div>
             <input type="file" id="bookmarkFileInput" accept=".html,.htm,text/html,application/xhtml+xml" hidden>
+            <button class="btn btn-primary" id="btnSaveLinks" data-i18n="save">保存</button>
           </div>
         </div>
 
@@ -116,14 +122,14 @@
           <div class="folder-col">
             <div class="col-head">
               <span class="col-title" data-i18n="folders">文件夹</span>
-              <button class="btn btn-ghost btn-sm" id="btnNewFolder" data-i18n="new">新建</button>
+              <button class="btn btn-primary btn-sm" id="btnNewFolder" data-i18n="new">新建</button>
             </div>
             <div class="folder-list" id="folderList"></div>
           </div>
           <div class="file-col">
             <div class="col-head">
               <span class="col-title" id="fileColTitle" data-i18n="files">文件</span>
-              <button class="btn btn-ghost btn-sm" id="btnNewFile" data-i18n="newFile">新建文件</button>
+              <button class="btn btn-primary btn-sm" id="btnNewFile" data-i18n="newFile">新建文件</button>
             </div>
             <div class="file-list" id="fileList"></div>
             <div class="empty-state" id="fileEmpty" hidden>

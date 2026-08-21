@@ -266,6 +266,13 @@
             overflow: hidden;
             transition: height 0.18s ease, opacity 0.18s ease, padding 0.18s ease;
         }
+        /* 浅色模式：去除实色水泥灰，沉浸式无缝标题栏 + 微磨砂 */
+        html:not([data-theme="space"]) .workspace-tabs {
+            background: transparent;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
         .workspace-tabs[hidden] { display: none; }
         body:not(.workspace-tabs-open) #workspaceTabs:not(:hover) {
             height: 6px;
@@ -371,7 +378,8 @@
         }
         html:not([data-theme="space"]) .workspace-tab.active,
         html:not([data-theme="space"]) .workspace-tab:hover {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             backdrop-filter: blur(12px);
         }
         .workspace-tab .ws-crown { color: #F59E0B; }
@@ -612,6 +620,14 @@
             -webkit-backdrop-filter: blur(24px) saturate(150%);
         }
 
+        /* 浅色模式：微磨砂 Acrylic 材质替代实体灰，消除廉价后台感 */
+        html:not([data-theme="space"]) .action-rail {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
         html[data-theme="space"] .action-rail {
             background: rgba(54, 47, 84, 0.55);
         }
@@ -703,8 +719,8 @@
 
         /* 侧边栏选中态（Things 3 呼吸感）：极轻薄微亮背景 + 图标加深，不用实心大色块 */
         html:not([data-theme="space"]) .rail-btn.active {
-            background: rgba(0, 135, 235,0.08);
-            color: #0087EB;
+            background: rgba(14, 165, 233, 0.12);
+            color: #0284C7;
         }
 
         .rail-btn.active::before {
@@ -753,6 +769,14 @@
             min-width: 0;
             background: var(--bg-sidebar);
             transition: flex-basis 0.18s ease, width 0.18s ease, opacity 0.18s ease;
+        }
+
+        /* 浅色模式：二级侧边栏同样用微磨砂 Acrylic 材质 */
+        html:not([data-theme="space"]) .tab-sidebar {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .velometer-drawer,
@@ -1264,6 +1288,46 @@
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .tab-copy,
+        .tab-reopen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            flex: 0 0 20px;
+            color: var(--text-muted);
+            background: transparent;
+            border: 0;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+        }
+        .tab-copy svg,
+        .tab-reopen svg {
+            width: 13px;
+            height: 13px;
+            display: block;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .browser-tab:hover .tab-copy,
+        .browser-tab:hover .tab-reopen,
+        .browser-tab.active .tab-copy,
+        .browser-tab.active .tab-reopen {
+            opacity: 1;
+        }
+        .tab-copy:hover,
+        .tab-reopen:hover {
+            color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.12);
+        }
+        html[data-theme="space"] .tab-copy:hover,
+        html[data-theme="space"] .tab-reopen:hover {
+            color: #9D85FA;
+            background: rgba(121, 133, 255, 0.14);
+        }
+
         .tabs-empty {
             display: flex;
             flex-direction: column;
@@ -1644,10 +1708,10 @@
 
         .commit-item {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 8px;
             min-width: 0;
-            padding: 6px 8px;
+            padding: 5px 8px;
             color: var(--text-muted);
             font-size: 10px;
         }
@@ -1657,6 +1721,11 @@
             color: var(--brand-primary);
             font-family: "Cascadia Code", Consolas, monospace;
             font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            background: color-mix(in srgb, var(--brand-primary) 13%, transparent);
+            padding: 1px 6px;
+            border-radius: 4px;
         }
 
         .commit-msg {
@@ -4086,6 +4155,28 @@
         .notes-new-btn:hover { background: rgba(0, 135, 235, 0.14); border-color: var(--brand-primary); }
 
         .notes-toolbar { position: relative; }
+        .notes-toolbar::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -3px;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, var(--brand-primary), transparent);
+            background-size: 220% 100%;
+            background-position: 0 0;
+            opacity: 0.35;
+            animation: notesToolbarBreath 3.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        html[data-theme="space"] .notes-toolbar::before {
+            background: linear-gradient(90deg, transparent, #7985FF, transparent);
+        }
+        @keyframes notesToolbarBreath {
+            0%, 100% { background-position: 0 0; opacity: 0.2; }
+            50% { background-position: 100% 0; opacity: 0.55; }
+        }
         .notes-savedat { font-size: 10.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
         .notes-pager { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
         .notes-pager[hidden] { display: none; }
@@ -4131,6 +4222,15 @@
             display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
             padding: 6px 8px; margin-bottom: 8px;
             background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        .notes-mdbar:focus-within {
+            border-color: rgba(0, 135, 235, 0.45);
+            box-shadow: 0 6px 18px rgba(0, 135, 235, 0.08);
+        }
+        html[data-theme="space"] .notes-mdbar:focus-within {
+            border-color: rgba(121, 133, 255, 0.5);
+            box-shadow: 0 6px 18px rgba(121, 133, 255, 0.10);
         }
         .md-btn {
             min-width: 26px; height: 26px; padding: 0 6px;
@@ -4138,19 +4238,35 @@
             font-size: 11px; font-family: inherit; line-height: 1;
             color: var(--text-muted); background: transparent;
             border: 1px solid transparent; border-radius: 6px; cursor: pointer;
-            transition: color .15s, background .15s, border-color .15s;
+            transition: color .15s, background .15s, border-color .15s, transform .15s ease, box-shadow .15s ease;
         }
         .md-btn:hover { color: var(--brand-primary); background: rgba(0, 135, 235, 0.06); border-color: var(--line); }
         html[data-theme="space"] .md-btn:hover { background: rgba(121, 133, 255, 0.10); }
+        .md-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 135, 235, 0.12);
+        }
+        html[data-theme="space"] .md-btn:hover {
+            box-shadow: 0 3px 8px rgba(121, 133, 255, 0.16);
+        }
+        .md-btn:active { transform: translateY(0) scale(0.96); }
         .md-btn svg { width: 13px; height: 13px; }
         .md-sep { width: 1px; height: 16px; background: var(--line); margin: 0 3px; }
 
         /* 日历 */
         .notes-calendar {
             width: 336px; position: absolute; top: calc(100% + 6px); left: 0; z-index: 40;
-            background: var(--panel-solid); border: 1px solid var(--line-strong); border-radius: 12px;
-            box-shadow: var(--shadow-float); padding: 10px;
+            background: linear-gradient(150deg, rgba(255, 255, 255, 0.82), rgba(250, 250, 255, 0.66));
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
+            backdrop-filter: blur(18px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 14px;
+            box-shadow: 0 18px 42px rgba(15, 40, 90, 0.18); padding: 10px;
             display: flex; flex-direction: column; gap: 8px;
+        }
+        html[data-theme="space"] .notes-calendar {
+            background: linear-gradient(150deg, rgba(36, 34, 64, 0.82), rgba(22, 21, 42, 0.72));
+            border-color: rgba(157, 133, 250, 0.24);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45);
         }
         .notes-calendar[hidden] { display: none; }
         .nc-head { display: flex; align-items: center; justify-content: space-between; }
@@ -4175,6 +4291,41 @@
 
         .notes-editor { display: flex; flex-direction: column; gap: 10px; }
         .md-img { max-width: 100%; border-radius: 10px; border: 1px solid var(--line); margin: 4px 0; }
+        .md-img-fold {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 100%;
+            margin: 4px 0;
+            padding: 7px 10px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.06);
+            border: 1px dashed rgba(0, 135, 235, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .15s, border-color .15s, transform .15s ease, box-shadow .15s ease;
+        }
+        html[data-theme="space"] .md-img-fold {
+            color: #9D85FA;
+            background: rgba(121, 133, 255, 0.08);
+            border-color: rgba(157, 133, 250, 0.4);
+        }
+        .md-img-fold:hover {
+            background: rgba(0, 135, 235, 0.12);
+            border-color: var(--brand-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 135, 235, 0.12);
+        }
+        html[data-theme="space"] .md-img-fold:hover {
+            background: rgba(121, 133, 255, 0.14);
+            box-shadow: 0 4px 12px rgba(121, 133, 255, 0.18);
+        }
+        .md-img-fold-glyph { font-size: 14px; line-height: 1; }
+        .md-img-fold-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .md-img-fold-meta { font-size: 10px; font-weight: 500; color: var(--text-muted); }
 
         /* 预览中的代码块：语言标签 + 行号 + 换行开关 */
         .hl-block { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg-card); margin: 2px 0; }
@@ -4538,10 +4689,10 @@
 
         .settings-row {
             display: grid;
-            grid-template-columns: 140px 1fr auto;
-            gap: 12px;
+            grid-template-columns: minmax(120px, 0.85fr) minmax(0, 2fr) auto;
+            gap: 10px 14px;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .settings-row label {
@@ -4581,11 +4732,25 @@
             min-height: 34px;
             padding: 8px 10px;
             line-height: 1.4;
+            font-size: 13px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .settings-input:focus,
+        .settings-select:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.10);
+            outline: none;
+        }
+        html[data-theme="space"] .settings-input:focus,
+        html[data-theme="space"] .settings-select:focus {
+            box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.12);
         }
 
         .settings-select {
             height: 34px;
             padding: 0 10px;
+            font-size: 13px;
+            cursor: pointer;
         }
 
         /* 原生 select/option 在暗黑模式易受系统默认样式影响导致白底白字，强制指定配色 */
@@ -4639,8 +4804,10 @@
 
         .settings-textarea {
             min-height: 90px;
-            padding: 10px;
+            padding: 10px 12px;
             resize: vertical;
+            font-size: 13px;
+            line-height: 1.55;
         }
 
         /* 反馈/金句文本框拉伸至整行，按钮置于右下角正下方，消除空间断层 */
@@ -4651,11 +4818,13 @@
 
         .settings-hint {
             grid-column: 2 / -1;
-            color: #94a3b8;
+            color: var(--text-muted);
+            color: color-mix(in srgb, var(--text-main) 62%, transparent);
             font-size: 11px;
+            line-height: 1.5;
         }
         html[data-theme="space"] .settings-hint {
-            color: #9B94AD;
+            color: color-mix(in srgb, var(--text-main) 74%, transparent);
         }
 
         .settings-actions {
@@ -4672,10 +4841,13 @@
             min-height: 32px;
             padding: 0 12px;
             color: var(--text-main);
-            background: rgba(0, 135, 235,0.32);
-            border: 1px solid var(--line);
+            background: var(--bg-card);
+            border: 1px solid var(--line-strong);
             border-radius: 8px;
             font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, border-color .15s, transform .15s ease, box-shadow .15s ease;
         }
 
         .settings-action-btn.primary {
@@ -4694,13 +4866,20 @@
             border-radius: 50%;
             vertical-align: -2px;
             animation: spin 0.7s linear infinite;
-        }            color: #fff;
-            background: var(--accent-gradient);
-            border-color: transparent;
         }
 
         .settings-action-btn:hover {
-            background: rgba(0, 135, 235,0.56);
+            background: rgba(0, 135, 235, 0.07);
+            border-color: var(--brand-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 135, 235, 0.10);
+        }
+        .settings-action-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        html[data-theme="space"] .settings-action-btn:hover {
+            background: rgba(121, 133, 255, 0.12);
+            box-shadow: 0 4px 12px rgba(121, 133, 255, 0.14);
         }
 
         .settings-action-btn.primary:hover {
@@ -5422,11 +5601,6 @@
                             <p>Browse folder reports directly from the workspace without leaving the shell.</p>
                         </div>
                         <div id="myFilesMain" class="myfiles-main"></div>
-                        <div id="myFilesWebLock" class="web-lock" hidden>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            <p class="web-lock-title" data-i18n-settings="webLockTitle">Private local workspace</p>
-                            <p class="web-lock-sub" data-i18n-settings="webLockDesc">Not available on the web preview.</p>
-                        </div>
                     </div>
                 </section>
 
@@ -6047,7 +6221,10 @@
                 recoverCodeLbl: 'Verification code',
                 recoverReset: 'Reset password',
                 pwdChanged: 'Password changed',
-                recoverFailed: 'Recovery failed: {detail}'
+                recoverFailed: 'Recovery failed: {detail}',
+                recoverConfirmTitle: 'Send verification code',
+                recoverConfirmText: 'A verification code will be sent to',
+                recoverNoEmail: 'No recovery email saved. Set one in Settings → Account first.'
             },
             zh: {
                 settingsTitle: '\u754c\u9762\u8bbe\u7f6e',
@@ -6212,7 +6389,10 @@
                 recoverCodeLbl: '\u9a8c\u8bc1\u7801',
                 recoverReset: '\u91cd\u7f6e\u5bc6\u7801',
                 pwdChanged: '\u5bc6\u7801\u5df2\u66f4\u65b0',
-                recoverFailed: '\u627e\u56de\u5931\u8d25\uff1a{detail}'
+                recoverFailed: '\u627e\u56de\u5931\u8d25\uff1a{detail}',
+                recoverConfirmTitle: '\u53d1\u9001\u9a8c\u8bc1\u7801',
+                recoverConfirmText: '\u9a8c\u8bc1\u7801\u5c06\u53d1\u9001\u5230',
+                recoverNoEmail: '\u5c1a\u672a\u8bbe\u7f6e\u627e\u56de\u90ae\u7bb1\uff0c\u8bf7\u5148\u5728\u8bbe\u7f6e\u4e2d\u586b\u5199\u627e\u56de\u90ae\u7bb1'
             }
         };
         let settingsShortcuts = Object.assign({}, DEFAULT_SHORTCUTS);
@@ -6723,57 +6903,67 @@
             if (modal) {
                 const close = $('recoverModalClose');
                 if (close) close.addEventListener('click', () => { modal.hidden = true; });
-                modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+                modal.addEventListener('click', (e) => { if (e.target === modal && !recoverLocked) modal.hidden = true; });
             }
         }
+
+        // 进入验证码/重置步骤后锁住弹窗：只能通过叉号或确认按钮关闭，点击外部不生效。
+        let recoverLocked = false;
 
         function recoverStepEmail() {
             const modal = $('recoverModal');
             if (!modal) return;
-            $('recoverModalTitle').textContent = settingsText('recoverTitle', 'Recover password');
+            if (typeof invoke !== 'function') {
+                showToast(settingsText('recoverFailed', 'Recovery failed'));
+                return;
+            }
+            recoverLocked = false;
+            $('recoverModalTitle').textContent = settingsText('recoverConfirmTitle', 'Send verification code');
             const body = $('recoverModalBody');
-            body.innerHTML =
-                '<div class="setup-field">' +
-                    '<label for="recoverEmailField">' + settingsText('recoverEmailLbl', 'Recovery email') + '</label>' +
-                    '<input type="email" id="recoverEmailField" autocomplete="email">' +
-                    '<span class="setup-hint">' + settingsText('recoveryEmailHint', '') + '</span>' +
-                '</div>' +
-                '<p class="setup-error" id="recoverError" style="display:none"></p>' +
-                '<div class="setup-actions">' +
-                    '<button type="button" id="recoverSendBtn" class="app-modal-btn primary">' + settingsText('recoverSend', 'Send code') + '</button>' +
-                '</div>';
+            body.innerHTML = '<p class="setup-error" id="recoverError" style="display:none"></p>';
             modal.hidden = false;
-            const errEl = $('recoverError');
-            const sendBtn = $('recoverSendBtn');
-            $('recoverEmailField').focus();
-            sendBtn.addEventListener('click', async () => {
-                const email = $('recoverEmailField').value.trim();
-                if (!email) return;
-                sendBtn.disabled = true;
-                try {
-                    await invoke('request_password_recovery', { email });
-                    recoverStepSent(email);
-                } catch (e) {
-                    errEl.textContent = errText(e) || settingsText('recoverFailed', 'Recovery failed').replace('{detail}', '');
-                    errEl.style.display = 'block';
-                    sendBtn.disabled = false;
-                }
-            });
-        }
-
-        function recoverStepSent(email) {
-            const modal = $('recoverModal');
-            $('recoverModalTitle').textContent = settingsText('recoverSentTitle', 'Code sent');
-            $('recoverModalBody').innerHTML =
-                '<p style="margin:0 0 10px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverSentText', 'A recovery code was sent to {email}. Check your inbox.').replace('{email}', email) + '</p>' +
-                '<div class="setup-actions">' +
-                    '<button type="button" id="recoverNextBtn" class="app-modal-btn primary">' + settingsText('recoverOk', 'Got it') + '</button>' +
-                '</div>';
-            $('recoverNextBtn').addEventListener('click', () => recoverStepReset());
+            invoke('get_access_email')
+                .then((email) => {
+                    if (!email || !String(email).trim()) {
+                        showToast(settingsText('recoverNoEmail', 'No recovery email saved. Set one in Settings → Account first.'));
+                        modal.hidden = true;
+                        return;
+                    }
+                    body.innerHTML =
+                        '<p style="margin:0 0 6px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + settingsText('recoverConfirmText', 'A verification code will be sent to') + '</p>' +
+                        '<p style="margin:0 0 14px;font-size:14px;font-weight:600;color:var(--text-main);word-break:break-all">' + escapeHtml(String(email)) + '</p>' +
+                        '<p class="setup-error" id="recoverError" style="display:none"></p>' +
+                        '<div class="setup-actions">' +
+                            '<button type="button" id="recoverCancelBtn" class="app-modal-btn">' + settingsText('cancel', 'Cancel') + '</button>' +
+                            '<button type="button" id="recoverSendBtn" class="app-modal-btn primary">' + settingsText('recoverSend', 'Send code') + '</button>' +
+                        '</div>';
+                    const sendBtn = $('recoverSendBtn');
+                    const cancelBtn = $('recoverCancelBtn');
+                    if (cancelBtn) cancelBtn.addEventListener('click', () => { modal.hidden = true; });
+                    sendBtn.addEventListener('click', async () => {
+                        sendBtn.disabled = true;
+                        try {
+                            await invoke('request_password_recovery');
+                            recoverStepReset();
+                        } catch (e) {
+                            const errEl = $('recoverError');
+                            if (errEl) {
+                                errEl.textContent = errText(e) || settingsText('recoverFailed', 'Recovery failed').replace('{detail}', '');
+                                errEl.style.display = 'block';
+                            }
+                            sendBtn.disabled = false;
+                        }
+                    });
+                })
+                .catch(() => {
+                    showToast(settingsText('recoverFailed', 'Recovery failed'));
+                    modal.hidden = true;
+                });
         }
 
         function recoverStepReset() {
             const modal = $('recoverModal');
+            recoverLocked = true;
             $('recoverModalTitle').textContent = settingsText('recoverStep2Title', 'Reset password');
             $('recoverModalBody').innerHTML =
                 '<div class="setup-field">' +
@@ -7155,9 +7345,37 @@
                 .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
                 .replace(/`([^`\n]+)`/g, '<code class="md-code">$1</code>')
-                .replace(/!\[([^\]\n]*)\]\(([^)\s]+)\)/g, (m, alt, src) => '<img class="md-img" src="' + escapeHtml(src) + '" alt="' + escapeHtml(alt) + '" loading="lazy">')
+                .replace(/!\[([^\]\n]*)\]\(([^)\s]+)\)/g, (m, alt, src) => mdImageHtml(alt, src))
                 .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
             return out;
+        }
+
+        function mdImageHtml(alt, src) {
+            if (src.indexOf('data:image/') === 0 && src.length > 1600) {
+                const label = (alt || 'embedded image').trim();
+                return '<button type="button" class="md-img-fold" data-src="' + escapeHtml(src) + '" data-alt="' + escapeHtml(label) + '" title="Click to load embedded image">'
+                    + '<span class="md-img-fold-glyph" aria-hidden="true">&#128444;</span>'
+                    + '<span class="md-img-fold-label">' + escapeHtml(label) + '</span>'
+                    + '<span class="md-img-fold-meta">base64 · click to load</span>'
+                    + '</button>';
+            }
+            return '<img class="md-img" src="' + escapeHtml(src) + '" alt="' + escapeHtml(alt) + '" loading="lazy">';
+        }
+
+        function bindMdImageFold(root) {
+            if (!root || root.dataset.mdFoldBound) return;
+            root.dataset.mdFoldBound = '1';
+            root.addEventListener('click', (event) => {
+                const fold = event.target.closest('.md-img-fold');
+                if (!fold) return;
+                event.preventDefault();
+                const img = document.createElement('img');
+                img.className = 'md-img';
+                img.loading = 'lazy';
+                img.alt = fold.dataset.alt || '';
+                img.src = fold.dataset.src || '';
+                fold.replaceWith(img);
+            });
         }
 
         function snippetCapsule(lang, title, code) {
@@ -7267,6 +7485,7 @@
             if (!preview) return;
             noteSnippets.length = 0;
             preview.innerHTML = mdToHtml(getNoteMarkdown(noteDate));
+            bindMdImageFold(preview);
             preview.querySelectorAll('.snippet-capsule').forEach((cap) => {
                 cap.addEventListener('click', () => openSnippetModal(Number(cap.dataset.snippetIndex)));
             });
@@ -7467,6 +7686,7 @@
             if (!preview) return;
             noteSnippets.length = 0;
             preview.innerHTML = mdToHtml(getNoteMarkdown(notesDailyDate), true);
+            bindMdImageFold(preview);
             preview.querySelectorAll('.snippet-capsule').forEach((cap) => {
                 cap.addEventListener('click', () => openSnippetModal(Number(cap.dataset.snippetIndex)));
             });
@@ -8788,6 +9008,12 @@
                     <button type="button" class="browser-tab ${activeBrowserLabel === tab.label ? 'active' : ''}${sleeping}" data-label="${escapeHtml(tab.label)}" title="${escapeHtml(tab.url || tab.title)}">
                         <span class="tab-icon">${tab.sleeping ? 'Zzz' : escapeHtml(letter)}</span>
                         <span class="tab-title">${tab.sleeping ? 'Zzz… click to wake' : escapeHtml(tab.title || tab.url)}</span>
+                        <span class="tab-copy" data-copy-url="${escapeHtml(tab.url || tab.label)}" title="Copy URL">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="6" y="6" width="7" height="7" rx="1.2"/><path d="M10 6V4.5A1.5 1.5 0 0 0 8.5 3h-5A1.5 1.5 0 0 0 2 4.5v5A1.5 1.5 0 0 0 3.5 11H6"/></svg>
+                        </span>
+                        <span class="tab-reopen" data-reopen-url="${escapeHtml(tab.url || tab.label)}" data-reopen-title="${escapeHtml(tab.title || tab.url || tab.label)}" title="Open URL">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3H4.5A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M14 2H9M14 2v5"/></svg>
+                        </span>
                         <span class="tab-close" data-close="${escapeHtml(tab.label)}" title="Close tab">&times;</span>
                     </button>
                 `;
@@ -9110,7 +9336,7 @@
                 const commits = (log || []).slice(0, 5).map((commit) => `
                     <div class="commit-item">
                         <span class="commit-hash">${escapeHtml(commit.short)}</span>
-                        <span class="commit-msg">${escapeHtml(commit.message)}</span>
+                        <span class="commit-msg" title="${escapeHtml(commit.message)}">${escapeHtml(commit.message)}</span>
                     </div>
                 `).join('');
                 container.innerHTML = `
@@ -9223,8 +9449,6 @@
             if (viewName === 'myfiles') {
                 const main = $('myFilesMain');
                 if (main) main.hidden = true;
-                const lock = $('myFilesWebLock');
-                if (lock) lock.hidden = false;
             } else if (viewName === 'dev') {
                 const frame = $('devFrame');
                 if (frame) frame.style.display = 'none';
@@ -9730,6 +9954,17 @@
             listen('browser-load-finished', (event) => {
                 const label = event.payload && event.payload.label;
                 if (label) { loadingTabs.delete(label); tabStates.set(label, 'loaded'); }
+                if (failTimer) { clearTimeout(failTimer); failTimer = null; }
+                if (label === activeBrowserLabel) {
+                    hide();
+                    invoke('activate_internal_page', { label }).catch(() => {});
+                }
+            });
+            listen('alpehuez-dom-ready', (event) => {
+                const label = event.payload && event.payload.label;
+                if (!label) return;
+                loadingTabs.delete(label);
+                tabStates.set(label, 'loaded');
                 if (failTimer) { clearTimeout(failTimer); failTimer = null; }
                 if (label === activeBrowserLabel) {
                     hide();
@@ -10448,6 +10683,22 @@
             });
 
             $('browserTabs').addEventListener('click', async (event) => {
+                const copyButton = event.target.closest('.tab-copy');
+                if (copyButton) {
+                    event.stopPropagation();
+                    const url = copyButton.dataset.copyUrl;
+                    if (url) {
+                        try { await navigator.clipboard.writeText(url); } catch (e) { console.error(e); }
+                    }
+                    return;
+                }
+                const reopenButton = event.target.closest('.tab-reopen');
+                if (reopenButton) {
+                    event.stopPropagation();
+                    const url = reopenButton.dataset.reopenUrl;
+                    if (url) await openInternalUrl(url, reopenButton.dataset.reopenTitle || url);
+                    return;
+                }
                 const closeButton = event.target.closest('.tab-close');
                 if (closeButton) {
                     event.stopPropagation();
