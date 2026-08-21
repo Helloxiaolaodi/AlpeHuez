@@ -39,6 +39,7 @@ const ICON_EDIT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" s
 const ICON_DEL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 const ICON_GRIP = '<svg class="drag-handle" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>';
 const ICON_APPS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
+const ICON_CLOSE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 
 /* ---------- 语言包 ---------- */
 const LOCALES = {
@@ -1301,7 +1302,7 @@ function renderTodos() {
     <div class="todo-item ${td.done ? 'done' : ''}" data-todo="${i}">
       ${ICON_RADIO}
       <span class="todo-text">${escapeHtml(td.text)}</span>
-      <button class="todo-del" data-todel="${i}">✕</button>
+      <button class="todo-del" data-todel="${i}">${ICON_CLOSE}</button>
     </div>`).join('');
 }
 

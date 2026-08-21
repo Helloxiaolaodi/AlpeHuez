@@ -1350,6 +1350,95 @@
             opacity: 0.7;
         }
 
+        .open-url-bar {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            height: 34px;
+            margin: 0 10px 12px;
+            padding: 5px 6px 5px 10px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+        }
+        .open-url-bar:focus-within {
+            color: var(--brand-primary);
+            background: rgba(255, 255, 255, 0.92);
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12);
+        }
+        .open-url-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 16px;
+        }
+        .open-url-icon svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .open-url-input {
+            flex: 1;
+            min-width: 0;
+            padding: 0;
+            color: var(--text-main);
+            background: transparent;
+            border: 0;
+            outline: 0;
+            font: inherit;
+            font-size: 12px;
+        }
+        .open-url-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+        .open-url-go {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            flex: 0 0 24px;
+            padding: 0;
+            color: var(--text-muted);
+            background: transparent;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.14s ease, background 0.14s ease, transform 0.14s ease;
+        }
+        .open-url-go svg {
+            width: 15px;
+            height: 15px;
+            display: block;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .open-url-go:hover {
+            color: #FFFFFF;
+            background: var(--brand-primary);
+            transform: translateY(-1px);
+        }
+        html[data-theme="space"] .open-url-bar {
+            background: rgba(26, 25, 46, 0.55);
+            border-color: rgba(121, 133, 255, 0.22);
+        }
+        html[data-theme="space"] .open-url-bar:focus-within {
+            background: rgba(26, 25, 46, 0.7);
+            border-color: rgba(121, 133, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(121, 133, 255, 0.16);
+        }
+        html[data-theme="space"] .open-url-go:hover {
+            background: rgba(121, 133, 255, 0.9);
+        }
+
         .page-loading-overlay {
             position: absolute;
             inset: 0;
@@ -5368,6 +5457,13 @@
                 </div>
                 <div class="context-label"><span>Open Pages</span><span class="count-pill" id="tabCount">0</span></div>
                 <div id="browserTabs" class="browser-tabs"></div>
+                <div class="open-url-bar">
+                    <span class="open-url-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></span>
+                    <input id="openUrlInput" class="open-url-input" type="text" placeholder="Paste a URL, press Enter" spellcheck="false" autocomplete="off" aria-label="Open a website by URL">
+                    <button id="openUrlGo" class="open-url-go" type="button" title="Open URL" aria-label="Open URL">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    </button>
+                </div>
             </div>
 
             <div id="context-myfiles" class="context-panel">
@@ -5568,7 +5664,7 @@
                                 <span class="kbd-badge">Ctrl K</span>
                             </button>
                             <div id="quoteRotator" class="quote-rotator" title="Daily quote">
-                                <span class="quote-icon">✦</span>
+                                <span class="quote-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg></span>
                                 <span id="quoteText" class="quote-text">Stay lucky, stay curious</span>
                             </div>
                             <div id="appflowyKomPill" class="kom-card" title="Initializing..." hidden>
@@ -6021,6 +6117,18 @@
             search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
             globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg>',
             code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>',
+            chevronLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+            chevronRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+            arrowUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>',
+            arrowDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+            arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+            play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+            sparkle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>',
+            heading1: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="m17 12 3-2v8"/></svg>',
+            heading2: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M21 18h-4c0-4 4-3 4-6 0-1.5-2-2.5-4-1"/></svg>',
+            list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+            quote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>',
+            bold: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a4 4 0 0 0 0-8H6v8"/><path d="M15 20a4 4 0 0 0 0-8H6v8Z"/></svg>',
             fullscreenEnter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/></svg>',
             fullscreenExit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v5H3"/><path d="M21 8h-5V3"/><path d="M3 16h5v5"/><path d="M16 21v-5h5"/></svg>',
             jerseyYellow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2l3 2h4l3-2 4 4-2 4-1.5 1v9a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V11L5 10 3 6l4-4z"/><path d="M3 6h3M18 6h3" stroke-width="1.1"/></svg>',
@@ -6779,7 +6887,7 @@
                 backdrop.innerHTML =
                     '<div class="app-modal setup-modal" role="dialog" aria-modal="true">' +
                     '<div class="app-modal-head"><h3>' + escapeHtml(settingsText('restoreTitle', 'Restore backup')) + '</h3>' +
-                    '<div class="app-modal-actions"><button type="button" class="icon-btn" data-confirm="cancel">&times;</button></div></div>' +
+                    '<div class="app-modal-actions"><button type="button" class="icon-btn" data-confirm="cancel">' + ICONS.close + '</button></div></div>' +
                     '<div class="app-modal-body">' +
                     '<p style="margin:0 0 16px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + escapeHtml(message) + '</p>' +
                     '<div class="setup-actions">' +
@@ -7918,9 +8026,9 @@
                             <span class="notes-app-path" title="${escapeHtml(app.path)}">${escapeHtml(app.path)}</span>
                         </div>
                         <div class="notes-app-actions">
-                            <button type="button" class="notes-launch-btn" data-app-launch="${app.id}" title="Launch this app">▶</button>
-                            <button type="button" class="notes-launch-btn" data-app-default="${app.id}" title="Set as default">★</button>
-                            <button type="button" class="notes-launch-btn" data-app-remove="${app.id}" title="Remove this app">✕</button>
+                            <button type="button" class="notes-launch-btn" data-app-launch="${app.id}" title="Launch this app">${ICONS.play}</button>
+                            <button type="button" class="notes-launch-btn" data-app-default="${app.id}" title="Set as default">${ICONS.star}</button>
+                            <button type="button" class="notes-launch-btn" data-app-remove="${app.id}" title="Remove this app">${ICONS.close}</button>
                         </div>
                     </div>`;
                 }).join('') : '';
@@ -9014,7 +9122,7 @@
                         <span class="tab-reopen" data-reopen-url="${escapeHtml(tab.url || tab.label)}" data-reopen-title="${escapeHtml(tab.title || tab.url || tab.label)}" title="Open URL">
                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3H4.5A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M14 2H9M14 2v5"/></svg>
                         </span>
-                        <span class="tab-close" data-close="${escapeHtml(tab.label)}" title="Close tab">&times;</span>
+                        <span class="tab-close" data-close="${escapeHtml(tab.label)}" title="Close tab">${ICONS.close}</span>
                     </button>
                 `;
             }).join('');
@@ -11108,7 +11216,61 @@
             }).join('');
         }
 
+        function mountStaticIcons() {
+            const setIcon = (id, name) => { const el = document.getElementById(id); if (el) el.innerHTML = ICONS[name]; };
+            ['notesPagePrev', 'notePrev', 'ncPrev', 'tpNotePrev'].forEach((id) => setIcon(id, 'chevronLeft'));
+            ['notesPageNext', 'noteNext', 'ncNext', 'tpNoteNext'].forEach((id) => setIcon(id, 'chevronRight'));
+            ['peekCloseBtn', 'vmCloseBtn', 'tpClose', 'activityModalClose', 'codeModalClose', 'updateModalClose', 'setupModalClose', 'myfilesGateClose', 'recoverModalClose', 'vdCloseBtn'].forEach((id) => setIcon(id, 'close'));
+            setIcon('settingsClose', 'close');
+            const quoteIcon = document.querySelector('.quote-icon');
+            if (quoteIcon) quoteIcon.innerHTML = ICONS.sparkle;
+            document.querySelectorAll('.vm-net-arrow').forEach((el) => {
+                el.innerHTML = (el.textContent || '').trim() === '\u2191' ? ICONS.arrowUp : ICONS.arrowDown;
+            });
+            const updateArrow = document.querySelector('.update-arrow');
+            if (updateArrow) updateArrow.innerHTML = ICONS.arrowRight;
+            const slashMap = { '#': 'heading1', '##': 'heading2', code: 'code', '-': 'list', '>': 'quote', '**': 'bold' };
+            document.querySelectorAll('.slash-item').forEach((item) => {
+                const cmd = item.getAttribute('data-cmd');
+                const icon = item.querySelector('.slash-icon');
+                if (cmd != null && icon && slashMap[cmd]) icon.innerHTML = ICONS[slashMap[cmd]];
+            });
+            document.querySelectorAll('button.icon-btn').forEach((b) => {
+                const t = (b.textContent || '').trim();
+                if (t === '\u00d7' || t === '\u2715') b.innerHTML = ICONS.close;
+            });
+        }
+
+        function normalizeAddress(raw) {
+            const value = (raw || '').trim();
+            if (!value) return '';
+            if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(value) || /^(mailto|tel|file):/i.test(value)) return value;
+            if (/^localhost(:\d+)?([/?#].*)?$/i.test(value) || /^[\w-]+(\.[\w-]+)+([/?#].*)?$/.test(value)) return 'https://' + value;
+            return ENGINES[activeEngine].url + encodeURIComponent(value);
+        }
+
+        function initOpenUrlBar() {
+            const input = $('openUrlInput');
+            const go = $('openUrlGo');
+            if (!input) return;
+            const submit = async () => {
+                const url = normalizeAddress(input.value);
+                if (!url) return;
+                input.blur();
+                await openUrl(url, url);
+            };
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    submit();
+                }
+            });
+            if (go) go.addEventListener('click', submit);
+        }
+
         async function init() {
+            mountStaticIcons();
+            initOpenUrlBar();
             setTimeout(dismissLoadingScreen, 3000);
             recordDailyOpen();
             refreshAbilities();

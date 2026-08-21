@@ -116,18 +116,37 @@ const CHILD_KEY_JS: &str = r#"(function () {
 
   // target="_blank" 链接（或 window.open 产生的弹窗意图）在应用内新开标签页，
   // 而不是丢给外部浏览器。普通链接保持标准当前标签导航。
-  function routeBlankTarget(event) {
+  function isHttpUrl(value) {
+    return /^https?:\/\//i.test(value);
+  }
+  function resolveHref(raw) {
+    try { return new URL(raw, document.baseURI || location.href).href; } catch (e) { return ''; }
+  }
+  function originOf(value) {
+    try { return new URL(value).origin; } catch (e) { return ''; }
+  }
+  function routeExternalLink(event) {
     var tauriEvent = window.__TAURI__ && window.__TAURI__.event;
     if (!tauriEvent || typeof tauriEvent.emitTo !== 'function') return;
-    var link = event.target && event.target.closest ? event.target.closest('a[target="_blank"]') : null;
+    if (event.defaultPrevented) return;
+    if (event.button !== undefined && event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
     if (!link) return;
-    var href = link.href;
-    if (!href || !/^https?:\/\//i.test(href)) return;
+    var href = resolveHref(link.getAttribute('href') || link.href);
+    if (!isHttpUrl(href)) return;
+    var openNew = String(link.target || '').toLowerCase() === '_blank';
+    if (!openNew) {
+      var currentOrigin = originOf(location.href);
+      var targetOrigin = originOf(href);
+      if (targetOrigin && targetOrigin !== currentOrigin) openNew = true;
+    }
+    if (!openNew) return;
     event.preventDefault();
     event.stopPropagation();
     tauriEvent.emitTo('main', 'alpehuez-open-tab', { url: href, title: '' });
   }
-  document.addEventListener('click', routeBlankTarget, true);
+  document.addEventListener('click', routeExternalLink, true);
 })();"#;
 
 const READY_JS: &str = r#"(function () {
