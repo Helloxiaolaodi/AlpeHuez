@@ -78,6 +78,10 @@ fn main() {
                 "backup_set_local_state",
                 "restore_backup",
                 "save_daily_note",
+                "list_daily_notes",
+                "delete_daily_note",
+                "hide_main_window",
+                "launch_note_app",
             ]),
         ),
     )

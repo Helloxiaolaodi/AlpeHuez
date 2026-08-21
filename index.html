@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlpeHuez v0.6.0</title>
+    <title>AlpeHuez v0.7.0</title>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
         const savedTheme = storedTheme === 'space' ? 'space' : 'gradient';
@@ -4026,6 +4026,156 @@
             background: var(--success, #6FCF97); flex-shrink: 0;
         }
 
+        /* ---------- Notes 视图 ---------- */
+        .notes-workspace { max-width: 1100px; margin: 0 auto; }
+        .notes-toolbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            margin-bottom: 12px; flex-wrap: wrap;
+        }
+        .notes-nav { display: flex; align-items: center; gap: 6px; }
+        .notes-actions { display: flex; align-items: center; gap: 10px; }
+        .notes-status { min-width: 70px; }
+        .notes-workspace .tp-note-input { min-height: 320px; font-size: 13px; }
+        .notes-workspace .tp-note-preview { min-height: 320px; padding: 10px 12px; }
+        .notes-search-wrap { position: relative; margin: 2px 0 10px; }
+        .notes-search-input {
+            width: 100%; padding: 7px 10px; font-size: 12px;
+            color: var(--text-main); background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--line); border-radius: 8px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        html[data-theme="space"] .notes-search-input { background: rgba(255, 255, 255, 0.04); }
+        .notes-search-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.10); }
+        .notes-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+        .notes-list-item {
+            display: flex; flex-direction: column; gap: 3px;
+            padding: 8px 10px; border: 1px solid transparent; border-radius: 9px;
+            cursor: pointer; text-align: left; background: transparent;
+            transition: background .15s, border-color .15s;
+        }
+        .notes-list-item:hover { background: rgba(0, 135, 235, 0.06); }
+        html[data-theme="space"] .notes-list-item:hover { background: rgba(121, 133, 255, 0.08); }
+        .notes-list-item.active { background: rgba(0, 135, 235, 0.10); border-color: var(--brand-primary); }
+        html[data-theme="space"] .notes-list-item.active { background: rgba(121, 133, 255, 0.12); }
+        .notes-list-date { font-size: 11px; font-weight: 600; color: var(--brand-primary); letter-spacing: 0.02em; }
+        .notes-list-preview {
+            font-size: 11px; color: var(--text-muted); line-height: 1.45;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .notes-list-empty { font-size: 12px; color: var(--text-muted); padding: 10px 4px; }
+        .notes-new-btn {
+            margin-top: 10px; width: 100%; padding: 8px 10px;
+            font-size: 12px; font-weight: 600; color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.08); border: 1px dashed var(--line-strong); border-radius: 9px;
+            cursor: pointer; transition: background .15s, border-color .15s;
+        }
+        html[data-theme="space"] .notes-new-btn { background: rgba(121, 133, 255, 0.10); }
+        .notes-new-btn:hover { background: rgba(0, 135, 235, 0.14); border-color: var(--brand-primary); }
+
+        .notes-toolbar { position: relative; }
+        .notes-savedat { font-size: 10.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .notes-pager { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+        .notes-pager[hidden] { display: none; }
+        .notes-pager .tp-nav-btn:disabled { opacity: 0.35; cursor: default; }
+        .notes-pager-info { font-size: 10.5px; color: var(--text-3); min-width: 46px; text-align: center; font-variant-numeric: tabular-nums; }
+        .notes-launch { display: flex; gap: 6px; margin-top: 10px; }
+        .notes-launch-input {
+            flex: 1; min-width: 0; padding: 7px 9px; font-size: 11px;
+            color: var(--text-main); background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--line); border-radius: 8px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        html[data-theme="space"] .notes-launch-input { background: rgba(255, 255, 255, 0.04); }
+        .notes-launch-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.10); }
+        .notes-launch-btn {
+            padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--brand-primary);
+            background: rgba(0, 135, 235, 0.08); border: 1px solid var(--line-strong); border-radius: 8px;
+            cursor: pointer; white-space: nowrap;
+            transition: background .15s, border-color .15s;
+        }
+        html[data-theme="space"] .notes-launch-btn { background: rgba(121, 133, 255, 0.10); }
+        .notes-launch-btn:hover { background: rgba(0, 135, 235, 0.14); border-color: var(--brand-primary); }
+
+        /* Markdown 编辑工具栏 */
+        .notes-mdbar {
+            display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+            padding: 6px 8px; margin-bottom: 8px;
+            background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px;
+        }
+        .md-btn {
+            min-width: 26px; height: 26px; padding: 0 6px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-family: inherit; line-height: 1;
+            color: var(--text-muted); background: transparent;
+            border: 1px solid transparent; border-radius: 6px; cursor: pointer;
+            transition: color .15s, background .15s, border-color .15s;
+        }
+        .md-btn:hover { color: var(--brand-primary); background: rgba(0, 135, 235, 0.06); border-color: var(--line); }
+        html[data-theme="space"] .md-btn:hover { background: rgba(121, 133, 255, 0.10); }
+        .md-btn svg { width: 13px; height: 13px; }
+        .md-sep { width: 1px; height: 16px; background: var(--line); margin: 0 3px; }
+
+        /* 日历 */
+        .notes-calendar {
+            width: 336px; position: absolute; top: calc(100% + 6px); left: 0; z-index: 40;
+            background: var(--panel-solid); border: 1px solid var(--line-strong); border-radius: 12px;
+            box-shadow: var(--shadow-float); padding: 10px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .notes-calendar[hidden] { display: none; }
+        .nc-head { display: flex; align-items: center; justify-content: space-between; }
+        .nc-title { font-size: 11.5px; font-weight: 600; color: var(--text-main); font-variant-numeric: tabular-nums; }
+        .nc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .nc-weekhead { font-size: 9px; color: var(--text-3); text-transform: uppercase; padding: 2px 0; text-align: center; }
+        .nc-cell {
+            height: 32px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+            font-size: 11px; font-family: inherit; color: var(--text-main);
+            background: transparent; border: 1px solid transparent; border-radius: 8px;
+            cursor: pointer; padding: 0; line-height: 1;
+            transition: background .15s, border-color .15s, color .15s;
+        }
+        .nc-cell:hover:not(.nc-empty) { background: rgba(0, 135, 235, 0.08); }
+        html[data-theme="space"] .nc-cell:hover:not(.nc-empty) { background: rgba(121, 133, 255, 0.12); }
+        .nc-empty { cursor: default; }
+        .nc-today { border-color: var(--brand-primary); color: var(--brand-primary); font-weight: 700; }
+        .nc-selected { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; font-weight: 700; }
+        .nc-has::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--success, #6FCF97); }
+        .nc-selected.nc-has::after { background: #fff; }
+        .nc-foot { font-size: 10.5px; color: var(--text-3); border-top: 1px solid var(--line); padding-top: 6px; min-height: 12px; text-align: center; font-variant-numeric: tabular-nums; }
+
+        .notes-editor { display: flex; flex-direction: column; gap: 10px; }
+        .md-img { max-width: 100%; border-radius: 10px; border: 1px solid var(--line); margin: 4px 0; }
+
+        /* 预览中的代码块：语言标签 + 行号 + 换行开关 */
+        .hl-block { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg-card); margin: 2px 0; }
+        .hl-block-head {
+            display: flex; align-items: center; gap: 8px;
+            padding: 5px 10px; font-size: 10px; font-weight: 700; letter-spacing: .06em;
+            color: var(--text-3); background: rgba(0, 0, 0, 0.03);
+            border-bottom: 1px solid var(--line);
+        }
+        html[data-theme="space"] .hl-block-head { background: rgba(255, 255, 255, 0.04); }
+        .hl-block-lang { color: var(--brand-primary); }
+        .hl-block-space { flex: 1; }
+        .hl-wrap-btn {
+            width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+            background: transparent; border: 1px solid transparent; border-radius: 6px;
+            color: var(--text-3); cursor: pointer; padding: 0;
+            transition: color .15s, border-color .15s;
+        }
+        .hl-wrap-btn:hover { color: var(--brand-primary); border-color: var(--line); }
+        .hl-wrap-btn svg { width: 13px; height: 13px; }
+        .hl-block-body { padding: 8px 10px; overflow-x: auto; }
+        .hl-block-body .hl-line { display: flex; gap: 10px; }
+        .hl-block-body .hl-num {
+            color: var(--text-3); user-select: none; min-width: 22px; text-align: right;
+            font-size: 10.5px; line-height: 1.6; font-variant-numeric: tabular-nums;
+        }
+        .hl-block-body .hl-code { white-space: pre-wrap; overflow-wrap: anywhere; }
+        .hl-block.no-wrap .hl-block-body { overflow-x: auto; }
+        .hl-block.no-wrap .hl-block-body .hl-line { flex-wrap: nowrap; }
+        .hl-block.no-wrap .hl-block-body .hl-code { white-space: pre; overflow-wrap: normal; }
+
         /* slash 命令菜单 */
         .slash-menu {
             position: absolute;
@@ -4104,7 +4254,7 @@
             flex: 0 0 40px; text-align: right; padding-right: 14px;
             color: var(--text-3); user-select: none;
         }
-        .hl-code { white-space: pre; }
+        .hl-code { white-space: pre-wrap; overflow-wrap: anywhere; }
         .hl-kw { color: var(--brand-primary); font-weight: 600; }
         .hl-str { color: #34D399; }
         html:not([data-theme="space"]) .hl-str { color: #059669; }
@@ -4956,6 +5106,9 @@
                 <button id="btnSoftware" class="rail-btn" data-context="software" title="Software" aria-label="Software">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
+                <button id="btnNote" class="rail-btn" data-context="notes" title="Notes" aria-label="Notes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3"/><path d="M16 3v3"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 14h8"/><path d="M8 18h5"/></svg>
+                </button>
                 <button id="devPanelBtn" class="rail-btn" data-context="dev" title="Developer panel (Ctrl+Shift+D)" aria-label="Developer panel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
                 </button>
@@ -5026,6 +5179,30 @@
                 <div id="swCategoryList" class="portal-categories"></div>
             </div>
 
+            <div id="context-notes" class="context-panel">
+                <div class="context-head">
+                    <strong>Notes</strong>
+                    <span>Daily journal editor</span>
+                </div>
+                <div class="context-label"><span>Notes</span><span class="count-pill" id="notesCount">0</span></div>
+                <div class="notes-search-wrap">
+                    <input type="text" id="notesSearch" class="notes-search-input" placeholder="Search notes…">
+                </div>
+                <div id="notesList" class="notes-list">
+                    <div class="notes-list-empty">No notes yet.</div>
+                </div>
+                <div id="notesPager" class="notes-pager" hidden>
+                    <button type="button" id="notesPagePrev" class="tp-nav-btn" aria-label="Previous page" title="Previous page">&lsaquo;</button>
+                    <span id="notesPageInfo" class="notes-pager-info">1 / 1</span>
+                    <button type="button" id="notesPageNext" class="tp-nav-btn" aria-label="Next page" title="Next page">&rsaquo;</button>
+                </div>
+                <button type="button" id="btnNoteNew" class="notes-new-btn">+ New note</button>
+                <div class="notes-launch">
+                    <input type="text" id="noteAppPath" class="notes-launch-input" placeholder="External notes app path…" title="Path to an external notes app, e.g. D:\软件安装\yuque\yuque-desktop\语雀.exe">
+                    <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn" title="Launch the external notes app">Launch</button>
+                </div>
+            </div>
+
             <div id="context-dev" class="context-panel">
                 <div class="context-head">
                     <strong>Developer Panel</strong>
@@ -5044,6 +5221,10 @@
                     <button type="button" class="dev-tool-btn" data-dev-tab="deploy" title="Deploy and git">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
                         <span>Deploy</span>
+                    </button>
+                    <button type="button" class="dev-tool-btn" data-dev-tab="software" title="Software manager">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        <span>Software</span>
                     </button>
                 </div>
                 <div class="context-label"><span>Repository</span><span class="count-pill" id="gitDot">&mdash;</span></div>
@@ -5067,14 +5248,14 @@
                 <div class="context-label"><span>App</span></div>
                 <div class="context-about-card">
                     <label>Version</label>
-                    <strong id="contextAboutVersion">v0.6.0</strong>
+                    <strong id="contextAboutVersion">v0.7.0</strong>
                     <label>Developer</label>
                     <strong>Helloxiaolaodi</strong>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <span class="version-chip" id="versionChip">v0.6.0</span>
+                <span class="version-chip" id="versionChip">v0.7.0</span>
                 <span class="legend-item" title="Internal pages share a persistent WebView session">
                     <span class="legend-dot green"></span>
                     AlpeHuez
@@ -5213,6 +5394,80 @@
                     </div>
                 </section>
 
+                <section id="view-notes" class="view">
+                    <div class="view-scroll">
+                        <div class="view-heading">
+                            <h1>Notes</h1>
+                            <p>Daily notes in Markdown. Pick a date on the left, write, and it auto-saves — stored locally and mirrored to disk.</p>
+                        </div>
+                        <div class="notes-workspace">
+                            <div class="notes-toolbar">
+                                <div class="notes-nav">
+                                    <button type="button" id="notePrev" class="tp-nav-btn" title="Previous day" aria-label="Previous day">&lsaquo;</button>
+                                    <button type="button" id="noteDayLabel" class="tp-note-day" title="Jump to date">Today</button>
+                                    <input type="date" id="noteDatePicker" class="tp-note-datepicker" hidden>
+                                    <button type="button" id="noteNext" class="tp-nav-btn" title="Next day" aria-label="Next day">&rsaquo;</button>
+                                    <button type="button" id="btnNoteCalendar" class="tp-nav-btn" title="Calendar" aria-label="Calendar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                    </button>
+                                </div>
+                                <div class="notes-actions">
+                                    <span id="noteStatus" class="tp-note-status notes-status">saved</span>
+                                    <span id="noteSavedAt" class="notes-savedat"></span>
+                                    <button type="button" id="noteDeleteBtn" class="about-action-btn" title="Delete this note">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        Delete
+                                    </button>
+                                    <button type="button" id="noteExportBtn" class="about-action-btn" title="Export all notes as Markdown">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        Export all
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="notesMdbar" class="notes-mdbar">
+                                <button type="button" class="md-btn" data-md="bold" title="Bold"><strong>B</strong></button>
+                                <button type="button" class="md-btn" data-md="italic" title="Italic"><em>I</em></button>
+                                <button type="button" class="md-btn" data-md="strike" title="Strikethrough"><s>S</s></button>
+                                <span class="md-sep"></span>
+                                <button type="button" class="md-btn" data-md="h1" title="Heading 1">H1</button>
+                                <button type="button" class="md-btn" data-md="h2" title="Heading 2">H2</button>
+                                <span class="md-sep"></span>
+                                <button type="button" class="md-btn" data-md="quote" title="Quote">&#10077;</button>
+                                <button type="button" class="md-btn" data-md="ul" title="Bullet list">&#8226;</button>
+                                <button type="button" class="md-btn" data-md="ol" title="Numbered list">1.</button>
+                                <span class="md-sep"></span>
+                                <button type="button" class="md-btn" data-md="code" title="Inline code"><code>`c`</code></button>
+                                <button type="button" class="md-btn" data-md="pre" title="Code block">&lt;/&gt;</button>
+                                <button type="button" class="md-btn" data-md="link" title="Link">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                </button>
+                                <button type="button" class="md-btn" data-md="img" title="Image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                </button>
+                                <button type="button" class="md-btn" data-md="upload" title="Upload image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                </button>
+                                <button type="button" class="md-btn" data-md="table" title="Table">&#9642;</button>
+                                <button type="button" class="md-btn" data-md="hr" title="Divider">&#8213;</button>
+                            </div>
+                            <input type="file" id="noteImgFile" accept="image/*" hidden>
+                            <div id="noteCalendar" class="notes-calendar" hidden>
+                                <div class="nc-head">
+                                    <button type="button" id="ncPrev" class="tp-nav-btn" aria-label="Previous month" title="Previous month">&lsaquo;</button>
+                                    <span id="ncLabel" class="nc-title"></span>
+                                    <button type="button" id="ncNext" class="tp-nav-btn" aria-label="Next month" title="Next month">&rsaquo;</button>
+                                </div>
+                                <div class="nc-grid" id="ncGrid"></div>
+                                <div class="nc-foot" id="ncFoot"></div>
+                            </div>
+                            <div class="notes-editor">
+                                <textarea id="noteInput" class="tp-note-input" placeholder="Write today's thoughts in Markdown…" spellcheck="false"></textarea>
+                                <div id="notePreview" class="tp-note-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <section id="view-badges" class="view">
                     <div class="view-scroll">
                         <div class="view-heading">
@@ -5234,7 +5489,7 @@
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
-                                <h1>AlpeHuez <span id="aboutVersion">v0.6.0</span></h1>
+                                <h1>AlpeHuez <span id="aboutVersion">v0.7.0</span></h1>
                                 <p>A workspace browser for Helloxiaolaodi. It combines the portal dashboard, vertical browser tabs, persistent sessions, local achievements, and the developer console in one desktop shell.</p>
                             </div>
                         </div>
@@ -5250,20 +5505,20 @@
                         </div>
                         <div class="about-grid">
                             <div class="about-card">
-                                <h2>v0.6.0 Update Notes</h2>
+                                <h2>v0.7.0 Update Notes</h2>
                                 <ul>
-                                    <li>Dual-channel backup: WebDAV single-zip joins Hugging Face git sync, with whitelist filtering and DB→JSON export keeping backups clean.</li>
-                                    <li>Full restore: links, My Files metadata, and settings come back from a backup in one flow.</li>
-                                    <li>Tab discarding: inactive browser tabs hibernate to cut desktop memory, re-opening on click.</li>
-                                    <li>Bookmark import/export: one-click import of browser bookmark HTML and export of Portal link cards.</li>
-                                    <li>Settings refactor: account section and clearer backup/restore controls.</li>
+                                    <li>Summon fix: restoring AlpeHuez from the tray reliably shows the window again — no more restart to bring the interface back.</li>
+                                    <li>In-app new tabs: target="_blank" links inside open webpages open a new tab in AlpeHuez instead of the external browser.</li>
+                                    <li>Notes workspace: a new left-rail Notes view — searchable journal list by date, editor with live Markdown preview, auto-save, delete, and export.</li>
+                                    <li>Code snippets in Daily Notes now wrap long lines instead of scrolling horizontally.</li>
+                                    <li>Developer Panel: Software tab added to the embedded panel tools.</li>
                                 </ul>
                             </div>
                             <div class="about-card">
                                 <h2>Developer &amp; Links</h2>
                                 <div class="about-meta">
                                     <div><label>Developer</label><strong>Helloxiaolaodi</strong></div>
-                                    <div><label>Version</label><strong id="aboutVersionMeta">0.6.0</strong></div>
+                                    <div><label>Version</label><strong id="aboutVersionMeta">0.7.0</strong></div>
                                     <div><label>GitHub</label><strong>Helloxiaolaodi/AlpeHuez</strong></div>
                                     <div><label>AlpeHuez</label><strong>Persistent WebView</strong></div>
                                 </div>
@@ -6434,6 +6689,7 @@
             });
             const forgotBtn = $('forgotPwdBtn');
             if (forgotBtn) forgotBtn.addEventListener('click', () => {
+                closeSettingsModal();
                 recoverStepEmail();
             });
             const modal = $('recoverModal');
@@ -6740,7 +6996,7 @@
 
         // ---------- 更新检查（Tauri updater 插件）----------
         let pendingUpdate = null;
-        let currentAppVersion = '0.6.0';
+        let currentAppVersion = '0.7.0';
 
         function openUpdateModal(update) {
             pendingUpdate = update;
@@ -6872,6 +7128,7 @@
                 .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
                 .replace(/`([^`\n]+)`/g, '<code class="md-code">$1</code>')
+                .replace(/!\[([^\]\n]*)\]\(([^)\s]+)\)/g, (m, alt, src) => '<img class="md-img" src="' + escapeHtml(src) + '" alt="' + escapeHtml(alt) + '" loading="lazy">')
                 .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
             return out;
         }
@@ -6888,7 +7145,23 @@
                 + '</div>';
         }
 
-        function mdToHtml(markdown) {
+        function notesCodeBlock(lang, title, code) {
+            const alias = HIGHLIGHT_ALIAS[(lang || '').toLowerCase()] || 'plain';
+            const label = (lang && lang.trim()) ? lang.trim().toUpperCase() : (alias === 'plain' ? 'CODE' : alias.toUpperCase());
+            return '<div class="hl-block">'
+                + '<div class="hl-block-head">'
+                + '<span class="hl-block-lang">' + escapeHtml(label) + '</span>'
+                + (title ? '<span class="hl-block-title">' + escapeHtml(title) + '</span>' : '')
+                + '<span class="hl-block-space"></span>'
+                + '<button type="button" class="hl-wrap-btn" title="Line wrap: on">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h7"/><path d="M14 15l4 4 4-4"/></svg>'
+                + '</button>'
+                + '</div>'
+                + '<div class="hl-block-body">' + renderCodeLines(code, lang) + '</div>'
+                + '</div>';
+        }
+
+        function mdToHtml(markdown, inlineCode) {
             if (!markdown || !markdown.trim()) return '';
             const lines = markdown.split('\n');
             const out = [];
@@ -6901,7 +7174,9 @@
                     i++;
                     while (i < lines.length && !/^```\s*$/.test(lines[i])) { codeLines.push(lines[i]); i++; }
                     i++;
-                    out.push(snippetCapsule(fence[1], fence[2], codeLines.join('\n')));
+                    out.push(inlineCode
+                        ? notesCodeBlock(fence[1], fence[2], codeLines.join('\n'))
+                        : snippetCapsule(fence[1], fence[2], codeLines.join('\n')));
                     continue;
                 }
                 const heading = line.match(/^(#{1,3})\s+(.*)$/);
@@ -7092,6 +7367,507 @@
                     if (e.key === 'Escape' && !codeModal.hidden) closeCodeModal();
                 });
             }
+        }
+
+
+        // ---------- Notes 视图（每日笔记功能扩充版）----------
+        let notesDailyDate = null;
+        let notesDiskMerged = false;
+
+        function getAllNotes() {
+            let all = {};
+            try { all = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch (e) {}
+            return all;
+        }
+
+        function notesPreviewOf(date) {
+            const lines = (getNoteMarkdown(date) || '').split('\n');
+            for (const line of lines) {
+                const t = line.trim();
+                if (!t) continue;
+                if (t.startsWith('```')) continue;
+                const clean = t.startsWith('#') ? t.replace(/^#+\s*/, '') : (t.startsWith('- ') ? t.slice(2) : t);
+                if (!clean) continue;
+                return clean.length > 64 ? clean.slice(0, 64) + '…' : clean;
+            }
+            return 'Empty note';
+        }
+
+        function renderNotesSidebar() {
+            const listEl = $('notesList');
+            if (!listEl) return;
+            const searchEl = $('notesSearch');
+            const search = (searchEl ? searchEl.value : '').trim().toLowerCase();
+            const all = getAllNotes();
+            const countEl = $('notesCount');
+            if (countEl) countEl.textContent = String(Object.keys(all).length);
+            const dates = Object.keys(all)
+                .filter((d) => {
+                    if (!search) return true;
+                    if (d.includes(search)) return true;
+                    return (all[d] || '').toLowerCase().includes(search);
+                })
+                .sort()
+                .reverse();
+            const total = dates.length;
+            notesTotalPages = Math.max(1, Math.ceil(total / NOTES_PAGE_SIZE));
+            if (notesPage > notesTotalPages) notesPage = notesTotalPages;
+            if (notesPage < 1) notesPage = 1;
+            const pageDates = dates.slice((notesPage - 1) * NOTES_PAGE_SIZE, notesPage * NOTES_PAGE_SIZE);
+            if (!total) {
+                listEl.innerHTML = '<div class="notes-list-empty">' + (search ? 'No matching notes.' : 'No notes yet — click “+ New note”.') + '</div>';
+            } else {
+                listEl.innerHTML = pageDates.map((date) =>
+                    '<button type="button" class="notes-list-item' + (date === notesDailyDate ? ' active' : '') + '" data-note-date="' + date + '">'
+                    + '<span class="notes-list-date">' + (date === todayStr() ? 'Today · ' + date : date) + '</span>'
+                    + '<span class="notes-list-preview">' + escapeHtml(notesPreviewOf(date)) + '</span>'
+                    + '</button>'
+                ).join('');
+            }
+            const pager = $('notesPager');
+            if (pager) pager.hidden = total <= NOTES_PAGE_SIZE;
+            const info = $('notesPageInfo');
+            if (info) info.textContent = notesPage + ' / ' + notesTotalPages;
+            const prevBtn = $('notesPagePrev');
+            const nextBtn = $('notesPageNext');
+            if (prevBtn) prevBtn.disabled = notesPage <= 1;
+            if (nextBtn) nextBtn.disabled = notesPage >= notesTotalPages;
+            if (notesCalOpen) notesCalRender();
+        }
+
+        function renderNotesPreview() {
+            const preview = $('notePreview');
+            if (!preview) return;
+            noteSnippets.length = 0;
+            preview.innerHTML = mdToHtml(getNoteMarkdown(notesDailyDate), true);
+            preview.querySelectorAll('.snippet-capsule').forEach((cap) => {
+                cap.addEventListener('click', () => openSnippetModal(Number(cap.dataset.snippetIndex)));
+            });
+            preview.querySelectorAll('.hl-wrap-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const block = btn.closest('.hl-block');
+                    if (!block) return;
+                    const noWrap = block.classList.toggle('no-wrap');
+                    btn.title = noWrap ? 'Line wrap: off' : 'Line wrap: on';
+                });
+            });
+        }
+
+        function renderNotesView() {
+            const input = $('noteInput');
+            if (!input) return;
+            if (!notesDailyDate) notesDailyDate = todayStr();
+            input.value = getNoteMarkdown(notesDailyDate);
+            renderNotesPreview();
+            const dayLabel = $('noteDayLabel');
+            if (dayLabel) dayLabel.textContent = notesDailyDate === todayStr() ? 'Today' : notesDailyDate;
+            const picker = $('noteDatePicker');
+            if (picker) picker.value = notesDailyDate;
+            const status = $('noteStatus');
+            if (status) status.textContent = notesDailyDate === todayStr() ? 'saved' : 'archive';
+            notesPage = notesPageFor(notesDailyDate);
+            notesUpdateSavedAt();
+            renderNotesSidebar();
+        }
+
+        function notesShiftDate(delta) {
+            const parts = notesDailyDate.split('-').map(Number);
+            const d = new Date(parts[0], parts[1] - 1, parts[2] + delta);
+            notesDailyDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        let notesSaveTimer = null;
+        function scheduleNotesSave() {
+            const input = $('noteInput');
+            const status = $('noteStatus');
+            if (!input) return;
+            if (status) status.textContent = '…';
+            if (notesSaveTimer) clearTimeout(notesSaveTimer);
+            notesSaveTimer = setTimeout(() => {
+                const md = input.value;
+                storeNoteMarkdown(notesDailyDate, md);
+                setNoteMeta(notesDailyDate, Date.now());
+                if (isDesktop) {
+                    invoke('save_daily_note', { date: notesDailyDate, notes: md })
+                        .then((ts) => { if (ts) setNoteMeta(notesDailyDate, Number(ts)); })
+                        .catch(() => {});
+                }
+                renderNotesPreview();
+                renderNotesSidebar();
+                notesUpdateSavedAt();
+                if (status) status.textContent = notesDailyDate === todayStr() ? 'saved' : 'archive';
+            }, 400);
+        }
+
+        function mergeDiskNotes() {
+            if (notesDiskMerged) return;
+            notesDiskMerged = true;
+            if (!isDesktop) return;
+            invoke('list_daily_notes').then((map) => {
+                if (!map) return;
+                let changed = false;
+                const all = getAllNotes();
+                const meta = getAllNotesMeta();
+                for (const [date, obj] of Object.entries(map)) {
+                    if (!obj) continue;
+                    const content = obj.content || '';
+                    if (content && !all[date]) { all[date] = content; changed = true; }
+                    if (obj.savedAt && !meta[date]) { meta[date] = Number(obj.savedAt); changed = true; }
+                }
+                if (changed) {
+                    try { localStorage.setItem(NOTES_KEY, JSON.stringify(all)); } catch (e) {}
+                    try { localStorage.setItem(NOTES_META_KEY, JSON.stringify(meta)); } catch (e) {}
+                    renderNotesSidebar();
+                    notesUpdateSavedAt();
+                    if (notesCalOpen) notesCalRender();
+                }
+            }).catch(() => {});
+        }
+
+        async function deleteActiveNote() {
+            const all = getAllNotes();
+            if (!all[notesDailyDate]) return;
+            delete all[notesDailyDate];
+            try { localStorage.setItem(NOTES_KEY, JSON.stringify(all)); } catch (e) {}
+            if (isDesktop) invoke('delete_daily_note', { date: notesDailyDate }).catch(() => {});
+            showToast('Note deleted');
+            renderNotesView();
+        }
+
+        async function exportAllNotes() {
+            const all = getAllNotes();
+            const dates = Object.keys(all).filter((d) => (all[d] || '').trim()).sort();
+            if (!dates.length) { showToast('No notes to export'); return; }
+            const parts = dates.map((d) => '## ' + d + '\n\n' + (all[d] || '').trim() + '\n\n---\n');
+            const md = parts.join('\n');
+            if (isDesktop) {
+                try {
+                    await invoke('save_bookmarks_export', { filename: 'alpehuez-notes-' + todayStr() + '.md', content: md });
+                    showToast('Notes exported to Downloads');
+                } catch (e) { showToast('Export failed'); }
+            } else {
+                const blob = new Blob([md], { type: 'text/markdown' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'alpehuez-notes-' + todayStr() + '.md';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showToast('Notes exported');
+            }
+        }
+
+        function initNotesView() {
+            const input = $('noteInput');
+            if (!input) return;
+            mergeDiskNotes();
+            input.addEventListener('input', scheduleNotesSave);
+            input.addEventListener('paste', (e) => {
+                const items = (e.clipboardData && e.clipboardData.items) || [];
+                for (const it of items) {
+                    if (it.type && it.type.startsWith('image/')) {
+                        const file = it.getAsFile();
+                        if (file) { e.preventDefault(); notesInsertImageFromFile(file); }
+                        break;
+                    }
+                }
+            });
+            $('notePrev').addEventListener('click', () => { notesShiftDate(-1); renderNotesView(); });
+            $('noteNext').addEventListener('click', () => { notesShiftDate(1); renderNotesView(); });
+            const dayLabel = $('noteDayLabel');
+            const datePicker = $('noteDatePicker');
+            if (dayLabel && datePicker) {
+                dayLabel.addEventListener('click', () => {
+                    datePicker.value = notesDailyDate || todayStr();
+                    datePicker.hidden = !datePicker.hidden;
+                    if (!datePicker.hidden) datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
+                });
+                datePicker.addEventListener('change', () => {
+                    if (datePicker.value) { notesDailyDate = datePicker.value; renderNotesView(); }
+                    datePicker.hidden = true;
+                });
+                datePicker.addEventListener('blur', () => { datePicker.hidden = true; });
+            }
+            const delBtn = $('noteDeleteBtn');
+            if (delBtn) delBtn.addEventListener('click', deleteActiveNote);
+            const exportBtn = $('noteExportBtn');
+            if (exportBtn) exportBtn.addEventListener('click', exportAllNotes);
+            const search = $('notesSearch');
+            if (search) search.addEventListener('input', () => { notesPage = 1; renderNotesSidebar(); });
+            const newBtn = $('btnNoteNew');
+            if (newBtn) newBtn.addEventListener('click', () => { notesDailyDate = todayStr(); renderNotesView(); });
+            const list = $('notesList');
+            if (list) list.addEventListener('click', (e) => {
+                const item = e.target.closest('.notes-list-item');
+                if (item && item.dataset.noteDate) { notesDailyDate = item.dataset.noteDate; renderNotesView(); }
+            });
+            const pagePrev = $('notesPagePrev');
+            const pageNext = $('notesPageNext');
+            if (pagePrev) pagePrev.addEventListener('click', () => { if (notesPage > 1) { notesPage--; renderNotesSidebar(); } });
+            if (pageNext) pageNext.addEventListener('click', () => { if (notesPage < notesTotalPages) { notesPage++; renderNotesSidebar(); } });
+            const mdbar = $('notesMdbar');
+            if (mdbar) mdbar.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-md]');
+                if (!btn) return;
+                if (btn.dataset.md === 'upload') {
+                    const fileEl = $('noteImgFile');
+                    if (fileEl) fileEl.click();
+                    return;
+                }
+                notesApplyMd(btn.dataset.md);
+            });
+            const fileEl = $('noteImgFile');
+            if (fileEl) fileEl.addEventListener('change', () => {
+                if (fileEl.files && fileEl.files[0]) notesInsertImageFromFile(fileEl.files[0]);
+                fileEl.value = '';
+            });
+            const calBtn = $('btnNoteCalendar');
+            if (calBtn) calBtn.addEventListener('click', notesCalToggle);
+            const calPrev = $('ncPrev');
+            const calNext = $('ncNext');
+            if (calPrev) calPrev.addEventListener('click', () => notesCalShift(-1));
+            if (calNext) calNext.addEventListener('click', () => notesCalShift(1));
+            const cal = $('noteCalendar');
+            if (cal) cal.addEventListener('click', (e) => {
+                const cell = e.target.closest('[data-cal-date]');
+                if (cell && cell.dataset.calDate) {
+                    notesDailyDate = cell.dataset.calDate;
+                    notesPage = notesPageFor(notesDailyDate);
+                    renderNotesView();
+                    notesCalRender();
+                }
+            });
+            // 外部笔记软件启动（路径可填，如 语雀.exe）
+            const appPath = $('noteAppPath');
+            if (appPath) {
+                if (isDesktop) {
+                    invoke('get_app_config', { key: 'note_app_path' })
+                        .then((v) => { if (v != null && v !== '') appPath.value = String(v); })
+                        .catch(() => {});
+                }
+                appPath.addEventListener('change', () => {
+                    const val = appPath.value.trim();
+                    if (isDesktop && val) invoke('set_app_config', { key: 'note_app_path', value: val }).catch(() => {});
+                });
+            }
+            const launchBtn = $('btnNoteAppLaunch');
+            if (launchBtn) launchBtn.addEventListener('click', async () => {
+                if (!isDesktop) { showToast('Desktop only'); return; }
+                let path = (($('noteAppPath') || {}).value || '').trim();
+                if (!path) {
+                    try {
+                        const v = await invoke('get_app_config', { key: 'note_app_path' });
+                        if (v != null && v !== '') path = String(v);
+                    } catch (e) {}
+                }
+                if (!path) {
+                    showToast('Enter a notes app path first');
+                    const inp = $('noteAppPath');
+                    if (inp) inp.focus();
+                    return;
+                }
+                try {
+                    const res = await invoke('launch_note_app', { path });
+                    showToast(res || 'Launched');
+                } catch (e) {
+                    showToast('Launch failed: ' + e);
+                }
+            });
+        }
+
+
+        // ---------- Notes：Markdown 工具栏 / 日历 / 分页 ----------
+        const NOTES_META_KEY = 'alpehuez_notes_meta';
+        const NOTES_PAGE_SIZE = 12;
+        let notesPage = 1;
+        let notesTotalPages = 1;
+        let notesCalOpen = false;
+        let notesCalYM = null;
+
+        function getAllNotesMeta() {
+            try { return JSON.parse(localStorage.getItem(NOTES_META_KEY) || '{}'); } catch (e) { return {}; }
+        }
+
+        function setNoteMeta(date, savedAt) {
+            let meta = getAllNotesMeta();
+            meta[date] = savedAt;
+            try { localStorage.setItem(NOTES_META_KEY, JSON.stringify(meta)); } catch (e) {}
+        }
+
+        function notesFmtTime(ms) {
+            if (!ms) return '';
+            const d = new Date(ms);
+            const p = (n) => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+        }
+
+        function notesPageFor(date) {
+            const all = getAllNotes();
+            const dates = Object.keys(all).sort().reverse();
+            const idx = dates.indexOf(date);
+            return idx >= 0 ? Math.floor(idx / NOTES_PAGE_SIZE) + 1 : 1;
+        }
+
+        function notesUpdateSavedAt() {
+            const el = $('noteSavedAt');
+            if (!el) return;
+            const meta = getAllNotesMeta();
+            const savedAt = meta[notesDailyDate];
+            el.textContent = savedAt ? 'Saved ' + notesFmtTime(savedAt) : '';
+        }
+
+        function notesApplyMd(kind) {
+            const input = $('noteInput');
+            if (!input) return;
+            const val = input.value;
+            const start = input.selectionStart == null ? val.length : input.selectionStart;
+            const end = input.selectionEnd == null ? start : input.selectionEnd;
+            const sel = val.slice(start, end);
+            const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+            const lineEnd = val.indexOf('\n', end) === -1 ? val.length : val.indexOf('\n', end);
+            const line = val.slice(lineStart, lineEnd);
+            let out = val, ns = start, ne = end;
+            switch (kind) {
+                case 'bold': case 'italic': case 'strike': case 'code': case 'link': case 'img': {
+                    const map = {
+                        bold: ['**', '**', 'bold text'],
+                        italic: ['*', '*', 'italic text'],
+                        strike: ['~~', '~~', 'strikethrough'],
+                        code: ['`', '`', 'code'],
+                        link: ['[', '](https://)', 'link text'],
+                        img: ['![', '](https://image.png)', 'alt text']
+                    };
+                    const [a, b, ph] = map[kind];
+                    out = val.slice(0, start) + a + (sel || ph) + b + val.slice(end);
+                    ns = start + a.length;
+                    ne = ns + (sel || ph).length;
+                    break;
+                }
+                case 'h1': case 'h2': case 'quote': case 'ul': case 'ol': {
+                    const pre = { h1: '# ', h2: '## ', quote: '> ', ul: '- ', ol: '1. ' }[kind];
+                    out = val.slice(0, lineStart) + pre + line + val.slice(lineEnd);
+                    ns = lineStart + pre.length;
+                    ne = lineEnd + pre.length;
+                    break;
+                }
+                case 'pre': {
+                    const ph = sel || 'code';
+                    out = val.slice(0, start) + '```\n' + ph + '\n```' + val.slice(end);
+                    ns = start + 4;
+                    ne = ns + ph.length;
+                    break;
+                }
+                case 'table': {
+                    const t = '\n| Header | Header |\n| --- | --- |\n| Cell | Cell |\n';
+                    out = val.slice(0, start) + t + val.slice(end);
+                    ns = start + t.length;
+                    ne = ns;
+                    break;
+                }
+                case 'hr': {
+                    const pre = (val.trim() ? '\n\n' : '') + '---\n\n';
+                    out = val.slice(0, start) + pre + val.slice(start);
+                    ns = start + pre.length;
+                    ne = ns;
+                    break;
+                }
+                default: return;
+            }
+            input.value = out;
+            input.focus();
+            try { input.setSelectionRange(ns, ne); } catch (e) {}
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function notesInsertImage(url, name) {
+            const input = $('noteInput');
+            if (!input) return;
+            const pos = input.selectionStart == null ? input.value.length : input.selectionStart;
+            const md = '![' + (name || 'image') + '](' + url + ')\n\n';
+            input.value = input.value.slice(0, pos) + md + input.value.slice(pos);
+            input.focus();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function notesInsertImageFromFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const maxDim = 1400;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        const r = Math.min(maxDim / w, maxDim / h);
+                        w = Math.round(w * r);
+                        h = Math.round(h * r);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const outUrl = file.type === 'image/png'
+                        ? canvas.toDataURL('image/png')
+                        : canvas.toDataURL('image/jpeg', 0.85);
+                    const name = (file.name || '').replace(/\.[^.]+$/, '') || 'image';
+                    notesInsertImage(outUrl, name);
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function notesCalRender() {
+            const el = $('noteCalendar');
+            if (!el) return;
+            const now = new Date();
+            if (!notesCalYM) notesCalYM = { y: now.getFullYear(), m: now.getMonth() };
+            const y = notesCalYM.y, m = notesCalYM.m;
+            const all = getAllNotes();
+            const meta = getAllNotesMeta();
+            const label = $('ncLabel');
+            if (label) label.textContent = y + ' / ' + String(m + 1).padStart(2, '0');
+            const grid = $('ncGrid');
+            if (!grid) return;
+            const first = new Date(y, m, 1).getDay();
+            const days = new Date(y, m + 1, 0).getDate();
+            const heads = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            let html = heads.map((h) => '<span class="nc-weekhead">' + h + '</span>').join('');
+            for (let i = 0; i < first; i++) html += '<span class="nc-cell nc-empty"></span>';
+            const tds = todayStr();
+            for (let d = 1; d <= days; d++) {
+                const ds = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                let cls = 'nc-cell nc-day';
+                if ((all[ds] || '').trim() || meta[ds]) cls += ' nc-has';
+                if (ds === tds) cls += ' nc-today';
+                if (ds === notesDailyDate) cls += ' nc-selected';
+                html += '<button type="button" class="' + cls + '" data-cal-date="' + ds + '">' + d + '</button>';
+            }
+            grid.innerHTML = html;
+            const foot = $('ncFoot');
+            if (foot) {
+                const selContent = (all[notesDailyDate] || '').trim();
+                const selMeta = meta[notesDailyDate];
+                foot.textContent = selContent
+                    ? notesDailyDate + '  ·  Saved ' + (selMeta ? notesFmtTime(selMeta) : '—')
+                    : (notesDailyDate === tds ? 'No note for today yet.' : 'No note for ' + notesDailyDate + '.');
+            }
+        }
+
+        function notesCalShift(delta) {
+            const now = new Date();
+            if (!notesCalYM) notesCalYM = { y: now.getFullYear(), m: now.getMonth() };
+            const d = new Date(notesCalYM.y, notesCalYM.m + delta, 1);
+            notesCalYM = { y: d.getFullYear(), m: d.getMonth() };
+            notesCalRender();
+        }
+
+        function notesCalToggle() {
+            const el = $('noteCalendar');
+            if (!el) return;
+            notesCalOpen = !notesCalOpen;
+            el.hidden = !notesCalOpen;
+            if (notesCalOpen) notesCalRender();
         }
 
 
@@ -7981,7 +8757,7 @@
 
         function renderContextAbout() {
             const version = $('aboutVersionMeta');
-            const label = version && version.textContent ? 'v' + version.textContent : 'v0.6.0';
+            const label = version && version.textContent ? 'v' + version.textContent : 'v0.7.0';
             $('contextAboutVersion').textContent = label;
         }
 
@@ -8198,6 +8974,7 @@
             if (context !== 'portal') resetPortalSidebarState();
             if (context === 'myfiles') renderFileTree();
             if (context === 'software') renderSoftwareContext();
+            if (context === 'notes') renderNotesSidebar();
             if (context === 'badges') renderContextStats();
             if (context === 'about') renderContextAbout();
             if (context === 'dev') renderDevContext();
@@ -8312,9 +9089,9 @@
             document.querySelectorAll('.view').forEach((view) => view.classList.remove('active'));
             const target = $('view-' + viewName);
             if (target) target.classList.add('active');
-            const titles = { home: 'Portal', myfiles: 'My Files', software: 'Software', badges: 'Achievements', about: 'About', dev: 'Developer Panel' };
+            const titles = { home: 'Portal', myfiles: 'My Files', software: 'Software', notes: 'Notes', badges: 'Achievements', about: 'About', dev: 'Developer Panel' };
             $('viewTitle').textContent = titles[viewName] || 'AlpeHuez';
-            const contexts = { home: 'portal', myfiles: 'myfiles', software: 'software', badges: 'badges', about: 'about', dev: 'dev' };
+            const contexts = { home: 'portal', myfiles: 'myfiles', software: 'software', notes: 'notes', badges: 'badges', about: 'about', dev: 'dev' };
             setContext(contexts[viewName] || 'portal');
             const webLocked = isWebShowcase && (viewName === 'myfiles' || viewName === 'dev');
             if (webLocked) {
@@ -8322,6 +9099,7 @@
             } else {
                 if (viewName === 'myfiles') renderMyFilesView();
                 if (viewName === 'software') renderSoftwareContext();
+                if (viewName === 'notes') renderNotesView();
                 if (viewName === 'badges') {
                     // 线上展示版隐藏开发者骑行档案与本地使用统计，仅保留通用成就徽章。
                     if (isWebShowcase) {
@@ -8504,7 +9282,7 @@
         }
 
         async function loadAbout() {
-            const fallbackVersion = '0.6.0';
+            const fallbackVersion = '0.7.0';
             renderRiderPanel();
             if (!isDesktop) return;
             try {
@@ -9098,6 +9876,7 @@
             $('btnAbout').addEventListener('click', () => switchView('about'));
             $('btnMyFiles').addEventListener('click', () => switchView('myfiles'));
             $('btnSoftware').addEventListener('click', () => switchView('software'));
+            $('btnNote').addEventListener('click', () => switchView('notes'));
             $('devPanelBtn').addEventListener('click', openDevPanel);
             $('btnGitHub').addEventListener('click', () => openUrl('https://github.com/Helloxiaolaodi', 'GitHub'));
             $('btnCnblogs').addEventListener('click', () => openUrl('https://www.cnblogs.com/Helloxiaolaodi', 'Blog'));
@@ -9935,6 +10714,7 @@
             initActivityTimelineModal();
             initUpdateModal();
             initDailyNotes();
+            initNotesView();
             startQuoteRotation();
             loadPortalLinks();
         }
@@ -10374,7 +11154,11 @@
             const min = document.getElementById('winMin');
             const max = document.getElementById('winMax');
             const close = document.getElementById('winClose');
-            if (min) min.addEventListener('click', () => win.minimize());
+            if (min) min.addEventListener('click', () => {
+                // 直接隐藏到托盘（等效托盘「隐藏」），不经过 OS 最小化，避免
+                // Resized/is_minimized 竞态导致窗口被误藏而唤不回来。
+                invoke('hide_main_window').catch(() => win.minimize());
+            });
             if (max) max.addEventListener('click', () => win.toggleMaximize());
             if (close) close.addEventListener('click', () => win.close());
         }

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-hide-main-window"
+description = "Enables the hide_main_window command without any pre-configured scope."
+commands.allow = ["hide_main_window"]
+
+[[permission]]
+identifier = "deny-hide-main-window"
+description = "Denies the hide_main_window command without any pre-configured scope."
+commands.deny = ["hide_main_window"]

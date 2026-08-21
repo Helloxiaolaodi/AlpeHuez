@@ -6,8 +6,8 @@ mod velometer;
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use tauri::Manager;
 #[cfg(not(target_os = "android"))]
@@ -27,6 +27,19 @@ static STARTED_AT: OnceLock<Instant> = OnceLock::new();
 /// 用户主动隐藏到托盘标记：关闭按钮 / 最小化 / 托盘「隐藏」都会置位，
 /// 启动 watchdog 依据它区分"用户想隐藏"与"窗口本该显示却没显示"，避免对抗。
 static USER_HIDDEN: AtomicBool = AtomicBool::new(false);
+
+/// 最近一次显式召唤主窗口的时刻（毫秒时间戳）。show_main / watchdog 还原窗口时，
+/// Windows 的 Resized 事件可能在 is_minimized() 仍返回 true 的瞬间到达，
+/// 事件处理器会误判为"用户最小化"再次 hide 到托盘（表现为唤不回来，只能重启）。
+/// 1.5 秒内的最小化事件视为还原过程，跳过 hide。
+static LAST_SHOW_MS: AtomicU64 = AtomicU64::new(0);
+
+fn now_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
 
 /// 设置仓库根目录（Android 上由 setup 指向应用私有 webroot，桌面版无需调用）。
 /// 统一 canonicalize：Windows 上 fs::canonicalize 会补 `\\?\` 前缀，若根目录不规范化，
@@ -50,6 +63,7 @@ pub fn repo_root() -> &'static Path {
 #[cfg(not(target_os = "android"))]
 fn show_main(app: &tauri::AppHandle) {
     USER_HIDDEN.store(false, Ordering::Relaxed);
+    LAST_SHOW_MS.store(now_ms(), Ordering::Relaxed);
     if let Some(win) = app.get_webview_window("main") {
         let _ = win.show();
         let _ = win.unminimize();
@@ -67,7 +81,7 @@ fn show_main(app: &tauri::AppHandle) {
 /// 隐藏到系统托盘并记录"用户主动隐藏"，避免启动 watchdog 把窗口拉回来。
 /// 事件闭包拿到的是 &Window，快捷键/托盘拿到的是 WebviewWindow，用 trait 统一。
 #[cfg(not(target_os = "android"))]
-trait Hideable {
+pub(crate) trait Hideable {
     fn hide_window(&self);
 }
 #[cfg(not(target_os = "android"))]
@@ -83,7 +97,7 @@ impl Hideable for tauri::WebviewWindow {
     }
 }
 #[cfg(not(target_os = "android"))]
-fn hide_to_tray(win: &impl Hideable) {
+pub(crate) fn hide_to_tray(win: &impl Hideable) {
     USER_HIDDEN.store(true, Ordering::Relaxed);
     win.hide_window();
 }
@@ -136,7 +150,16 @@ pub fn run() {
                         // 藏进托盘，表现为"启动后看不到界面"。改为还原显示。
                         let _ = window.unminimize();
                     } else {
-                        hide_to_tray(window);
+                        // 还原过程中（show/unminimize 刚发起不久，或窗口本就被隐藏到托盘）
+                        // Resized 仍可能携带 is_minimized()=true 到达，此时若 hide 会立刻把
+                        // 刚唤出的窗口藏回托盘。两种情况都视为还原过程，跳过 hide：
+                        //  1) 1.5s 内显式召唤过（托盘/快捷键/show_request/watchdog 走 show_main）；
+                        //  2) 窗口正处于隐藏到托盘状态（任务栏还原等未走 show_main 的路径）。
+                        let restoring = now_ms().saturating_sub(LAST_SHOW_MS.load(Ordering::Relaxed)) < 1500
+                            || USER_HIDDEN.load(Ordering::Relaxed);
+                        if !restoring {
+                            hide_to_tray(window);
+                        }
                     }
                 }
             }
@@ -214,6 +237,10 @@ pub fn run() {
             commands::backup_set_local_state,
             commands::restore_backup,
             commands::save_daily_note,
+            commands::list_daily_notes,
+            commands::delete_daily_note,
+            commands::hide_main_window,
+            commands::launch_note_app,
         ]);
 
     // Alt+A 全局召唤：隐藏时显示并聚焦，可见时隐藏。Android 无全局快捷键，且该插件在移动端为空壳。
@@ -322,6 +349,7 @@ pub fn run() {
                             let visible = win.is_visible().unwrap_or(false);
                             let minimized = win.is_minimized().unwrap_or(false);
                             if !USER_HIDDEN.load(Ordering::Relaxed) && (!visible || minimized) {
+                                LAST_SHOW_MS.store(now_ms(), Ordering::Relaxed);
                                 let _ = win.unminimize();
                                 let _ = win.show();
                                 let _ = win.set_focus();

@@ -1,11 +1,11 @@
 {
-    "version":  "0.6.0",
-    "notes":  "668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring\n871034e feat: show generic badges on web showcase, hide rider profile and stats\n64ebb8e feat: lock Achievements view on web showcase\ne29b7d1 fix: software page public after Cloudflare .html canonicalization\nf326f72 fix: software page public on web, drop login back-home button",
-    "pub_date":  "2026-08-20T14:36:07Z",
+    "version":  "0.7.0",
+    "notes":  "e9acc79 chore: publish v0.6.0 setup exe with Resend email recovery\n668b7e5 feat: send password recovery code via Resend email, fix VeloMeter ring\n871034e feat: show generic badges on web showcase, hide rider profile and stats\n64ebb8e feat: lock Achievements view on web showcase\ne29b7d1 fix: software page public after Cloudflare .html canonicalization",
+    "pub_date":  "2026-08-21T05:51:54Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0N3b3ZUeWp6VUxLTGNkOGtJK1lrVkpXdmZTTUVnWmh4UGdBdFoxSDlGUkhxaVUrdEh0WE1PZFZ2UUlDVkFYYlpWblFyZmRNa3VNYjhiTzJhdU1saGdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MjM2NTY2CWZpbGU6QWxwZUh1ZXpfMC42LjBfeDY0LXNldHVwLmV4ZQp0UVVsSUhhaytacy9GUkQvQy9yQkdNbm52VE0vZ0hjZEVlbENJRUFhVHFXOERhcDMva0d4U2lTdjhZUC9ya28yZmtVL1JjVGdHRHloQVcwdlBuekJCZz09Cg==",
-                                             "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.6.0/AlpeHuez_0.6.0_x64-setup.exe"
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc051NFB4UUw0K1ZBSnVYZXdwR3VuWEthUG1Icmk3MHVPRnVnRUZMK3ZYVm4vdGJkVjkwaFBlMndiU0tqa3Z2bDcwcXNJV29tVmpSQjc3aXhvRTMycVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MjkxNTE0CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQp6SkIrK1czQTQrNUltQkkrM0puZlpHRFRVNVlsNENhVnZoSER4UEwyU1NWV3F3dkhpVXRMRGJrc2Q0b0pmTURIaHhnbDR3LzgxcTl2clJOS2tVenhDZz09Cg==",
+                                             "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }
 }

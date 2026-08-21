@@ -113,6 +113,21 @@ const CHILD_KEY_JS: &str = r#"(function () {
     }
   }
   document.addEventListener('keydown', routeKey, true);
+
+  // target="_blank" 链接（或 window.open 产生的弹窗意图）在应用内新开标签页，
+  // 而不是丢给外部浏览器。普通链接保持标准当前标签导航。
+  function routeBlankTarget(event) {
+    var tauriEvent = window.__TAURI__ && window.__TAURI__.event;
+    if (!tauriEvent || typeof tauriEvent.emitTo !== 'function') return;
+    var link = event.target && event.target.closest ? event.target.closest('a[target="_blank"]') : null;
+    if (!link) return;
+    var href = link.href;
+    if (!href || !/^https?:\/\//i.test(href)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    tauriEvent.emitTo('main', 'alpehuez-open-tab', { url: href, title: '' });
+  }
+  document.addEventListener('click', routeBlankTarget, true);
 })();"#;
 
 #[derive(Serialize)]
@@ -1341,12 +1356,9 @@ pub async fn open_url_scheme(url: String) -> Result<(), String> {
     }
     #[cfg(target_os = "windows")]
     {
-        let quoted = format!("\"{}\"", trimmed);
-        let mut c = std::process::Command::new("cmd");
-        silent(&mut c);
-        c.args(["/C", "start", "", &quoted])
-            .spawn()
-            .map_err(|e| e.to_string())?;
+        // cmd /C start 对带 ? 和 & 的 URI（如 mailto:...?subject=a&body=b）会拆分失败，报 "Windows 找不到文件"。
+        // tauri_plugin_opener 在桌面端走 open crate 的 ShellExecuteEx，可完整处理任意 scheme URI。
+        tauri_plugin_opener::open_url(trimmed, None::<&str>).map_err(|e| e.to_string())?;
     }
     #[cfg(all(not(target_os = "windows"), not(target_os = "android")))]
     {
@@ -1729,9 +1741,22 @@ fn open_internal_page_impl(
             );
         })
         .on_new_window(move |new_url, _features| {
+            // target="_blank" / window.open 的弹窗意图改为应用内新标签页
+            // （与 CHILD_KEY_JS 的点击拦截一致）；非 http(s) 直接拒绝。
+            let is_http = matches!(new_url.scheme(), "http" | "https");
+            let url_str = new_url.as_str().to_string();
             let opener = open_app.clone();
             std::thread::spawn(move || {
-                let _ = route_external_url(&opener, new_url.as_str());
+                if is_http {
+                    let _ = opener.emit(
+                        "alpehuez-open-tab",
+                        InternalPageInfo {
+                            label: String::new(),
+                            url: url_str,
+                            title: String::new(),
+                        },
+                    );
+                }
             });
             tauri::webview::NewWindowResponse::Deny
         });
@@ -2364,7 +2389,46 @@ fn read_zip_files(bytes: &[u8]) -> Result<Vec<(String, Vec<u8>)>, String> {
 }
 
 #[tauri::command]
-pub async fn save_daily_note(app: tauri::AppHandle, date: String, notes: String) -> Result<(), String> {
+pub fn hide_main_window(app: tauri::AppHandle) {
+    #[cfg(not(target_os = "android"))]
+    if let Some(win) = app.get_webview_window("main") {
+        crate::hide_to_tray(&win);
+    }
+}
+
+/// 启动一个外部软件（笔记类等），路径由用户在 Notes 界面填写（如 语雀.exe）。
+/// 用 cmd start 兼容含空格/中文的路径；路径不存在时给出明确错误。
+#[tauri::command]
+pub fn launch_note_app(path: String) -> Result<String, String> {
+    let p = path.trim();
+    if p.is_empty() {
+        return Err("笔记软件路径为空".into());
+    }
+    #[cfg(target_os = "windows")]
+    {
+        let target = std::path::Path::new(p);
+        if !target.exists() {
+            return Err(format!("路径不存在: {p}"));
+        }
+        let output = std::process::Command::new("cmd")
+            .args(["/C", "start", "", p])
+            .spawn();
+        match output {
+            Ok(_) => Ok(format!("已启动 {p}")),
+            Err(e) => Err(format!("启动失败: {e}")),
+        }
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = std::process::Command::new(p)
+            .spawn()
+            .map_err(|e| format!("启动失败: {e}"))?;
+        Ok(format!("已启动 {p}"))
+    }
+}
+
+#[tauri::command]
+pub async fn save_daily_note(app: tauri::AppHandle, date: String, notes: String) -> Result<u64, String> {
     if date.is_empty()
         || !date
             .chars()
@@ -2378,8 +2442,88 @@ pub async fn save_daily_note(app: tauri::AppHandle, date: String, notes: String)
         .map_err(|e| e.to_string())?
         .join("daily-notes");
     fs::create_dir_all(&dir).map_err(|e| format!("创建每日笔记目录失败: {e}"))?;
-    fs::write(dir.join(format!("{date}.json")), notes)
-        .map_err(|e| format!("保存每日笔记失败: {e}"))?;
+    // v0.7.0 起以 .md 保存，便于直接同步到 Hugging Face 备份仓库。
+    let path = dir.join(format!("{date}.md"));
+    fs::write(&path, notes).map_err(|e| format!("保存每日笔记失败: {e}"))?;
+    let saved_at = std::fs::metadata(&path)
+        .and_then(|m| m.modified())
+        .ok()
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    Ok(saved_at)
+}
+
+/// 列出全部已落盘的每日笔记（date → {content, savedAt}），供 Notes 视图合并出备份恢复的笔记。
+/// savedAt 为文件修改时间（毫秒），用于日历展示每篇笔记的最终保存时间。
+#[tauri::command]
+pub async fn list_daily_notes(app: tauri::AppHandle) -> Result<Value, String> {
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("daily-notes");
+    let mut map = serde_json::Map::new();
+    if let Ok(entries) = fs::read_dir(&dir) {
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().to_string();
+            if !name.ends_with(".json") && !name.ends_with(".md") {
+                continue;
+            }
+            let date = name
+                .strip_suffix(".json")
+                .or_else(|| name.strip_suffix(".md"))
+                .unwrap_or(&name)
+                .to_string();
+            if date.is_empty()
+                || !date.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+            {
+                continue;
+            }
+            let content = fs::read_to_string(entry.path()).unwrap_or_default();
+            let saved_at = fs::metadata(entry.path())
+                .and_then(|m| m.modified())
+                .ok()
+                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            let mut obj = serde_json::Map::new();
+            obj.insert("content".into(), Value::String(content));
+            obj.insert("savedAt".into(), Value::Number(saved_at.into()));
+            map.insert(date, Value::Object(obj));
+        }
+    }
+    Ok(Value::Object(map))
+}
+
+#[tauri::command]
+pub async fn delete_daily_note(app: tauri::AppHandle, date: String) -> Result<(), String> {
+    if date.is_empty()
+        || !date
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-')
+    {
+        return Err("无效的日期".into());
+    }
+    let path = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("daily-notes")
+        .join(format!("{date}.md"));
+    let json_path = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("daily-notes")
+        .join(format!("{date}.json"));
+    for p in [&path, &json_path] {
+        match fs::remove_file(p) {
+            Ok(_) => return Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+            Err(e) => return Err(format!("删除每日笔记失败: {e}")),
+        }
+    }
     Ok(())
 }
 
@@ -2877,9 +3021,13 @@ pub async fn restore_backup(app: tauri::AppHandle) -> Result<RestoreResult, Stri
                     fs::create_dir_all(parent).map_err(|e| e.to_string())?;
                 }
                 fs::write(dst, bytes).map_err(|e| format!("写回 {rel} 失败: {e}"))?;
-                // daily-notes/*.json 存的是纯文本 markdown（非 JSON），回传前端写 localStorage。
+                // daily-notes/*.md（及历史 .json）存的是纯文本 markdown（非 JSON），回传前端写 localStorage。
                 let text = String::from_utf8_lossy(bytes).into_owned();
-                daily.insert(name.trim_end_matches(".json").to_string(), Value::String(text));
+                let stem = name
+                    .trim_end_matches(".json")
+                    .trim_end_matches(".md")
+                    .to_string();
+                daily.insert(stem, Value::String(text));
                 applied.push(rel.to_string());
             }
             _ => {}

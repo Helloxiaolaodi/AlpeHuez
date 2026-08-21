@@ -115,15 +115,15 @@ if (-not $NoBuild) {
             Write-Warning '未找到签名密钥（TAURI_SIGNING_PRIVATE_KEY 或 ~/.tauri/alpehuez.key），createUpdaterArtifacts 构建会失败。'
         }
     }
-    # Resend API Key：编译期注入 option_env!("RESEND_API_KEY")。未设置时从 ~/.tauri/resend.key 读取（不进仓库）。
-    if (-not $env:RESEND_API_KEY) {
-        $resendKey = Join-Path $HOME '.tauri\resend.key'
-        if (Test-Path -LiteralPath $resendKey) {
-            $env:RESEND_API_KEY = (Get-Content -Raw -LiteralPath $resendKey).Trim()
-        }
-        else {
-            Write-Warning '未找到 Resend API Key（RESEND_API_KEY 或 ~/.tauri/resend.key），找回密码邮件发送会失败。'
-        }
+    # Resend API Key：构建期注入 option_env!("RESEND_API_KEY")。以 ~/.tauri/resend.key 为准（文件中的有效 key 会覆盖
+    # 环境中可能残留的过期/无效 key——先前一次构建曾因 env 里的 401 key 编译进二进制而烧坏了找回密码功能）。
+    $resendKey = Join-Path $HOME '.tauri\resend.key'
+    if (Test-Path -LiteralPath $resendKey) {
+        $env:RESEND_API_KEY = (Get-Content -Raw -LiteralPath $resendKey).Trim()
+        Write-Host "Resend API Key loaded from $resendKey"
+    }
+    elseif (-not $env:RESEND_API_KEY) {
+        Write-Warning '未找到 Resend API Key（~/.tauri/resend.key 或 RESEND_API_KEY），找回密码邮件发送会失败。'
     }
     Push-Location $root
     try {
