@@ -143,7 +143,7 @@ Build:
 export PATH="/d/Rust/.cargo/bin:$PATH"
 RUSTUP_HOME=/d/Rust/.rustup CARGO_HOME=/d/Rust/.cargo
 node /c/Users/Lenovo/AppData/Roaming/npm/node_modules/@tauri-apps/cli/tauri.js build
-# release binary: src-tauri/target/release/my-nav-panel.exe
+# release binary: src-tauri/target/release/AlpeHuez.exe
 # NSIS installer: src-tauri/target/release/bundle/nsis/AlpeHuez_<version>_x64-setup.exe
 ```
 

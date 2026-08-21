@@ -1353,7 +1353,7 @@ pub async fn set_bg_config(app: tauri::AppHandle, config: Value) -> Result<(), S
 }
 
 /// 用户反馈邮件接收方：开发者邮箱（与旧版 mailto 目标一致）。
-const DEVELOPER_FEEDBACK_EMAIL: &str = "yangsanduo2025@gmail.com";
+const DEVELOPER_FEEDBACK_EMAIL: &str = "1641454426@qq.com";
 
 /// HTML 转义，反馈文本进入邮件模板前先转义，防止邮件内容被注入标签。
 fn escape_html(s: &str) -> String {

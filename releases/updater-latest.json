@@ -1,10 +1,10 @@
 {
     "version":  "0.7.0",
-    "notes":  "ede9628 Release v0.7.0 setup exe\nef45040 add\n722bc5b feat: feedback direct-email via Resend, Portal / Notes command, external notes app manager\nf849608 1\nae3b431 feat: notes custom export dir, reliable window restore, keep sidebar open while browsing",
-    "pub_date":  "2026-08-21T16:06:46Z",
+    "notes":  "6411dea Sync online page with v0.7.0 UI and Open Pages features\nede9628 Release v0.7.0 setup exe\nef45040 add\n722bc5b feat: feedback direct-email via Resend, Portal / Notes command, external notes app manager\nf849608 1",
+    "pub_date":  "2026-08-21T16:41:06Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0huWHM0WnZIQ09WWDM1bnFaL0Z5NUEwaXdibWhYQ2x0OCtZRHprSFcwY0R2ZTc1KzIzYXh1Q1F3d1F3OGowS0RnclJ1TE1yRUVMczJFeTFqRVJndFFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzI4NDA1CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQpJK0tiamc4ak5zT2l6VnNJVkVhNGpvU2VValk1M3UxK1Z5ejdGbnhlWVRJcjdiU1AyUUNJdGtzMS9BVjh1aUJZUTJ0WkxrRElteW5EY2VlRENPbEFBUT09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0pxeE9GVllSSVpCeUhNZng3T1NaTDV6ZWxvbGtBTEtDd2I3ejlwL3p4b2lWY3h5c2x6VWtOTG9SLzJ4M1hveTdNNUdHVWZyLzY1a2lrejJPeG9QZ2dVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzMwNDY2CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQovdlNlYlU3TlNNVVQ1WTlxa2grMHdIMVh0QnRXRWVJL0pVKzl2NkZHWVpsUGQ1cVZWeDN4aGNvaVJxL0FzOStQZWFNNTcwTlpGeTd2NEk1MXhUQVlEdz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }

@@ -3555,6 +3555,83 @@
             transform: translateY(-1px);
         }
 
+        .about-update-banner {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            max-width: 1100px;
+            margin: 0 auto 22px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            background: linear-gradient(135deg, rgba(0, 135, 235, 0.14), rgba(96, 165, 250, 0.1));
+            border: 1px solid rgba(0, 135, 235, 0.28);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+        .about-update-banner[hidden] {
+            display: none;
+        }
+        .about-update-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 38px;
+            width: 38px;
+            height: 38px;
+            color: #FFFFFF;
+            background: var(--brand-primary);
+            border-radius: 10px;
+        }
+        .about-update-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+        .about-update-copy {
+            flex: 1;
+            min-width: 0;
+        }
+        .about-update-copy strong {
+            display: block;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+        .about-update-copy span {
+            display: block;
+            margin-top: 2px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .about-update-actions {
+            display: flex;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+        .about-update-actions .about-action-btn.primary {
+            color: #FFFFFF;
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .about-update-actions .about-action-btn.primary:hover {
+            box-shadow: var(--glow);
+        }
+        html[data-theme="space"] .about-update-banner {
+            background: linear-gradient(135deg, rgba(121, 133, 255, 0.2), rgba(121, 133, 255, 0.06));
+            border-color: rgba(121, 133, 255, 0.3);
+        }
+        html[data-theme="space"] .about-update-icon {
+            background: #7985FF;
+        }
+        @media (max-width: 640px) {
+            .about-update-banner {
+                flex-wrap: wrap;
+            }
+            .about-update-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
         /* 通用弹窗 */
         .app-modal-backdrop {
             position: fixed;
@@ -5815,6 +5892,19 @@
                                 <span data-i18n-settings="checkUpdate">Check for Updates</span>
                             </button>
                         </div>
+                        <div id="aboutUpdateBanner" class="about-update-banner" hidden>
+                            <div class="about-update-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                            </div>
+                            <div class="about-update-copy">
+                                <strong id="aboutUpdateTitle">A new version is available: v{version}</strong>
+                                <span data-i18n-settings="aboutUpdateSub">You can update now or decide later.</span>
+                            </div>
+                            <div class="about-update-actions">
+                                <button type="button" id="aboutUpdateInstallBtn" class="about-action-btn primary" data-i18n-settings="aboutUpdateNow">Update Now</button>
+                                <button type="button" id="aboutUpdateLaterBtn" class="about-action-btn" data-i18n-settings="aboutUpdateLater">Not Now</button>
+                            </div>
+                        </div>
                         <div class="about-grid">
                             <div class="about-card">
                                 <h2>v0.7.0 Update Notes</h2>
@@ -6288,6 +6378,10 @@
                 downloadInstall: 'Download & Install',
                 later: 'Later',
                 updateFailed: 'Update failed: {detail}',
+                aboutUpdateAvailable: 'A new version is available: v{version}',
+                aboutUpdateSub: 'You can update now or decide later.',
+                aboutUpdateNow: 'Update Now',
+                aboutUpdateLater: 'Not Now',
                 updateDownloading: 'Downloading update…',
                 updateInstalling: 'Installing update…',
                 updateManual: 'Manual download',
@@ -6456,6 +6550,10 @@
                 downloadInstall: '\u4e0b\u8f7d\u5e76\u5b89\u88c5',
                 later: '\u7a0d\u540e',
                 updateFailed: '\u66f4\u65b0\u5931\u8d25\uff1a{detail}',
+                aboutUpdateAvailable: '\u53d1\u73b0\u65b0\u7248\u672c\uff1av{version}',
+                aboutUpdateSub: '\u53ef\u4ee5\u7acb\u5373\u66f4\u65b0\uff0c\u4e5f\u53ef\u4ee5\u7a0d\u540e\u518d\u51b3\u5b9a\u3002',
+                aboutUpdateNow: '\u7acb\u5373\u66f4\u65b0',
+                aboutUpdateLater: '\u6682\u4e0d\u66f4\u65b0',
                 updateDownloading: '\u6b63\u5728\u4e0b\u8f7d\u66f4\u65b0\u2026',
                 updateInstalling: '\u6b63\u5728\u5b89\u88c5\u66f4\u65b0\u2026',
                 updateManual: '\u624b\u52a8\u4e0b\u8f7d',
@@ -7340,17 +7438,32 @@
             $('updateModal').hidden = true;
         }
 
+        function renderAboutUpdate(update) {
+            const banner = $('aboutUpdateBanner');
+            if (!banner) return;
+            if (!update) {
+                banner.hidden = true;
+                return;
+            }
+            const title = $('aboutUpdateTitle');
+            if (title) title.textContent = settingsText('aboutUpdateAvailable', 'A new version is available: v{version}').replace('{version}', 'v' + update.version);
+            banner.hidden = false;
+        }
+
         async function checkForUpdates(manual) {
             if (!isDesktop || !window.__TAURI__.core) {
+                renderAboutUpdate(null);
                 if (manual) showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', 'updater unavailable'), 'error');
                 return null;
             }
             try {
                 const update = await window.__TAURI__.core.invoke('plugin:updater|check');
                 if (!update) {
+                    renderAboutUpdate(null);
                     if (manual) showToast(settingsText('upToDate', 'You are up to date'), 'success');
                     return null;
                 }
+                renderAboutUpdate(update);
                 if (manual) {
                     openUpdateModal(update);
                 } else {
@@ -7361,6 +7474,7 @@
                 return update;
             } catch (error) {
                 console.error('checkForUpdates failed:', error);
+                renderAboutUpdate(null);
                 if (manual) showToast(settingsText('updateFailed', 'Update failed: {detail}').replace('{detail}', String((error && error.message) || error)), 'error');
                 return null;
             }
@@ -7396,10 +7510,14 @@
             const closeBtn = $('updateModalClose');
             const installBtn = $('updateInstallBtn');
             const laterBtn = $('updateLaterBtn');
+            const aboutInstallBtn = $('aboutUpdateInstallBtn');
+            const aboutLaterBtn = $('aboutUpdateLaterBtn');
             if (openBtn) openBtn.addEventListener('click', () => checkForUpdates(true));
             if (closeBtn) closeBtn.addEventListener('click', closeUpdateModal);
             if (laterBtn) laterBtn.addEventListener('click', closeUpdateModal);
             if (installBtn) installBtn.addEventListener('click', installUpdate);
+            if (aboutInstallBtn) aboutInstallBtn.addEventListener('click', () => { if (pendingUpdate) openUpdateModal(pendingUpdate); });
+            if (aboutLaterBtn) aboutLaterBtn.addEventListener('click', () => { const banner = $('aboutUpdateBanner'); if (banner) banner.hidden = true; });
             backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeUpdateModal(); });
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && !backdrop.hidden) closeUpdateModal();

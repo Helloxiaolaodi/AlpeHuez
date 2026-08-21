@@ -140,7 +140,7 @@ if (-not $NoBuild) {
 $releaseDir = Join-Path $releasesDir ("v" + $versionToRelease)
 New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
 
-$releaseExe = Join-Path $root 'src-tauri\target\release\my-nav-panel.exe'
+$releaseExe = Join-Path $root 'src-tauri\target\release\AlpeHuez.exe'
 if (Test-Path -LiteralPath $releaseExe) {
     Copy-Item -LiteralPath $releaseExe -Destination $releaseDir -Force
 }
