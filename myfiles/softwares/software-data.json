@@ -433,6 +433,13 @@
             "en": "Cross-platform Clash proxy graphical client built with Tauri.",
             "zh": "基于 Tauri 框架的跨平台 Clash 代理图形客户端。",
             "url": "https://github.com/clash-verge-rev/clash-verge-rev"
+        },
+        {
+            "cat": "notes",
+            "name": "Stirling PDF",
+            "en": "",
+            "zh": "",
+            "url": "https://www.stirling.com/download"
         }
     ]
 }
