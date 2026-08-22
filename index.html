@@ -52,31 +52,31 @@
 
         html[data-theme="space"] {
             color-scheme: dark;
-            --brand-primary: #6EA8FF;
-            --brand-light: rgba(110, 168, 255, 0.14);
-            --brand-warm: rgba(255, 183, 77, 0.10);
-            --bg-body: linear-gradient(180deg, rgba(13, 14, 18, 0.82) 0%, rgba(18, 17, 24, 0.92) 100%);
-            --bg-body-solid: #0D0E12;
-            --bg-card: rgba(26, 27, 38, 0.88);
-            --text-main: #F4F6FB;
-            --text-muted: #A4ABC1;
-            --line: rgba(255, 255, 255, 0.07);
-            --line-strong: rgba(255, 255, 255, 0.12);
-            --panel: rgba(26, 27, 38, 0.65);
-            --panel-solid: rgba(26, 27, 38, 0.88);
+            --brand-primary: #8B5CF6;
+            --brand-light: rgba(139, 92, 246, 0.14);
+            --brand-warm: rgba(251, 191, 36, 0.10);
+            --bg-body: linear-gradient(180deg, rgba(11, 12, 16, 0.84) 0%, rgba(16, 17, 23, 0.94) 100%);
+            --bg-body-solid: #0B0C10;
+            --bg-card: rgba(20, 21, 31, 0.88);
+            --text-main: #F3F4F6;
+            --text-muted: #6B7280;
+            --line: rgba(255, 255, 255, 0.06);
+            --line-strong: rgba(255, 255, 255, 0.11);
+            --panel: rgba(28, 29, 42, 0.72);
+            --panel-solid: rgba(28, 29, 42, 0.90);
             --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 28px rgba(0, 0, 0, 0.45);
             --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 20px 52px -18px rgba(0, 0, 0, 0.62);
-            --success: #3ED598;
-            --danger: #FF6B6B;
-            --warning: #FFB454;
-            --bg-sidebar: linear-gradient(180deg, rgba(13, 14, 18, 0.72) 0%, rgba(22, 23, 31, 0.78) 100%);
-            --glass-bg: rgba(26, 27, 38, 0.65);
+            --success: #34D399;
+            --danger: #FB7185;
+            --warning: #FBBF24;
+            --bg-sidebar: linear-gradient(180deg, rgba(8, 9, 12, 0.92) 0%, rgba(8, 9, 12, 0.96) 100%);
+            --glass-bg: rgba(28, 29, 42, 0.72);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --bg-elevated: rgba(35, 37, 51, 0.86);
-            --brand-secondary: #7EE7FF;
-            --accent-gradient: linear-gradient(135deg, #4F8CFF 0%, #37C6E8 52%, #4BE0C2 100%);
-            --brand-gradient: linear-gradient(180deg, #7ED0FF 0%, #6EA8FF 50%, #4BE0C2 100%);
-            --brand-gradient-x: linear-gradient(90deg, #7ED0FF 0%, #6EA8FF 50%, #4BE0C2 100%);
+            --bg-elevated: rgba(28, 29, 42, 0.94);
+            --brand-secondary: #6366F1;
+            --accent-gradient: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+            --brand-gradient: linear-gradient(180deg, #C4B5FD 0%, #8B5CF6 50%, #6366F1 100%);
+            --brand-gradient-x: linear-gradient(90deg, #C4B5FD 0%, #8B5CF6 50%, #6366F1 100%);
         }
 
         * {
@@ -108,12 +108,12 @@
         }
 
         html[data-theme="space"] body {
-            background-color: rgba(13, 14, 18, 0.96);
+            background-color: rgba(11, 12, 16, 0.96);
             background-image:
                 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.025"/></svg>'),
-                radial-gradient(900px 520px at 88% -10%, rgba(110, 168, 255, 0.10), transparent 60%),
-                radial-gradient(700px 420px at -5% 110%, rgba(75, 224, 194, 0.07), transparent 60%),
-                linear-gradient(180deg, #0D0E12 0%, #121118 100%);
+                radial-gradient(900px 520px at 88% -10%, rgba(139, 92, 246, 0.10), transparent 62%),
+                radial-gradient(720px 440px at -5% 112%, rgba(99, 102, 241, 0.06), transparent 60%),
+                linear-gradient(180deg, #0B0C10 0%, #101117 100%);
             background-blend-mode: overlay, normal;
             background-attachment: fixed;
         }
@@ -123,11 +123,11 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            background: radial-gradient(circle at 50% -20%, rgba(110, 168, 255, 0.14) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.10) 0%, transparent 60%);
             filter: blur(var(--space-bg-blur, 0px));
         }
         html[data-theme="space"].noise-off body {
-            background-image: linear-gradient(180deg, #0D0E12 0%, #121118 100%);
+            background-image: linear-gradient(180deg, #0B0C10 0%, #101117 100%);
         }
 
         /* 浅色模式：液态玻璃与晨曦 */
@@ -3652,6 +3652,12 @@
 
         .app-modal-backdrop[hidden] { display: none; }
 
+        body.browsing #myfilesGateModal {
+            left: 236px;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
         .app-modal {
             width: 100%;
             max-width: 560px;
@@ -3713,6 +3719,27 @@
         html[data-theme="space"] .app-modal-btn.primary {
             background: var(--accent-gradient);
             border-color: transparent;
+        }
+
+        .app-modal-btn.danger {
+            color: #DC2626;
+            background: rgba(220, 38, 38, 0.06);
+            border-color: rgba(220, 38, 38, 0.34);
+        }
+        .app-modal-btn.danger:hover {
+            color: #DC2626;
+            background: rgba(220, 38, 38, 0.12);
+            border-color: #DC2626;
+        }
+        html[data-theme="space"] .app-modal-btn.danger {
+            color: #FCA5A5;
+            background: rgba(248, 113, 113, 0.10);
+            border-color: rgba(248, 113, 113, 0.34);
+        }
+        html[data-theme="space"] .app-modal-btn.danger:hover {
+            color: #FCA5A5;
+            background: rgba(248, 113, 113, 0.16);
+            border-color: #FCA5A5;
         }
 
         .update-modal { max-width: 420px; }
@@ -4371,6 +4398,8 @@
         .notes-launch-btn.primary { flex: 1; color: #fff; background: var(--brand-primary); border-color: var(--brand-primary); }
         html[data-theme="space"] .notes-launch-btn.primary { background: #2b357f; border-color: #2b357f; }
         .notes-launch-btn.primary:hover { filter: brightness(1.12); }
+        .notes-launch-btn svg { width: 14px; height: 14px; }
+        .notes-launch-btn.icon-only { padding: 0 9px; }
         .notes-apps { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
         .notes-app-item {
             display: flex; align-items: center; gap: 6px;
@@ -4378,7 +4407,11 @@
             border: 1px solid var(--line); border-radius: 8px;
         }
         html[data-theme="space"] .notes-app-item { background: rgba(255, 255, 255, 0.03); }
-        .notes-app-item.is-default { border-color: var(--brand-primary); }
+        .notes-app-item.is-default {
+            border-color: var(--brand-primary);
+            border-left: 3px solid var(--brand-primary);
+            padding-left: 6px;
+        }
         .notes-app-info { flex: 1; min-width: 0; }
         .notes-app-name { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .notes-app-default-tag { font-size: 9px; font-weight: 700; color: var(--brand-primary); border: 1px solid currentColor; border-radius: 4px; padding: 0 3px; margin-left: 4px; vertical-align: 1px; }
@@ -4402,9 +4435,9 @@
             box-shadow: 0 6px 18px rgba(110, 168, 255, 0.10);
         }
         .md-btn {
-            min-width: 26px; height: 26px; padding: 0 6px;
+            width: 28px; min-width: 28px; height: 28px; padding: 0;
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 11px; font-family: inherit; line-height: 1;
+            font-size: 10px; font-family: inherit; line-height: 1;
             color: var(--text-muted); background: transparent;
             border: 1px solid transparent; border-radius: 6px; cursor: pointer;
             transition: color .15s, background .15s, border-color .15s, transform .15s ease, box-shadow .15s ease;
@@ -4419,8 +4452,8 @@
             box-shadow: 0 3px 8px rgba(110, 168, 255, 0.16);
         }
         .md-btn:active { transform: translateY(0) scale(0.96); }
-        .md-btn svg { width: 13px; height: 13px; }
-        .md-sep { width: 1px; height: 16px; background: var(--line); margin: 0 3px; }
+        .md-btn svg { width: 14px; height: 14px; }
+        .md-sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
 
         /* 日历 */
         .notes-calendar {
@@ -4774,7 +4807,8 @@
             flex: 1;
             min-width: 0;
             overflow-y: auto;
-            padding-right: 2px;
+            padding: 0 6px 32px 2px;
+            box-sizing: border-box;
         }
 
         .settings-header h2 {
@@ -4867,6 +4901,49 @@
         .settings-row label {
             color: var(--text-muted);
             font-size: 13px;
+        }
+
+        .settings-row.shortcut-row {
+            grid-template-columns: minmax(120px, 0.85fr) minmax(0, 2fr) 92px;
+        }
+
+        .settings-shortcut-slot {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .settings-field {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .settings-field .settings-hint,
+        .settings-shortcut-slot .settings-hint {
+            grid-column: auto;
+        }
+
+        .settings-shortcut-slot .settings-hint {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .settings-shortcut-slot .settings-action-btn {
+            min-height: 30px;
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        #bgModeSeg.segmented {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 180px;
         }
 
         .settings-input,
@@ -4992,6 +5069,35 @@
             font-size: 11px;
             line-height: 1.5;
         }
+
+        .settings-hint.hf-heatmap-legend {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 10px;
+            font-size: 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.025);
+        }
+        html[data-theme="space"] .settings-hint.hf-heatmap-legend {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .hf-legend-dot {
+            width: 8px;
+            height: 8px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+        }
+        .hf-legend-dot.success { background: #2D7DF6; box-shadow: 0 0 6px rgba(45, 125, 246, 0.40); }
+        .hf-legend-dot.error { background: #E5484D; box-shadow: 0 0 6px rgba(229, 72, 77, 0.40); }
+        .hf-legend-dot.offline { background: rgba(107, 114, 128, 0.45); }
+        .hf-heatmap-legend-text {
+            flex: 1;
+            min-width: 0;
+        }
         html[data-theme="space"] .settings-hint {
             color: color-mix(in srgb, var(--text-main) 74%, transparent);
         }
@@ -5000,7 +5106,12 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 8px;
+        }
+
+        .settings-telemetry-actions {
+            justify-content: flex-start;
+            margin-top: -6px;
         }
 
         .settings-action-btn {
@@ -5071,6 +5182,27 @@
         }
         html[data-theme="space"] .settings-action-btn.secondary:hover {
             background: rgba(110, 168, 255, 0.12);
+        }
+
+        .settings-action-btn.danger {
+            color: #DC2626;
+            background: rgba(220, 38, 38, 0.06);
+            border-color: rgba(220, 38, 38, 0.34);
+        }
+        html[data-theme="space"] .settings-action-btn.danger {
+            color: #FCA5A5;
+            background: rgba(248, 113, 113, 0.10);
+            border-color: rgba(248, 113, 113, 0.34);
+        }
+        .settings-action-btn.danger:hover {
+            background: rgba(220, 38, 38, 0.12);
+            border-color: #DC2626;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.14);
+        }
+        html[data-theme="space"] .settings-action-btn.danger:hover {
+            background: rgba(248, 113, 113, 0.16);
+            border-color: #FCA5A5;
+            box-shadow: 0 4px 12px rgba(248, 113, 113, 0.16);
         }
 
         /* 弱化操作：纯文本链接 */
@@ -5483,50 +5615,42 @@
         }
 
         .nav-card-status {
-            width: auto;
-            height: 20px;
-            min-width: 20px;
-            padding: 0 7px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
+            width: 8px;
+            height: 8px;
+            min-width: 0;
+            padding: 0;
+            display: inline-block;
             border: 0;
-            border-radius: 999px;
+            border-radius: 50%;
             color: var(--text-muted);
-            background: rgba(100, 116, 139, 0.10);
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.04em;
+            background: transparent;
+            box-sizing: border-box;
         }
         .nav-card-status::before {
             content: "";
-            width: 6px;
-            height: 6px;
+            display: block;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: currentColor;
             box-shadow: 0 0 6px currentColor;
         }
         .nav-card-status::after {
-            content: attr(data-label);
+            display: none;
         }
         .nav-card-status.green {
             color: var(--success);
-            background: rgba(0, 200, 5, 0.10);
         }
         .nav-card-status.red {
             color: var(--danger);
-            background: rgba(255, 80, 0, 0.10);
         }
         html[data-theme="space"] .nav-card-status.green {
-            color: #4BE0C2;
-            background: rgba(75, 224, 194, 0.12);
-            box-shadow: 0 0 10px rgba(75, 224, 194, 0.16);
+            color: #34D399;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.55);
         }
         html[data-theme="space"] .nav-card-status.red {
-            color: #FF8A8A;
-            background: rgba(255, 107, 107, 0.12);
-            box-shadow: 0 0 10px rgba(255, 107, 107, 0.14);
+            color: #FB7185;
+            box-shadow: 0 0 8px rgba(251, 113, 133, 0.55);
         }
 
         .velometer-pill {
@@ -5847,8 +5971,7 @@
                 <div class="notes-launch">
                     <input type="text" id="noteAppPath" class="notes-launch-input" placeholder="External notes app path…" title="Path to an external notes app, e.g. D:\软件安装\yuque\yuque-desktop\语雀.exe">
                     <button type="button" id="btnNoteAppPick" class="notes-launch-btn" title="Choose a notes app file">Pick</button>
-                    <button type="button" id="btnNoteAppSave" class="notes-launch-btn" title="Save this app to the list">Save</button>
-                    <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn" title="Launch this app">Launch</button>
+                    <button type="button" id="btnNoteAppLaunch" class="notes-launch-btn icon-only" title="Launch this app" aria-label="Launch this app"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
                 </div>
                 <div id="noteAppsList" class="notes-apps"></div>
                 <div class="notes-launch">
@@ -5977,8 +6100,8 @@
                     </button>
                 </div>
                 <button id="velometerPill" class="velometer-pill" type="button" title="VeloMeter system resources" aria-label="VeloMeter system resources">
-                    <span class="vm-ring" data-label="CPU"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
-                    <span class="vm-ring" data-label="MEM"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
+                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmCpuRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmCpuVal">--%</span></span>
+                    <span class="vm-ring"><svg viewBox="0 0 40 40"><circle class="vm-track" cx="20" cy="20" r="16"/><circle class="vm-fill" id="vmMemRing" cx="20" cy="20" r="16"/></svg><span class="vm-ring-val" id="vmMemVal">--%</span></span>
                     <span class="vm-cell vm-net-pill">
                         <span class="vm-net-row up"><span class="vm-net-arrow">↑</span><span id="vmPillNetUp">0.0K</span></span>
                         <span class="vm-net-row down"><span class="vm-net-arrow">↓</span><span id="vmPillNetDown">0.0K</span></span>
@@ -6088,6 +6211,7 @@
                                 <span class="md-sep"></span>
                                 <button type="button" class="md-btn" data-md="code" title="Inline code"><code>`c`</code></button>
                                 <button type="button" class="md-btn" data-md="pre" title="Code block">&lt;/&gt;</button>
+                                <span class="md-sep"></span>
                                 <button type="button" class="md-btn" data-md="link" title="Link">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                                 </button>
@@ -6097,6 +6221,7 @@
                                 <button type="button" class="md-btn" data-md="upload" title="Upload image">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 </button>
+                                <span class="md-sep"></span>
                                 <button type="button" class="md-btn" data-md="table" title="Table">&#9642;</button>
                                 <button type="button" class="md-btn" data-md="hr" title="Divider">&#8213;</button>
                             </div>
@@ -6288,23 +6413,28 @@
 
             <section class="settings-section" data-settings-group="shortcuts">
                 <h3 data-i18n-settings="shortcuts">Shortcuts</h3>
-                <div class="settings-row">
+                <div class="settings-row shortcut-row">
                     <label data-i18n-settings="fullscreen">Fullscreen</label>
                     <input id="shortcutFullscreen" class="settings-input" type="text" value="F11">
+                    <span class="settings-shortcut-slot"></span>
                 </div>
-                <div class="settings-row">
+                <div class="settings-row shortcut-row">
                     <label data-i18n-settings="back">Back</label>
                     <input id="shortcutBack" class="settings-input" type="text" value="Alt+ArrowLeft">
+                    <span class="settings-shortcut-slot"></span>
                 </div>
-                <div class="settings-row">
+                <div class="settings-row shortcut-row">
                     <label data-i18n-settings="focusSearch">Focus search</label>
                     <input id="shortcutSearch" class="settings-input" type="text" value="Ctrl+K">
+                    <span class="settings-shortcut-slot"></span>
                 </div>
-                <div class="settings-row">
+                <div class="settings-row shortcut-row">
                     <label data-i18n-settings="developerPanel">Developer panel</label>
                     <input id="shortcutDev" class="settings-input" type="text" value="Ctrl+Shift+D">
-                    <button id="shortcutReset" class="settings-action-btn" type="button" data-i18n-settings="resetShortcuts">Reset</button>
-                    <span class="settings-hint" id="shortcutStatus"></span>
+                    <span class="settings-shortcut-slot">
+                        <button id="shortcutReset" class="settings-action-btn" type="button" data-i18n-settings="resetShortcuts">Reset</button>
+                        <span class="settings-hint" id="shortcutStatus"></span>
+                    </span>
                 </div>
             </section>
 
@@ -6359,8 +6489,10 @@
                 <h3 data-i18n-settings="account">Account</h3>
                 <div class="settings-row">
                     <label data-i18n-settings="recoveryEmailField">Recovery email</label>
-                    <input id="recoveryEmailInput" class="settings-input" type="email" placeholder="you@example.com">
-                    <span class="settings-hint" data-i18n-settings="recoveryEmailHint">Used to reset a forgotten password. A 6-digit code is delivered via email.</span>
+                    <div class="settings-field">
+                        <input id="recoveryEmailInput" class="settings-input" type="email" placeholder="you@example.com">
+                        <span class="settings-hint" data-i18n-settings="recoveryEmailHint">Used to reset a forgotten password. A 6-digit code is delivered via email.</span>
+                    </div>
                 </div>
                 <div class="settings-actions">
                     <button id="recoveryEmailSave" class="settings-action-btn primary" type="button" data-i18n-settings="setupSave">Save</button>
@@ -6416,7 +6548,12 @@
                 <div class="settings-row">
                     <label data-i18n-settings="hfHeatmap">Backup heatmap</label>
                     <div id="hfHeatmapGrid" class="hf-heatmap-grid" title="Backup · last 24 hours"></div>
-                    <span class="settings-hint" data-i18n-settings="hfHeatmapHint">Rolling 24 hours · one block per hour · blue success · red failed · dim no backup.</span>
+                    <span class="settings-hint hf-heatmap-legend">
+                        <span class="hf-legend-dot success" title="Success"></span>
+                        <span class="hf-legend-dot error" title="Failed"></span>
+                        <span class="hf-legend-dot offline" title="No backup"></span>
+                        <span class="hf-heatmap-legend-text" data-i18n-settings="hfHeatmapHint">Rolling 24 hours · one block per hour · blue success · red failed · dim no backup.</span>
+                    </span>
                 </div>
                 <span class="settings-hint" id="hfStatus"></span>
             </section>
@@ -6427,8 +6564,8 @@
                     <label data-i18n-settings="zenMode">Zen Mode (pause scoring)</label>
                     <input id="zenToggle" type="checkbox" class="settings-checkbox">
                 </div>
-                <div class="settings-row">
-                    <button id="clearTelemetry" class="settings-action-btn" type="button" data-i18n-settings="clearTelemetry">Clear abilities &amp; heatmap</button>
+                <div class="settings-actions settings-telemetry-actions">
+                    <button id="clearTelemetry" class="settings-action-btn danger" type="button" data-i18n-settings="clearTelemetry">Clear abilities &amp; heatmap</button>
                 </div>
             </section>
         </div>
@@ -6569,6 +6706,8 @@
                 telemetry: 'Telemetry',
                 zenMode: 'Zen Mode (pause scoring)',
                 clearTelemetry: 'Clear abilities & heatmap',
+                clearTelemetryTitle: 'Clear telemetry',
+                clearTelemetryConfirm: 'This will erase abilities and the heatmap permanently. Continue?',
                 supportAuthor: 'Support',
                 supportBlurb: 'Chivalry thrives in open source. If AlpeHuez has brightened your working moments, brew a cup of tea and show some support.',
                 koFi: 'Ko-fi (overseas)',
@@ -6741,6 +6880,8 @@
                 telemetry: '\u8fd0\u52a8\u8f68\u8ff9',
                 zenMode: '\u7985\u5fc3\u6a21\u5f0f\uff08\u6682\u505c\u8ba1\u5206\uff09',
                 clearTelemetry: '\u6e05\u9664\u80fd\u529b\u4e0e\u70ed\u529b\u56fe',
+                clearTelemetryTitle: '\u6e05\u9664\u8fd0\u52a8\u8f68\u8ff9',
+                clearTelemetryConfirm: '\u8fd9\u5c06\u6c38\u4e45\u6e05\u9664\u80fd\u529b\u4e0e\u70ed\u529b\u56fe\uff0c\u662f\u5426\u7ee7\u7eed\uff1f',
                 supportAuthor: '\u652f\u6301\u4f5c\u8005',
                 supportBlurb: '\u4fa0\u4e4b\u5927\u8005\uff0c\u4e3a\u5f00\u6e90\u800c\u751f\u3002\u82e5\u89c9\u5f97 AlpeHuez \u66fe\u7167\u4eae\u4f60\u7684\u5de5\u4f5c\u77ac\u95f4\uff0c\u4e0d\u59a8\u6e29\u4e00\u58f6\u6e05\u8336\uff0c\u652f\u6301\u4e00\u4e8c\u3002',
                 koFi: 'Ko-fi\uff08\u6d77\u5916\uff09',
@@ -7052,7 +7193,14 @@
             }
             showToast(zen ? 'Zen Mode on — telemetry paused' : 'Zen Mode off', zen ? 'success' : 'info');
         });
-        $('clearTelemetry').addEventListener('click', () => {
+        $('clearTelemetry').addEventListener('click', async () => {
+            const confirmMessage = settingsText('clearTelemetryConfirm', 'This will erase abilities and the heatmap permanently. Continue?');
+            const ok = await syncConfirmModal(confirmMessage, {
+                title: settingsText('clearTelemetryTitle', 'Clear telemetry'),
+                okText: settingsText('clear', 'Clear'),
+                danger: true
+            });
+            if (!ok) return;
             localStorage.removeItem('alpehuez_abilities');
             localStorage.removeItem('alpehuez_usage');
             localStorage.removeItem('alpehuez_timeline');
@@ -7239,19 +7387,23 @@
             }
         }
 
-        function syncConfirmModal(message) {
+        function syncConfirmModal(message, options) {
             return new Promise((resolve) => {
+                const opts = options || {};
+                const title = opts.title || settingsText('restoreTitle', 'Restore backup');
+                const okText = opts.okText || settingsText('restoreBtn', 'Restore');
+                const okClass = opts.danger ? 'danger' : 'primary';
                 const backdrop = document.createElement('div');
                 backdrop.className = 'app-modal-backdrop';
                 backdrop.innerHTML =
                     '<div class="app-modal setup-modal" role="dialog" aria-modal="true">' +
-                    '<div class="app-modal-head"><h3>' + escapeHtml(settingsText('restoreTitle', 'Restore backup')) + '</h3>' +
+                    '<div class="app-modal-head"><h3>' + escapeHtml(title) + '</h3>' +
                     '<div class="app-modal-actions"><button type="button" class="icon-btn" data-confirm="cancel">' + ICONS.close + '</button></div></div>' +
                     '<div class="app-modal-body">' +
                     '<p style="margin:0 0 16px;font-size:12.5px;line-height:1.6;color:var(--text-muted)">' + escapeHtml(message) + '</p>' +
                     '<div class="setup-actions">' +
                     '<button type="button" class="app-modal-btn" data-confirm="cancel">' + escapeHtml(settingsText('cancel', 'Cancel')) + '</button>' +
-                    '<button type="button" class="app-modal-btn primary" data-confirm="ok">' + escapeHtml(settingsText('restoreBtn', 'Restore')) + '</button>' +
+                    '<button type="button" class="app-modal-btn ' + okClass + '" data-confirm="ok">' + escapeHtml(okText) + '</button>' +
                     '</div></div></div>';
                 document.body.appendChild(backdrop);
                 const close = (val) => { backdrop.remove(); resolve(val); };
@@ -8383,7 +8535,10 @@
             // 外部笔记软件：可保存多个路径、设默认，一键打开默认应用
             let noteApps = [];
             let noteAppDefault = '';
-            const noteAppName = (p) => { const n = String(p).split(/[\\/]/).pop().replace(/\.exe$/i, ''); return n || String(p); };
+            const noteAppName = (p) => {
+                const n = String(p).split(/[\\/]/).pop().replace(/\.(lnk|bat|exe)$/i, '');
+                return n || String(p);
+            };
             const persistNoteApps = () => {
                 if (!isDesktop) return;
                 invoke('set_app_config', { key: 'note_apps', value: JSON.stringify(noteApps) }).catch(() => {});
@@ -8402,7 +8557,7 @@
                     return `<div class="notes-app-item${isDefault ? ' is-default' : ''}">
                         <div class="notes-app-info">
                             <span class="notes-app-name">${escapeHtml(app.name)}${isDefault ? '<span class="notes-app-default-tag">Default</span>' : ''}</span>
-                            <span class="notes-app-path" title="${escapeHtml(app.path)}">${escapeHtml(app.path)}</span>
+                            <span class="notes-app-path" title="${escapeHtml(app.path)}">${escapeHtml(noteAppName(app.path))}</span>
                         </div>
                         <div class="notes-app-actions">
                             <button type="button" class="notes-launch-btn" data-app-launch="${app.id}" title="Launch this app">${ICONS.play}</button>
@@ -8455,6 +8610,11 @@
                     const val = appPath.value.trim();
                     if (isDesktop && val) invoke('set_app_config', { key: 'note_app_path', value: val }).catch(() => {});
                 });
+                appPath.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Enter') return;
+                    e.preventDefault();
+                    saveNoteApp(appPath.value.trim());
+                });
             }
             const pickBtn = $('btnNoteAppPick');
             if (pickBtn) pickBtn.addEventListener('click', async () => {
@@ -8469,10 +8629,7 @@
                     }
                 } catch (e) { showToast('Pick failed: ' + e); }
             });
-            const saveBtn = $('btnNoteAppSave');
-            if (saveBtn) saveBtn.addEventListener('click', () => {
-                if (!isDesktop) { showToast('Desktop only'); return; }
-                const path = (($('noteAppPath') || {}).value || '').trim();
+            const saveNoteApp = (path) => {
                 if (!path) { showToast('Enter a notes app path first'); return; }
                 if (noteApps.some((a) => a.path.toLowerCase() === path.toLowerCase())) { showToast('Already saved'); return; }
                 const id = 'app' + Date.now().toString(36);
@@ -8480,7 +8637,7 @@
                 if (!noteAppDefault) noteAppDefault = id;
                 persistNoteApps(); renderNoteApps();
                 showToast('Notes app saved');
-            });
+            };
             const launchBtn = $('btnNoteAppLaunch');
             if (launchBtn) launchBtn.addEventListener('click', async () => {
                 if (!isDesktop) { showToast('Desktop only'); return; }

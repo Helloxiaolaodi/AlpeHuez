@@ -94,9 +94,15 @@ fn response(status: StatusCode, mime: &str, body: Vec<u8>) -> Response<Vec<u8>> 
 const LINK_HANDLER: &str = r#"<script>
 (function () {
   if (!window.__TAURI__) return;
-  var invoke = window.__TAURI__.core.invoke;
   function routeLink(url) {
-    if (url && /^https?:/i.test(url)) invoke('open_url', { url: url });
+    if (!url || !/^https?:/i.test(url)) return;
+    var tauriEvent = window.__TAURI__ && window.__TAURI__.event;
+    if (tauriEvent && typeof tauriEvent.emitTo === 'function') {
+      tauriEvent.emitTo('main', 'alpehuez-open-tab', { url: url, title: '' });
+      return;
+    }
+    var invoke = window.__TAURI__.core.invoke;
+    if (invoke) invoke('open_url', { url: url });
   }
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest ? e.target.closest('a') : null;
