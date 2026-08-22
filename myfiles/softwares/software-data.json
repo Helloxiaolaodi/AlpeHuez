@@ -476,6 +476,13 @@
                 "zh": "Github",
                 "url": "https://github.com/caddyserver/caddy"
             }
+        },
+        {
+            "cat": "notes",
+            "name": "Discord",
+            "en": "",
+            "zh": "",
+            "url": "https://discord.com/download"
         }
     ]
 }
