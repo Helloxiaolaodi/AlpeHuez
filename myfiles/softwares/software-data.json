@@ -464,6 +464,18 @@
             "en": "",
             "zh": "",
             "url": "https://github.com/OpenAEC-Foundation/open-pdf-studio"
+        },
+        {
+            "cat": "terminal",
+            "name": "Caddy",
+            "en": "Fast and extensible multi-platform HTTP/1-2-3 web server with automatic HTTPS",
+            "zh": "",
+            "url": "https://caddyserver.com/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/caddyserver/caddy"
+            }
         }
     ]
 }
