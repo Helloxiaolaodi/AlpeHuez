@@ -437,9 +437,26 @@
         {
             "cat": "notes",
             "name": "Stirling PDF",
-            "en": "",
+            "en": "PDF Application on GitHub that lets you edit PDFs on any device anywhere",
             "zh": "",
-            "url": "https://www.stirling.com/download"
+            "url": "https://www.stirling.com/download",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/Stirling-Tools/Stirling-PDF"
+            }
+        },
+        {
+            "cat": "notes",
+            "name": "Outline",
+            "en": "The fastest knowledge base for growing teams. Beautiful, realtime collaborative, feature packed, and markdown compatible.2",
+            "zh": "",
+            "url": "https://www.getoutline.com/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/outline/outline"
+            }
         }
     ]
 }
