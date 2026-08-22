@@ -1,10 +1,10 @@
 {
     "version":  "0.7.0",
-    "notes":  "8981eb3 Rebuild AlpeHuez v0.7.0 with tray fullscreen, portal link tabs, and UI polish\n555a139 Rebuild v0.7.0 with About update banner and AlpeHuez exe name\n6411dea Sync online page with v0.7.0 UI and Open Pages features\nede9628 Release v0.7.0 setup exe\nef45040 add",
-    "pub_date":  "2026-08-22T07:08:08Z",
+    "notes":  "55e84e6 Rebuild AlpeHuez v0.7.0 with tray fullscreen, portal tabs, UI fixes, and signed release\n8981eb3 Rebuild AlpeHuez v0.7.0 with tray fullscreen, portal link tabs, and UI polish\n555a139 Rebuild v0.7.0 with About update banner and AlpeHuez exe name\n6411dea Sync online page with v0.7.0 UI and Open Pages features\nede9628 Release v0.7.0 setup exe",
+    "pub_date":  "2026-08-22T08:48:04Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc04xT0RIMDB0OUhPdko3MXFhbEJTWHlwSFFreXFRRzdsYTkxcSsxWDZKclYvVmpkZzd0MG10aTIyLzVCSUE5bU93TGxHK3JDS0lzRmtrZTM2VFVWQ0EwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3MzgyNDU4CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQowWUVRSDNacDFxNUNHSVZmeHhjZlU0d2ZJcUZqdURsTEFaZzRucnU1dzloV3ZKQlpGaFpQUW45b2VjQm05M3NrZmpuY0JIU0tGVU1oTysyNU8zVVVCZz09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0dXVm9BOFZlZVlGbjB3Rk1hVU5IZ2dpVXNSajNxeHpKcW9hSG5TU2hMb1dBZ0I1ZEVvY1hNYzVKQjRRU3d3OUUxWHdlZUh3bVc5eFQydlRVMlRhRHdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3Mzg4NDg0CWZpbGU6QWxwZUh1ZXpfMC43LjBfeDY0LXNldHVwLmV4ZQpvYXBlempBU3ZFdVJtSmFhaTArdnhjVi85VXprQ21WdXZqZzZLYzhkU2ZrVGh0amd1enVsL3lRR3R3SkJPUDh0eC9XUExwN0Q4R3VGMEl0Ly9ONDZCdz09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.7.0/AlpeHuez_0.7.0_x64-setup.exe"
                                          }
                   }

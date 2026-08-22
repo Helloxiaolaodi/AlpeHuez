@@ -76,7 +76,7 @@ fn show_main_impl(app: &tauri::AppHandle, fullscreen: bool) {
         let _ = win.set_focus();
         if fullscreen {
             let _ = win.set_fullscreen(true);
-            let _ = app.emit("alpehuez-fullscreen-enter", ());
+            let _ = app.emit("alpehuez-fullscreen-enter", "tray");
         }
         // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
         // 微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
