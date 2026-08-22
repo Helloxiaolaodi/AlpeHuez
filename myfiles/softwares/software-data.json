@@ -457,6 +457,13 @@
                 "zh": "Github",
                 "url": "https://github.com/outline/outline"
             }
+        },
+        {
+            "cat": "notes",
+            "name": "Open PDF Studio",
+            "en": "",
+            "zh": "",
+            "url": "https://github.com/OpenAEC-Foundation/open-pdf-studio"
         }
     ]
 }
