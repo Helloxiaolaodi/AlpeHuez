@@ -1846,6 +1846,23 @@
                     ],
                     "isVpnRequired": true,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Outline_local",
+                    "url": "https://localhost",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2662,5 +2679,5 @@
             ]
         }
     ],
-    "md5": "805773cc7e71a21b0650bef6595d3ee6"
+    "md5": "cd3ed695772b0ee2eb2c0a290e37308d"
 }
