@@ -979,10 +979,20 @@ async function openSoftwareManager() {
 
 /* ---------- 部署 ---------- */
 function setBar(sel, pct) {
-  const bar = $(sel);
-  bar.style.width = pct + '%';
-  bar.classList.toggle('warn', pct >= 60);
-  bar.classList.toggle('danger', pct >= 85);
+  const bar = $(sel).closest ? $(sel).closest('.progress') || $(sel) : $(sel);
+  bar.classList.add('segments');
+  bar.innerHTML = '';
+  const active = Math.max(0, Math.min(10, Math.round(pct / 10)));
+  for (let i = 0; i < 10; i++) {
+    const seg = document.createElement('i');
+    seg.className = i < active ? 'seg active' : 'seg';
+    if (i < active && pct >= 85) {
+      seg.classList.add('danger');
+    } else if (i < active && pct >= 60) {
+      seg.classList.add('warn');
+    }
+    bar.appendChild(seg);
+  }
 }
 
 function renderSysStats(s) {
@@ -1038,7 +1048,7 @@ function renderTimelinePage() {
       <div class="tl-node"></div>
       <div class="tl-body">
         <div class="tl-msg" title="${escapeHtml(c.message)}">${escapeHtml(c.message)}</div>
-        <div class="tl-meta"><code>${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
+        <div class="tl-meta"><code data-copy="${escapeHtml(c.short)}" title="Copy commit hash">${escapeHtml(c.short)}</code> · ${escapeHtml(c.date)} · ${escapeHtml(c.author)}</div>
       </div>
     </div>`).join('');
   renderTlPager(pages);
@@ -1061,6 +1071,19 @@ $('#tlPager').addEventListener('click', (e) => {
   if (!btn || btn.disabled) return;
   tlPage = Number(btn.dataset.pg);
   renderTimelinePage();
+});
+
+$('#gitTimeline').addEventListener('click', (e) => {
+  const code = e.target.closest('.tl-meta code[data-copy]');
+  if (!code) return;
+  const hash = code.dataset.copy;
+  code.dataset.copied = 'true';
+  const restore = () => setTimeout(() => delete code.dataset.copied, 1400);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(hash).then(restore, restore);
+  } else {
+    restore();
+  }
 });
 
 async function loadGitStatus() {

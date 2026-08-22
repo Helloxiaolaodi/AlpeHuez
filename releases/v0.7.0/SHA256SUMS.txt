@@ -1,2 +1,2 @@
-fe4bc66fc6274f4f94c91c6b642be2614c30583930b094c8fc6f5da25638e6ec *AlpeHuez.exe
-192840d4023b9c7a1b919ec04fcee8f798213b36ce33fddf83dcc0822a004a5c *AlpeHuez_0.7.0_x64-setup.exe
+2f0ce56a31add11d3db27631df9f69cf85e7af4cb08f58ce46ebe71118fc9144 *AlpeHuez.exe
+f9caed2ecc0cb1a531626cb5f846ac9aa5c28d1a05d0ba029b1e0b86821fc649 *AlpeHuez_0.7.0_x64-setup.exe

@@ -243,14 +243,16 @@
   }
 
   .sw-btn-download {
-    background: var(--sw-green);
-    border: 1px solid var(--sw-green);
-    color: #ffffff;
+    background: var(--sw-green-soft);
+    border: 1px solid rgba(0, 135, 235, 0.18);
+    color: var(--sw-accent);
   }
 
   .sw-btn-download:hover {
-    background: #006FD0;
-    border-color: #006FD0;
+    background: rgba(0, 135, 235, 0.14);
+    border-color: rgba(0, 135, 235, 0.30);
+    color: #005FB8;
+    box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.08);
   }
 
   .sw-btn-site {
@@ -288,24 +290,24 @@
   /* ---- 深色模式：跟随主应用 space 主题 ---- */
   html[data-theme="space"] {
     color-scheme: dark;
-    --sw-surface: #4A4380;
-    --sw-border: rgba(255, 255, 255, 0.10);
-    --sw-border-strong: rgba(255, 255, 255, 0.16);
-    --sw-text: #F3F4FF;
-    --sw-text-secondary: #B9BEDD;
-    --sw-text-muted: #8C93B8;
-    --sw-accent: #A2B8FF;
-    --sw-accent-soft: rgba(162, 123, 255, 0.16);
-    --sw-green: #6FCF97;
-    --sw-green-soft: rgba(111, 207, 151, 0.14);
-    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --sw-surface: rgba(26, 27, 38, 0.72);
+    --sw-border: rgba(255, 255, 255, 0.08);
+    --sw-border-strong: rgba(255, 255, 255, 0.14);
+    --sw-text: #F4F6FB;
+    --sw-text-secondary: #A4ABC1;
+    --sw-text-muted: #7F88A5;
+    --sw-accent: #6EA8FF;
+    --sw-accent-soft: rgba(110, 168, 255, 0.14);
+    --sw-green: #4BE0C2;
+    --sw-green-soft: rgba(75, 224, 194, 0.12);
+    --sw-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 28px rgba(0, 0, 0, 0.32);
   }
 
   html[data-theme="space"] body {
     background:
-      radial-gradient(900px 520px at 88% -10%, rgba(121, 133, 255, 0.12), transparent 60%),
-      radial-gradient(700px 420px at -5% 110%, rgba(162, 123, 255, 0.10), transparent 60%),
-      linear-gradient(180deg, #3E3A65 0%, #473765 100%);
+      radial-gradient(900px 520px at 88% -10%, rgba(110, 168, 255, 0.10), transparent 60%),
+      radial-gradient(700px 420px at -5% 110%, rgba(75, 224, 194, 0.07), transparent 60%),
+      linear-gradient(180deg, #0D0E12 0%, #121118 100%);
     background-attachment: fixed;
   }
 
@@ -324,52 +326,62 @@
   html[data-theme="space"] .footer { color: #8C93B8; }
 
   html[data-theme="space"] .sw-search:focus {
-    border-color: rgba(162, 123, 255, 0.6);
-    box-shadow: 0 0 0 3px rgba(162, 123, 255, 0.18);
+    border-color: rgba(110, 168, 255, 0.60);
+    box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.16), 0 0 18px rgba(110, 168, 255, 0.08);
   }
 
   html[data-theme="space"] .sw-cat:hover {
-    background: rgba(162, 123, 255, 0.18);
-    color: #C4B8FF;
+    background: rgba(110, 168, 255, 0.14);
+    color: #A8D8FF;
   }
   html[data-theme="space"] .sw-cat[aria-pressed="true"] {
-    background: rgba(162, 123, 255, 0.26);
-    border-color: rgba(162, 123, 255, 0.35);
-    color: #D5CBFF;
+    background: rgba(110, 168, 255, 0.22);
+    border-color: rgba(110, 168, 255, 0.32);
+    color: #E7F4FF;
   }
 
   html[data-theme="space"] .sw-section-head .sw-count {
-    background: rgba(162, 123, 255, 0.16);
-    color: #C4B8FF;
+    background: rgba(110, 168, 255, 0.14);
+    color: #A8D8FF;
   }
 
   html[data-theme="space"] .sw-logo {
-    background: linear-gradient(135deg, #57508F, #4A4380);
-    color: #D5CBFF;
+    background: linear-gradient(135deg, rgba(110, 168, 255, 0.24), rgba(75, 224, 194, 0.13));
+    border: 1px solid rgba(110, 168, 255, 0.18);
+    color: #A8D8FF;
   }
 
   html[data-theme="space"] .sw-card {
-    background: rgba(54, 47, 84, 0.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-color: #504373;
+    background: rgba(26, 27, 38, 0.65);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-color: rgba(255, 255, 255, 0.07);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.04), 0 10px 26px -6px rgba(0, 0, 0, 0.32);
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.04), 0 12px 28px rgba(0, 0, 0, 0.32);
   }
 
   html[data-theme="space"] .sw-card:hover {
-    border-color: rgba(121, 133, 255, 0.5);
-    box-shadow: 0 16px 32px -14px rgba(121, 133, 255, 0.18),
-      inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 12px 24px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    border-color: rgba(110, 168, 255, 0.26);
+    box-shadow: 0 16px 32px -14px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 0 0 1px rgba(110, 168, 255, 0.10);
+  }
+
+  html[data-theme="space"] .sw-btn-download {
+    background: rgba(110, 168, 255, 0.10);
+    border-color: rgba(110, 168, 255, 0.22);
+    color: #A8D8FF;
   }
 
   html[data-theme="space"] .sw-btn-download:hover {
-    background: #5BB882;
-    border-color: #5BB882;
+    background: rgba(110, 168, 255, 0.18);
+    border-color: rgba(110, 168, 255, 0.38);
+    color: #E7F4FF;
+    box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.10);
   }
   html[data-theme="space"] .sw-btn-site:hover {
-    border-color: rgba(162, 123, 255, 0.5);
-    color: #C4B8FF;
+    border-color: rgba(110, 168, 255, 0.38);
+    color: #A8D8FF;
   }
 
   html[data-theme="space"] .sw-note {

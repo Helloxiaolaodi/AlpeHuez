@@ -10,6 +10,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use tauri::Manager;
+use tauri::Emitter;
 #[cfg(not(target_os = "android"))]
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 #[cfg(not(target_os = "android"))]
@@ -58,11 +59,25 @@ pub(crate) fn main_window(app: &tauri::AppHandle) -> Option<tauri::Window> {
 /// 显示并聚焦主窗口。Windows 上直接 show() 有时不置顶，需 unminimize + set_focus 兜底。
 #[cfg(not(target_os = "android"))]
 fn show_main(app: &tauri::AppHandle) {
+    show_main_impl(app, false);
+}
+
+#[cfg(not(target_os = "android"))]
+fn show_main_fullscreen(app: &tauri::AppHandle) {
+    show_main_impl(app, true);
+}
+
+#[cfg(not(target_os = "android"))]
+fn show_main_impl(app: &tauri::AppHandle, fullscreen: bool) {
     USER_HIDDEN.store(false, Ordering::Relaxed);
     if let Some(win) = main_window(app) {
         let _ = win.show();
         let _ = win.unminimize();
         let _ = win.set_focus();
+        if fullscreen {
+            let _ = win.set_fullscreen(true);
+            let _ = app.emit("alpehuez-fullscreen-enter", ());
+        }
         // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
         // 微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
         let size = win.outer_size().unwrap_or_default();
@@ -384,7 +399,7 @@ pub fn run() {
                     .tooltip("AlpeHuez")
                     .show_menu_on_left_click(false);
                 tray = tray.on_menu_event(|app, event| match event.id.as_ref() {
-                    "show" => show_main(app),
+                    "show" => show_main_fullscreen(app),
                     "hide" => {
                         if let Some(win) = main_window(app) {
                             hide_to_tray(&win);
@@ -410,7 +425,7 @@ pub fn run() {
                         ..
                     } = event
                     {
-                        show_main(tray.app_handle());
+                        show_main_fullscreen(tray.app_handle());
                     }
                 });
                 tray.build(app)?;

@@ -1683,7 +1683,16 @@ pub async fn open_dev_panel(app: tauri::AppHandle) -> Result<(), String> {
         .on_new_window(move |new_url, _features| {
             let opener = route_app.clone();
             std::thread::spawn(move || {
-                let _ = route_external_url(&opener, new_url.as_str());
+                if matches!(new_url.scheme(), "http" | "https") {
+                    let _ = opener.emit(
+                        "alpehuez-open-tab",
+                        InternalPageInfo {
+                            label: String::new(),
+                            url: new_url.as_str().to_string(),
+                            title: String::new(),
+                        },
+                    );
+                }
             });
             tauri::webview::NewWindowResponse::Deny
         })
@@ -1747,6 +1756,8 @@ fn open_internal_page_impl(
         .host_str()
         .map(|h| h.to_string())
         .unwrap_or_else(|| "Untitled".into());
+    let initial_origin = parsed.origin();
+    let nav_app = app.clone();
     let page_title = title.clone().unwrap_or_else(|| fallback_title.clone());
 
     if let Some(webview) = app.get_webview(&label) {
@@ -1799,6 +1810,26 @@ fn open_internal_page_impl(
         // 加载期间 webview 会被 hide + 前端自行车遮罩覆盖，此色仅作兜底。
         .background_color(tauri::window::Color(255, 255, 255, 255))
         .initialization_script(child_script.as_str())
+        .on_navigation(move |url| {
+            let is_http = matches!(url.scheme(), "http" | "https");
+            let same_origin = url.origin() == initial_origin;
+            if !is_http || same_origin {
+                return true;
+            }
+            let nav_app = nav_app.clone();
+            let url_str = url.as_str().to_string();
+            std::thread::spawn(move || {
+                let _ = nav_app.emit(
+                    "alpehuez-open-tab",
+                    InternalPageInfo {
+                        label: String::new(),
+                        url: url_str,
+                        title: String::new(),
+                    },
+                );
+            });
+            false
+        })
         .on_page_load(move |webview, payload| {
             if payload.url().as_str() == "about:blank" {
                 return;
