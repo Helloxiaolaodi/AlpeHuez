@@ -431,6 +431,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Discord",
+                    "url": "https://discord.com/developers/applications",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2645,5 +2662,5 @@
             ]
         }
     ],
-    "md5": "c613646a54f4c296c6731c32c33b3a5d"
+    "md5": "805773cc7e71a21b0650bef6595d3ee6"
 }
