@@ -411,7 +411,7 @@
             "name": "Auto Caption",
             "en": "Automated video speech transcription and subtitle generation tool.",
             "zh": "自动化视频语音转录与字幕生成工具。",
-            "url": "https://apps.microsoft.com/detail/9ngfb7jd9p33"
+            "url": "https://github.com/HiMeditator/auto-caption"
         },
         {
             "cat": "media",
@@ -490,6 +490,18 @@
             "en": "AlpeHuez is the desktop workspace shell around this dashboard, with internal WebViews, vertical tabs, a My Files explorer, the developer panel, achievements, and About in one unified sidebar layout.",
             "zh": "",
             "url": "https://github.com/Helloxiaolaodi/AlpeHuez"
+        },
+        {
+            "cat": "media",
+            "name": "OBS Studio",
+            "en": "Free and open source software for live streaming and screen recording",
+            "zh": "",
+            "url": "https://obsproject.com/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/obsproject/obs-studio"
+            }
         }
     ]
 }
