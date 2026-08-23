@@ -483,6 +483,13 @@
             "en": "",
             "zh": "",
             "url": "https://discord.com/download"
+        },
+        {
+            "cat": "browser",
+            "name": "AlpeHuez",
+            "en": "AlpeHuez is the desktop workspace shell around this dashboard, with internal WebViews, vertical tabs, a My Files explorer, the developer panel, achievements, and About in one unified sidebar layout.",
+            "zh": "",
+            "url": "https://github.com/Helloxiaolaodi/AlpeHuez"
         }
     ]
 }
