@@ -68,17 +68,22 @@ fn show_main_impl(app: &tauri::AppHandle) {
     if let Some(win) = main_window(app) {
         #[cfg(target_os = "windows")]
         force_app_window(&win);
+        let was_hidden = !win.is_visible().unwrap_or(true) || win.is_minimized().unwrap_or(false);
         let _ = win.show();
         let _ = win.unminimize();
         let _ = win.set_focus();
-        let _ = win.set_fullscreen(false);
-        let _ = app.emit("alpehuez-fullscreen-exit", "tray");
-        // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
-        // 微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
-        let size = win.outer_size().unwrap_or_default();
-        if size.width > 0 && size.height > 0 {
-            let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize::new(size.width + 1, size.height)));
-            let _ = win.set_size(tauri::Size::Physical(size));
+        if win.is_fullscreen().unwrap_or(false) {
+            let _ = win.set_fullscreen(false);
+            let _ = app.emit("alpehuez-fullscreen-exit", "tray");
+        }
+        if was_hidden {
+            // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
+            // 仅在刚显示时微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
+            let size = win.outer_size().unwrap_or_default();
+            if size.width > 0 && size.height > 0 {
+                let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize::new(size.width + 1, size.height)));
+                let _ = win.set_size(tauri::Size::Physical(size));
+            }
         }
     }
 }
@@ -166,8 +171,15 @@ pub fn run() {
         .on_window_event(|window, event| {
             // WebView2 在 webview 内容被点击前不主动取得键盘焦点，导致 F11 等 DOM 快捷键首次无效。
             // 窗口重新获得焦点时把焦点还给 webview，保证无需先点击窗口内容即可按 F11 全屏。
+            // 不能在这里再对窗口自身调用 set_focus()：任务栏点击恢复窗口时会造成焦点事件循环，
+            // 表现为窗口唤不出来且界面卡顿。
             if let tauri::WindowEvent::Focused(true) = event {
-                let _ = window.set_focus();
+                if window.label() == "main" {
+                    let _ = window.unminimize();
+                    if let Some(webview) = window.app_handle().get_webview("main") {
+                        let _ = webview.set_focus();
+                    }
+                }
             }
             #[cfg(not(target_os = "android"))]
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
