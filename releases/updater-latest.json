@@ -1,10 +1,10 @@
 {
     "version":  "0.8.0",
-    "notes":  "AlpeHuez v0.8.0\n- Restore from the system tray now opens the normal windowed interface instead of fullscreen.\n- Clicking the Windows taskbar icon now restores the AlpeHuez window reliably instead of stalling.\n- Window resize is available again, including native edge handles.\n- Win+Left and Win+Right now snap AlpeHuez correctly to the left or right half of the desktop.\n- Alt+Tab now shows AlpeHuez as a normal application window.\n- The My Files password prompt now uses the same centered login card style as the Developer Panel.",
-    "pub_date":  "2026-08-24T10:01:12Z",
+    "notes":  "AlpeHuez v0.8.0\n- Restore from the system tray now opens the normal windowed interface instead of fullscreen.\n- Clicking the Windows taskbar icon now restores the AlpeHuez window reliably without freezing or requiring Task Manager.\n- Window resize is available again, including native edge handles.\n- Win+Left and Win+Right now snap AlpeHuez correctly to the left or right half of the desktop.\n- Alt+Tab now shows AlpeHuez as a normal application window.\n- The My Files password prompt now uses the same centered login card style as the Developer Panel.",
+    "pub_date":  "2026-08-24T11:10:11Z",
     "platforms":  {
                       "windows-x86_64":  {
-                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0ZyTDNQUGVZQVZXc3ZhTGlVT1liczlGL0pVd09PTGtOeTRDaFMwbmVJMGZZZVpwSlZBVng5aG5OVXpxTmlrek00dTA1WEhFM1JjT2dCTWdLTTU0K0FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3NTY1NjcyCWZpbGU6QWxwZUh1ZXpfMC44LjBfeDY0LXNldHVwLmV4ZQpBeGNveW5BeUprU2dRT2p1MkFyYUdBWWxiZy83V0RUaW5ZVDd4SExqTnA5RU5nWmRoMWRzTTNwbDJlWWR3bXJkS1RpY2IvTm1rNDN2ZFdkOC9weGNEZz09Cg==",
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSTlNBSEJ2cmVOc0xnM25qNGRZNUFtWm5MT0pBN0VZZFBkRWtzYzlJNzZCTkVTQ256SDQ5YzlwUEdOa3Y0Q1k3a05FaDA4dVpLUjdYRnN3VGd1RG95R1QvWDhLYzBOWlFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3NTY5ODEwCWZpbGU6QWxwZUh1ZXpfMC44LjBfeDY0LXNldHVwLmV4ZQo2ZHEyR1FMZGk0OEFDUGM5bkxjQ05sVDI3aTNha2EwNjkzdGRlWksxeXE0QmJsR2ZTZDVMc1NHWGR3STgrbUVLNDNkdkZYTFgvL0R2MUFqaVh2WGpCUT09Cg==",
                                              "url":  "https://raw.githubusercontent.com/Helloxiaolaodi/AlpeHuez/main/releases/v0.8.0/AlpeHuez_0.8.0_x64-setup.exe"
                                          }
                   }

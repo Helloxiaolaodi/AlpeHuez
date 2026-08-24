@@ -65,27 +65,21 @@ fn show_main(app: &tauri::AppHandle) {
 #[cfg(not(target_os = "android"))]
 fn show_main_impl(app: &tauri::AppHandle) {
     USER_HIDDEN.store(false, Ordering::Relaxed);
-    if let Some(win) = main_window(app) {
-        #[cfg(target_os = "windows")]
-        force_app_window(&win);
-        let was_hidden = !win.is_visible().unwrap_or(true) || win.is_minimized().unwrap_or(false);
-        let _ = win.show();
-        let _ = win.unminimize();
-        let _ = win.set_focus();
-        if win.is_fullscreen().unwrap_or(false) {
-            let _ = win.set_fullscreen(false);
-            let _ = app.emit("alpehuez-fullscreen-exit", "tray");
-        }
-        if was_hidden {
-            // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
-            // 仅在刚显示时微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
-            let size = win.outer_size().unwrap_or_default();
-            if size.width > 0 && size.height > 0 {
-                let _ = win.set_size(tauri::Size::Physical(tauri::PhysicalSize::new(size.width + 1, size.height)));
-                let _ = win.set_size(tauri::Size::Physical(size));
+    let app = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(30));
+        if let Some(win) = main_window(&app) {
+            if win.is_fullscreen().unwrap_or(false) {
+                let _ = win.set_fullscreen(false);
+                let _ = app.emit("alpehuez-fullscreen-exit", "tray");
             }
+            let _ = win.show();
+            if win.is_minimized().unwrap_or(false) {
+                let _ = win.unminimize();
+            }
+            let _ = win.set_focus();
         }
-    }
+    });
 }
 
 /// 隐藏到系统托盘并记录"用户主动隐藏"，避免启动 watchdog 把窗口拉回来。
@@ -143,25 +137,29 @@ fn force_app_window(win: &tauri::Window) {
         let hwnd = h.hwnd.get() as HWND;
         let style = wm::GetWindowLongPtrW(hwnd, wm::GWL_STYLE) as u32;
         let updated_style = style | wm::WS_THICKFRAME | wm::WS_MAXIMIZEBOX | wm::WS_MINIMIZEBOX;
-        if updated_style != style {
+        let style_changed = updated_style != style;
+        if style_changed {
             let _ = wm::SetWindowLongPtrW(hwnd, wm::GWL_STYLE, updated_style as isize);
         }
 
         let ex_style = wm::GetWindowLongPtrW(hwnd, wm::GWL_EXSTYLE) as u32;
         let updated_ex = (ex_style | wm::WS_EX_APPWINDOW) & !wm::WS_EX_TOOLWINDOW;
-        if updated_ex != ex_style {
+        let ex_changed = updated_ex != ex_style;
+        if ex_changed {
             let _ = wm::SetWindowLongPtrW(hwnd, wm::GWL_EXSTYLE, updated_ex as isize);
         }
 
-        let _ = wm::SetWindowPos(
-            hwnd,
-            std::ptr::null_mut(),
-            0,
-            0,
-            0,
-            0,
-            wm::SWP_NOMOVE | wm::SWP_NOSIZE | wm::SWP_NOZORDER | wm::SWP_NOACTIVATE | wm::SWP_FRAMECHANGED,
-        );
+        if style_changed || ex_changed {
+            let _ = wm::SetWindowPos(
+                hwnd,
+                std::ptr::null_mut(),
+                0,
+                0,
+                0,
+                0,
+                wm::SWP_NOMOVE | wm::SWP_NOSIZE | wm::SWP_NOZORDER | wm::SWP_NOACTIVATE | wm::SWP_FRAMECHANGED,
+            );
+        }
     }
 }
 
@@ -169,15 +167,27 @@ fn force_app_window(win: &tauri::Window) {
 pub fn run() {
     let builder = tauri::Builder::default()
         .on_window_event(|window, event| {
-            // WebView2 在 webview 内容被点击前不主动取得键盘焦点，导致 F11 等 DOM 快捷键首次无效。
-            // 窗口重新获得焦点时把焦点还给 webview，保证无需先点击窗口内容即可按 F11 全屏。
-            // 不能在这里再对窗口自身调用 set_focus()：任务栏点击恢复窗口时会造成焦点事件循环，
-            // 表现为窗口唤不出来且界面卡顿。
+            // 任务栏点击会触发 Focused(true)。这里不能同步调用 set_focus()/webview.set_focus()：
+            // 在事件回调里强抢焦点会让 WebView2 反复生成焦点事件，窗口表现为唤不出来且界面卡顿。
+            // 只把“隐藏/最小化窗口的还原”推迟到独立线程，由系统负责聚焦。
             if let tauri::WindowEvent::Focused(true) = event {
                 if window.label() == "main" {
-                    let _ = window.unminimize();
-                    if let Some(webview) = window.app_handle().get_webview("main") {
-                        let _ = webview.set_focus();
+                    let hidden = !window.is_visible().unwrap_or(true);
+                    let minimized = window.is_minimized().unwrap_or(false);
+                    if hidden || minimized {
+                        let app = window.app_handle().clone();
+                        std::thread::spawn(move || {
+                            std::thread::sleep(Duration::from_millis(60));
+                            USER_HIDDEN.store(false, Ordering::Relaxed);
+                            if let Some(win) = main_window(&app) {
+                                if !win.is_visible().unwrap_or(true) {
+                                    let _ = win.show();
+                                }
+                                if win.is_minimized().unwrap_or(false) {
+                                    let _ = win.unminimize();
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -203,7 +213,14 @@ pub fn run() {
                     if startup {
                         // 启动初期：Windows 会恢复上次会话的最小化状态，直接隐藏会把窗口
                         // 藏进托盘，表现为"启动后看不到界面"。改为还原显示。
-                        let _ = window.unminimize();
+                        let app = window.app_handle().clone();
+                        std::thread::spawn(move || {
+                            std::thread::sleep(Duration::from_millis(30));
+                            if let Some(win) = main_window(&app) {
+                                let _ = win.show();
+                                let _ = win.unminimize();
+                            }
+                        });
                     }
                 }
             }
@@ -399,11 +416,7 @@ pub fn run() {
                             if !USER_HIDDEN.load(Ordering::Relaxed) && (!visible || minimized) {
                                 let _ = win.unminimize();
                                 let _ = win.show();
-                                let _ = win.set_focus();
                             }
-                        }
-                        if let Some(webview) = handle.get_webview("main") {
-                            let _ = webview.set_focus();
                         }
                     }
                 });
