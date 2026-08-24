@@ -110,10 +110,10 @@
         },
         {
             "cat": "notes",
-            "name": "Sticky Notes",
-            "en": "Microsoft official sticky notes app for quick reminders.",
-            "zh": "微软官方便签工具，适合快速记录临时事项。",
-            "url": "https://apps.microsoft.com/detail/9nblggh4qghw"
+            "name": "PaperTodo",
+            "en": "A minimalist Windows desktop sticky note tool. It puts a few quiet, usable, and unobtrusive sheets of paper on your desktop. Native WPF, with support for to-dos and Markdown.",
+            "zh": "极简 Windows 桌面便签工具。让桌面上有几张安静、可用、不会打扰人的纸。WPF 原生，支持待办与 Markdown",
+            "url": "https://github.com/snownico0722/PaperTodo"
         },
         {
             "cat": "dev",
@@ -502,6 +502,13 @@
                 "zh": "Github",
                 "url": "https://github.com/obsproject/obs-studio"
             }
+        },
+        {
+            "cat": "security",
+            "name": "FIClash",
+            "en": "A multi-platform proxy client based on ClashMeta,simple and easy to use, open-source and ad-free.",
+            "zh": "",
+            "url": "https://github.com/chen08209/FlClash"
         }
     ]
 }
