@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlpeHuez v0.7.0</title>
+    <title>AlpeHuez v0.8.0</title>
     <script>
         const storedTheme = localStorage.getItem('nav_theme');
         const savedTheme = storedTheme === 'space' ? 'space' : 'gradient';
@@ -3678,12 +3678,6 @@
 
         .app-modal-backdrop[hidden] { display: none; }
 
-        body.browsing #myfilesGateModal {
-            left: 236px;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-        }
-
         .app-modal {
             width: 100%;
             max-width: 560px;
@@ -3847,6 +3841,135 @@
         .setup-field .setup-hint { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
         .setup-modal .setup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
         .setup-modal .setup-error { display: none; font-size: 12px; color: #dc4a4a; }
+
+        .window-resize-handle {
+            position: fixed;
+            z-index: 12990;
+            display: block;
+            background: transparent;
+            pointer-events: auto;
+        }
+        .window-resize-handle.nw { top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+        .window-resize-handle.n { top: 0; left: 14px; right: 14px; height: 6px; cursor: ns-resize; }
+        .window-resize-handle.ne { top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+        .window-resize-handle.w { top: 14px; left: 0; width: 6px; bottom: 14px; cursor: ew-resize; }
+        .window-resize-handle.e { top: 14px; right: 0; width: 6px; bottom: 14px; cursor: ew-resize; }
+        .window-resize-handle.sw { left: 0; bottom: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+        .window-resize-handle.s { left: 14px; right: 14px; bottom: 0; height: 6px; cursor: ns-resize; }
+        .window-resize-handle.se { right: 0; bottom: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+        .window-resize-handle.w,
+        .window-resize-handle.e,
+        .window-resize-handle.sw,
+        .window-resize-handle.s,
+        .window-resize-handle.se { z-index: 13100; }
+        body.is-fullscreen .window-resize-handle,
+        body.tray-fullscreen .window-resize-handle { display: none; }
+
+        .myfiles-gate-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(5, 8, 13, 0.42);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        html[data-theme="gradient"] .myfiles-gate-backdrop { background: rgba(232, 243, 253, 0.52); }
+        .myfiles-gate-backdrop[hidden] { display: none; }
+        .myfiles-gate-card {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 13px;
+            padding: 34px 32px 30px;
+            text-align: center;
+            background: var(--panel-solid);
+            border: 1px solid var(--line-strong);
+            border-radius: 16px;
+            box-shadow: var(--shadow-float);
+        }
+        html[data-theme="space"] .myfiles-gate-card {
+            background: rgba(44, 36, 72, 0.94);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .myfiles-gate-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-gradient);
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(0, 135, 235, 0.35);
+        }
+        html[data-theme="space"] .myfiles-gate-logo {
+            background: linear-gradient(135deg, #A855F7, #7C3AED);
+            box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35);
+        }
+        .myfiles-gate-card h2 { margin: 0; font-size: 18px; font-weight: 650; color: var(--text-main); }
+        .myfiles-gate-hint { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+        .myfiles-gate-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            font: inherit;
+            font-size: 13px;
+            color: var(--text-main);
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .myfiles-gate-input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 135, 235, 0.12);
+        }
+        .myfiles-gate-error {
+            width: 100%;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--danger);
+            text-align: left;
+        }
+        .myfiles-gate-error[hidden] { display: none; }
+        .myfiles-gate-btn {
+            width: 100%;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .myfiles-gate-btn:hover { color: var(--text-main); border-color: var(--brand-primary); }
+        .myfiles-gate-btn.primary {
+            color: #fff;
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+        .myfiles-gate-btn.primary:hover { color: #fff; background: var(--brand-secondary); }
+        html[data-theme="space"] .myfiles-gate-btn.primary {
+            background: linear-gradient(135deg, #A855F7, #7C3AED);
+            border-color: transparent;
+        }
 
         /* PCS 风格车手面板：左侧车手卡 + 右侧能力彩色长条 */
         .rider-panel {
@@ -5571,7 +5694,7 @@
             filter: brightness(1.08);
         }
 
-        /* --- v0.7.0 refresh: restrained surfaces, glass depth, telemetry-like accents --- */
+        /* --- v0.8.0 refresh: restrained surfaces, glass depth, telemetry-like accents --- */
         html:not([data-theme="space"]) .nav-card,
         html:not([data-theme="space"]) .stat-tile,
         html:not([data-theme="space"]) .badge-tile,
@@ -6051,6 +6174,15 @@
 
     <button id="workspaceTabsHandle" class="workspace-tabs-handle" type="button" title="Show workspace tabs" aria-label="Show workspace tabs"></button>
 
+    <span class="window-resize-handle nw" data-resize="NorthWest" aria-hidden="true"></span>
+    <span class="window-resize-handle n" data-resize="North" aria-hidden="true"></span>
+    <span class="window-resize-handle ne" data-resize="NorthEast" aria-hidden="true"></span>
+    <span class="window-resize-handle w" data-resize="West" aria-hidden="true"></span>
+    <span class="window-resize-handle e" data-resize="East" aria-hidden="true"></span>
+    <span class="window-resize-handle sw" data-resize="SouthWest" aria-hidden="true"></span>
+    <span class="window-resize-handle s" data-resize="South" aria-hidden="true"></span>
+    <span class="window-resize-handle se" data-resize="SouthEast" aria-hidden="true"></span>
+
     <div class="app-shell">
         <div id="workspaceTabs" class="workspace-tabs" hidden>
             <div id="workspaceTabList" class="workspace-tab-list"></div>
@@ -6244,14 +6376,14 @@
                 <div class="context-label"><span>App</span></div>
                 <div class="context-about-card">
                     <label>Version</label>
-                    <strong id="contextAboutVersion">v0.7.0</strong>
+                    <strong id="contextAboutVersion">v0.8.0</strong>
                     <label>Developer</label>
                     <strong>Helloxiaolaodi</strong>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <span class="version-chip" id="versionChip">v0.7.0</span>
+                <span class="version-chip" id="versionChip">v0.8.0</span>
                 <span class="legend-item" title="Internal pages share a persistent WebView session">
                     <span class="legend-dot green"></span>
                     AlpeHuez
@@ -6482,7 +6614,7 @@
                         <div class="about-hero">
                             <div class="about-logo">A</div>
                             <div class="about-copy">
-                                <h1>AlpeHuez <span id="aboutVersion">v0.7.0</span></h1>
+                                <h1>AlpeHuez <span id="aboutVersion">v0.8.0</span></h1>
                                 <p>A workspace browser for Helloxiaolaodi. It combines the portal dashboard, vertical browser tabs, persistent sessions, local achievements, and the developer console in one desktop shell.</p>
                             </div>
                         </div>
@@ -6511,20 +6643,19 @@
                         </div>
                         <div class="about-grid">
                             <div class="about-card">
-                                <h2>v0.7.0 Update Notes</h2>
+                                <h2>v0.8.0 Update Notes</h2>
                                 <ul>
-                                    <li>Summon fix: restoring AlpeHuez from the tray reliably shows the window again — no more restart to bring the interface back.</li>
-                                    <li>In-app new tabs: target="_blank" links inside open webpages open a new tab in AlpeHuez instead of the external browser.</li>
-                                    <li>Notes workspace: a new left-rail Notes view — searchable journal list by date, editor with live Markdown preview, auto-save, delete, and export.</li>
-                                    <li>Code snippets in Daily Notes now wrap long lines instead of scrolling horizontally.</li>
-                                    <li>Developer Panel: Software tab added to the embedded panel tools.</li>
+                                    <li>Tray restore now opens the normal windowed AlpeHuez interface instead of a fullscreen one.</li>
+                                    <li>Window resize is available again with native edge handles, and Win+Left/Win+Right snap both sides of the desktop correctly.</li>
+                                    <li>Alt+Tab now shows AlpeHuez as a normal application window.</li>
+                                    <li>My Files password prompt now uses the same centered login card style as the Developer Panel.</li>
                                 </ul>
                             </div>
                             <div class="about-card">
                                 <h2>Developer &amp; Links</h2>
                                 <div class="about-meta">
                                     <div><label>Developer</label><strong>Helloxiaolaodi</strong></div>
-                                    <div><label>Version</label><strong id="aboutVersionMeta">0.7.0</strong></div>
+                                    <div><label>Version</label><strong id="aboutVersionMeta">0.8.0</strong></div>
                                     <div><label>GitHub</label><strong>Helloxiaolaodi/AlpeHuez</strong></div>
                                     <div><label>AlpeHuez</label><strong>Persistent WebView</strong></div>
                                 </div>
@@ -8050,7 +8181,7 @@
 
         // ---------- 更新检查（Tauri updater 插件）----------
         let pendingUpdate = null;
-        let currentAppVersion = '0.7.0';
+        let currentAppVersion = '0.8.0';
 
         function openUpdateModal(update) {
             pendingUpdate = update;
@@ -10019,7 +10150,7 @@
 
         function renderContextAbout() {
             const version = $('aboutVersionMeta');
-            const label = version && version.textContent ? 'v' + version.textContent : 'v0.7.0';
+            const label = version && version.textContent ? 'v' + version.textContent : 'v0.8.0';
             $('contextAboutVersion').textContent = label;
         }
 
@@ -10272,6 +10403,7 @@
             const closeBtn = $('myfilesGateClose');
             const cancelBtn = $('myfilesGateCancel');
             const submitBtn = $('myfilesGateSubmit');
+            if (!input || !errorEl || !cancelBtn || !submitBtn) { myFilesUnlocked = true; switchView('myfiles'); return; }
             modal.hidden = false;
             input.value = '';
             errorEl.hidden = true;
@@ -10281,7 +10413,7 @@
             const cleanup = () => {
                 input.removeEventListener('keydown', onEnter);
                 cancelBtn.removeEventListener('click', onCancel);
-                closeBtn.removeEventListener('click', onCancel);
+                if (closeBtn) closeBtn.removeEventListener('click', onCancel);
                 submitBtn.removeEventListener('click', onSubmit);
             };
             const onCancel = () => { modal.hidden = true; cleanup(); };
@@ -10312,7 +10444,7 @@
             const onEnter = (e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit(); } };
             input.addEventListener('keydown', onEnter);
             cancelBtn.addEventListener('click', onCancel);
-            closeBtn.addEventListener('click', onCancel);
+            if (closeBtn) closeBtn.addEventListener('click', onCancel);
             submitBtn.addEventListener('click', onSubmit);
         }
 
@@ -10542,7 +10674,7 @@
         }
 
         async function loadAbout() {
-            const fallbackVersion = '0.7.0';
+            const fallbackVersion = '0.8.0';
             renderRiderPanel();
             if (!isDesktop) return;
             try {
@@ -12034,7 +12166,7 @@
             const setIcon = (id, name) => { const el = document.getElementById(id); if (el) el.innerHTML = ICONS[name]; };
             ['notesPagePrev', 'notePrev', 'ncPrev', 'tpNotePrev'].forEach((id) => setIcon(id, 'chevronLeft'));
             ['notesPageNext', 'noteNext', 'ncNext', 'tpNoteNext'].forEach((id) => setIcon(id, 'chevronRight'));
-            ['peekCloseBtn', 'vmCloseBtn', 'tpClose', 'activityModalClose', 'codeModalClose', 'updateModalClose', 'setupModalClose', 'myfilesGateClose', 'recoverModalClose', 'vdCloseBtn'].forEach((id) => setIcon(id, 'close'));
+            ['peekCloseBtn', 'vmCloseBtn', 'tpClose', 'activityModalClose', 'codeModalClose', 'updateModalClose', 'setupModalClose', 'recoverModalClose', 'vdCloseBtn'].forEach((id) => setIcon(id, 'close'));
             setIcon('settingsClose', 'close');
             const quoteIcon = document.querySelector('.quote-icon');
             if (quoteIcon) quoteIcon.innerHTML = ICONS.sparkle;
@@ -12555,10 +12687,26 @@
             if (close) close.addEventListener('click', () => win.close());
         }
 
+        function initWindowResize() {
+            if (!isDesktop) return;
+            const windowApi = window.__TAURI__ && window.__TAURI__.window;
+            if (!windowApi || typeof windowApi.getCurrentWindow !== 'function') return;
+            const win = windowApi.getCurrentWindow();
+            if (!win || typeof win.startResizeDragging !== 'function') return;
+            document.querySelectorAll('.window-resize-handle').forEach((handle) => {
+                handle.addEventListener('pointerdown', (event) => {
+                    if (event.button !== 0) return;
+                    event.preventDefault();
+                    win.startResizeDragging(handle.dataset.resize).catch(() => {});
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('DOMContentLoaded', initFloatBall);
         document.addEventListener('DOMContentLoaded', initTelemetryPod);
         document.addEventListener('DOMContentLoaded', initTitleBar);
+        document.addEventListener('DOMContentLoaded', initWindowResize);
         document.addEventListener('DOMContentLoaded', () => {
             if (isDesktop) {
                 invoke('mark_first_run').then((first) => {
@@ -12740,26 +12888,15 @@
             </div>
         </div>
     </div>
-    <div id="myfilesGateModal" class="app-modal-backdrop" hidden>
-        <div class="app-modal setup-modal" role="dialog" aria-modal="true">
-            <div class="app-modal-head">
-                <h3 data-i18n-settings="myfilesLockTitle">My Files is locked</h3>
-                <div class="app-modal-actions">
-                    <button type="button" id="myfilesGateClose" class="icon-btn" data-i18n-aria-settings="close" aria-label="Close">&times;</button>
-                </div>
-            </div>
-            <div class="app-modal-body">
-                <p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)" data-i18n-settings="myfilesLockDesc">Enter the access password shared with the Developer Panel.</p>
-                <div class="setup-field">
-                    <label for="myfilesGatePwd" data-i18n-settings="passwordPlaceholder">Password</label>
-                    <input type="password" id="myfilesGatePwd" autocomplete="current-password">
-                </div>
-                <p class="setup-error" id="myfilesGateError" hidden></p>
-                <div class="setup-actions">
-                    <button type="button" id="myfilesGateCancel" class="app-modal-btn" data-i18n-settings="cancel">Cancel</button>
-                    <button type="button" id="myfilesGateSubmit" class="app-modal-btn primary" data-i18n-settings="unlock">Unlock</button>
-                </div>
-            </div>
+    <div id="myfilesGateModal" class="myfiles-gate-backdrop" hidden>
+        <div class="myfiles-gate-card" role="dialog" aria-modal="true" aria-labelledby="myfilesGateTitle">
+            <div class="myfiles-gate-logo" aria-hidden="true">A</div>
+            <h2 id="myfilesGateTitle" data-i18n-settings="myfilesLockTitle">My Files is locked</h2>
+            <p class="myfiles-gate-hint" data-i18n-settings="myfilesLockDesc">Enter the access password shared with the Developer Panel.</p>
+            <input type="password" id="myfilesGatePwd" class="myfiles-gate-input" data-i18n-placeholder-settings="passwordPlaceholder" placeholder="Password" autocomplete="current-password">
+            <p class="myfiles-gate-error" id="myfilesGateError" hidden></p>
+            <button type="button" id="myfilesGateSubmit" class="myfiles-gate-btn primary" data-i18n-settings="unlock">Unlock</button>
+            <button type="button" id="myfilesGateCancel" class="myfiles-gate-btn" data-i18n-settings="cancel">Cancel</button>
         </div>
     </div>
     <div id="recoverModal" class="app-modal-backdrop" hidden>

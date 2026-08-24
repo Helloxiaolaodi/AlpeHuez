@@ -7,6 +7,7 @@ Current archive:
 
 | Version | Folder | Artifacts |
 | --- | --- | --- |
+| 0.8.0 | `v0.8.0/` | NSIS setup |
 | 0.7.0 | `v0.7.0/` | NSIS setup, portable exe (local only) |
 | 0.6.0 | `v0.6.0/` | NSIS setup, portable exe (local only) |
 | 0.5.0 | `v0.5.0/` | NSIS setup |

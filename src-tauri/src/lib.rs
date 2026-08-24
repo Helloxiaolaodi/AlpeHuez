@@ -59,25 +59,20 @@ pub(crate) fn main_window(app: &tauri::AppHandle) -> Option<tauri::Window> {
 /// 显示并聚焦主窗口。Windows 上直接 show() 有时不置顶，需 unminimize + set_focus 兜底。
 #[cfg(not(target_os = "android"))]
 fn show_main(app: &tauri::AppHandle) {
-    show_main_impl(app, false);
+    show_main_impl(app);
 }
 
 #[cfg(not(target_os = "android"))]
-fn show_main_fullscreen(app: &tauri::AppHandle) {
-    show_main_impl(app, true);
-}
-
-#[cfg(not(target_os = "android"))]
-fn show_main_impl(app: &tauri::AppHandle, fullscreen: bool) {
+fn show_main_impl(app: &tauri::AppHandle) {
     USER_HIDDEN.store(false, Ordering::Relaxed);
     if let Some(win) = main_window(app) {
+        #[cfg(target_os = "windows")]
+        force_app_window(&win);
         let _ = win.show();
         let _ = win.unminimize();
         let _ = win.set_focus();
-        if fullscreen {
-            let _ = win.set_fullscreen(true);
-            let _ = app.emit("alpehuez-fullscreen-enter", "tray");
-        }
+        let _ = win.set_fullscreen(false);
+        let _ = app.emit("alpehuez-fullscreen-exit", "tray");
         // 透明无边框窗口从托盘唤出后偶发不重绘（看起来像没有窗口），
         // 微调一次尺寸强制合成器重绘，随后立即恢复原尺寸。
         let size = win.outer_size().unwrap_or_default();
@@ -127,6 +122,41 @@ fn enable_window_shadow(win: &tauri::Window) {
     };
     unsafe {
         let _ = windows_sys::Win32::Graphics::Dwm::DwmExtendFrameIntoClientArea(h.hwnd.get() as _, &margins);
+    }
+}
+
+/// Windows æ­£å¸¸åº”ç”¨çª—å£ä½åºï¼Œä¿è¯ Alt+Tab å’Œ Win+å·¦/å³ ç›²åœ†ä¸­èƒ½çœ‹åˆ°å¹¶æ“ä½œä¸»çª—å£ã€‚
+#[cfg(target_os = "windows")]
+fn force_app_window(win: &tauri::Window) {
+    use raw_window_handle::HasWindowHandle;
+    use windows_sys::Win32::Foundation::HWND;
+    let _ = win.set_skip_taskbar(false);
+    let Ok(handle) = win.window_handle() else { return; };
+    let raw_window_handle::RawWindowHandle::Win32(h) = handle.as_raw() else { return; };
+    use windows_sys::Win32::UI::WindowsAndMessaging as wm;
+    unsafe {
+        let hwnd = h.hwnd.get() as HWND;
+        let style = wm::GetWindowLongPtrW(hwnd, wm::GWL_STYLE) as u32;
+        let updated_style = style | wm::WS_THICKFRAME | wm::WS_MAXIMIZEBOX | wm::WS_MINIMIZEBOX;
+        if updated_style != style {
+            let _ = wm::SetWindowLongPtrW(hwnd, wm::GWL_STYLE, updated_style as isize);
+        }
+
+        let ex_style = wm::GetWindowLongPtrW(hwnd, wm::GWL_EXSTYLE) as u32;
+        let updated_ex = (ex_style | wm::WS_EX_APPWINDOW) & !wm::WS_EX_TOOLWINDOW;
+        if updated_ex != ex_style {
+            let _ = wm::SetWindowLongPtrW(hwnd, wm::GWL_EXSTYLE, updated_ex as isize);
+        }
+
+        let _ = wm::SetWindowPos(
+            hwnd,
+            std::ptr::null_mut(),
+            0,
+            0,
+            0,
+            0,
+            wm::SWP_NOMOVE | wm::SWP_NOSIZE | wm::SWP_NOZORDER | wm::SWP_NOACTIVATE | wm::SWP_FRAMECHANGED,
+        );
     }
 }
 
@@ -298,6 +328,7 @@ pub fn run() {
             #[cfg(target_os = "windows")]
             {
                 if let Some(win) = main_window(app.app_handle()) {
+                    force_app_window(&win);
                     let _ = window_vibrancy::apply_acrylic(&win, Some((35, 35, 50, 96)));
                     enable_window_shadow(&win);
                 }
@@ -399,7 +430,7 @@ pub fn run() {
                     .tooltip("AlpeHuez")
                     .show_menu_on_left_click(false);
                 tray = tray.on_menu_event(|app, event| match event.id.as_ref() {
-                    "show" => show_main_fullscreen(app),
+                    "show" => show_main(app),
                     "hide" => {
                         if let Some(win) = main_window(app) {
                             hide_to_tray(&win);
@@ -425,7 +456,7 @@ pub fn run() {
                         ..
                     } = event
                     {
-                        show_main_fullscreen(tray.app_handle());
+                        show_main(tray.app_handle());
                     }
                 });
                 tray.build(app)?;
