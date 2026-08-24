@@ -3866,7 +3866,7 @@
         body.tray-fullscreen .window-resize-handle { display: none; }
 
         .myfiles-gate-backdrop {
-            position: fixed;
+            position: absolute;
             inset: 0;
             z-index: 300;
             display: flex;
@@ -3879,6 +3879,19 @@
         }
         html[data-theme="gradient"] .myfiles-gate-backdrop { background: rgba(232, 243, 253, 0.52); }
         .myfiles-gate-backdrop[hidden] { display: none; }
+        body.myfiles-gate-open .tab-sidebar {
+            flex: 0 0 236px;
+            width: 236px;
+            opacity: 1;
+            overflow: visible;
+        }
+        body.myfiles-gate-open .tab-sidebar > * {
+            pointer-events: auto;
+        }
+        body.myfiles-gate-open .sidebar-toggle-handle {
+            opacity: 0;
+            pointer-events: none;
+        }
         .myfiles-gate-card {
             width: 100%;
             max-width: 360px;
@@ -6650,6 +6663,7 @@
                                     <li>Window resize is available again with native edge handles, and Win+Left/Win+Right snap both sides of the desktop correctly.</li>
                                     <li>Alt+Tab now shows AlpeHuez as a normal application window.</li>
                                     <li>My Files password prompt now uses the same centered login card style as the Developer Panel.</li>
+                                    <li>Opening My Files from a web page now exits the browser view and keeps the sidebar readable.</li>
                                 </ul>
                             </div>
                             <div class="about-card">
@@ -6676,6 +6690,17 @@
                     </div>
                 </section>
 
+                <div id="myfilesGateModal" class="myfiles-gate-backdrop" hidden>
+                    <div class="myfiles-gate-card" role="dialog" aria-modal="true" aria-labelledby="myfilesGateTitle">
+                        <div class="myfiles-gate-logo" aria-hidden="true">A</div>
+                        <h2 id="myfilesGateTitle" data-i18n-settings="myfilesLockTitle">My Files is locked</h2>
+                        <p class="myfiles-gate-hint" data-i18n-settings="myfilesLockDesc">Enter the access password shared with the Developer Panel.</p>
+                        <input type="password" id="myfilesGatePwd" class="myfiles-gate-input" data-i18n-placeholder-settings="passwordPlaceholder" placeholder="Password" autocomplete="current-password">
+                        <p class="myfiles-gate-error" id="myfilesGateError" hidden></p>
+                        <button type="button" id="myfilesGateSubmit" class="myfiles-gate-btn primary" data-i18n-settings="unlock">Unlock</button>
+                        <button type="button" id="myfilesGateCancel" class="myfiles-gate-btn" data-i18n-settings="cancel">Cancel</button>
+                    </div>
+                </div>
                 <div id="webviewStage" class="webview-stage"></div>
                 <div id="pageLoadBar" class="page-load-bar" aria-hidden="true">
                     <span class="page-load-center"></span>
@@ -10299,6 +10324,7 @@
         async function renderMyFilesView() {
             const container = $('myFilesMain');
             if (!container) return;
+            container.hidden = false;
             const data = await loadMyFilesData();
             const folders = data.folders || [];
             if (!folders.length) {
@@ -10395,8 +10421,67 @@
         }
 
         let myFilesUnlocked = false;
+        let myFilesGateReturnState = null;
+        let myFilesGateCleanup = null;
 
-        function openMyFilesGate() {
+        function dismissMyFilesGate() {
+            const modal = $('myfilesGateModal');
+            if (modal) modal.hidden = true;
+            document.body.classList.remove('myfiles-gate-open');
+            if (myFilesGateCleanup) {
+                const cleanup = myFilesGateCleanup;
+                myFilesGateCleanup = null;
+                cleanup();
+            }
+            myFilesGateReturnState = null;
+        }
+
+        function restoreMyFilesGateState() {
+            const state = myFilesGateReturnState;
+            myFilesGateReturnState = null;
+            if (state && state.browserLabel && browserTabs.has(state.browserLabel)) {
+                activateBrowserTab(state.browserLabel);
+                return;
+            }
+            if (state && state.view && state.view !== 'myfiles' && state.view !== 'browser') {
+                switchView(state.view);
+                return;
+            }
+            switchView('home');
+        }
+
+        async function prepareMyFilesGate() {
+            const existing = $('myfilesGateModal');
+            if (existing && !existing.hidden) {
+                const input = $('myfilesGatePwd');
+                if (input) input.focus();
+                return;
+            }
+            const returnState = { view: currentView, browserLabel: activeBrowserLabel };
+            await exitFullscreen();
+            resetPortalSidebarState();
+            activeBrowserLabel = null;
+            if (isDesktop) {
+                try {
+                    await invoke('activate_internal_page', {});
+                } catch (error) {
+                    console.error('hide browser pages failed:', error);
+                }
+            }
+            if (window.syncLoadingOverlay) window.syncLoadingOverlay();
+            currentView = 'myfiles';
+            document.body.classList.remove('browsing');
+            document.querySelectorAll('.view').forEach((view) => view.classList.remove('active'));
+            const target = $('view-myfiles');
+            if (target) target.classList.add('active');
+            $('viewTitle').textContent = 'My Files';
+            setContext('myfiles');
+            const main = $('myFilesMain');
+            if (main) main.hidden = true;
+            openMyFilesGate(returnState);
+        }
+
+        function openMyFilesGate(returnState) {
             const modal = $('myfilesGateModal');
             if (!modal) { myFilesUnlocked = true; switchView('myfiles'); return; }
             const input = $('myfilesGatePwd');
@@ -10405,7 +10490,9 @@
             const cancelBtn = $('myfilesGateCancel');
             const submitBtn = $('myfilesGateSubmit');
             if (!input || !errorEl || !cancelBtn || !submitBtn) { myFilesUnlocked = true; switchView('myfiles'); return; }
+            myFilesGateReturnState = returnState || null;
             modal.hidden = false;
+            document.body.classList.add('myfiles-gate-open');
             input.value = '';
             errorEl.hidden = true;
             try { applySettingsLanguage(); } catch (e) { /* 忽略 */ }
@@ -10416,8 +10503,15 @@
                 cancelBtn.removeEventListener('click', onCancel);
                 if (closeBtn) closeBtn.removeEventListener('click', onCancel);
                 submitBtn.removeEventListener('click', onSubmit);
+                document.body.classList.remove('myfiles-gate-open');
+                myFilesGateCleanup = null;
             };
-            const onCancel = () => { modal.hidden = true; cleanup(); };
+            myFilesGateCleanup = cleanup;
+            const onCancel = () => {
+                modal.hidden = true;
+                cleanup();
+                restoreMyFilesGateState();
+            };
             const onSubmit = async () => {
                 if (!input.value) {
                     errorEl.textContent = settingsText('wrongPassword');
@@ -10429,6 +10523,7 @@
                     const ok = await invoke('verify_password', { input: input.value });
                     if (ok) {
                         myFilesUnlocked = true;
+                        myFilesGateReturnState = null;
                         modal.hidden = true;
                         cleanup();
                         switchView('myfiles');
@@ -10467,9 +10562,12 @@
             if (viewName === 'myfiles' && isDesktop && !myFilesUnlocked) {
                 invoke('has_access_password').then((has) => {
                     if (!has) { myFilesUnlocked = true; switchView('myfiles'); }
-                    else openMyFilesGate();
+                    else prepareMyFilesGate();
                 }).catch(() => { myFilesUnlocked = true; switchView('myfiles'); });
                 return;
+            }
+            if (viewName !== 'myfiles' && document.body.classList.contains('myfiles-gate-open')) {
+                dismissMyFilesGate();
             }
             exitFullscreen();
             resetPortalSidebarState();
@@ -12887,17 +12985,6 @@
                     <button type="button" id="setupSaveBtn" class="app-modal-btn primary" data-i18n-settings="setupSave">Save</button>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="myfilesGateModal" class="myfiles-gate-backdrop" hidden>
-        <div class="myfiles-gate-card" role="dialog" aria-modal="true" aria-labelledby="myfilesGateTitle">
-            <div class="myfiles-gate-logo" aria-hidden="true">A</div>
-            <h2 id="myfilesGateTitle" data-i18n-settings="myfilesLockTitle">My Files is locked</h2>
-            <p class="myfiles-gate-hint" data-i18n-settings="myfilesLockDesc">Enter the access password shared with the Developer Panel.</p>
-            <input type="password" id="myfilesGatePwd" class="myfiles-gate-input" data-i18n-placeholder-settings="passwordPlaceholder" placeholder="Password" autocomplete="current-password">
-            <p class="myfiles-gate-error" id="myfilesGateError" hidden></p>
-            <button type="button" id="myfilesGateSubmit" class="myfiles-gate-btn primary" data-i18n-settings="unlock">Unlock</button>
-            <button type="button" id="myfilesGateCancel" class="myfiles-gate-btn" data-i18n-settings="cancel">Cancel</button>
         </div>
     </div>
     <div id="recoverModal" class="app-modal-backdrop" hidden>
