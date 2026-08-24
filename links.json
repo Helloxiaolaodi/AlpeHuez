@@ -1863,6 +1863,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "AlpeHuez",
+                    "url": "https://alpehuez-tutorial.20211003.xyz",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2679,5 +2696,5 @@
             ]
         }
     ],
-    "md5": "cd3ed695772b0ee2eb2c0a290e37308d"
+    "md5": "ac0b7432448d797233fd2ee224b1b7e1"
 }
