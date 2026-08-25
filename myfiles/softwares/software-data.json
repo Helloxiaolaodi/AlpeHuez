@@ -519,6 +519,34 @@
             "en": "A multi-platform proxy client based on ClashMeta,simple and easy to use, open-source and ad-free.",
             "zh": "",
             "url": "https://github.com/chen08209/FlClash"
+        },
+        {
+            "cat": "dev",
+            "name": "Quarto",
+            "en": "An open-source scientific and technical publishing system built on Pandoc, enabling the integration of Markdown with executable code for dynamic data analysis and computational workflows.",
+            "zh": "开源的科学和技术出版系统，支持将 Markdown 与可执行代码无缝结合，专为动态数据分析和计算工作流设计。",
+            "url": "https://quarto.org/docs/get-started/"
+        },
+        {
+            "cat": "terminal",
+            "name": "Rio",
+            "en": "A modern, hardware-accelerated terminal emulator built with Rust and WebGPU, designed for ultra-fast performance and seamless cross-platform compatibility.",
+            "zh": "一款基于 Rust 和 WebGPU 构建的现代化硬件加速终端模拟器，主打极速响应与跨平台体验。",
+            "url": "https://rioterm.com/"
+        },
+        {
+            "cat": "utility",
+            "name": "X-Mouse Button Control",
+            "en": "A powerful Windows utility for remapping mouse buttons, allowing users to create custom mouse behaviors globally or tailored to specific applications.",
+            "zh": "一款强大的 Windows 鼠标按键映射与自定义工具，支持为全局或不同应用程序配置专属的鼠标行为。",
+            "url": "https://www.highrez.co.uk/downloads/xmousebuttoncontrol.htm"
+        },
+        {
+            "cat": "dev",
+            "name": "TeX Live",
+            "en": "A comprehensive, cross-platform TeX typesetting system distribution that bundles core binaries, massive macro packages, and fonts, designed specifically for high-quality academic and technical document production.",
+            "zh": "一款全面且跨平台的 TeX 排版系统发行版，集成了核心程序、海量宏包与字体，专为高质量的学术论文、排版和技术文档排版设计。",
+            "url": "https://tug.org/texlive/"
         }
     ]
 }
