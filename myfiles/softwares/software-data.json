@@ -547,6 +547,18 @@
             "en": "A comprehensive, cross-platform TeX typesetting system distribution that bundles core binaries, massive macro packages, and fonts, designed specifically for high-quality academic and technical document production.",
             "zh": "一款全面且跨平台的 TeX 排版系统发行版，集成了核心程序、海量宏包与字体，专为高质量的学术论文、排版和技术文档排版设计。",
             "url": "https://tug.org/texlive/"
+        },
+        {
+            "cat": "utility",
+            "name": "PasteMD",
+            "en": "A lightweight system tray utility that monitors clipboard content and utilizes Pandoc to automatically convert copied Markdown or HTML into properly formatted Word, WPS, or Excel documents for instant pasting.",
+            "zh": "一款常驻系统托盘的轻量级剪贴板增强工具，能够将剪贴板中的 Markdown 或 HTML 富文本内容，通过 Pandoc 自动转换为格式完美的 Word、WPS 或 Excel 兼容文档并一键粘贴。",
+            "url": "https://pastemd.richqaq.cn/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/RICHQAQ/PasteMD"
+            }
         }
     ]
 }
