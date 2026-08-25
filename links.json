@@ -1856,7 +1856,7 @@
                     },
                     "sort": 99999,
                     "title": "Outline_local",
-                    "url": "https://localhost",
+                    "url": "https://outline.20211003.xyz",
                     "openMethod": 1,
                     "lanUrl": "",
                     "description": "",
@@ -2696,5 +2696,5 @@
             ]
         }
     ],
-    "md5": "ac0b7432448d797233fd2ee224b1b7e1"
+    "md5": "8325f03b782231243de9657c62a2d98f"
 }
