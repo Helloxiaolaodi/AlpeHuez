@@ -315,7 +315,12 @@
             "name": "Maye Nano",
             "en": "Minimal low-resource desktop launcher and category tool.",
             "zh": "极简、低资源占用的桌面快速启动与分类工具。",
-            "url": "https://github.com/25H/MayeNano"
+            "url": "https://mayenano.arae.cc/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/25H/MayeNano"
+            }
         },
         {
             "cat": "utility",
