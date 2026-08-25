@@ -434,10 +434,15 @@
         },
         {
             "cat": "security",
-            "name": "Clash Verge Rev",
+            "name": "Clash Verge",
             "en": "Cross-platform Clash proxy graphical client built with Tauri.",
             "zh": "基于 Tauri 框架的跨平台 Clash 代理图形客户端。",
-            "url": "https://github.com/clash-verge-rev/clash-verge-rev"
+            "url": "https://www.clashverge.dev/",
+            "extra": {
+                "en": "GitHub",
+                "zh": "GitHub",
+                "url": "https://github.com/clash-verge-rev/clash-verge-rev"
+            }
         },
         {
             "cat": "notes",
