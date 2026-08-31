@@ -2485,6 +2485,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "拾光",
+                    "url": "https://www.820010.xyz/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2713,5 +2730,5 @@
             ]
         }
     ],
-    "md5": "c8d4ed2a3256e330b854618cb0b4ca1b"
+    "md5": "dd74e18288fa35222e8c2211aea8d65d"
 }
