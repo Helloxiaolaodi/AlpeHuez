@@ -559,6 +559,13 @@
                 "zh": "Github",
                 "url": "https://github.com/RICHQAQ/PasteMD"
             }
+        },
+        {
+            "cat": "git",
+            "name": "Git UI Pro",
+            "en": "",
+            "zh": "",
+            "url": "https://github.com/zjx150504-lgtm/Git_UI_Pro"
         }
     ]
 }
