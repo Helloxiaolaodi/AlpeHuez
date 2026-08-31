@@ -1880,6 +1880,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Goodreads",
+                    "url": "https://www.goodreads.com/user/rate_books?genre=biography&reg_path=true",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2730,5 +2747,5 @@
             ]
         }
     ],
-    "md5": "dd74e18288fa35222e8c2211aea8d65d"
+    "md5": "549cef27b7ff0f7ae22a41f2f5e884a1"
 }
