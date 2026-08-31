@@ -2130,6 +2130,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Gravatar",
+                    "url": "https://gravatar.com",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2696,5 +2713,5 @@
             ]
         }
     ],
-    "md5": "8325f03b782231243de9657c62a2d98f"
+    "md5": "c8d4ed2a3256e330b854618cb0b4ca1b"
 }
