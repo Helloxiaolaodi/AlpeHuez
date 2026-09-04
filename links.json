@@ -83,6 +83,23 @@
                     ],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "linuxdo-moyu-ui",
+                    "url": "https://github.com/czm15053/linuxdo-idea-ui",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2747,5 +2764,5 @@
             ]
         }
     ],
-    "md5": "549cef27b7ff0f7ae22a41f2f5e884a1"
+    "md5": "ceaaec8f7f65ddc67df15087404c26a8"
 }
