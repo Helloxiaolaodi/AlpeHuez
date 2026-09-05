@@ -2536,6 +2536,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "宝可梦机场",
+                    "url": "love2.p6m6.com",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2764,5 +2781,5 @@
             ]
         }
     ],
-    "md5": "ceaaec8f7f65ddc67df15087404c26a8"
+    "md5": "61c992db5c190edae202f557701be9cd"
 }
