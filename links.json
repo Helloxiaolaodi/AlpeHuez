@@ -465,6 +465,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Aigoni",
+                    "url": "https://github.com/chinasiro/aigoni",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2798,5 +2815,5 @@
             ]
         }
     ],
-    "md5": "7efb0e58576f760fc8e4b924ceaaefd2"
+    "md5": "2fd8ffab3ebccc6574d1bfcada260eed"
 }
