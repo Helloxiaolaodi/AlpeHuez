@@ -1677,6 +1677,23 @@
                     ],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Semantic Scholar",
+                    "url": "https://www.semanticscholar.org/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2815,5 +2832,5 @@
             ]
         }
     ],
-    "md5": "2fd8ffab3ebccc6574d1bfcada260eed"
+    "md5": "05dbbcd4d71f8747602f1025acc731a4"
 }
