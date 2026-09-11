@@ -2621,6 +2621,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "飞鸟云",
+                    "url": "https://feiniaoyun.xyz/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2849,5 +2866,5 @@
             ]
         }
     ],
-    "md5": "0390f0bf97c9969bdc99a511a25603f1"
+    "md5": "c6b78ed5567bcd403165612826891e3c"
 }
