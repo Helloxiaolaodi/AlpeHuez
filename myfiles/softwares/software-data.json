@@ -578,6 +578,18 @@
                 "zh": "Github",
                 "url": "https://github.com/jgraph/drawio"
             }
+        },
+        {
+            "cat": "dev",
+            "name": "pi-desktop",
+            "en": "",
+            "zh": "",
+            "url": "https://pi-docs.aiuo.net/",
+            "extra": {
+                "en": "Github",
+                "zh": "Github",
+                "url": "https://github.com/vastsa/pi-desktop"
+            }
         }
     ]
 }
