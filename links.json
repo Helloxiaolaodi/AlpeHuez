@@ -100,6 +100,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "LD士多",
+                    "url": "https://ldcstore.com/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2866,5 +2883,5 @@
             ]
         }
     ],
-    "md5": "c6b78ed5567bcd403165612826891e3c"
+    "md5": "125349cc27f624cf3bf6de5179b36653"
 }
