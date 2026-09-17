@@ -1965,6 +1965,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "github评分",
+                    "url": "https://githubroast.icu/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2883,5 +2900,5 @@
             ]
         }
     ],
-    "md5": "125349cc27f624cf3bf6de5179b36653"
+    "md5": "a06fe6311d353b8310ea300f624f4293"
 }
