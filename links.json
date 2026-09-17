@@ -1975,7 +1975,7 @@
                     },
                     "sort": 99999,
                     "title": "github评分",
-                    "url": "https://githubroast.icu/",
+                    "url": "https://ghfind.com/",
                     "openMethod": 1,
                     "lanUrl": "",
                     "description": "",
@@ -2900,5 +2900,5 @@
             ]
         }
     ],
-    "md5": "a06fe6311d353b8310ea300f624f4293"
+    "md5": "d7e332da24a26e0a4fab6937c1937e36"
 }
