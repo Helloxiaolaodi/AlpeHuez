@@ -590,6 +590,13 @@
                 "zh": "Github",
                 "url": "https://github.com/vastsa/pi-desktop"
             }
+        },
+        {
+            "cat": "notes",
+            "name": "Anki",
+            "en": "",
+            "zh": "",
+            "url": "https://apps.ankiweb.net/"
         }
     ]
 }
