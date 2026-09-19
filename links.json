@@ -1982,6 +1982,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "pixabay",
+                    "url": "https://pixabay.com/zh/photos/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2900,5 +2917,5 @@
             ]
         }
     ],
-    "md5": "d7e332da24a26e0a4fab6937c1937e36"
+    "md5": "71438b7d12e7fd1632c7e76cb591d5cd"
 }
