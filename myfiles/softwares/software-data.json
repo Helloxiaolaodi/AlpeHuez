@@ -597,6 +597,13 @@
             "en": "",
             "zh": "",
             "url": "https://apps.ankiweb.net/"
+        },
+        {
+            "cat": "notes",
+            "name": "inkscape",
+            "en": "A multi-platform proxy client based on ClashMeta,simple and easy to use, open-source and ad-free.",
+            "zh": "",
+            "url": "https://github.com/inkscape/inkscape"
         }
     ]
 }
