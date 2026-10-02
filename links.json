@@ -117,6 +117,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Linuxdo-mail",
+                    "url": "https://webmail.linux.do/sso/login?url=/webmail/?homepage",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2934,5 +2951,5 @@
             ]
         }
     ],
-    "md5": "b2e718177907bb74ffa4f6258a726d8b"
+    "md5": "fa536623033bbeb0f123e8fce9bacf3a"
 }
