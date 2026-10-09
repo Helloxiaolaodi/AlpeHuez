@@ -1728,6 +1728,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "BioRxiv",
+                    "url": "https://www.biorxiv.org/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -2968,5 +2985,5 @@
             ]
         }
     ],
-    "md5": "813dcb4516f8090544e49d20598bde7c"
+    "md5": "f0990e0b58450c73295684a5adf03767"
 }
