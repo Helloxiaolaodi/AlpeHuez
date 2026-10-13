@@ -2856,6 +2856,23 @@
                     ],
                     "isVpnRequired": true,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "GPT",
+                    "url": "https://chatgpt.com",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3002,5 +3019,5 @@
             ]
         }
     ],
-    "md5": "6bef79ae9b465365bf25d5f219aa0a2e"
+    "md5": "86253e4b9f515437448d563e882ab5c2"
 }
