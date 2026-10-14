@@ -2334,6 +2334,23 @@
                     "tags": [],
                     "isVpnRequired": true,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "中科院数据胶囊",
+                    "url": "https://data.cstcloud.cn/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3036,5 +3053,5 @@
             ]
         }
     ],
-    "md5": "09deb39a02d254c35fe70f561b45860b"
+    "md5": "094019cf8a2d6c9b3ce6312224ca5c97"
 }
