@@ -2317,6 +2317,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "4shared",
+                    "url": "https://www.4shared.com/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": true,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3019,5 +3036,5 @@
             ]
         }
     ],
-    "md5": "86253e4b9f515437448d563e882ab5c2"
+    "md5": "09deb39a02d254c35fe70f561b45860b"
 }
