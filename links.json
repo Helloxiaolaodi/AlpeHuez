@@ -2683,6 +2683,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Typst",
+                    "url": "https://typst.app/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3070,5 +3087,5 @@
             ]
         }
     ],
-    "md5": "bb80b03db5a8bcd25062eaa98ad1afc1"
+    "md5": "fa6709fc6603a46343bb12e90dc2e143"
 }
