@@ -880,7 +880,7 @@
                     "url": "https://www.ncbi.nlm.nih.gov/Traces/study/",
                     "openMethod": 1,
                     "lanUrl": "",
-                    "description": "",
+                    "description": "NCBI",
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
@@ -3104,5 +3104,5 @@
             ]
         }
     ],
-    "md5": "8f85f0211d4c31f8ff6a71368413a5db"
+    "md5": "de1eecf7d0ba19ee9c54f995ed78d245"
 }
