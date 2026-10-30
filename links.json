@@ -867,6 +867,23 @@
                     ],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "NCBI SRA",
+                    "url": "https://www.ncbi.nlm.nih.gov/Traces/study/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3087,5 +3104,5 @@
             ]
         }
     ],
-    "md5": "fa6709fc6603a46343bb12e90dc2e143"
+    "md5": "8f85f0211d4c31f8ff6a71368413a5db"
 }
