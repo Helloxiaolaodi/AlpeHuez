@@ -1508,6 +1508,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "xulab.science",
+                    "url": "https://www.xulab.science/en/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3104,5 +3121,5 @@
             ]
         }
     ],
-    "md5": "de1eecf7d0ba19ee9c54f995ed78d245"
+    "md5": "71197041f07da7b095e47075ca09fa0f"
 }
