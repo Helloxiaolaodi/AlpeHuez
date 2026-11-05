@@ -2084,6 +2084,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "My_Blog",
+                    "url": "https://helloxiaolaodi.github.io/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3121,5 +3138,5 @@
             ]
         }
     ],
-    "md5": "3b98335f0d220f4819a9ae63619b54ff"
+    "md5": "9bca8ed083282c09d4159ad6c247ad57"
 }
