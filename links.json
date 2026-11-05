@@ -2402,6 +2402,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Azure",
+                    "url": "https://portal.azure.com/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3104,5 +3121,5 @@
             ]
         }
     ],
-    "md5": "e7a70cfc91b430c9afff942dc054be71"
+    "md5": "3b98335f0d220f4819a9ae63619b54ff"
 }
