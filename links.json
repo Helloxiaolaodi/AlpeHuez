@@ -3151,9 +3151,26 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "NCU-Academic browser",
+                    "url": "https://scholar.edu.cn/download.html",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         }
     ],
-    "md5": "847cdabe61b2163e1ad28c084a493656"
+    "md5": "dd4c08185e645fea6a1503b13c52f346"
 }
