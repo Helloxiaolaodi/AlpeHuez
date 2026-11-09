@@ -3134,9 +3134,26 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "NCU-Academic dedicated browser",
+                    "url": "https://xszy.ncu.edu.cn/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         }
     ],
-    "md5": "9bca8ed083282c09d4159ad6c247ad57"
+    "md5": "847cdabe61b2163e1ad28c084a493656"
 }
