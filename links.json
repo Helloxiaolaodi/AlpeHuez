@@ -3009,6 +3009,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "极客应用",
+                    "url": "https://www.gy328.com/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3189,5 +3206,5 @@
             ]
         }
     ],
-    "md5": "df0859d43f1cd9350e7ec89a1424d463"
+    "md5": "3296732d8fd807a504c54db52ec59de5"
 }
