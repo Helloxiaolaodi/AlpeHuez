@@ -2288,40 +2288,6 @@
                     "icon": {
                         "text": "",
                         "itemType": 2,
-                        "src": "./icons/www.toolhelper.cn-93.ico",
-                        "backgroundColor": ""
-                    },
-                    "sort": 99999,
-                    "title": "Base64 Encode/Decode",
-                    "url": "https://www.toolhelper.cn/EncodeDecode/Base64",
-                    "openMethod": 1,
-                    "lanUrl": "",
-                    "description": "",
-                    "tags": [],
-                    "isVpnRequired": false,
-                    "clickCount": 0
-                },
-                {
-                    "icon": {
-                        "text": "",
-                        "itemType": 2,
-                        "src": "./icons/clash.tkbond.us-46.png",
-                        "backgroundColor": ""
-                    },
-                    "sort": 99999,
-                    "title": "Clash Config Generator",
-                    "url": "https://clash.tkbond.us/",
-                    "openMethod": 1,
-                    "lanUrl": "",
-                    "description": "",
-                    "tags": [],
-                    "isVpnRequired": false,
-                    "clickCount": 0
-                },
-                {
-                    "icon": {
-                        "text": "",
-                        "itemType": 2,
                         "src": "./icons/www.iconfont.cn-95.svg",
                         "backgroundColor": ""
                     },
@@ -2910,6 +2876,40 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "./icons/www.toolhelper.cn-93.ico",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Base64 Encode/Decode",
+                    "url": "https://www.toolhelper.cn/EncodeDecode/Base64",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "/icons/clash.tkbond.us-46.png",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "Clash Config Generator",
+                    "url": "https://clash.tkbond.us/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3223,5 +3223,5 @@
             ]
         }
     ],
-    "md5": "9bb12b8dd6985ab92459fbdcc8b0c989"
+    "md5": "eaf8db8c1e8705460014085607e4568a"
 }
