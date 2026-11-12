@@ -2893,6 +2893,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "3X-UI-yangsanduo",
+                    "url": "http://74.176.210.135:2053/mSHZDxJ8hED95RQtqi/",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3206,5 +3223,5 @@
             ]
         }
     ],
-    "md5": "3296732d8fd807a504c54db52ec59de5"
+    "md5": "9bb12b8dd6985ab92459fbdcc8b0c989"
 }
