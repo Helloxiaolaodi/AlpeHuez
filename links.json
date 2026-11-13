@@ -1525,6 +1525,23 @@
                     "tags": [],
                     "isVpnRequired": false,
                     "clickCount": 0
+                },
+                {
+                    "icon": {
+                        "text": "",
+                        "itemType": 2,
+                        "src": "",
+                        "backgroundColor": ""
+                    },
+                    "sort": 99999,
+                    "title": "xu-lab-graph",
+                    "url": "https://rnaer.pages.dev/graph",
+                    "openMethod": 1,
+                    "lanUrl": "",
+                    "description": "",
+                    "tags": [],
+                    "isVpnRequired": false,
+                    "clickCount": 0
                 }
             ]
         },
@@ -3223,5 +3240,5 @@
             ]
         }
     ],
-    "md5": "eaf8db8c1e8705460014085607e4568a"
+    "md5": "ac89d1f3e23fc762922f7dbcdd8a3969"
 }
